@@ -2,6 +2,7 @@ import React from 'react';
 import {View} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import Splash from './pages/Spalsh';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
