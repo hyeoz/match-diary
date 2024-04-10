@@ -1,10 +1,12 @@
 import React, {useEffect} from 'react';
 import {View, Image, Text, StyleSheet} from 'react-native';
-import splash from '../assets/splash.png';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
+import splash from '../assets/splash.png';
+import splash_text from '../assets/splash_text.png';
+
 // TODO types
-const Splash = ({navigation}: NativeStackScreenProps<any>) => {
+function Splash({navigation}: NativeStackScreenProps<any>) {
   useEffect(() => {
     setTimeout(() => {
       navigation.replace('MainTab');
@@ -13,11 +15,11 @@ const Splash = ({navigation}: NativeStackScreenProps<any>) => {
 
   return (
     <View style={styles.container}>
-      <Image source={splash} style={styles.logo} />
+      <Image source={splash_text} style={styles.logo} alt="SPALSH" />
       <Text style={styles.text}>SPLASH</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
