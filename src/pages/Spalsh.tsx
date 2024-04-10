@@ -1,8 +1,10 @@
 import React, {useEffect} from 'react';
 import {View, Image, Text, StyleSheet} from 'react-native';
 import splash from '../assets/splash.png';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
-const Splash = ({navigation}) => {
+// TODO types
+const Splash = ({navigation}: NativeStackScreenProps<any>) => {
   useEffect(() => {
     setTimeout(() => {
       navigation.replace('MainTab');
