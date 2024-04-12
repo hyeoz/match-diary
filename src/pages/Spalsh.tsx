@@ -5,18 +5,24 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import splash from '../assets/splash.png';
 import splash_text from '../assets/splash_text.png';
 
+type RootStackListType = {
+  Home: any;
+  Calendar: any;
+  Discover: any;
+  Mode: any;
+};
+
 // TODO types
-function Splash({navigation}: NativeStackScreenProps<any>) {
+function Splash({navigation}: NativeStackScreenProps<RootStackListType>) {
   useEffect(() => {
     setTimeout(() => {
-      navigation.replace('MainTab');
+      navigation.replace('Home');
     }, 2000);
   }, []);
 
   return (
     <View style={styles.container}>
       <Image source={splash_text} style={styles.logo} alt="SPALSH" />
-      <Text style={styles.text}>SPLASH</Text>
     </View>
   );
 }
@@ -26,6 +32,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#BF282C', // 랜더스 컬러
   },
   logo: {
     width: 200,

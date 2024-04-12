@@ -1,7 +1,7 @@
 import React from 'react';
 import {SafeAreaView, Text} from 'react-native';
 
-function MainTab() {
+function Home() {
   return (
     <SafeAreaView>
       <Text>MAIN TAB</Text>
@@ -9,4 +9,4 @@ function MainTab() {
   );
 }
 
-export default MainTab;
+export default Home;

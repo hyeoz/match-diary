@@ -2,8 +2,9 @@ import React from 'react';
 import {View} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+
 import Splash from './pages/Spalsh';
-import MainTab from './pages/MainTab';
+import Home from './pages/Home';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -22,8 +23,8 @@ const Router = () => {
         options={{animation: 'fade_from_bottom'}}
       />
       <Stack.Screen
-        name="MainTab"
-        component={MainTab}
+        name="Home"
+        component={Home}
         options={{
           animation: 'fade',
           // cardStyleInterpolator: forFade,
