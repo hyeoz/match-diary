@@ -7,13 +7,17 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import useBottomTabState from '../store/default';
 
-const {width} = Dimensions.get('window');
+/* reference: https://dribbble.com/shots/6117913-Tab-Bar-Interaction-XVIII?utm_source=Clipboard_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share&utm_source=Pinterest_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share */
+
+const {width, height} = Dimensions.get('window');
 
 function BottomTab({...props}: BottomTabBarProps) {
   const {state, navigation} = props;
 
-  const [isOpen, setIsOpen] = useState(false);
+  //   const [isOpen, setIsOpen] = useState(false);
+  const {isOpen, update} = useBottomTabState();
 
   console.log(props, 'PROPS');
 
@@ -23,11 +27,8 @@ function BottomTab({...props}: BottomTabBarProps) {
         <TouchableOpacity>
           <Text>Calendar</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setIsOpen(!isOpen)}>
-          <Text>Home</Text>
-        </TouchableOpacity>
-        {isOpen && (
-          <>
+        {isOpen ? (
+          <View style={styles.floatTabWrapper}>
             <TouchableOpacity>
               <Text>Discover</Text>
             </TouchableOpacity>
@@ -37,7 +38,11 @@ function BottomTab({...props}: BottomTabBarProps) {
             <TouchableOpacity>
               <Text>History</Text>
             </TouchableOpacity>
-          </>
+          </View>
+        ) : (
+          <TouchableOpacity onPress={() => update()}>
+            <Text>Home</Text>
+          </TouchableOpacity>
         )}
         <TouchableOpacity>
           <Text>More</Text>
@@ -49,7 +54,7 @@ function BottomTab({...props}: BottomTabBarProps) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     justifyContent: 'flex-end',
   },
   tabWrapper: {
@@ -68,6 +73,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     backgroundColor: 'red',
+  },
+
+  floatTabWrapper: {
+    position: 'absolute',
+    // bottom: 70,
+    left: '50%',
   },
 });
 
