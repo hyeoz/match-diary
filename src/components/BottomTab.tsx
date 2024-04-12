@@ -1,6 +1,14 @@
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
 import {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+const {width} = Dimensions.get('window');
 
 function BottomTab({...props}: BottomTabBarProps) {
   const {state, navigation} = props;
@@ -11,28 +19,30 @@ function BottomTab({...props}: BottomTabBarProps) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity>
-        <Text>Calendar</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => setIsOpen(!isOpen)}>
-        <Text>Home</Text>
-      </TouchableOpacity>
-      {isOpen && (
-        <>
-          <TouchableOpacity>
-            <Text>Discover</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text>Write</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text>History</Text>
-          </TouchableOpacity>
-        </>
-      )}
-      <TouchableOpacity>
-        <Text>More</Text>
-      </TouchableOpacity>
+      <View style={styles.tabWrapper}>
+        <TouchableOpacity>
+          <Text>Calendar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setIsOpen(!isOpen)}>
+          <Text>Home</Text>
+        </TouchableOpacity>
+        {isOpen && (
+          <>
+            <TouchableOpacity>
+              <Text>Discover</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Text>Write</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Text>History</Text>
+            </TouchableOpacity>
+          </>
+        )}
+        <TouchableOpacity>
+          <Text>More</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -44,10 +54,14 @@ const styles = StyleSheet.create({
   },
   tabWrapper: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#eee',
-    paddingVertical: 10,
+    justifyContent: 'space-between',
+    position: 'absolute',
+    bottom: 0,
+    backgroundColor: '#FFF',
+    width,
+    zIndex: 8,
+    borderStyle: 'solid',
+    padding: 20,
   },
   tabItem: {
     flex: 1,

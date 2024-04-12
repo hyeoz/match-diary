@@ -3,7 +3,7 @@ import {SafeAreaView, Text} from 'react-native';
 function Discover() {
   return (
     <SafeAreaView>
-      <Text>Calender</Text>
+      <Text>Discover</Text>
     </SafeAreaView>
   );
 }

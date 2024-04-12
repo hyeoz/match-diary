@@ -21,7 +21,9 @@ const Tab = createBottomTabNavigator();
 
 function CalendarStackNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Calendar">
+    <Stack.Navigator
+      initialRouteName="Calendar"
+      screenOptions={{headerShown: false}}>
       <Stack.Screen name="Calendar" component={Calendar} />
     </Stack.Navigator>
   );
@@ -29,21 +31,27 @@ function CalendarStackNavigator() {
 
 function MainDiscoverStackNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Discover">
+    <Stack.Navigator
+      initialRouteName="Discover"
+      screenOptions={{headerShown: false}}>
       <Stack.Screen name="Discover" component={Discover} />
     </Stack.Navigator>
   );
 }
 function MainWriteStackNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Write">
+    <Stack.Navigator
+      initialRouteName="Write"
+      screenOptions={{headerShown: false}}>
       <Stack.Screen name="Write" component={Write} />
     </Stack.Navigator>
   );
 }
 function MainHistoryStackNavigator() {
   return (
-    <Stack.Navigator initialRouteName="History">
+    <Stack.Navigator
+      initialRouteName="History"
+      screenOptions={{headerShown: false}}>
       <Stack.Screen name="History" component={History} />
     </Stack.Navigator>
   );
@@ -51,7 +59,9 @@ function MainHistoryStackNavigator() {
 
 function MoreStackNavigator() {
   return (
-    <Stack.Navigator initialRouteName="More">
+    <Stack.Navigator
+      initialRouteName="More"
+      screenOptions={{headerShown: false}}>
       <Stack.Screen name="More" component={More} />
     </Stack.Navigator>
   );
@@ -64,7 +74,8 @@ function Main() {
     <Tab.Navigator
       initialRouteName="Main"
       tabBar={renderTabBar}
-      backBehavior="history">
+      backBehavior="history"
+      screenOptions={{headerShown: false}}>
       <Tab.Screen name="Calendar" component={CalendarStackNavigator} />
 
       {/* TODO 중앙의 홈탭 클릭 시 depth 1개 더 생김 */}
