@@ -4,25 +4,19 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
 import splash from '../assets/splash.png';
 import splash_text from '../assets/splash_text.png';
-
-type RootStackListType = {
-  Home: any;
-  Calendar: any;
-  Discover: any;
-  Mode: any;
-};
+import {RootStackListType} from '../types/types';
 
 // TODO types
 function Splash({navigation}: NativeStackScreenProps<RootStackListType>) {
   useEffect(() => {
     setTimeout(() => {
-      navigation.replace('Home');
+      navigation.replace('Main');
     }, 2000);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Image source={splash_text} style={styles.logo} alt="SPALSH" />
+      <Image source={splash_text} style={styles.logo} alt="SPLASH" />
     </View>
   );
 }

@@ -1,12 +1,11 @@
-import React from 'react';
 import {SafeAreaView, Text} from 'react-native';
 
-function Home() {
+function Write() {
   return (
     <SafeAreaView>
-      <Text>MAIN TAB</Text>
+      <Text>Calender</Text>
     </SafeAreaView>
   );
 }
 
-export default Home;
+export default Write;
