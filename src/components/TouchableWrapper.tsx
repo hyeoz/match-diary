@@ -1,0 +1,17 @@
+import {TouchableWithoutFeedback} from 'react-native';
+
+import useBottomTabState from '../store/default';
+
+function TouchableWrapper({children}: {children: React.JSX.Element}) {
+  const {isOpen, update} = useBottomTabState();
+  return (
+    <TouchableWithoutFeedback
+      onPress={() => isOpen && update()}
+      // style={styles.wrapper}
+    >
+      {children}
+    </TouchableWithoutFeedback>
+  );
+}
+
+export default TouchableWrapper;

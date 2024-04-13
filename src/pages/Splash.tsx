@@ -1,29 +1,32 @@
 import React, {useEffect} from 'react';
 import {View, Image, Text, StyleSheet} from 'react-native';
-import splash from '../assets/splash.png';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
+import splash from '../assets/splash.png';
+import splash_text from '../assets/splash_text.png';
+import {RootStackListType} from '../types/types';
+
 // TODO types
-const Splash = ({navigation}: NativeStackScreenProps<any>) => {
+function Splash({navigation}: NativeStackScreenProps<RootStackListType>) {
   useEffect(() => {
     setTimeout(() => {
-      navigation.replace('MainTab');
+      navigation.replace('Main');
     }, 2000);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Image source={splash} style={styles.logo} />
-      <Text style={styles.text}>SPLASH</Text>
+      <Image source={splash_text} style={styles.logo} alt="SPLASH" />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#BF282C', // 랜더스 컬러
   },
   logo: {
     width: 200,
