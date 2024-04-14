@@ -1,15 +1,11 @@
 import React from 'react';
-import {SafeAreaView, Text} from 'react-native';
 import {
   BottomTabBarProps,
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import BottomTab from '../components/BottomTab';
-import {
-  NativeStackScreenProps,
-  createNativeStackNavigator,
-} from '@react-navigation/native-stack';
-import {RootStackListType, TabListType} from '../types/types';
 import Calendar from './Calendar';
 import More from './More';
 import Discover from './Discover';
@@ -23,7 +19,7 @@ function CalendarStackNavigator() {
   return (
     <Stack.Navigator
       initialRouteName="Calendar"
-      screenOptions={{headerShown: false}}>
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Calendar" component={Calendar} />
     </Stack.Navigator>
   );
@@ -33,7 +29,7 @@ function MainDiscoverStackNavigator() {
   return (
     <Stack.Navigator
       initialRouteName="Discover"
-      screenOptions={{headerShown: false}}>
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Discover" component={Discover} />
     </Stack.Navigator>
   );
@@ -42,7 +38,7 @@ function MainWriteStackNavigator() {
   return (
     <Stack.Navigator
       initialRouteName="Write"
-      screenOptions={{headerShown: false}}>
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Write" component={Write} />
     </Stack.Navigator>
   );
@@ -51,7 +47,7 @@ function MainHistoryStackNavigator() {
   return (
     <Stack.Navigator
       initialRouteName="History"
-      screenOptions={{headerShown: false}}>
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="History" component={History} />
     </Stack.Navigator>
   );
@@ -61,7 +57,7 @@ function MoreStackNavigator() {
   return (
     <Stack.Navigator
       initialRouteName="More"
-      screenOptions={{headerShown: false}}>
+      screenOptions={{ headerShown: false }}>
       <Stack.Screen name="More" component={More} />
     </Stack.Navigator>
   );
@@ -75,7 +71,7 @@ function Main() {
       initialRouteName="Main"
       tabBar={renderTabBar}
       backBehavior="history"
-      screenOptions={{headerShown: false}}>
+      screenOptions={{ headerShown: false }}>
       <Tab.Screen name="CalendarTab" component={CalendarStackNavigator} />
 
       {/* TODO 중앙의 홈탭 클릭 시 depth 1개 더 생김 */}

@@ -5,9 +5,9 @@
  * @format
  */
 
-import React, {useRef} from 'react';
-import {SafeAreaView, StyleSheet, Text, useColorScheme} from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import React, { useRef } from 'react';
+import { SafeAreaView, StyleSheet, Text, useColorScheme } from 'react-native';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import {
   NavigationContainer,
   useNavigationContainerRef,

@@ -1,10 +1,12 @@
-import {SafeAreaView, Text} from 'react-native';
+import { Text } from 'react-native';
+
+import TouchableWrapper from '../components/TouchableWrapper';
 
 function More() {
   return (
-    <SafeAreaView>
+    <TouchableWrapper>
       <Text>More</Text>
-    </SafeAreaView>
+    </TouchableWrapper>
   );
 }
 
