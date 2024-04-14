@@ -24,18 +24,19 @@ function BottomTab({...props}: BottomTabBarProps) {
   return (
     <View style={styles.container}>
       <View style={styles.tabWrapper}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('CalendarTab')}>
           <Text>Calendar</Text>
         </TouchableOpacity>
         {isOpen ? (
           <View style={styles.floatTabWrapper}>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('DiscoverTab')}>
               <Text>Discover</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Main')}>
               <Text>Write</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('HistoryTab')}>
               <Text>History</Text>
             </TouchableOpacity>
           </View>
@@ -44,7 +45,7 @@ function BottomTab({...props}: BottomTabBarProps) {
             <Text>Home</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('MoreTab')}>
           <Text>More</Text>
         </TouchableOpacity>
       </View>
