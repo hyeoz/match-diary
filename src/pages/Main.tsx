@@ -76,14 +76,14 @@ function Main() {
       tabBar={renderTabBar}
       backBehavior="history"
       screenOptions={{headerShown: false}}>
-      <Tab.Screen name="Calendar" component={CalendarStackNavigator} />
+      <Tab.Screen name="CalendarTab" component={CalendarStackNavigator} />
 
       {/* TODO 중앙의 홈탭 클릭 시 depth 1개 더 생김 */}
       <Tab.Screen name="Main" component={MainWriteStackNavigator} />
-      <Tab.Screen name="Discover" component={MainDiscoverStackNavigator} />
-      <Tab.Screen name="History" component={MainHistoryStackNavigator} />
+      <Tab.Screen name="DiscoverTab" component={MainDiscoverStackNavigator} />
+      <Tab.Screen name="HistoryTab" component={MainHistoryStackNavigator} />
 
-      <Tab.Screen name="More" component={MoreStackNavigator} />
+      <Tab.Screen name="MoreTab" component={MoreStackNavigator} />
     </Tab.Navigator>
   );
 }
