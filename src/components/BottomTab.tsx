@@ -1,5 +1,5 @@
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useState } from 'react';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import {
   Dimensions,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import useBottomTabState from '../store/default';
 
 /* reference: https://dribbble.com/shots/6117913-Tab-Bar-Interaction-XVIII?utm_source=Clipboard_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share&utm_source=Pinterest_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share */
@@ -24,8 +25,10 @@ function BottomTab({ ...props }: BottomTabBarProps) {
   return (
     <View style={styles.container}>
       <View style={styles.tabWrapper}>
-        <TouchableOpacity onPress={() => navigation.navigate('CalendarTab')}>
-          <Text>Calendar</Text>
+        <TouchableOpacity
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('CalendarTab')}>
+          <Text style={[styles.bottomText]}>Calendar</Text>
         </TouchableOpacity>
         {isOpen ? (
           <View style={styles.floatTabWrapper}>
@@ -41,12 +44,14 @@ function BottomTab({ ...props }: BottomTabBarProps) {
             </TouchableOpacity>
           </View>
         ) : (
-          <TouchableOpacity onPress={() => update()}>
-            <Text>Home</Text>
+          <TouchableOpacity style={styles.tabItem} onPress={() => update()}>
+            <Text style={[styles.bottomText]}>Home</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={() => navigation.navigate('MoreTab')}>
-          <Text>More</Text>
+        <TouchableOpacity
+          style={styles.tabItem}
+          onPress={() => navigation.navigate('MoreTab')}>
+          <Text style={[styles.bottomText]}>More</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -55,12 +60,11 @@ function BottomTab({ ...props }: BottomTabBarProps) {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
     justifyContent: 'flex-end',
   },
   tabWrapper: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-around',
     position: 'absolute',
     bottom: 0,
     backgroundColor: '#FFF',
@@ -74,7 +78,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: 10,
-    backgroundColor: 'red',
+    // backgroundColor: 'red',
+    width: width / 3,
   },
 
   floatTabWrapper: {
@@ -84,6 +89,12 @@ const styles = StyleSheet.create({
   },
   floatText: {
     textAlign: 'center',
+  },
+
+  bottomText: {
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
 
