@@ -1,10 +1,12 @@
-import {SafeAreaView, Text} from 'react-native';
+import { Text } from 'react-native';
+
+import TouchableWrapper from '../components/TouchableWrapper';
 
 function Calendar() {
   return (
-    <SafeAreaView>
+    <TouchableWrapper>
       <Text>Calender</Text>
-    </SafeAreaView>
+    </TouchableWrapper>
   );
 }
 

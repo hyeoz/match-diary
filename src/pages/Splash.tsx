@@ -1,13 +1,13 @@
-import React, {useEffect} from 'react';
-import {View, Image, Text, StyleSheet} from 'react-native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import React, { useEffect } from 'react';
+import { View, Image, Text, StyleSheet } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import splash from '../assets/splash.png';
 import splash_text from '../assets/splash_text.png';
-import {RootStackListType} from '../types/types';
+import { RootStackListType } from '../types/types';
 
 // TODO types
-function Splash({navigation}: NativeStackScreenProps<RootStackListType>) {
+function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   useEffect(() => {
     setTimeout(() => {
       navigation.replace('Main');

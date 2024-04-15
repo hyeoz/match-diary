@@ -1,6 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Splash from './pages/Splash';
 import Main from './pages/Main';
@@ -18,7 +17,7 @@ const Router = () => {
       <Stack.Screen
         name="Splash"
         component={Splash}
-        options={{animation: 'fade_from_bottom'}}
+        options={{ animation: 'fade_from_bottom' }}
       />
       <Stack.Screen
         name="Main"

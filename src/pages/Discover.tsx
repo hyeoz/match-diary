@@ -1,10 +1,11 @@
-import {SafeAreaView, Text} from 'react-native';
+import { Text } from 'react-native';
+import TouchableWrapper from '../components/TouchableWrapper';
 
 function Discover() {
   return (
-    <SafeAreaView>
+    <TouchableWrapper>
       <Text>Discover</Text>
-    </SafeAreaView>
+    </TouchableWrapper>
   );
 }
 
