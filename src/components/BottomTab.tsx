@@ -30,24 +30,27 @@ function BottomTab({ ...props }: BottomTabBarProps) {
           onPress={() => navigation.navigate('CalendarTab')}>
           <Text style={[styles.bottomText]}>Calendar</Text>
         </TouchableOpacity>
-        {isOpen ? (
-          <View style={styles.floatTabWrapper}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('DiscoverTab')}>
-              <Text style={styles.floatText}>Discover</Text>
+        <View style={styles.tabItem}>
+          {isOpen ? (
+            <View style={styles.floatTabWrapper}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('DiscoverTab')}>
+                <Text style={styles.floatText}>Discover</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Main')}>
+                <Text style={styles.floatText}>Write</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('HistoryTab')}>
+                <Text style={styles.floatText}>History</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity onPress={() => update()}>
+              <Text style={[styles.bottomText]}>Home</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Main')}>
-              <Text style={styles.floatText}>Write</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('HistoryTab')}>
-              <Text style={styles.floatText}>History</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <TouchableOpacity style={styles.tabItem} onPress={() => update()}>
-            <Text style={[styles.bottomText]}>Home</Text>
-          </TouchableOpacity>
-        )}
+          )}
+        </View>
         <TouchableOpacity
           style={styles.tabItem}
           onPress={() => navigation.navigate('MoreTab')}>
@@ -78,13 +81,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: 10,
-    // backgroundColor: 'red',
     width: width / 3,
   },
 
   floatTabWrapper: {
     position: 'absolute',
-    left: '50%',
     top: '50%',
   },
   floatText: {
