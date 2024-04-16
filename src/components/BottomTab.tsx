@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -7,8 +6,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 import useBottomTabState from '../store/default';
+import Home from '../assets/svg/home.svg';
+import Calendar from '../assets/svg/calendar.svg';
+import More from '../assets/svg/more.svg';
+import { palette } from '../style/palette';
 
 /* reference: https://dribbble.com/shots/6117913-Tab-Bar-Interaction-XVIII?utm_source=Clipboard_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share&utm_source=Pinterest_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share */
 
@@ -16,45 +21,75 @@ const { width, height } = Dimensions.get('window');
 
 function BottomTab({ ...props }: BottomTabBarProps) {
   const { state, navigation } = props;
-
-  //   const [isOpen, setIsOpen] = useState(false);
   const { isOpen, update } = useBottomTabState();
+  const homeHeight = useSharedValue(64);
 
-  console.log(props, 'PROPS');
+  const handleHeightScaleUp = () => {
+    homeHeight.value = withSpring(homeHeight.value * 3);
+  };
+
+  console.log(homeHeight, 'PROPS');
 
   return (
     <View style={styles.container}>
       <View style={styles.tabWrapper}>
         <TouchableOpacity
-          style={styles.tabItem}
+          style={[
+            styles.tabItem,
+            {
+              marginRight: 32,
+            },
+          ]}
           onPress={() => navigation.navigate('CalendarTab')}>
-          <Text style={[styles.bottomText]}>Calendar</Text>
+          {/* <Text style={[styles.bottomText]}>Calendar</Text> */}
+          <Calendar width={32} height={32} color={palette.teamColor.ssg} />
         </TouchableOpacity>
-        <View style={styles.tabItem}>
-          {isOpen ? (
-            <View style={styles.floatTabWrapper}>
+        <View style={[styles.tabItem, styles.centerWrapper]}>
+          <Animated.View
+            style={[
+              styles.homeWrapper,
+              {
+                height: homeHeight.value,
+              },
+            ]}>
+            {isOpen ? (
+              <View>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('DiscoverTab')}>
+                  <Text style={styles.floatText}>Discover</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Main')}>
+                  <Text style={styles.floatText}>Write</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('HistoryTab')}>
+                  <Text style={styles.floatText}>History</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
               <TouchableOpacity
-                onPress={() => navigation.navigate('DiscoverTab')}>
-                <Text style={styles.floatText}>Discover</Text>
+                onPress={() => {
+                  update();
+                  handleHeightScaleUp();
+                }}>
+                {/* <Text style={[styles.bottomText]}>Home</Text> */}
+                {/* <View style={styles.homeWrapper}> */}
+                <Home
+                  width={32}
+                  height={32}
+                  color={'white'}
+                  style={styles.homeIcon}
+                />
+                {/* </View> */}
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('Main')}>
-                <Text style={styles.floatText}>Write</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('HistoryTab')}>
-                <Text style={styles.floatText}>History</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity onPress={() => update()}>
-              <Text style={[styles.bottomText]}>Home</Text>
-            </TouchableOpacity>
-          )}
+            )}
+          </Animated.View>
         </View>
         <TouchableOpacity
           style={styles.tabItem}
           onPress={() => navigation.navigate('MoreTab')}>
-          <Text style={[styles.bottomText]}>More</Text>
+          {/* <Text style={[styles.bottomText]}>More</Text> */}
+          <More width={40} height={40} color={palette.teamColor.ssg} />
         </TouchableOpacity>
       </View>
     </View>
@@ -64,6 +99,11 @@ function BottomTab({ ...props }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'flex-end',
+    shadowColor: '#171717',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    position: 'relative',
   },
   tabWrapper: {
     flexDirection: 'row',
@@ -74,7 +114,8 @@ const styles = StyleSheet.create({
     width,
     zIndex: 8,
     borderStyle: 'solid',
-    padding: 40,
+    paddingHorizontal: 40,
+    paddingVertical: 8,
     borderRadius: 24,
   },
   tabItem: {
@@ -83,7 +124,36 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     width: width / 3,
   },
-
+  centerWrapper: {
+    position: 'absolute',
+    left: '50%',
+    bottom: '50%',
+    transform: [{ translateX: -24 }],
+  },
+  homeWrapper: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: palette.commonColor.green,
+    shadowColor: '#171717',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 7,
+    bottom: 0,
+  },
+  homeIcon: {
+    position: 'relative',
+    left: '50%',
+    top: '50%',
+    transform: [
+      {
+        translateX: -16,
+      },
+      {
+        translateY: -14,
+      },
+    ],
+  },
   floatTabWrapper: {
     position: 'absolute',
     top: '50%',
