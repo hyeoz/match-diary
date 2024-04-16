@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "allowImportingTsExtensions": true
   },
   "extends": "@tsconfig/react-native/tsconfig.json"
 }
