@@ -5,6 +5,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import splash from '../assets/splash.png';
 import splash_text from '../assets/splash_text.png';
 import { RootStackListType } from '../types/types';
+import { palette } from '../style/palette';
 
 // TODO types
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#BF282C', // 랜더스 컬러
+    backgroundColor: palette.teamColor.ssg, // 랜더스 컬러
   },
   logo: {
     width: 200,
