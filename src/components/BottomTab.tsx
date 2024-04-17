@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -25,7 +25,7 @@ import { palette } from '../style/palette';
 
 /* reference: https://dribbble.com/shots/6117913-Tab-Bar-Interaction-XVIII?utm_source=Clipboard_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share&utm_source=Pinterest_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share */
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 function BottomTab({ ...props }: BottomTabBarProps) {
   const { state, navigation } = props;
@@ -34,7 +34,6 @@ function BottomTab({ ...props }: BottomTabBarProps) {
   const homeDeg = useSharedValue(0);
 
   const currentTab = state.routes[state.index];
-  console.log(currentTab, 'CURRENT TAB');
 
   useEffect(() => {
     if (!isOpen) {
@@ -111,7 +110,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                     <Explore
                       width={24}
                       height={24}
-                      color={isRouteMatchStyle('DiscoverTab')}
+                      color={isRouteMatchStyle('DiscoverTab', '#fff')}
                     />
                   </View>
                 </TouchableOpacity>
@@ -121,7 +120,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                     <Write
                       width={24}
                       height={24}
-                      color={isRouteMatchStyle('Main')}
+                      color={isRouteMatchStyle('Main', '#fff')}
                     />
                   </View>
                 </TouchableOpacity>
@@ -132,10 +131,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                     <List
                       width={28}
                       height={28}
-                      color={isRouteMatchStyle('HistoryTab')}
-                      style={{
-                        opacity: 1,
-                      }}
+                      color={isRouteMatchStyle('HistoryTab', '#fff')}
                     />
                   </View>
                 </TouchableOpacity>
@@ -154,13 +150,13 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                 }}>
                 <Animated.View style={[animatedRotateStyle]}>
                   <Home
-                    width={32}
-                    height={32}
+                    width={28}
+                    height={28}
                     color={
                       ['Main', 'DiscoverTab', 'HistoryTab'].includes(
                         currentTab.name,
                       )
-                        ? palette.teamColor.ssg
+                        ? '#fff'
                         : '#333'
                     }
                   />
