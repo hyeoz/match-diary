@@ -6,13 +6,20 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 import useBottomTabState from '../store/default';
 import Home from '../assets/svg/home.svg';
 import Calendar from '../assets/svg/calendar.svg';
 import More from '../assets/svg/more.svg';
+import Explore from '../assets/svg/explore.svg';
+import List from '../assets/svg/list.svg';
+import Write from '../assets/svg/write.svg';
 import { palette } from '../style/palette';
 
 /* reference: https://dribbble.com/shots/6117913-Tab-Bar-Interaction-XVIII?utm_source=Clipboard_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share&utm_source=Pinterest_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share */
@@ -24,11 +31,39 @@ function BottomTab({ ...props }: BottomTabBarProps) {
   const { isOpen, update } = useBottomTabState();
   const homeHeight = useSharedValue(64);
 
+  const currentTab = state.routes[state.index];
+  console.log(currentTab, 'CURRENT TAB');
+
+  useEffect(() => {
+    if (!isOpen) {
+      handleHeightScaleDown();
+    } else {
+      handleHeightScaleUp();
+    }
+  }, [isOpen]);
+
   const handleHeightScaleUp = () => {
-    homeHeight.value = withSpring(homeHeight.value * 3);
+    homeHeight.value = withSpring(192);
+  };
+  const handleHeightScaleDown = () => {
+    homeHeight.value = withSpring(64);
   };
 
-  console.log(homeHeight, 'PROPS');
+  const isRouteMatchStyle = (
+    routeName: string,
+    matchColor?: string,
+    defaultColor?: string,
+  ) => {
+    if (currentTab.name === routeName) {
+      return matchColor ?? palette.teamColor.ssg;
+    } else {
+      return defaultColor ?? '#333';
+    }
+  };
+
+  const animatedHeightStyle = useAnimatedStyle(() => ({
+    height: homeHeight.value,
+  }));
 
   return (
     <View style={styles.container}>
@@ -41,29 +76,56 @@ function BottomTab({ ...props }: BottomTabBarProps) {
             },
           ]}
           onPress={() => navigation.navigate('CalendarTab')}>
-          {/* <Text style={[styles.bottomText]}>Calendar</Text> */}
-          <Calendar width={32} height={32} color={palette.teamColor.ssg} />
+          <Calendar
+            width={32}
+            height={32}
+            color={isRouteMatchStyle('CalendarTab')}
+          />
         </TouchableOpacity>
         <View style={[styles.tabItem, styles.centerWrapper]}>
-          <Animated.View
-            style={[
-              styles.homeWrapper,
-              {
-                height: homeHeight.value,
-              },
-            ]}>
+          <Animated.View style={[styles.homeWrapper, animatedHeightStyle]}>
             {isOpen ? (
-              <View>
+              <View
+                style={{
+                  width: 64,
+                  height: 192,
+
+                  justifyContent: 'space-evenly',
+                }}>
                 <TouchableOpacity
                   onPress={() => navigation.navigate('DiscoverTab')}>
-                  <Text style={styles.floatText}>Discover</Text>
+                  <View style={styles.floatIconWrapper}>
+                    <View style={styles.floatIconBg} />
+                    <Explore
+                      width={32}
+                      height={32}
+                      color={isRouteMatchStyle('DiscoverTab')}
+                    />
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('Main')}>
-                  <Text style={styles.floatText}>Write</Text>
+                  <View style={styles.floatIconWrapper}>
+                    <View style={styles.floatIconBg} />
+                    <Write
+                      width={32}
+                      height={32}
+                      color={isRouteMatchStyle('Main')}
+                    />
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => navigation.navigate('HistoryTab')}>
-                  <Text style={styles.floatText}>History</Text>
+                  <View style={styles.floatIconWrapper}>
+                    <View style={styles.floatIconBg} />
+                    <List
+                      width={32}
+                      height={32}
+                      color={isRouteMatchStyle('HistoryTab')}
+                      style={{
+                        opacity: 1,
+                      }}
+                    />
+                  </View>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -71,16 +133,24 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                 onPress={() => {
                   update();
                   handleHeightScaleUp();
+                }}
+                style={{
+                  width: 64,
+                  height: 64,
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}>
-                {/* <Text style={[styles.bottomText]}>Home</Text> */}
-                {/* <View style={styles.homeWrapper}> */}
                 <Home
                   width={32}
                   height={32}
-                  color={'white'}
-                  style={styles.homeIcon}
+                  color={
+                    ['Main', 'DiscoverTab', 'HistoryTab'].includes(
+                      currentTab.name,
+                    )
+                      ? palette.teamColor.ssg
+                      : '#333'
+                  }
                 />
-                {/* </View> */}
               </TouchableOpacity>
             )}
           </Animated.View>
@@ -88,8 +158,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
         <TouchableOpacity
           style={styles.tabItem}
           onPress={() => navigation.navigate('MoreTab')}>
-          {/* <Text style={[styles.bottomText]}>More</Text> */}
-          <More width={40} height={40} color={palette.teamColor.ssg} />
+          <More width={40} height={40} color={isRouteMatchStyle('MoreTab')} />
         </TouchableOpacity>
       </View>
     </View>
@@ -141,31 +210,25 @@ const styles = StyleSheet.create({
     shadowRadius: 7,
     bottom: 0,
   },
-  homeIcon: {
-    position: 'relative',
-    left: '50%',
-    top: '50%',
-    transform: [
-      {
-        translateX: -16,
-      },
-      {
-        translateY: -14,
-      },
-    ],
-  },
   floatTabWrapper: {
     position: 'absolute',
     top: '50%',
   },
-  floatText: {
-    textAlign: 'center',
+  floatIconWrapper: {
+    width: 48,
+    height: 48,
+    marginHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
   },
-
-  bottomText: {
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '600',
+  floatIconBg: {
+    width: 48,
+    height: 48,
+    backgroundColor: '#fff',
+    opacity: 0.3,
+    borderRadius: 32,
+    position: 'absolute',
   },
 });
 
