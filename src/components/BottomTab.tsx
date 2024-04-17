@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -7,8 +6,21 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 import useBottomTabState from '../store/default';
+import Home from '../assets/svg/home.svg';
+import Calendar from '../assets/svg/calendar.svg';
+import More from '../assets/svg/more.svg';
+import Explore from '../assets/svg/explore.svg';
+import List from '../assets/svg/list.svg';
+import Write from '../assets/svg/write.svg';
+import { palette } from '../style/palette';
 
 /* reference: https://dribbble.com/shots/6117913-Tab-Bar-Interaction-XVIII?utm_source=Clipboard_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share&utm_source=Pinterest_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share */
 
@@ -16,45 +28,137 @@ const { width, height } = Dimensions.get('window');
 
 function BottomTab({ ...props }: BottomTabBarProps) {
   const { state, navigation } = props;
-
-  //   const [isOpen, setIsOpen] = useState(false);
   const { isOpen, update } = useBottomTabState();
+  const homeHeight = useSharedValue(64);
 
-  console.log(props, 'PROPS');
+  const currentTab = state.routes[state.index];
+  console.log(currentTab, 'CURRENT TAB');
+
+  useEffect(() => {
+    if (!isOpen) {
+      handleHeightScaleDown();
+    } else {
+      handleHeightScaleUp();
+    }
+  }, [isOpen]);
+
+  const handleHeightScaleUp = () => {
+    homeHeight.value = withSpring(192);
+  };
+  const handleHeightScaleDown = () => {
+    homeHeight.value = withSpring(64);
+  };
+
+  const isRouteMatchStyle = (
+    routeName: string,
+    matchColor?: string,
+    defaultColor?: string,
+  ) => {
+    if (currentTab.name === routeName) {
+      return matchColor ?? palette.teamColor.ssg;
+    } else {
+      return defaultColor ?? '#333';
+    }
+  };
+
+  const animatedHeightStyle = useAnimatedStyle(() => ({
+    height: homeHeight.value,
+  }));
 
   return (
     <View style={styles.container}>
       <View style={styles.tabWrapper}>
         <TouchableOpacity
-          style={styles.tabItem}
+          style={[
+            styles.tabItem,
+            {
+              marginRight: 32,
+            },
+          ]}
           onPress={() => navigation.navigate('CalendarTab')}>
-          <Text style={[styles.bottomText]}>Calendar</Text>
+          <Calendar
+            width={32}
+            height={32}
+            color={isRouteMatchStyle('CalendarTab')}
+          />
         </TouchableOpacity>
-        <View style={styles.tabItem}>
-          {isOpen ? (
-            <View style={styles.floatTabWrapper}>
+        <View style={[styles.tabItem, styles.centerWrapper]}>
+          <Animated.View style={[styles.homeWrapper, animatedHeightStyle]}>
+            {isOpen ? (
+              <View
+                style={{
+                  width: 64,
+                  height: 192,
+
+                  justifyContent: 'space-evenly',
+                }}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('DiscoverTab')}>
+                  <View style={styles.floatIconWrapper}>
+                    <View style={styles.floatIconBg} />
+                    <Explore
+                      width={32}
+                      height={32}
+                      color={isRouteMatchStyle('DiscoverTab')}
+                    />
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Main')}>
+                  <View style={styles.floatIconWrapper}>
+                    <View style={styles.floatIconBg} />
+                    <Write
+                      width={32}
+                      height={32}
+                      color={isRouteMatchStyle('Main')}
+                    />
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('HistoryTab')}>
+                  <View style={styles.floatIconWrapper}>
+                    <View style={styles.floatIconBg} />
+                    <List
+                      width={32}
+                      height={32}
+                      color={isRouteMatchStyle('HistoryTab')}
+                      style={{
+                        opacity: 1,
+                      }}
+                    />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            ) : (
               <TouchableOpacity
-                onPress={() => navigation.navigate('DiscoverTab')}>
-                <Text style={styles.floatText}>Discover</Text>
+                onPress={() => {
+                  update();
+                  handleHeightScaleUp();
+                }}
+                style={{
+                  width: 64,
+                  height: 64,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Home
+                  width={32}
+                  height={32}
+                  color={
+                    ['Main', 'DiscoverTab', 'HistoryTab'].includes(
+                      currentTab.name,
+                    )
+                      ? palette.teamColor.ssg
+                      : '#333'
+                  }
+                />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigation.navigate('Main')}>
-                <Text style={styles.floatText}>Write</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('HistoryTab')}>
-                <Text style={styles.floatText}>History</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity onPress={() => update()}>
-              <Text style={[styles.bottomText]}>Home</Text>
-            </TouchableOpacity>
-          )}
+            )}
+          </Animated.View>
         </View>
         <TouchableOpacity
           style={styles.tabItem}
           onPress={() => navigation.navigate('MoreTab')}>
-          <Text style={[styles.bottomText]}>More</Text>
+          <More width={40} height={40} color={isRouteMatchStyle('MoreTab')} />
         </TouchableOpacity>
       </View>
     </View>
@@ -64,6 +168,11 @@ function BottomTab({ ...props }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'flex-end',
+    shadowColor: '#171717',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    position: 'relative',
   },
   tabWrapper: {
     flexDirection: 'row',
@@ -74,7 +183,8 @@ const styles = StyleSheet.create({
     width,
     zIndex: 8,
     borderStyle: 'solid',
-    padding: 40,
+    paddingHorizontal: 40,
+    paddingVertical: 8,
     borderRadius: 24,
   },
   tabItem: {
@@ -83,19 +193,42 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     width: width / 3,
   },
-
+  centerWrapper: {
+    position: 'absolute',
+    left: '50%',
+    bottom: '50%',
+    transform: [{ translateX: -24 }],
+  },
+  homeWrapper: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: palette.commonColor.green,
+    shadowColor: '#171717',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 7,
+    bottom: 0,
+  },
   floatTabWrapper: {
     position: 'absolute',
     top: '50%',
   },
-  floatText: {
-    textAlign: 'center',
+  floatIconWrapper: {
+    width: 48,
+    height: 48,
+    marginHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
   },
-
-  bottomText: {
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '600',
+  floatIconBg: {
+    width: 48,
+    height: 48,
+    backgroundColor: '#fff',
+    opacity: 0.3,
+    borderRadius: 32,
+    position: 'absolute',
   },
 });
 
