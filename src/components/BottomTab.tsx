@@ -10,6 +10,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
@@ -30,6 +31,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
   const { state, navigation } = props;
   const { isOpen, update } = useBottomTabState();
   const homeHeight = useSharedValue(64);
+  const homeDeg = useSharedValue(0);
 
   const currentTab = state.routes[state.index];
   console.log(currentTab, 'CURRENT TAB');
@@ -37,16 +39,24 @@ function BottomTab({ ...props }: BottomTabBarProps) {
   useEffect(() => {
     if (!isOpen) {
       handleHeightScaleDown();
+      handleHomeRotateOrigin();
     } else {
       handleHeightScaleUp();
+      handleHomeRotate();
     }
   }, [isOpen]);
 
   const handleHeightScaleUp = () => {
     homeHeight.value = withSpring(192);
   };
+  const handleHomeRotate = () => {
+    homeDeg.value = withTiming(180, { duration: 300 });
+  };
   const handleHeightScaleDown = () => {
     homeHeight.value = withSpring(64);
+  };
+  const handleHomeRotateOrigin = () => {
+    homeDeg.value = withTiming(0, { duration: 300 });
   };
 
   const isRouteMatchStyle = (
@@ -63,6 +73,9 @@ function BottomTab({ ...props }: BottomTabBarProps) {
 
   const animatedHeightStyle = useAnimatedStyle(() => ({
     height: homeHeight.value,
+  }));
+  const animatedRotateStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${homeDeg.value}deg` }],
   }));
 
   return (
@@ -89,7 +102,6 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                 style={{
                   width: 64,
                   height: 192,
-
                   justifyContent: 'space-evenly',
                 }}>
                 <TouchableOpacity
@@ -97,8 +109,8 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                   <View style={styles.floatIconWrapper}>
                     <View style={styles.floatIconBg} />
                     <Explore
-                      width={32}
-                      height={32}
+                      width={24}
+                      height={24}
                       color={isRouteMatchStyle('DiscoverTab')}
                     />
                   </View>
@@ -107,8 +119,8 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                   <View style={styles.floatIconWrapper}>
                     <View style={styles.floatIconBg} />
                     <Write
-                      width={32}
-                      height={32}
+                      width={24}
+                      height={24}
                       color={isRouteMatchStyle('Main')}
                     />
                   </View>
@@ -118,8 +130,8 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                   <View style={styles.floatIconWrapper}>
                     <View style={styles.floatIconBg} />
                     <List
-                      width={32}
-                      height={32}
+                      width={28}
+                      height={28}
                       color={isRouteMatchStyle('HistoryTab')}
                       style={{
                         opacity: 1,
@@ -140,17 +152,19 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <Home
-                  width={32}
-                  height={32}
-                  color={
-                    ['Main', 'DiscoverTab', 'HistoryTab'].includes(
-                      currentTab.name,
-                    )
-                      ? palette.teamColor.ssg
-                      : '#333'
-                  }
-                />
+                <Animated.View style={[animatedRotateStyle]}>
+                  <Home
+                    width={32}
+                    height={32}
+                    color={
+                      ['Main', 'DiscoverTab', 'HistoryTab'].includes(
+                        currentTab.name,
+                      )
+                        ? palette.teamColor.ssg
+                        : '#333'
+                    }
+                  />
+                </Animated.View>
               </TouchableOpacity>
             )}
           </Animated.View>
@@ -209,6 +223,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 7,
     bottom: 0,
+    overflow: 'hidden',
   },
   floatTabWrapper: {
     position: 'absolute',
