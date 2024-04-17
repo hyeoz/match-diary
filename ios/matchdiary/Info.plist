@@ -49,7 +49,9 @@
 	<false/>
 	<key>UIAppFonts</key>
 	<array>
-		<string>NanumSquareNeo-Variable.ttf</string>
+		<string>KBO Dia Gothic_bold.ttf</string>
+		<string>KBO Dia Gothic_light.ttf</string>
+		<string>KBO Dia Gothic_medium.ttf</string>
 	</array>
 </dict>
 </plist>
