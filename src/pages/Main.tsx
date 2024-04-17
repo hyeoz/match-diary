@@ -74,7 +74,7 @@ function Main() {
       screenOptions={{ headerShown: false }}>
       <Tab.Screen name="CalendarTab" component={CalendarStackNavigator} />
 
-      {/* TODO 중앙의 홈탭 클릭 시 depth 1개 더 생김 */}
+      {/* NOTE 중앙의 홈탭 클릭 시 expand */}
       <Tab.Screen name="Main" component={MainWriteStackNavigator} />
       <Tab.Screen name="DiscoverTab" component={MainDiscoverStackNavigator} />
       <Tab.Screen name="HistoryTab" component={MainHistoryStackNavigator} />
