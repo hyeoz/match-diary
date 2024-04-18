@@ -23,34 +23,39 @@ const { width, height } = Dimensions.get('window');
 const formattedToday = dayjs().format('YYYY-MM-DD');
 
 const IMAGE_WIDTH = 1440;
-const IMAGE_HEIGHT = 960;
+const IMAGE_HEIGHT = 1080;
 
-/* TODO
+/* DONE
   - 이미지는 한 장만 업로드 가능
   - 텍스트는 최대 200자
   - 업로드한 컨텐츠는 스토리지 관리
     - 이미지는 어떻게 관리하는지?
     -> crop 후 path 를 return 해주는데, 이 path 를 이용하여 이미지를 보여줌
-    -> 원본 사진이 삭제되면 이미지가 깨지기 떄문에, crop 된 이미지를 다시 저장하는 식으로 구현 가능?
+    - 원본이미지 path 를 사용하는 방식으로 먼저 구현
+*/
+
+/* TODO
+  - 해당 날짜에 이미 업로드한 경우 업로드버튼 대신 공유용 이미지(폴라로이드) 띄우기
   - 위치정보 불러오기 (푸쉬메세지)
   - 마이페이지에서 마이팀 설정 시 승/패 정보도
   - 당일 날짜로 경기 정보 불러오기
     - 경기정보 들어갈 위치 대략 잡기
+  - 업로드 모달에서 생성이 아닌 수정인 경우 공유하기 버튼 생성 (이미지 파일로 내보낼 수 있도록)
 */
 
 function Write() {
-  const modalToastRef = useRef<ToastRef>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [image, setImage] = useState<ImageOrVideo | null>(null); // TODO
+  const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
+  const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
     if (!isVisible) {
       setImage(null);
       setMemo('');
     } else {
-      checkItem();
     }
+    checkItem();
   }, [isVisible]);
 
   const onPressOpenGallery = () => {
@@ -60,7 +65,6 @@ function Write() {
       cropping: true,
     })
       .then((value: ImageOrVideo) => {
-        console.log(value, 'VALUE');
         setImage(value);
       })
       .catch(res => {
@@ -92,30 +96,80 @@ function Write() {
 
     if (res) {
       const json = JSON.parse(res);
-      console.log(json, '??? JSON');
       setImage(json.image);
       setMemo(json.memo);
+      setIsEdit(true);
     }
   };
 
   return (
     <TouchableWrapper>
-      <View style={styles.wrapper}>
-        <TouchableOpacity
-          onPress={() => setIsVisible(true)}
-          style={{
-            width: '65%',
-            height: '45%',
-          }}>
-          <View style={styles.addButton}>
-            <Add width={60} height={60} color={'#aaa'} />
-            <Text style={styles.addText}>
-              여기를 눌러{'\n'}직관기록을 추가해주세요!
-            </Text>
+      {/* SECTION 메인 버튼 / 폴라로이드 */}
+      {!isEdit ? (
+        <View style={styles.wrapper}>
+          <TouchableOpacity
+            onPress={() => setIsVisible(true)}
+            style={{
+              width: '65%',
+              height: '45%',
+            }}>
+            <View style={styles.addButton}>
+              <Add width={60} height={60} color={'#aaa'} />
+              <Text style={styles.addText}>
+                여기를 눌러{'\n'}직관기록을 추가해주세요!
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={polaroidStyles.wrapper}>
+          <View style={polaroidStyles.photoWrapper}>
+            <TouchableOpacity
+              onPress={() => setIsVisible(true)}
+              style={{
+                flex: 1,
+                // justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Image
+                source={{ uri: image?.sourceURL }}
+                width={width * 0.7 - 16}
+                height={(IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16}
+                style={{
+                  margin: 8,
+                }}
+              />
+              <Text
+                style={{
+                  width: '100%',
+                  // textAlign: 'right',
+                  fontFamily: 'UhBee Seulvely',
+                  paddingLeft: 8,
+                }}>
+                {'2024/04/18'}
+                {' @'}
+                {'인천SS랜더스필드'}
+              </Text>
+              <Text
+                style={{
+                  width: '100%',
+                  paddingHorizontal: 8,
+                  fontSize: 12,
+                  fontFamily: 'KBO-Dia-Gothic-light',
+                  marginTop: 10,
+                }}>
+                {memo}
+              </Text>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      </View>
+          <View style={polaroidStyles.buttonWrapper}>
+            <Text style={polaroidStyles.shareText}>공유하기</Text>
+            <Text style={polaroidStyles.shareText}>삭제하기</Text>
+          </View>
+        </View>
+      )}
 
+      {/* SECTION 업로드 모달 */}
       <Modal animationType="slide" visible={isVisible}>
         <View style={modalStyles.wrapper}>
           <View style={modalStyles.header}>
@@ -124,6 +178,7 @@ function Write() {
                 textAlign: 'center',
                 fontWeight: '700',
                 fontSize: 18,
+                fontFamily: 'KBO-Dia-Gothic-bold',
               }}>
               업로드
             </Text>
@@ -135,11 +190,11 @@ function Write() {
               alignItems: 'center',
               justifyContent: 'space-between',
             }}>
-            {/* NOTE content */}
+            {/* SECTION CONTENTS */}
             <View style={modalStyles.contentWrapper}>
               <View>
                 <Text style={modalStyles.labelText}>대표 이미지</Text>
-                {/* ANCHOR 이미지 */}
+                {/* 이미지 */}
                 {image ? (
                   <TouchableOpacity onPress={onPressOpenGallery}>
                     <View>
@@ -163,8 +218,19 @@ function Write() {
               </View>
 
               {/* TODO 경기정보 영역 */}
+              <View>
+                <Text
+                  style={{
+                    textAlign: 'right',
+                    fontFamily: 'UhBee Seulvely',
+                  }}>
+                  {'2024/04/18'}
+                  {' @'}
+                  {'인천SS랜더스필드'}
+                </Text>
+              </View>
 
-              {/* ANCHOR 텍스트 */}
+              {/* 텍스트 */}
               <View>
                 <Text style={modalStyles.labelText}>내용</Text>
                 <TextInput
@@ -180,13 +246,15 @@ function Write() {
                     textAlign: 'right',
                     color: '#999',
                     marginTop: 4,
+                    fontSize: 12,
+                    fontFamily: 'KBO-Dia-Gothic-medium',
                   }}>
                   {memo.length} / 200
                 </Text>
               </View>
             </View>
 
-            {/* NOTE 버튼 */}
+            {/* SECTION BUTTONS */}
             <View style={modalStyles.buttonWrapper}>
               <TouchableOpacity
                 onPress={() => setIsVisible(false)}
@@ -224,7 +292,8 @@ function Write() {
             </View>
           </View>
         </View>
-        {/* NOTE root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
+
+        {/* SECTION root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
         <Toast />
       </Modal>
     </TouchableWrapper>
@@ -256,6 +325,39 @@ const styles = StyleSheet.create({
   addText: {
     textAlign: 'center',
     fontSize: 14,
+    fontFamily: 'KBO-Dia-Gothic-bold', // NOTE font 적용 시 post script 이름으로 적용 필요
+    color: '#aaa',
+  },
+});
+
+const polaroidStyles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photoWrapper: {
+    width: '70%',
+    height: '50%',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+  },
+  buttonWrapper: {
+    width: '70%',
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'flex-end',
+    marginTop: 16,
+  },
+  shareText: {
+    fontFamily: 'KBO-Dia-Gothic-medium',
   },
 });
 
@@ -283,6 +385,7 @@ const modalStyles = StyleSheet.create({
     borderColor: '#888',
     paddingHorizontal: 10,
     paddingTop: 10,
+    fontFamily: 'KBO-Dia-Gothic-mediumd',
   },
   emptyImageWrapper: {
     width: width - 48,
@@ -305,14 +408,16 @@ const modalStyles = StyleSheet.create({
     borderRadius: 8,
   },
   labelText: {
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 8,
     fontWeight: '600',
+    fontFamily: 'KBO-Dia-Gothic-bold',
   },
   buttonText: {
     color: 'black',
     fontSize: 16,
     textAlign: 'center',
+    fontFamily: 'KBO-Dia-Gothic-bold',
   },
 });
 
