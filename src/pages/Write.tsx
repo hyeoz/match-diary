@@ -14,14 +14,19 @@ import TouchableWrapper from '../components/TouchableWrapper';
 import Add from '../assets/svg/add.svg';
 import { useEffect, useState } from 'react';
 import { palette } from '../style/palette';
+import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
 
 const { width, height } = Dimensions.get('window');
+const IMAGE_WIDTH = 1440;
+const IMAGE_HEIGHT = 960;
 
 /* TODO
   - 이미지는 한 장만 업로드 가능
   - 텍스트는 최대 200자
   - 업로드한 컨텐츠는 스토리지 관리
     - 이미지는 어떻게 관리하는지?
+    -> crop 후 path 를 return 해주는데, 이 path 를 이용하여 이미지를 보여줌
+    -> 원본 사진이 삭제되면 이미지가 깨지기 떄문에, crop 된 이미지를 다시 저장하는 식으로 구현 가능?
   - 위치정보로 경기정보 불러오기
     - 마이페이지에서 마이팀 설정 시 승/패 정보도
     - 경기정보 들어갈 위치 대략 잡기
@@ -38,6 +43,17 @@ function Write() {
       setMemo('');
     }
   }, [isVisible]);
+
+  const onPressOpenGallery = () => {
+    ImageCropPicker?.openPicker({
+      width: IMAGE_WIDTH,
+      height: IMAGE_HEIGHT,
+      cropping: true,
+    }).then((value: ImageOrVideo) => {
+      console.log(value, 'VALUE');
+      setImage(value);
+    });
+  };
 
   return (
     <TouchableWrapper>
@@ -69,6 +85,7 @@ function Write() {
               업로드
             </Text>
           </View>
+
           <View
             style={{
               flex: 1,
@@ -77,20 +94,30 @@ function Write() {
             }}>
             {/* NOTE content */}
             <View style={modalStyles.contentWrapper}>
-              {/* ANCHOR 이미지 */}
-              {image ? (
-                <View>
-                  <Image source={image} />
-                </View>
-              ) : (
-                // TODO 클릭 시 native 갤러리 호출
-                <View>
-                  <Text style={modalStyles.labelText}>대표 이미지</Text>
-                  <View style={modalStyles.emptyImageWrapper}>
-                    <Add width={32} height={32} color={'#888'} />
+              <View>
+                <Text style={modalStyles.labelText}>대표 이미지</Text>
+                {/* ANCHOR 이미지 */}
+                {image ? (
+                  <View>
+                    <Image
+                      source={{ uri: image.path }} // TODO 현재 불러온 이미지 path 기준으로 보여줌
+                      width={width - 48}
+                      height={(IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH}
+                    />
                   </View>
-                </View>
-              )}
+                ) : (
+                  // TODO 클릭 시 native 갤러리 호출
+                  <TouchableOpacity onPress={onPressOpenGallery}>
+                    <View>
+                      <View style={modalStyles.emptyImageWrapper}>
+                        <Add width={32} height={32} color={'#888'} />
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* TODO 경기정보 영역 */}
 
               {/* ANCHOR 텍스트 */}
               <View>
@@ -212,7 +239,7 @@ const modalStyles = StyleSheet.create({
   },
   emptyImageWrapper: {
     width: width - 48,
-    height: 200,
+    height: (IMAGE_WIDTH * (width - 48)) / IMAGE_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
