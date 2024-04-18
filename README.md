@@ -54,9 +54,11 @@ This is one way to run your app — you can also run it directly from within And
 
 <a href="https://www.flaticon.com/free-icons/baseball" title="baseball icons">Baseball icons created by Freepik - Flaticon</a><br />
 <a href="https://www.flaticon.com/free-icons/time-and-date" title="time and date icons">Time and date icons created by Freepik - Flaticon</a><br />
+
 <a href="https://www.flaticon.com/free-icons/pencil" title="pencil icons">Pencil icons created by Freepik - Flaticon</a><br />
 <a href="https://www.flaticon.com/free-icons/maps-and-location" title="maps and location icons">Maps and location icons created by Freepik - Flaticon</a><br />
 <a href="https://www.flaticon.com/free-icons/contract" title="contract icons">Contract icons created by Freepik - Flaticon</a><br />
 <a href="https://www.flaticon.com/free-icons/search" title="search icons">Search icons created by Freepik - Flaticon</a><br />
 <a href="https://www.flaticon.com/free-icons/history" title="history icons">History icons created by Chanut-is-Industries - Flaticon</a><br />
+
 <a href="https://www.koreabaseball.com/Reference/etc/KboFont.aspx">KBO DIA 고딕체</a>
