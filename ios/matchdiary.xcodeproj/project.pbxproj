@@ -17,6 +17,7 @@
 		70D30454468D46D7BC8396FB /* KBO Dia Gothic_light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */; };
 		7699B88040F8A987B510C191 /* libPods-matchdiary-matchdiaryTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-matchdiary-matchdiaryTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		DCD04D0FC21345F59D991345 /* UhBee Seulvely.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_bold.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_bold.ttf"; sourceTree = "<group>"; };
 		A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_light.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_light.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */ = {isa = PBXFileReference; name = "UhBee Seulvely.ttf"; path = "../src/assets/fonts/UhBee Seulvely.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +110,7 @@
 				9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */,
 				A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */,
 				1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */,
+				47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */,
 			);
 			name = Resources;
 			path = "";
@@ -264,6 +267,7 @@
 				04C8A557BC8C423EAFC15784 /* KBO Dia Gothic_bold.ttf in Resources */,
 				70D30454468D46D7BC8396FB /* KBO Dia Gothic_light.ttf in Resources */,
 				52301F1075AD4E1A8F7F45B3 /* KBO Dia Gothic_medium.ttf in Resources */,
+				DCD04D0FC21345F59D991345 /* UhBee Seulvely.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
