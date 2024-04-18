@@ -12,32 +12,91 @@ import {
 
 import TouchableWrapper from '../components/TouchableWrapper';
 import Add from '../assets/svg/add.svg';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { palette } from '../style/palette';
+import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
+import Toast, { ToastRef } from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import dayjs from 'dayjs';
 
 const { width, height } = Dimensions.get('window');
+const formattedToday = dayjs().format('YYYY-MM-DD');
+
+const IMAGE_WIDTH = 1440;
+const IMAGE_HEIGHT = 960;
 
 /* TODO
   - 이미지는 한 장만 업로드 가능
   - 텍스트는 최대 200자
   - 업로드한 컨텐츠는 스토리지 관리
     - 이미지는 어떻게 관리하는지?
-  - 위치정보로 경기정보 불러오기
-    - 마이페이지에서 마이팀 설정 시 승/패 정보도
+    -> crop 후 path 를 return 해주는데, 이 path 를 이용하여 이미지를 보여줌
+    -> 원본 사진이 삭제되면 이미지가 깨지기 떄문에, crop 된 이미지를 다시 저장하는 식으로 구현 가능?
+  - 위치정보 불러오기 (푸쉬메세지)
+  - 마이페이지에서 마이팀 설정 시 승/패 정보도
+  - 당일 날짜로 경기 정보 불러오기
     - 경기정보 들어갈 위치 대략 잡기
 */
 
 function Write() {
+  const modalToastRef = useRef<ToastRef>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [image, setImage] = useState<any>(); // TODO
+  const [image, setImage] = useState<ImageOrVideo | null>(null); // TODO
   const [memo, setMemo] = useState('');
 
   useEffect(() => {
     if (!isVisible) {
       setImage(null);
       setMemo('');
+    } else {
+      checkItem();
     }
   }, [isVisible]);
+
+  const onPressOpenGallery = () => {
+    ImageCropPicker?.openPicker({
+      width: IMAGE_WIDTH,
+      height: IMAGE_HEIGHT,
+      cropping: true,
+    })
+      .then((value: ImageOrVideo) => {
+        console.log(value, 'VALUE');
+        setImage(value);
+      })
+      .catch(res => {
+        console.error(res);
+      });
+  };
+
+  const onSave = async () => {
+    if (!image || !memo) {
+      Toast.show({
+        type: 'error',
+        text1: '아직 작성하지 않은 항목이 있어요!',
+        topOffset: 64,
+      });
+    } else {
+      await AsyncStorage.setItem(
+        formattedToday,
+        JSON.stringify({
+          image,
+          memo,
+        }),
+      );
+      setIsVisible(false);
+    }
+  };
+
+  const checkItem = async () => {
+    const res = await AsyncStorage.getItem(formattedToday);
+
+    if (res) {
+      const json = JSON.parse(res);
+      console.log(json, '??? JSON');
+      setImage(json.image);
+      setMemo(json.memo);
+    }
+  };
 
   return (
     <TouchableWrapper>
@@ -69,6 +128,7 @@ function Write() {
               업로드
             </Text>
           </View>
+
           <View
             style={{
               flex: 1,
@@ -77,20 +137,32 @@ function Write() {
             }}>
             {/* NOTE content */}
             <View style={modalStyles.contentWrapper}>
-              {/* ANCHOR 이미지 */}
-              {image ? (
-                <View>
-                  <Image source={image} />
-                </View>
-              ) : (
-                // TODO 클릭 시 native 갤러리 호출
-                <View>
-                  <Text style={modalStyles.labelText}>대표 이미지</Text>
-                  <View style={modalStyles.emptyImageWrapper}>
-                    <Add width={32} height={32} color={'#888'} />
-                  </View>
-                </View>
-              )}
+              <View>
+                <Text style={modalStyles.labelText}>대표 이미지</Text>
+                {/* ANCHOR 이미지 */}
+                {image ? (
+                  <TouchableOpacity onPress={onPressOpenGallery}>
+                    <View>
+                      <Image
+                        source={{ uri: image.path }} // TODO 현재 불러온 이미지 path 기준으로 보여줌
+                        width={width - 48}
+                        height={(IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  // TODO 클릭 시 native 갤러리 호출
+                  <TouchableOpacity onPress={onPressOpenGallery}>
+                    <View>
+                      <View style={modalStyles.emptyImageWrapper}>
+                        <Add width={32} height={32} color={'#888'} />
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* TODO 경기정보 영역 */}
 
               {/* ANCHOR 텍스트 */}
               <View>
@@ -130,7 +202,7 @@ function Write() {
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => {}}
+                onPress={onSave}
                 style={[
                   modalStyles.button,
                   {
@@ -152,6 +224,8 @@ function Write() {
             </View>
           </View>
         </View>
+        {/* NOTE root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
+        <Toast />
       </Modal>
     </TouchableWrapper>
   );
@@ -212,7 +286,7 @@ const modalStyles = StyleSheet.create({
   },
   emptyImageWrapper: {
     width: width - 48,
-    height: 200,
+    height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,

@@ -8,10 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* matchdiaryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* matchdiaryTests.m */; };
+		04C8A557BC8C423EAFC15784 /* KBO Dia Gothic_bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */; };
 		0C80B921A6F3F58F76C31292 /* libPods-matchdiary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-matchdiary.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		52301F1075AD4E1A8F7F45B3 /* KBO Dia Gothic_medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */; };
+		70D30454468D46D7BC8396FB /* KBO Dia Gothic_light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */; };
 		7699B88040F8A987B510C191 /* libPods-matchdiary-matchdiaryTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-matchdiary-matchdiaryTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
@@ -37,12 +40,15 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = matchdiary/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = matchdiary/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-matchdiary-matchdiaryTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary-matchdiaryTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_medium.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_medium.ttf"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-matchdiary.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-matchdiary.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.release.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-matchdiary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = matchdiary/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-matchdiary-matchdiaryTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.release.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.release.xcconfig"; sourceTree = "<group>"; };
+		9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_bold.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_bold.ttf"; sourceTree = "<group>"; };
+		A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_light.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_light.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -96,6 +102,17 @@
 			name = matchdiary;
 			sourceTree = "<group>";
 		};
+		18F433A5485F43B4B0FA4DAB /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */,
+				A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */,
+				1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */,
+			);
+			name = Resources;
+			path = "";
+			sourceTree = "<group>";
+		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -122,6 +139,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				18F433A5485F43B4B0FA4DAB /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -243,6 +261,9 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				04C8A557BC8C423EAFC15784 /* KBO Dia Gothic_bold.ttf in Resources */,
+				70D30454468D46D7BC8396FB /* KBO Dia Gothic_light.ttf in Resources */,
+				52301F1075AD4E1A8F7F45B3 /* KBO Dia Gothic_medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

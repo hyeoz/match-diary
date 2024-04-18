@@ -1,0 +1,17 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/KBO Dia Gothic_bold.ttf",
+      "sha1": "0c710dc48e08073aabecffb57e9c19a813352f12"
+    },
+    {
+      "path": "src/assets/fonts/KBO Dia Gothic_light.ttf",
+      "sha1": "7c3a8c040b182d28bc63ef2fed8028bb57a716a5"
+    },
+    {
+      "path": "src/assets/fonts/KBO Dia Gothic_medium.ttf",
+      "sha1": "ede1271273603c7caa8feefd64e92efb5374f686"
+    }
+  ]
+}

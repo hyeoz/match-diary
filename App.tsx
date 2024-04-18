@@ -14,6 +14,7 @@ import {
 } from '@react-navigation/native';
 
 import Router from './src/router';
+import Toast from 'react-native-toast-message';
 
 function App(): React.JSX.Element {
   const navigationRef = useNavigationContainerRef();
@@ -24,9 +25,12 @@ function App(): React.JSX.Element {
   };
 
   return (
-    <NavigationContainer ref={navigationRef}>
-      <Router />
-    </NavigationContainer>
+    <>
+      <NavigationContainer ref={navigationRef}>
+        <Router />
+      </NavigationContainer>
+      <Toast />
+    </>
   );
 }
 
