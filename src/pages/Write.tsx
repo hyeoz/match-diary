@@ -25,7 +25,7 @@ import Stamp from '../assets/svg/stamp.svg';
 const { width, height } = Dimensions.get('window');
 const formattedToday = dayjs().format('YYYY-MM-DD');
 
-const IMAGE_WIDTH = 1440;
+const IMAGE_WIDTH = 1080;
 const IMAGE_HEIGHT = 1080;
 
 /* DONE
@@ -183,9 +183,6 @@ function Write() {
               fileName: `${formattedToday}_직관일기`,
               format: 'jpg',
               quality: 1,
-            }}
-            style={{
-              height: '45%',
             }}>
             <View style={polaroidStyles.photoWrapper}>
               <TouchableOpacity
@@ -198,6 +195,29 @@ function Write() {
                   style={{
                     position: 'relative',
                   }}>
+                  <View
+                    style={{
+                      width: width * 0.7 - 12,
+                      height: (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
+                      shadowOffset: {
+                        width: 2,
+                        height: 2,
+                      },
+                      borderWidth: 2,
+                      borderColor: 'transparent',
+                      // borderColor: '#000',
+                      borderBottomWidth: 0,
+                      borderRightWidth: 0,
+                      shadowColor: '#000',
+                      shadowOpacity: 1,
+                      overflow: 'hidden',
+                      backgroundColor: 'transparent',
+                      position: 'absolute',
+                      zIndex: 9,
+                      left: -2,
+                      top: -2,
+                    }}
+                  />
                   <Image
                     source={{ uri: image?.sourceURL }}
                     width={width * 0.7 - 16}
@@ -278,7 +298,9 @@ function Write() {
                     style={{
                       width: '100%',
                       fontSize: 12,
-                      fontFamily: 'KBO-Dia-Gothic-light',
+                      fontFamily: 'UhBee Seulvely',
+                      lineHeight: 14,
+                      // fontFamily: 'KBO-Dia-Gothic-light',
                       marginTop: 6,
                     }}>
                     {memo}
@@ -328,7 +350,7 @@ function Write() {
                   <TouchableOpacity onPress={onPressOpenGallery}>
                     <View>
                       <Image
-                        source={{ uri: image.path }} // TODO 현재 불러온 이미지 path 기준으로 보여줌
+                        source={{ uri: image.path }} // TODO 현재 불러온 이미지 path 기준으로 보여줌 -> 원본이미지 삭제 시 뜨지않음
                         width={width - 48}
                         height={(IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH}
                       />
@@ -367,7 +389,7 @@ function Write() {
                   maxLength={200}
                   value={memo}
                   onChangeText={value => {
-                    if ((value.match(/\n/g) ?? '').length > 7) {
+                    if ((value.match(/\n/g) ?? '').length > 5) {
                       Alert.alert('줄바꿈은 최대 8줄만 가능해요!');
                     } else {
                       setMemo(value);
@@ -473,11 +495,12 @@ const polaroidStyles = StyleSheet.create({
     alignItems: 'center',
   },
   photoWrapper: {
-    width: '70%',
-    height: '100%',
+    width: width * 0.7,
+    height: height * 0.45,
     padding: 8,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgb(243,243,243)',
     // borderWidth: 1,
+    // borderColor: '#ddd',
     shadowOffset: {
       width: 2,
       height: 2,
