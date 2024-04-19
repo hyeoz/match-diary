@@ -9,29 +9,37 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-import TouchableWrapper from '../components/TouchableWrapper';
-import Add from '../assets/svg/add.svg';
 import { useEffect, useRef, useState } from 'react';
-import { palette } from '../style/palette';
 import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
-import Toast, { ToastRef } from 'react-native-toast-message';
+import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
+import ViewShot from 'react-native-view-shot';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
+
+import TouchableWrapper from '../components/TouchableWrapper';
+import { palette } from '../style/palette';
+import Add from '../assets/svg/add.svg';
+import Stamp from '../assets/svg/stamp.svg';
 
 const { width, height } = Dimensions.get('window');
 const formattedToday = dayjs().format('YYYY-MM-DD');
 
-const IMAGE_WIDTH = 1440;
-const IMAGE_HEIGHT = 960;
+const IMAGE_WIDTH = 1080;
+const IMAGE_HEIGHT = 1080;
 
-/* TODO
+/* DONE
   - 이미지는 한 장만 업로드 가능
   - 텍스트는 최대 200자
   - 업로드한 컨텐츠는 스토리지 관리
     - 이미지는 어떻게 관리하는지?
     -> crop 후 path 를 return 해주는데, 이 path 를 이용하여 이미지를 보여줌
-    -> 원본 사진이 삭제되면 이미지가 깨지기 떄문에, crop 된 이미지를 다시 저장하는 식으로 구현 가능?
+    - 원본이미지 path 를 사용하는 방식으로 먼저 구현
+  - 해당 날짜에 이미 업로드한 경우 업로드버튼 대신 공유용 이미지(폴라로이드) 띄우기
+  - 업로드 모달에서 생성이 아닌 수정인 경우 공유하기 버튼 생성 (이미지 파일로 내보낼 수 있도록)
+*/
+
+/* TODO
   - 위치정보 불러오기 (푸쉬메세지)
   - 마이페이지에서 마이팀 설정 시 승/패 정보도
   - 당일 날짜로 경기 정보 불러오기
@@ -39,18 +47,20 @@ const IMAGE_HEIGHT = 960;
 */
 
 function Write() {
-  const modalToastRef = useRef<ToastRef>(null);
+  const shareImageRef = useRef<ViewShot>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [image, setImage] = useState<ImageOrVideo | null>(null); // TODO
+  const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
+  const [isEdit, setIsEdit] = useState(false);
+  // TODO 마이팀 정보 있을 때 승패
+  const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
 
   useEffect(() => {
     if (!isVisible) {
       setImage(null);
       setMemo('');
-    } else {
-      checkItem();
     }
+    checkItem();
   }, [isVisible]);
 
   const onPressOpenGallery = () => {
@@ -60,7 +70,6 @@ function Write() {
       cropping: true,
     })
       .then((value: ImageOrVideo) => {
-        console.log(value, 'VALUE');
         setImage(value);
       })
       .catch(res => {
@@ -92,30 +101,226 @@ function Write() {
 
     if (res) {
       const json = JSON.parse(res);
-      console.log(json, '??? JSON');
       setImage(json.image);
       setMemo(json.memo);
+      setIsEdit(true);
     }
+  };
+
+  const onPressDelete = async () => {
+    Alert.alert(
+      '삭제하기',
+      '오늘의 직관 기록이 사라져요. 계속 진행하시겠어요?',
+      [
+        {
+          text: '돌아가기',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: '삭제하기',
+          onPress: async () => {
+            try {
+              await AsyncStorage.clear();
+              setImage(null);
+              setMemo('');
+              setIsEdit(false);
+            } catch (e) {
+              console.error(e);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const getImageUrl = async () => {
+    if (!shareImageRef.current?.capture) {
+      return;
+    }
+    const uri = await shareImageRef.current.capture();
+    return uri;
+  };
+
+  const onPressShare = async () => {
+    const uri = await getImageUrl();
+    if (!uri) {
+      return;
+    }
+    const res = await CameraRoll.saveToCameraRoll(uri);
+    console.log(res, 'RES???');
+    Toast.show({
+      type: 'success',
+      text1: '오늘의 직관일기가 앨범에 저장되었어요. 공유해보세요!',
+      topOffset: 60,
+    });
   };
 
   return (
     <TouchableWrapper>
-      <View style={styles.wrapper}>
-        <TouchableOpacity
-          onPress={() => setIsVisible(true)}
-          style={{
-            width: '65%',
-            height: '45%',
-          }}>
-          <View style={styles.addButton}>
-            <Add width={60} height={60} color={'#aaa'} />
-            <Text style={styles.addText}>
-              여기를 눌러{'\n'}직관기록을 추가해주세요!
-            </Text>
+      {/* SECTION 메인 버튼 / 폴라로이드 */}
+      {!isEdit ? (
+        <View style={styles.wrapper}>
+          <TouchableOpacity
+            onPress={() => setIsVisible(true)}
+            style={{
+              width: '65%',
+              height: '45%',
+            }}>
+            <View style={styles.addButton}>
+              <Add width={60} height={60} color={'#aaa'} />
+              <Text style={styles.addText}>
+                여기를 눌러{'\n'}직관기록을 추가해주세요!
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={polaroidStyles.wrapper}>
+          <ViewShot
+            ref={shareImageRef}
+            options={{
+              fileName: `${formattedToday}_직관일기`,
+              format: 'jpg',
+              quality: 1,
+            }}>
+            <View style={polaroidStyles.photoWrapper}>
+              <TouchableOpacity
+                onPress={() => setIsVisible(true)}
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                }}>
+                <View
+                  style={{
+                    position: 'relative',
+                  }}>
+                  <View
+                    style={{
+                      width: width * 0.7 - 12,
+                      height: (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
+                      shadowOffset: {
+                        width: 2,
+                        height: 2,
+                      },
+                      borderWidth: 2,
+                      borderColor: 'transparent',
+                      // borderColor: '#000',
+                      borderBottomWidth: 0,
+                      borderRightWidth: 0,
+                      shadowColor: '#000',
+                      shadowOpacity: 1,
+                      overflow: 'hidden',
+                      backgroundColor: 'transparent',
+                      position: 'absolute',
+                      zIndex: 9,
+                      left: -2,
+                      top: -2,
+                    }}
+                  />
+                  <Image
+                    source={{ uri: image?.sourceURL }}
+                    width={width * 0.7 - 16}
+                    height={(IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16}
+                  />
+                  {!!result && (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        bottom: 30,
+                        left: width * 0.7 - 16 - 60,
+                      }}>
+                      <Stamp
+                        width={60}
+                        height={60}
+                        color={
+                          result === 'W'
+                            ? 'red'
+                            : result === 'L'
+                            ? 'blue'
+                            : 'gray'
+                        }
+                        style={{
+                          position: 'absolute',
+                        }}
+                      />
+                      <Text
+                        style={{
+                          textAlign: 'center',
+                          fontFamily: 'UhBee Seulvely',
+                          color:
+                            result === 'W'
+                              ? 'red'
+                              : result === 'L'
+                              ? 'blue'
+                              : 'gray',
+                          fontSize: 14,
+                          position: 'absolute',
+                          top: 32,
+                          left: 12,
+                          transform: [
+                            {
+                              translateY: -10,
+                            },
+                            {
+                              rotate: '-15deg',
+                            },
+                          ],
+                        }}>
+                        {result === 'W'
+                          ? '승리!'
+                          : result === 'L'
+                          ? '패배'
+                          : '무승부'}
+                      </Text>
+                    </View>
+                  )}
+                  <Text
+                    style={{
+                      width: '100%',
+                      fontFamily: 'UhBee Seulvely',
+                      fontSize: 12,
+                      marginTop: 20,
+                    }}>
+                    {'24.04.18 '}
+                    {'SSG'}
+                    {' vs '}
+                    {'KIA'}
+                    {' @'}
+                    {'인천SS랜더스필드'}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                  }}>
+                  <Text
+                    style={{
+                      width: '100%',
+                      fontSize: 12,
+                      fontFamily: 'UhBee Seulvely',
+                      lineHeight: 14,
+                      // fontFamily: 'KBO-Dia-Gothic-light',
+                      marginTop: 6,
+                    }}>
+                    {memo}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </ViewShot>
+          <View style={polaroidStyles.buttonWrapper}>
+            <TouchableOpacity onPress={onPressShare}>
+              <Text style={polaroidStyles.shareText}>공유하기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onPressDelete}>
+              <Text style={polaroidStyles.shareText}>삭제하기</Text>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      </View>
+        </View>
+      )}
 
+      {/* SECTION 업로드 모달 */}
       <Modal animationType="slide" visible={isVisible}>
         <View style={modalStyles.wrapper}>
           <View style={modalStyles.header}>
@@ -124,6 +329,7 @@ function Write() {
                 textAlign: 'center',
                 fontWeight: '700',
                 fontSize: 18,
+                fontFamily: 'KBO-Dia-Gothic-bold',
               }}>
               업로드
             </Text>
@@ -135,16 +341,16 @@ function Write() {
               alignItems: 'center',
               justifyContent: 'space-between',
             }}>
-            {/* NOTE content */}
+            {/* SECTION CONTENTS */}
             <View style={modalStyles.contentWrapper}>
               <View>
                 <Text style={modalStyles.labelText}>대표 이미지</Text>
-                {/* ANCHOR 이미지 */}
+                {/* 이미지 */}
                 {image ? (
                   <TouchableOpacity onPress={onPressOpenGallery}>
                     <View>
                       <Image
-                        source={{ uri: image.path }} // TODO 현재 불러온 이미지 path 기준으로 보여줌
+                        source={{ uri: image.path }} // TODO 현재 불러온 이미지 path 기준으로 보여줌 -> 원본이미지 삭제 시 뜨지않음
                         width={width - 48}
                         height={(IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH}
                       />
@@ -163,30 +369,50 @@ function Write() {
               </View>
 
               {/* TODO 경기정보 영역 */}
+              <View>
+                <Text
+                  style={{
+                    textAlign: 'right',
+                    fontFamily: 'UhBee Seulvely',
+                  }}>
+                  {'2024/04/18'}
+                  {' @'}
+                  {'인천SS랜더스필드'}
+                </Text>
+              </View>
 
-              {/* ANCHOR 텍스트 */}
+              {/* 텍스트 */}
               <View>
                 <Text style={modalStyles.labelText}>내용</Text>
                 <TextInput
                   multiline
                   maxLength={200}
                   value={memo}
-                  onChangeText={value => setMemo(value)}
+                  onChangeText={value => {
+                    if ((value.match(/\n/g) ?? '').length > 5) {
+                      Alert.alert('줄바꿈은 최대 8줄만 가능해요!');
+                    } else {
+                      setMemo(value);
+                    }
+                  }}
                   placeholder="사진과 함께 기록할 내용을 적어주세요!"
                   style={modalStyles.input}
+                  numberOfLines={8}
                 />
                 <Text
                   style={{
                     textAlign: 'right',
                     color: '#999',
                     marginTop: 4,
+                    fontSize: 12,
+                    fontFamily: 'KBO-Dia-Gothic-medium',
                   }}>
                   {memo.length} / 200
                 </Text>
               </View>
             </View>
 
-            {/* NOTE 버튼 */}
+            {/* SECTION BUTTONS */}
             <View style={modalStyles.buttonWrapper}>
               <TouchableOpacity
                 onPress={() => setIsVisible(false)}
@@ -224,7 +450,8 @@ function Write() {
             </View>
           </View>
         </View>
-        {/* NOTE root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
+
+        {/* SECTION root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
         <Toast />
       </Modal>
     </TouchableWrapper>
@@ -256,6 +483,41 @@ const styles = StyleSheet.create({
   addText: {
     textAlign: 'center',
     fontSize: 14,
+    fontFamily: 'KBO-Dia-Gothic-bold', // NOTE font 적용 시 post script 이름으로 적용 필요
+    color: '#aaa',
+  },
+});
+
+const polaroidStyles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photoWrapper: {
+    width: width * 0.7,
+    height: height * 0.45,
+    padding: 8,
+    backgroundColor: 'rgb(243,243,243)',
+    // borderWidth: 1,
+    // borderColor: '#ddd',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+  },
+  buttonWrapper: {
+    width: '70%',
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'flex-end',
+    marginTop: 16,
+  },
+  shareText: {
+    fontFamily: 'KBO-Dia-Gothic-medium',
   },
 });
 
@@ -277,12 +539,13 @@ const modalStyles = StyleSheet.create({
   },
   input: {
     width: width - 48,
-    height: 200,
+    height: 150,
     borderWidth: 1,
     borderRadius: 4,
     borderColor: '#888',
     paddingHorizontal: 10,
     paddingTop: 10,
+    fontFamily: 'KBO-Dia-Gothic-mediumd',
   },
   emptyImageWrapper: {
     width: width - 48,
@@ -305,14 +568,16 @@ const modalStyles = StyleSheet.create({
     borderRadius: 8,
   },
   labelText: {
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 8,
     fontWeight: '600',
+    fontFamily: 'KBO-Dia-Gothic-bold',
   },
   buttonText: {
     color: 'black',
     fontSize: 16,
     textAlign: 'center',
+    fontFamily: 'KBO-Dia-Gothic-bold',
   },
 });
 
