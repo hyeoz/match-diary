@@ -49,7 +49,7 @@ function Write() {
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
   const [isEdit, setIsEdit] = useState(false);
-  const [result, setResult] = useState<'W' | 'D' | 'L'>('W');
+  const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
 
   useEffect(() => {
     if (!isVisible) {
@@ -97,11 +97,18 @@ function Write() {
     const res = await AsyncStorage.getItem(formattedToday);
 
     if (res) {
+      console.log(res, 'MEMO??');
+
       const json = JSON.parse(res);
       setImage(json.image);
       setMemo(json.memo);
       setIsEdit(true);
     }
+  };
+
+  const onPressDelete = async () => {
+    await AsyncStorage.removeItem('image');
+    await AsyncStorage.removeItem('memo');
   };
 
   return (
@@ -130,7 +137,7 @@ function Write() {
               onPress={() => setIsVisible(true)}
               style={{
                 flex: 1,
-                justifyContent: 'space-between',
+                // justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
               <View
@@ -142,58 +149,64 @@ function Write() {
                   width={width * 0.7 - 16}
                   height={(IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16}
                 />
-                <View
-                  style={{
-                    position: 'absolute',
-                    bottom: 30,
-                    left: width * 0.7 - 16 - 60,
-                  }}>
-                  <Stamp
-                    width={60}
-                    height={60}
-                    color={
-                      result === 'W' ? 'red' : result === 'L' ? 'blue' : 'gray'
-                    }
+                {!!result && (
+                  <View
                     style={{
                       position: 'absolute',
-                    }}
-                  />
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      fontFamily: 'UhBee Seulvely',
-                      color:
+                      bottom: 30,
+                      left: width * 0.7 - 16 - 60,
+                    }}>
+                    <Stamp
+                      width={60}
+                      height={60}
+                      color={
                         result === 'W'
                           ? 'red'
                           : result === 'L'
                           ? 'blue'
-                          : 'gray',
-                      fontSize: 14,
-                      position: 'absolute',
-                      top: 32,
-                      left: 12,
-                      transform: [
-                        {
-                          translateY: -10,
-                        },
-                        {
-                          rotate: '-15deg',
-                        },
-                      ],
-                    }}>
-                    {'승리!'}
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={{
-                  width: '100%',
-                }}>
+                          : 'gray'
+                      }
+                      style={{
+                        position: 'absolute',
+                      }}
+                    />
+                    <Text
+                      style={{
+                        textAlign: 'center',
+                        fontFamily: 'UhBee Seulvely',
+                        color:
+                          result === 'W'
+                            ? 'red'
+                            : result === 'L'
+                            ? 'blue'
+                            : 'gray',
+                        fontSize: 14,
+                        position: 'absolute',
+                        top: 32,
+                        left: 12,
+                        transform: [
+                          {
+                            translateY: -10,
+                          },
+                          {
+                            rotate: '-15deg',
+                          },
+                        ],
+                      }}>
+                      {result === 'W'
+                        ? '승리!'
+                        : result === 'L'
+                        ? '패배'
+                        : '무승부'}
+                    </Text>
+                  </View>
+                )}
                 <Text
                   style={{
                     width: '100%',
                     fontFamily: 'UhBee Seulvely',
                     fontSize: 12,
+                    marginTop: 20,
                   }}>
                   {'24.04.18 '}
                   {'SSG'}
@@ -202,6 +215,11 @@ function Write() {
                   {' @'}
                   {'인천SS랜더스필드'}
                 </Text>
+              </View>
+              <View
+                style={{
+                  width: '100%',
+                }}>
                 <Text
                   style={{
                     width: '100%',
@@ -216,7 +234,9 @@ function Write() {
           </View>
           <View style={polaroidStyles.buttonWrapper}>
             <Text style={polaroidStyles.shareText}>공유하기</Text>
-            <Text style={polaroidStyles.shareText}>삭제하기</Text>
+            <TouchableOpacity onPress={onPressDelete}>
+              <Text style={polaroidStyles.shareText}>삭제하기</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -289,9 +309,16 @@ function Write() {
                   multiline
                   maxLength={200}
                   value={memo}
-                  onChangeText={value => setMemo(value)}
+                  onChangeText={value => {
+                    if ((value.match(/\n/g) ?? '').length > 7) {
+                      Alert.alert('줄바꿈은 최대 8줄만 가능해요!');
+                    } else {
+                      setMemo(value);
+                    }
+                  }}
                   placeholder="사진과 함께 기록할 내용을 적어주세요!"
                   style={modalStyles.input}
+                  numberOfLines={8}
                 />
                 <Text
                   style={{
@@ -432,7 +459,7 @@ const modalStyles = StyleSheet.create({
   },
   input: {
     width: width - 48,
-    height: 200,
+    height: 150,
     borderWidth: 1,
     borderRadius: 4,
     borderColor: '#888',
