@@ -9,15 +9,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-import TouchableWrapper from '../components/TouchableWrapper';
-import Add from '../assets/svg/add.svg';
-import { useEffect, useRef, useState } from 'react';
-import { palette } from '../style/palette';
+import { useEffect, useState } from 'react';
 import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
-import Toast, { ToastRef } from 'react-native-toast-message';
+import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
+
+import TouchableWrapper from '../components/TouchableWrapper';
+import { palette } from '../style/palette';
+import Add from '../assets/svg/add.svg';
+import Stamp from '../assets/svg/stamp.svg';
 
 const { width, height } = Dimensions.get('window');
 const formattedToday = dayjs().format('YYYY-MM-DD');
@@ -48,6 +49,7 @@ function Write() {
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
   const [isEdit, setIsEdit] = useState(false);
+  const [result, setResult] = useState<'W' | 'D' | 'L'>('W');
 
   useEffect(() => {
     if (!isVisible) {
@@ -128,38 +130,88 @@ function Write() {
               onPress={() => setIsVisible(true)}
               style={{
                 flex: 1,
-                // justifyContent: 'center',
+                justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-              <Image
-                source={{ uri: image?.sourceURL }}
-                width={width * 0.7 - 16}
-                height={(IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16}
+              <View
                 style={{
-                  margin: 8,
-                }}
-              />
-              <Text
+                  position: 'relative',
+                }}>
+                <Image
+                  source={{ uri: image?.sourceURL }}
+                  width={width * 0.7 - 16}
+                  height={(IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16}
+                />
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: 30,
+                    left: width * 0.7 - 16 - 60,
+                  }}>
+                  <Stamp
+                    width={60}
+                    height={60}
+                    color={
+                      result === 'W' ? 'red' : result === 'L' ? 'blue' : 'gray'
+                    }
+                    style={{
+                      position: 'absolute',
+                    }}
+                  />
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      fontFamily: 'UhBee Seulvely',
+                      color:
+                        result === 'W'
+                          ? 'red'
+                          : result === 'L'
+                          ? 'blue'
+                          : 'gray',
+                      fontSize: 14,
+                      position: 'absolute',
+                      top: 32,
+                      left: 12,
+                      transform: [
+                        {
+                          translateY: -10,
+                        },
+                        {
+                          rotate: '-15deg',
+                        },
+                      ],
+                    }}>
+                    {'승리!'}
+                  </Text>
+                </View>
+              </View>
+              <View
                 style={{
                   width: '100%',
-                  // textAlign: 'right',
-                  fontFamily: 'UhBee Seulvely',
-                  paddingLeft: 8,
                 }}>
-                {'2024/04/18'}
-                {' @'}
-                {'인천SS랜더스필드'}
-              </Text>
-              <Text
-                style={{
-                  width: '100%',
-                  paddingHorizontal: 8,
-                  fontSize: 12,
-                  fontFamily: 'KBO-Dia-Gothic-light',
-                  marginTop: 10,
-                }}>
-                {memo}
-              </Text>
+                <Text
+                  style={{
+                    width: '100%',
+                    fontFamily: 'UhBee Seulvely',
+                    fontSize: 12,
+                  }}>
+                  {'24.04.18 '}
+                  {'SSG'}
+                  {' vs '}
+                  {'KIA'}
+                  {' @'}
+                  {'인천SS랜더스필드'}
+                </Text>
+                <Text
+                  style={{
+                    width: '100%',
+                    fontSize: 12,
+                    fontFamily: 'KBO-Dia-Gothic-light',
+                    marginTop: 6,
+                  }}>
+                  {memo}
+                </Text>
+              </View>
             </TouchableOpacity>
           </View>
           <View style={polaroidStyles.buttonWrapper}>
@@ -338,9 +390,10 @@ const polaroidStyles = StyleSheet.create({
   },
   photoWrapper: {
     width: '70%',
-    height: '50%',
+    height: '45%',
+    padding: 8,
     backgroundColor: '#fff',
-    borderWidth: 1,
+    // borderWidth: 1,
     shadowOffset: {
       width: 2,
       height: 2,
