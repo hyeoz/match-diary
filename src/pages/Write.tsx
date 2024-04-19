@@ -9,11 +9,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
+import ViewShot from 'react-native-view-shot';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 
 import TouchableWrapper from '../components/TouchableWrapper';
 import { palette } from '../style/palette';
@@ -33,22 +35,24 @@ const IMAGE_HEIGHT = 1080;
     - 이미지는 어떻게 관리하는지?
     -> crop 후 path 를 return 해주는데, 이 path 를 이용하여 이미지를 보여줌
     - 원본이미지 path 를 사용하는 방식으로 먼저 구현
+  - 해당 날짜에 이미 업로드한 경우 업로드버튼 대신 공유용 이미지(폴라로이드) 띄우기
+  - 업로드 모달에서 생성이 아닌 수정인 경우 공유하기 버튼 생성 (이미지 파일로 내보낼 수 있도록)
 */
 
 /* TODO
-  - 해당 날짜에 이미 업로드한 경우 업로드버튼 대신 공유용 이미지(폴라로이드) 띄우기
   - 위치정보 불러오기 (푸쉬메세지)
   - 마이페이지에서 마이팀 설정 시 승/패 정보도
   - 당일 날짜로 경기 정보 불러오기
     - 경기정보 들어갈 위치 대략 잡기
-  - 업로드 모달에서 생성이 아닌 수정인 경우 공유하기 버튼 생성 (이미지 파일로 내보낼 수 있도록)
 */
 
 function Write() {
+  const shareImageRef = useRef<ViewShot>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
   const [isEdit, setIsEdit] = useState(false);
+  // TODO 마이팀 정보 있을 때 승패
   const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
 
   useEffect(() => {
@@ -96,8 +100,6 @@ function Write() {
     const res = await AsyncStorage.getItem(formattedToday);
 
     if (res) {
-      console.log(res, 'MEMO??');
-
       const json = JSON.parse(res);
       setImage(json.image);
       setMemo(json.memo);
@@ -132,6 +134,28 @@ function Write() {
     );
   };
 
+  const getImageUrl = async () => {
+    if (!shareImageRef.current?.capture) {
+      return;
+    }
+    const uri = await shareImageRef.current.capture();
+    return uri;
+  };
+
+  const onPressShare = async () => {
+    const uri = await getImageUrl();
+    if (!uri) {
+      return;
+    }
+    const res = await CameraRoll.saveToCameraRoll(uri);
+    console.log(res, 'RES???');
+    Toast.show({
+      type: 'success',
+      text1: '오늘의 직관일기가 앨범에 저장되었어요. 공유해보세요!',
+      topOffset: 60,
+    });
+  };
+
   return (
     <TouchableWrapper>
       {/* SECTION 메인 버튼 / 폴라로이드 */}
@@ -153,108 +177,120 @@ function Write() {
         </View>
       ) : (
         <View style={polaroidStyles.wrapper}>
-          <View style={polaroidStyles.photoWrapper}>
-            <TouchableOpacity
-              onPress={() => setIsVisible(true)}
-              style={{
-                flex: 1,
-                // justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <View
+          <ViewShot
+            ref={shareImageRef}
+            options={{
+              fileName: `${formattedToday}_직관일기`,
+              format: 'jpg',
+              quality: 1,
+            }}
+            style={{
+              height: '45%',
+            }}>
+            <View style={polaroidStyles.photoWrapper}>
+              <TouchableOpacity
+                onPress={() => setIsVisible(true)}
                 style={{
-                  position: 'relative',
+                  flex: 1,
+                  alignItems: 'center',
                 }}>
-                <Image
-                  source={{ uri: image?.sourceURL }}
-                  width={width * 0.7 - 16}
-                  height={(IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16}
-                />
-                {!!result && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      bottom: 30,
-                      left: width * 0.7 - 16 - 60,
-                    }}>
-                    <Stamp
-                      width={60}
-                      height={60}
-                      color={
-                        result === 'W'
-                          ? 'red'
-                          : result === 'L'
-                          ? 'blue'
-                          : 'gray'
-                      }
+                <View
+                  style={{
+                    position: 'relative',
+                  }}>
+                  <Image
+                    source={{ uri: image?.sourceURL }}
+                    width={width * 0.7 - 16}
+                    height={(IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16}
+                  />
+                  {!!result && (
+                    <View
                       style={{
                         position: 'absolute',
-                      }}
-                    />
-                    <Text
-                      style={{
-                        textAlign: 'center',
-                        fontFamily: 'UhBee Seulvely',
-                        color:
+                        bottom: 30,
+                        left: width * 0.7 - 16 - 60,
+                      }}>
+                      <Stamp
+                        width={60}
+                        height={60}
+                        color={
                           result === 'W'
                             ? 'red'
                             : result === 'L'
                             ? 'blue'
-                            : 'gray',
-                        fontSize: 14,
-                        position: 'absolute',
-                        top: 32,
-                        left: 12,
-                        transform: [
-                          {
-                            translateY: -10,
-                          },
-                          {
-                            rotate: '-15deg',
-                          },
-                        ],
-                      }}>
-                      {result === 'W'
-                        ? '승리!'
-                        : result === 'L'
-                        ? '패배'
-                        : '무승부'}
-                    </Text>
-                  </View>
-                )}
-                <Text
+                            : 'gray'
+                        }
+                        style={{
+                          position: 'absolute',
+                        }}
+                      />
+                      <Text
+                        style={{
+                          textAlign: 'center',
+                          fontFamily: 'UhBee Seulvely',
+                          color:
+                            result === 'W'
+                              ? 'red'
+                              : result === 'L'
+                              ? 'blue'
+                              : 'gray',
+                          fontSize: 14,
+                          position: 'absolute',
+                          top: 32,
+                          left: 12,
+                          transform: [
+                            {
+                              translateY: -10,
+                            },
+                            {
+                              rotate: '-15deg',
+                            },
+                          ],
+                        }}>
+                        {result === 'W'
+                          ? '승리!'
+                          : result === 'L'
+                          ? '패배'
+                          : '무승부'}
+                      </Text>
+                    </View>
+                  )}
+                  <Text
+                    style={{
+                      width: '100%',
+                      fontFamily: 'UhBee Seulvely',
+                      fontSize: 12,
+                      marginTop: 20,
+                    }}>
+                    {'24.04.18 '}
+                    {'SSG'}
+                    {' vs '}
+                    {'KIA'}
+                    {' @'}
+                    {'인천SS랜더스필드'}
+                  </Text>
+                </View>
+                <View
                   style={{
                     width: '100%',
-                    fontFamily: 'UhBee Seulvely',
-                    fontSize: 12,
-                    marginTop: 20,
                   }}>
-                  {'24.04.18 '}
-                  {'SSG'}
-                  {' vs '}
-                  {'KIA'}
-                  {' @'}
-                  {'인천SS랜더스필드'}
-                </Text>
-              </View>
-              <View
-                style={{
-                  width: '100%',
-                }}>
-                <Text
-                  style={{
-                    width: '100%',
-                    fontSize: 12,
-                    fontFamily: 'KBO-Dia-Gothic-light',
-                    marginTop: 6,
-                  }}>
-                  {memo}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+                  <Text
+                    style={{
+                      width: '100%',
+                      fontSize: 12,
+                      fontFamily: 'KBO-Dia-Gothic-light',
+                      marginTop: 6,
+                    }}>
+                    {memo}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </ViewShot>
           <View style={polaroidStyles.buttonWrapper}>
-            <Text style={polaroidStyles.shareText}>공유하기</Text>
+            <TouchableOpacity onPress={onPressShare}>
+              <Text style={polaroidStyles.shareText}>공유하기</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={onPressDelete}>
               <Text style={polaroidStyles.shareText}>삭제하기</Text>
             </TouchableOpacity>
@@ -438,7 +474,7 @@ const polaroidStyles = StyleSheet.create({
   },
   photoWrapper: {
     width: '70%',
-    height: '45%',
+    height: '100%',
     padding: 8,
     backgroundColor: '#fff',
     // borderWidth: 1,
