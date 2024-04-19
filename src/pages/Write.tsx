@@ -55,7 +55,6 @@ function Write() {
     if (!isVisible) {
       setImage(null);
       setMemo('');
-    } else {
     }
     checkItem();
   }, [isVisible]);
@@ -107,8 +106,30 @@ function Write() {
   };
 
   const onPressDelete = async () => {
-    await AsyncStorage.removeItem('image');
-    await AsyncStorage.removeItem('memo');
+    Alert.alert(
+      '삭제하기',
+      '오늘의 직관 기록이 사라져요. 계속 진행하시겠어요?',
+      [
+        {
+          text: '돌아가기',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: '삭제하기',
+          onPress: async () => {
+            try {
+              await AsyncStorage.clear();
+              setImage(null);
+              setMemo('');
+              setIsEdit(false);
+            } catch (e) {
+              console.error(e);
+            }
+          },
+        },
+      ],
+    );
   };
 
   return (
