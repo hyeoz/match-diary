@@ -3,6 +3,8 @@ import {
   Dimensions,
   Image,
   Modal,
+  PermissionsAndroid,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -84,6 +86,9 @@ function Write() {
         text1: '아직 작성하지 않은 항목이 있어요!',
         topOffset: 64,
       });
+    } else if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
+      Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
+      return;
     } else {
       await AsyncStorage.setItem(
         formattedToday,
@@ -134,6 +139,18 @@ function Write() {
     );
   };
 
+  const hasAndroidPermission = async () => {
+    const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+
+    const hasPermission = await PermissionsAndroid.check(permission);
+    if (hasPermission) {
+      return true;
+    }
+
+    const status = await PermissionsAndroid.request(permission);
+    return status === 'granted';
+  };
+
   const getImageUrl = async () => {
     if (!shareImageRef.current?.capture) {
       return;
@@ -143,12 +160,20 @@ function Write() {
   };
 
   const onPressShare = async () => {
+    if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
+      Alert.alert('갤러리 접근 권한을 먼저 설정해주세요!');
+      return;
+    }
+
     const uri = await getImageUrl();
+
     if (!uri) {
       return;
     }
+
     const res = await CameraRoll.saveToCameraRoll(uri);
     console.log(res, 'RES???');
+
     Toast.show({
       type: 'success',
       text1: '오늘의 직관일기가 앨범에 저장되었어요. 공유해보세요!',
