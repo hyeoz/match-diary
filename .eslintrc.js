@@ -8,5 +8,6 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'warn',
     'react/react-in-jsx-scope': 'off',
     'object-curly-spacing': ['error', 'always'],
+    'react/no-unstable-nested-components': ['off'],
   },
 };
