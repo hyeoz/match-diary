@@ -76,10 +76,13 @@ LocaleConfig.defaultLocale = 'kr';
 function Calendar() {
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState(dayjs().format(DATE_FORMAT));
+  const [data, setData] = useState<
+    { image: string; memo: string } | undefined
+  >();
 
   useEffect(() => {
     getAllItems();
-  });
+  }, []);
 
   const getSelectedItem = async () => {
     const res = await AsyncStorage.getItem(selectedDate);
@@ -164,7 +167,27 @@ function Calendar() {
 
       {/* TODO 데이터 있는 경우 보여주기 */}
       {/* TODO 데이터 없는 경우 직관기록이 없어요 */}
-      {/* TODO 총 직관기록 / 승패 / 승률 */}
+      <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
+        {data ? (
+          <View style={{ borderWidth: 1, width: '60%', marginHorizontal: 16 }}>
+            <Text>111</Text>
+          </View>
+        ) : (
+          <View style={{ borderWidth: 1, width: '60%', marginHorizontal: 16 }}>
+            <Text>222</Text>
+          </View>
+        )}
+        {/* TODO 총 직관기록 / 승패 / 승률 */}
+        <View
+          style={{
+            flex: 1,
+            borderWidth: 1,
+            borderColor: 'red',
+            marginRight: 16,
+          }}>
+          <Text>Right</Text>
+        </View>
+      </View>
     </TouchableWrapper>
   );
 }
