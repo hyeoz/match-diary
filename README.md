@@ -60,6 +60,7 @@ This is one way to run your app — you can also run it directly from within And
 <a href="https://www.flaticon.com/free-icons/contract" title="contract icons">Contract icons created by Freepik - Flaticon</a><br />
 <a href="https://www.flaticon.com/free-icons/search" title="search icons">Search icons created by Freepik - Flaticon</a><br />
 <a href="https://www.flaticon.com/free-icons/history" title="history icons">History icons created by Chanut-is-Industries - Flaticon</a><br />
+<a href="https://www.flaticon.com/free-icons/clip" title="clip icons">Clip icons created by Freepik - Flaticon</a>
 
 <a href="https://www.koreabaseball.com/Reference/etc/KboFont.aspx">KBO DIA 고딕체</a>
 <a href="http://uhbeefont.com/font/w/UhBeeSeulvely.html">어비 슬기로운 생활체</a>
