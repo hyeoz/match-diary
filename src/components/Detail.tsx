@@ -32,6 +32,7 @@ export function Detail({
   setIsVisible,
 }: DetailPropsType) {
   const shareImageRef = useRef<ViewShot>(null);
+  // TODO 마이팀 정보 있을 때 승패
   const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
 
   const onPressDelete = async () => {

@@ -46,7 +46,6 @@ function Write() {
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
   const [isEdit, setIsEdit] = useState(false);
-  // TODO 마이팀 정보 있을 때 승패
 
   useEffect(() => {
     if (!isVisible) {
