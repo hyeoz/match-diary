@@ -17,20 +17,11 @@ import dayjs from 'dayjs';
 
 import Stamp from '../assets/svg/stamp.svg';
 import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '../utils/STATIC_DATA';
-import { ImageOrVideo } from 'react-native-image-crop-picker';
 import { hasAndroidPermission } from '../utils/helper';
+import { DetailPropsType } from '../types/types';
 
 const { width, height } = Dimensions.get('window');
 const formattedToday = dayjs().format(DATE_FORMAT);
-
-type DetailPropsType = {
-  image: ImageOrVideo | null;
-  setImage: React.Dispatch<React.SetStateAction<ImageOrVideo | null>>;
-  memo: string;
-  setMemo: React.Dispatch<React.SetStateAction<string>>;
-  setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 export function Detail({
   image,
