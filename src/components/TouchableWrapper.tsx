@@ -11,7 +11,6 @@ function TouchableWrapper({
   children,
 }: {
   children: React.JSX.Element | React.JSX.Element[];
-  // style?: StyleProp
 }) {
   const { isOpen, update } = useBottomTabState();
   return (

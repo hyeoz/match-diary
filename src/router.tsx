@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Splash from './pages/Splash';
 import Main from './pages/Main';
+import MyTeam from './pages/MyTeam';
+import { useNavigation } from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator();
 
 const Router = () => {
+  const navigation = useNavigation();
+
   return (
     <Stack.Navigator
       initialRouteName="Splash"
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
         gestureEnabled: true,
         animation: 'slide_from_right',
       }}>
@@ -27,6 +31,7 @@ const Router = () => {
         //   animation: 'fade',
         // }}
       />
+      {/* <Stack.Screen name="MyTeam" component={MyTeam} /> */}
     </Stack.Navigator>
   );
 };
