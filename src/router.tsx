@@ -12,7 +12,8 @@ const Router = () => {
       initialRouteName="Splash"
       screenOptions={{
         headerShown: false,
-        // gestureEnabled: false
+        gestureEnabled: true,
+        animation: 'slide_from_right',
       }}>
       <Stack.Screen
         name="Splash"
@@ -22,10 +23,9 @@ const Router = () => {
       <Stack.Screen
         name="Main"
         component={Main}
-        options={{
-          animation: 'fade',
-          // cardStyleInterpolator: forFade,
-        }}
+        // options={{
+        //   animation: 'fade',
+        // }}
       />
     </Stack.Navigator>
   );
