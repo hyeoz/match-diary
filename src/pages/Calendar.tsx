@@ -6,16 +6,20 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import dayjs from 'dayjs';
 import { Calendar as RNCalendar, LocaleConfig } from 'react-native-calendars';
 import { DateData, MarkedDates } from 'react-native-calendars/src/types';
+import { DayProps } from 'react-native-calendars/src/calendar/day';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import dayjs from 'dayjs';
+import { ImageOrVideo } from 'react-native-image-crop-picker';
 
 import TouchableWrapper from '../components/TouchableWrapper';
+import { Detail } from '../components/Detail';
 import { DATE_FORMAT } from '../utils/STATIC_DATA';
-import Ball from '../assets/svg/ball.svg';
 import { palette } from '../style/palette';
-import { DayProps } from 'react-native-calendars/src/calendar/day';
+import Ball from '../assets/svg/ball.svg';
+import Pin from '../assets/svg/paperclip.svg';
+import UploadModal from '../components/UploadModal';
 
 /* DONE
   - 데이터 있는 경우 marking
@@ -76,19 +80,35 @@ LocaleConfig.defaultLocale = 'kr';
 function Calendar() {
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState(dayjs().format(DATE_FORMAT));
-  const [data, setData] = useState<
-    { image: string; memo: string } | undefined
-  >();
+  const [isVisible, setIsVisible] = useState(false);
+  const [image, setImage] = useState<ImageOrVideo | null>(null);
+  const [memo, setMemo] = useState('');
+  const [isEdit, setIsEdit] = useState(false);
+
+  const detailProps = {
+    image: image,
+    setImage: setImage,
+    memo: memo,
+    setMemo: setMemo,
+    setIsEdit: setIsEdit,
+    setIsVisible: setIsVisible,
+  };
 
   useEffect(() => {
     getAllItems();
   }, []);
 
+  useEffect(() => {
+    getSelectedItem();
+  }, [selectedDate]);
+
   const getSelectedItem = async () => {
     const res = await AsyncStorage.getItem(selectedDate);
 
     if (res) {
-      const json = JSON.parse(res);
+      const json: { image: ImageOrVideo; memo: string } = JSON.parse(res);
+      setImage(json.image);
+      setMemo(json.memo);
     }
   };
 
@@ -133,6 +153,7 @@ function Calendar() {
     ),
     [onDayPress, selectedDate],
   );
+
   return (
     <TouchableWrapper>
       <View style={styles.calendarWrapper}>
@@ -168,9 +189,21 @@ function Calendar() {
       {/* TODO 데이터 있는 경우 보여주기 */}
       {/* TODO 데이터 없는 경우 직관기록이 없어요 */}
       <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
-        {data ? (
-          <View style={{ borderWidth: 1, width: '60%', marginHorizontal: 16 }}>
-            <Text>111</Text>
+        {image && memo ? (
+          <View
+            style={{
+              width: width * 0.6,
+              marginHorizontal: 16,
+            }}>
+            <Pin
+              width={32}
+              height={32}
+              style={{
+                position: 'absolute',
+                zIndex: 9,
+              }}
+            />
+            <Detail {...detailProps} isCalendar />
           </View>
         ) : (
           <View style={{ borderWidth: 1, width: '60%', marginHorizontal: 16 }}>
@@ -188,6 +221,8 @@ function Calendar() {
           <Text>Right</Text>
         </View>
       </View>
+
+      <UploadModal {...detailProps} isVisible={isVisible} />
     </TouchableWrapper>
   );
 }
