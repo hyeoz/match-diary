@@ -23,9 +23,10 @@ import TouchableWrapper from '../components/TouchableWrapper';
 import { palette } from '../style/palette';
 import Add from '../assets/svg/add.svg';
 import Stamp from '../assets/svg/stamp.svg';
+import { DATE_FORMAT } from '../utils/STATIC_DATA';
 
 const { width, height } = Dimensions.get('window');
-const formattedToday = dayjs().format('YYYY-MM-DD');
+const formattedToday = dayjs().format(DATE_FORMAT);
 
 const IMAGE_WIDTH = 1080;
 const IMAGE_HEIGHT = 1080;
@@ -45,7 +46,6 @@ const IMAGE_HEIGHT = 1080;
   - 위치정보 불러오기 (푸쉬메세지)
   - 마이페이지에서 마이팀 설정 시 승/패 정보도
   - 당일 날짜로 경기 정보 불러오기
-    - 경기정보 들어갈 위치 대략 잡기
 */
 
 function Write() {
