@@ -100,6 +100,11 @@ export function Detail({
               polaroidStyles.wrapper,
               {
                 justifyContent: 'flex-start',
+                transform: [
+                  {
+                    rotate: '2deg',
+                  },
+                ],
               },
             ]
           : polaroidStyles.wrapper
@@ -118,10 +123,10 @@ export function Detail({
                   polaroidStyles.photoWrapper,
                   {
                     width: width * 0.6 - 12,
-                    height: height * 0.38,
+                    height: height * 0.35,
                   },
                 ]
-              : polaroidStyles.photoWrapper
+              : [polaroidStyles.photoWrapper, polaroidStyles.photoWrapperShadow]
           }>
           <TouchableOpacity
             onPress={() => setIsVisible(true)}
@@ -244,14 +249,24 @@ export function Detail({
                   lineHeight: 14,
                   marginTop: 6,
                 }}
-                numberOfLines={isCalendar ? 3 : undefined}>
+                numberOfLines={isCalendar ? 2 : undefined}>
                 {memo}
               </Text>
             </View>
           </TouchableOpacity>
         </View>
+        {isCalendar && <View style={[polaroidStyles.shadow]}></View>}
+        {isCalendar && <View style={polaroidStyles.effect}></View>}
       </ViewShot>
-      <View style={polaroidStyles.buttonWrapper}>
+      <View
+        style={
+          isCalendar
+            ? [
+                polaroidStyles.buttonWrapper,
+                { marginTop: 8, justifyContent: 'flex-start', width: '90%' },
+              ]
+            : polaroidStyles.buttonWrapper
+        }>
         <TouchableOpacity onPress={onPressShare}>
           <Text style={polaroidStyles.shareText}>공유하기</Text>
         </TouchableOpacity>
@@ -274,6 +289,8 @@ const polaroidStyles = StyleSheet.create({
     height: height * 0.47,
     padding: 8,
     backgroundColor: 'rgb(243,243,243)',
+  },
+  photoWrapperShadow: {
     shadowOffset: {
       width: 2,
       height: 2,
@@ -282,6 +299,26 @@ const polaroidStyles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 16,
   },
+
+  effect: {
+    position: 'absolute',
+    height: 200,
+  },
+  shadow: {
+    zIndex: -1,
+    position: 'absolute',
+    bottom: 15,
+    left: 10,
+    width: '90%',
+    height: '90%',
+    top: 16,
+    backgroundColor: '#fff',
+    shadowColor: '#777',
+    shadowOffset: { width: 0, height: 15 },
+    shadowOpacity: 1,
+    transform: [{ rotate: '3deg' }],
+  },
+
   buttonWrapper: {
     width: '70%',
     flexDirection: 'row',

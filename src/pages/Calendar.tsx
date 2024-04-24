@@ -15,19 +15,23 @@ import { ImageOrVideo } from 'react-native-image-crop-picker';
 
 import TouchableWrapper from '../components/TouchableWrapper';
 import { Detail } from '../components/Detail';
+import UploadModal from '../components/UploadModal';
 import { DATE_FORMAT } from '../utils/STATIC_DATA';
 import { palette } from '../style/palette';
 import Ball from '../assets/svg/ball.svg';
 import Pin from '../assets/svg/paperclip.svg';
-import UploadModal from '../components/UploadModal';
+import { useMyState } from '../store/default';
 
 /* DONE
   - 데이터 있는 경우 marking
+  - 데이터 있는 경우 디테일 컴포넌트 보여주기
 
 */
 
 /* TODO
+  - 횟수 / 마이팀 있는 경우 승률 보여주기
   - 데이터 있는 경우 클릭 시 모달 열어서 데이터 보여주기 / 수정
+  - 데이터 없는 경우 빈 화면 보여주기
   - 데이터 없는 경우 생성 모달 열기
   - 캘린더 스타일링, config, 날짜 넘기는 액션 구현
 */
@@ -84,6 +88,7 @@ function Calendar() {
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
   const [isEdit, setIsEdit] = useState(false);
+  const { team } = useMyState();
 
   const detailProps = {
     image: image,
@@ -109,6 +114,9 @@ function Calendar() {
       const json: { image: ImageOrVideo; memo: string } = JSON.parse(res);
       setImage(json.image);
       setMemo(json.memo);
+    } else {
+      setImage(null);
+      setMemo('');
     }
   };
 
@@ -189,27 +197,45 @@ function Calendar() {
       {/* TODO 데이터 있는 경우 보여주기 */}
       {/* TODO 데이터 없는 경우 직관기록이 없어요 */}
       <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
-        {image && memo ? (
-          <View
+        <View style={styles.detailWrapper}>
+          <Pin
+            width={32}
+            height={32}
             style={{
-              width: width * 0.6,
-              marginHorizontal: 16,
-            }}>
-            <Pin
-              width={32}
-              height={32}
-              style={{
-                position: 'absolute',
-                zIndex: 9,
-              }}
-            />
+              position: 'absolute',
+              zIndex: 9,
+            }}
+          />
+          {image && memo ? (
             <Detail {...detailProps} isCalendar />
-          </View>
-        ) : (
-          <View style={{ borderWidth: 1, width: '60%', marginHorizontal: 16 }}>
-            <Text>222</Text>
-          </View>
-        )}
+          ) : (
+            <View
+              style={{
+                padding: 16,
+              }}>
+              <View
+                style={{
+                  zIndex: 1,
+                  backgroundColor: '#fef9f4',
+                  width: '100%',
+                  height: 200,
+                  padding: 16,
+                }}>
+                <Text
+                  style={[
+                    styles.stickyNoteText,
+                    {
+                      fontSize: 20,
+                    },
+                  ]}>
+                  야구장 가고싶다
+                </Text>
+              </View>
+              <View style={[styles.shadow]}></View>
+              <View style={styles.effect}></View>
+            </View>
+          )}
+        </View>
         {/* TODO 총 직관기록 / 승패 / 승률 */}
         <View
           style={{
@@ -218,33 +244,52 @@ function Calendar() {
             gap: 16,
             paddingTop: 16,
           }}>
-          <View
-            style={{
-              aspectRatio: 1 / 1,
-              backgroundColor: palette.commonColor.yellow,
-              padding: 8,
-              transform: [
+          <View style={styles.stickyNoteWrapper}>
+            <Text style={[styles.stickyNoteText]}>이번 달 직관 기록</Text>
+            <Text
+              style={[
+                styles.stickyNoteText,
                 {
-                  rotate: '5deg',
+                  textAlign: 'right',
                 },
-              ],
-            }}>
-            <Text>이번 달 직관 기록</Text>
-            <Text>이번 시즌 직관 기록</Text>
-          </View>
-          <View
-            style={{
-              aspectRatio: 1 / 1,
-              backgroundColor: palette.commonColor.yellow,
-              padding: 8,
-              transform: [
+              ]}>
+              {!!team ? `홈 ${1}번 / 원정 ${0}번` : `${1}번`}
+            </Text>
+            <Text style={[styles.stickyNoteText]}>이번 시즌 직관 기록</Text>
+            <Text
+              style={[
+                styles.stickyNoteText,
                 {
-                  rotate: '-7deg',
+                  textAlign: 'right',
                 },
-              ],
-            }}>
-            <Text>222</Text>
+              ]}>
+              {!!team ? `홈 ${3}번 / 원정 ${2}번` : `${5}번`}
+            </Text>
           </View>
+          {!!team && (
+            <View
+              style={[
+                styles.stickyNoteWrapper,
+                {
+                  transform: [
+                    {
+                      rotate: '-5deg',
+                    },
+                  ],
+                },
+              ]}>
+              <Text style={[styles.stickyNoteText]}>내 직관 승률</Text>
+              <Text
+                style={[
+                  styles.stickyNoteText,
+                  {
+                    textAlign: 'right',
+                  },
+                ]}>
+                {!!team ? `홈 ${3}번 / 원정 ${2}번` : `${5}번`}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -344,6 +389,49 @@ const styles = StyleSheet.create({
   },
   calendarText: {
     fontFamily: 'KBO-Dia-Gothic-medium',
+  },
+  detailWrapper: {
+    width: width * 0.6,
+    marginLeft: 16,
+  },
+  stickyNoteWrapper: {
+    aspectRatio: 1 / 1,
+    backgroundColor: palette.commonColor.yellow,
+    padding: 8,
+    gap: 6,
+    transform: [
+      {
+        rotate: '5deg',
+      },
+    ],
+  },
+  stickyNoteText: {
+    fontFamily: 'UhBee Seulvely',
+    fontSize: 13,
+  },
+
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  effect: {
+    position: 'absolute',
+    height: 200,
+  },
+  shadow: {
+    zIndex: -1,
+    position: 'absolute',
+    bottom: 15,
+    left: 32,
+    width: '90%',
+    height: 180,
+    top: 22,
+    backgroundColor: '#777',
+    shadowColor: '#777',
+    shadowOffset: { width: 0, height: 15 },
+    shadowOpacity: 1,
+    transform: [{ rotate: '3deg' }],
   },
 });
 
