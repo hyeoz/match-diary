@@ -15,10 +15,10 @@ import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 
+import Add from '../assets/svg/add.svg';
 import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '../utils/STATIC_DATA';
 import { palette } from '../style/palette';
 import { hasAndroidPermission } from '../utils/helper';
-import Add from '../assets/svg/add.svg';
 import { DetailPropsType } from '../types/types';
 
 const { width } = Dimensions.get('window');
@@ -29,7 +29,6 @@ export default function UploadModal({
   setImage,
   memo,
   setMemo,
-  setIsEdit,
   isVisible,
   setIsVisible,
 }: DetailPropsType & { isVisible: boolean }) {
@@ -123,6 +122,7 @@ export default function UploadModal({
                 style={{
                   textAlign: 'right',
                   fontFamily: 'UhBee Seulvely',
+                  marginTop: 6,
                 }}>
                 {'2024/04/18'}
                 {' @'}
@@ -200,7 +200,7 @@ export default function UploadModal({
         </View>
       </View>
 
-      {/* SECTION root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
+      {/* NOTE root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
       <Toast />
     </Modal>
   );
@@ -220,7 +220,7 @@ const modalStyles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   contentWrapper: {
-    gap: 16,
+    // gap: 8,
   },
   input: {
     width: width - 48,
