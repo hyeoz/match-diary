@@ -1,10 +1,18 @@
-import {create} from 'zustand';
+import { create } from 'zustand';
 
-const useBottomTabState = create<{isOpen: boolean; update: () => void}>(
+const useBottomTabState = create<{ isOpen: boolean; update: () => void }>(
   set => ({
     isOpen: false,
-    update: () => set(prev => ({isOpen: !prev.isOpen})),
+    update: () => set(prev => ({ isOpen: !prev.isOpen })),
   }),
 );
 
-export default useBottomTabState;
+const useMyState = create<{ team: string; setTeam: (team: string) => void }>(
+  set => ({
+    // team: '',
+    team: 'SSG 랜더스',
+    setTeam: (team: string) => set(() => ({ team })),
+  }),
+);
+
+export { useBottomTabState, useMyState };

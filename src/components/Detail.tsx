@@ -30,7 +30,8 @@ export function Detail({
   setMemo,
   setIsEdit,
   setIsVisible,
-}: DetailPropsType) {
+  isCalendar = false,
+}: DetailPropsType & { isCalendar?: boolean }) {
   const shareImageRef = useRef<ViewShot>(null);
   // TODO 마이팀 정보 있을 때 승패
   const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
@@ -92,7 +93,22 @@ export function Detail({
   };
 
   return (
-    <View style={polaroidStyles.wrapper}>
+    <View
+      style={
+        isCalendar
+          ? [
+              polaroidStyles.wrapper,
+              {
+                justifyContent: 'flex-start',
+                transform: [
+                  {
+                    rotate: '2deg',
+                  },
+                ],
+              },
+            ]
+          : polaroidStyles.wrapper
+      }>
       <ViewShot
         ref={shareImageRef}
         options={{
@@ -100,7 +116,18 @@ export function Detail({
           format: 'jpg',
           quality: 1,
         }}>
-        <View style={polaroidStyles.photoWrapper}>
+        <View
+          style={
+            isCalendar
+              ? [
+                  polaroidStyles.photoWrapper,
+                  {
+                    width: width * 0.6 - 12,
+                    height: height * 0.35,
+                  },
+                ]
+              : [polaroidStyles.photoWrapper, polaroidStyles.photoWrapperShadow]
+          }>
           <TouchableOpacity
             onPress={() => setIsVisible(true)}
             style={{
@@ -113,8 +140,10 @@ export function Detail({
               }}>
               <View
                 style={{
-                  width: width * 0.7 - 12,
-                  height: (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
+                  width: isCalendar ? width * 0.6 - 12 : width * 0.7 - 12,
+                  height: isCalendar
+                    ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 12
+                    : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
                   shadowOffset: {
                     width: 2,
                     height: 2,
@@ -136,15 +165,21 @@ export function Detail({
               />
               <Image
                 source={{ uri: image?.sourceURL }}
-                width={width * 0.7 - 16}
-                height={(IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16}
+                width={isCalendar ? width * 0.6 - 32 : width * 0.7 - 16}
+                height={
+                  isCalendar
+                    ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 16
+                    : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16
+                }
               />
               {!!result && (
                 <View
                   style={{
                     position: 'absolute',
-                    bottom: 30,
-                    left: width * 0.7 - 16 - 60,
+                    bottom: isCalendar ? 60 : 30,
+                    left: isCalendar
+                      ? width * 0.6 - 16 - 60
+                      : width * 0.7 - 16 - 60,
                   }}>
                   <Stamp
                     width={60}
@@ -191,8 +226,8 @@ export function Detail({
                 style={{
                   width: '100%',
                   fontFamily: 'UhBee Seulvely',
-                  fontSize: 12,
-                  marginTop: 20,
+                  fontSize: isCalendar ? 10 : 12,
+                  marginTop: isCalendar ? 10 : 20,
                 }}>
                 {'24.04.18 '}
                 {'SSG'}
@@ -212,16 +247,26 @@ export function Detail({
                   fontSize: 12,
                   fontFamily: 'UhBee Seulvely',
                   lineHeight: 14,
-                  // fontFamily: 'KBO-Dia-Gothic-light',
                   marginTop: 6,
-                }}>
+                }}
+                numberOfLines={isCalendar ? 2 : undefined}>
                 {memo}
               </Text>
             </View>
           </TouchableOpacity>
         </View>
+        {isCalendar && <View style={[polaroidStyles.shadow]}></View>}
+        {isCalendar && <View style={polaroidStyles.effect}></View>}
       </ViewShot>
-      <View style={polaroidStyles.buttonWrapper}>
+      <View
+        style={
+          isCalendar
+            ? [
+                polaroidStyles.buttonWrapper,
+                { marginTop: 8, justifyContent: 'flex-start', width: '90%' },
+              ]
+            : polaroidStyles.buttonWrapper
+        }>
         <TouchableOpacity onPress={onPressShare}>
           <Text style={polaroidStyles.shareText}>공유하기</Text>
         </TouchableOpacity>
@@ -241,11 +286,11 @@ const polaroidStyles = StyleSheet.create({
   },
   photoWrapper: {
     width: width * 0.7,
-    height: height * 0.45,
+    height: height * 0.47,
     padding: 8,
     backgroundColor: 'rgb(243,243,243)',
-    // borderWidth: 1,
-    // borderColor: '#ddd',
+  },
+  photoWrapperShadow: {
     shadowOffset: {
       width: 2,
       height: 2,
@@ -254,6 +299,26 @@ const polaroidStyles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 16,
   },
+
+  effect: {
+    position: 'absolute',
+    height: 200,
+  },
+  shadow: {
+    zIndex: -1,
+    position: 'absolute',
+    bottom: 15,
+    left: 10,
+    width: '90%',
+    height: '90%',
+    top: 16,
+    backgroundColor: '#fff',
+    shadowColor: '#777',
+    shadowOffset: { width: 0, height: 15 },
+    shadowOpacity: 1,
+    transform: [{ rotate: '3deg' }],
+  },
+
   buttonWrapper: {
     width: '70%',
     flexDirection: 'row',
