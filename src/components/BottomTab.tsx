@@ -14,7 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-import useBottomTabState from '../store/default';
+import { useBottomTabState } from '../store/default';
 import Home from '../assets/svg/home.svg';
 import Calendar from '../assets/svg/calendar.svg';
 import More from '../assets/svg/more.svg';

@@ -214,11 +214,37 @@ function Calendar() {
         <View
           style={{
             flex: 1,
-            borderWidth: 1,
-            borderColor: 'red',
             marginRight: 16,
+            gap: 16,
+            paddingTop: 16,
           }}>
-          <Text>Right</Text>
+          <View
+            style={{
+              aspectRatio: 1 / 1,
+              backgroundColor: palette.commonColor.yellow,
+              padding: 8,
+              transform: [
+                {
+                  rotate: '5deg',
+                },
+              ],
+            }}>
+            <Text>이번 달 직관 기록</Text>
+            <Text>이번 시즌 직관 기록</Text>
+          </View>
+          <View
+            style={{
+              aspectRatio: 1 / 1,
+              backgroundColor: palette.commonColor.yellow,
+              padding: 8,
+              transform: [
+                {
+                  rotate: '-7deg',
+                },
+              ],
+            }}>
+            <Text>222</Text>
+          </View>
         </View>
       </View>
 

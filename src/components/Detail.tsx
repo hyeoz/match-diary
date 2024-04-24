@@ -271,7 +271,7 @@ const polaroidStyles = StyleSheet.create({
   },
   photoWrapper: {
     width: width * 0.7,
-    height: height * 0.45,
+    height: height * 0.47,
     padding: 8,
     backgroundColor: 'rgb(243,243,243)',
     shadowOffset: {

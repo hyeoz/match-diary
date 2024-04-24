@@ -4,6 +4,7 @@ const teamColor = {
 
 const commonColor = {
   green: '#7bc158',
+  yellow: '#feff9c',
 };
 
 export const palette = { teamColor, commonColor };
