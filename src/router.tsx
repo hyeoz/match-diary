@@ -15,7 +15,7 @@ const Router = () => {
     <Stack.Navigator
       initialRouteName="Splash"
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         gestureEnabled: true,
         animation: 'slide_from_right',
       }}>

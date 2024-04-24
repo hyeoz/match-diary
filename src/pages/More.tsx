@@ -97,7 +97,7 @@ function ListItem({
         onPress={
           item.onPressAction
             ? item.onPressAction
-            : () => navigation.navigate(item.key)
+            : () => navigation.navigate(item.key) // TODO stack navigation 확인 필요
         }>
         <Text
           style={{

@@ -1,6 +1,5 @@
 import {
   SafeAreaView,
-  StyleProp,
   StyleSheet,
   TouchableWithoutFeedback,
 } from 'react-native';
@@ -9,8 +8,10 @@ import { useBottomTabState } from '../store/default';
 
 function TouchableWrapper({
   children,
+  bgColor = '#fff',
 }: {
   children: React.JSX.Element | React.JSX.Element[];
+  bgColor?: string;
 }) {
   const { isOpen, update } = useBottomTabState();
   return (
@@ -18,7 +19,15 @@ function TouchableWrapper({
       onPress={() => isOpen && update()}
       // style={styles.wrapper}
     >
-      <SafeAreaView style={styles.pageWrapper}>{children}</SafeAreaView>
+      <SafeAreaView
+        style={[
+          styles.pageWrapper,
+          {
+            backgroundColor: bgColor,
+          },
+        ]}>
+        {children}
+      </SafeAreaView>
     </TouchableWithoutFeedback>
   );
 }
@@ -26,7 +35,8 @@ function TouchableWrapper({
 const styles = StyleSheet.create({
   pageWrapper: {
     flex: 1,
-    backgroundColor: '#fff',
+    // backgroundColor: palette.commonColor.greenBg,
+    // backgroundColor: '#fff',
   },
 });
 export default TouchableWrapper;
