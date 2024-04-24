@@ -1,6 +1,7 @@
 import {
   Alert,
   FlatList,
+  Linking,
   ListRenderItemInfo,
   Text,
   TouchableOpacity,
@@ -66,6 +67,9 @@ function More() {
           {
             key: 'AlertSetting',
             label: '알림설정',
+            onPressAction: () => {
+              Linking.openSettings();
+            },
           },
         ]}
         style={{
