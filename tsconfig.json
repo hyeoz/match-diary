@@ -1,7 +1,16 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["./*"],
+      "*": ["./*"],
+      "@components/*": ["components/*"],
+      "@assets/*": ["assets/*"],
+      "@svg/*": ["assets/svg/*"],
+      "@oages/*": ["pages/*"]
+    }
   },
   "extends": "@tsconfig/react-native/tsconfig.json"
 }
