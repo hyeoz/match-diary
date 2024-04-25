@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Splash from './pages/Splash';
 import Main from './pages/Main';
-import MyTeam from './pages/MyTeam';
 import { useNavigation } from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator();
@@ -31,7 +30,6 @@ const Router = () => {
         //   animation: 'fade',
         // }}
       />
-      {/* <Stack.Screen name="MyTeam" component={MyTeam} /> */}
     </Stack.Navigator>
   );
 };

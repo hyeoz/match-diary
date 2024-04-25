@@ -24,54 +24,56 @@ type MoreListItemType = {
 function More() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
+  const moreItems = [
+    {
+      key: 'MyTeam',
+      label: '마이팀 설정하기',
+    },
+    {
+      key: 'DeleteData',
+      label: '데이터 모두 삭제',
+      onPressAction: () => {
+        Alert.alert(
+          '데이터 모두 삭제하기',
+          '모든 직관 기록이 사라져요. 계속 진행하시겠어요?',
+          [
+            {
+              text: '돌아가기',
+              onPress: () => {},
+              style: 'cancel',
+            },
+            {
+              text: '삭제하기',
+              onPress: async () => {
+                try {
+                  await AsyncStorage.clear();
+                  Toast.show({
+                    type: 'success',
+                    text1: '모든 데이터가 정상적으로 삭제되었어요!',
+                  });
+                } catch (e) {
+                  console.error(e);
+                }
+              },
+            },
+          ],
+        );
+      },
+    },
+    {
+      key: 'AlertSetting',
+      label: '알림설정',
+      onPressAction: () => {
+        Linking.openSettings();
+      },
+    },
+  ];
+
   return (
     <TouchableWrapper>
       <FlatList
         renderItem={props => <ListItem {...props} navigation={navigation} />}
-        data={[
-          {
-            key: 'MyTeam',
-            label: '마이팀 설정하기',
-          },
-          {
-            key: 'DeleteData',
-            label: '데이터 모두 삭제',
-            onPressAction: () => {
-              Alert.alert(
-                '데이터 모두 삭제하기',
-                '모든 직관 기록이 사라져요. 계속 진행하시겠어요?',
-                [
-                  {
-                    text: '돌아가기',
-                    onPress: () => {},
-                    style: 'cancel',
-                  },
-                  {
-                    text: '삭제하기',
-                    onPress: async () => {
-                      try {
-                        await AsyncStorage.clear();
-                        Toast.show({
-                          type: 'success',
-                          text1: '모든 데이터가 정상적으로 삭제되었어요!',
-                        });
-                      } catch (e) {
-                        console.error(e);
-                      }
-                    },
-                  },
-                ],
-              );
-            },
-          },
-          {
-            key: 'AlertSetting',
-            label: '알림설정',
-            onPressAction: () => {
-              Linking.openSettings();
-            },
-          },
-        ]}
+        data={moreItems}
         style={{
           marginTop: 32,
           borderTopWidth: 1,
