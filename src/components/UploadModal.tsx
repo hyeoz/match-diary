@@ -173,7 +173,7 @@ export default function UploadModal({
                 },
               ]}>
               <View>
-                <Text style={modalStyles.buttonText}>Close</Text>
+                <Text style={modalStyles.buttonText}>취소하기</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -192,7 +192,7 @@ export default function UploadModal({
                       color: '#fff',
                     },
                   ]}>
-                  Save
+                  저장하기
                 </Text>
               </View>
             </TouchableOpacity>
