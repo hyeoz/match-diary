@@ -71,7 +71,7 @@ function Main() {
       initialRouteName="Main"
       tabBar={renderTabBar}
       backBehavior="history"
-      screenOptions={{ headerShown: false }}>
+      screenOptions={{ headerShown: false, lazy: true }}>
       <Tab.Screen name="CalendarTab" component={CalendarStackNavigator} />
 
       {/* NOTE 중앙의 홈탭 클릭 시 expand */}

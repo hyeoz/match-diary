@@ -50,7 +50,7 @@ export function Detail({
           text: '삭제하기',
           onPress: async () => {
             try {
-              await AsyncStorage.clear();
+              await AsyncStorage.removeItem(formattedToday);
               setImage(null);
               setMemo('');
               setIsEdit(false);

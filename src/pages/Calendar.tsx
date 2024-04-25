@@ -163,11 +163,10 @@ function Calendar() {
   );
 
   return (
-    <TouchableWrapper>
+    <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
         <RNCalendar
           style={styles.calendar}
-          // onDayPress={onDayPress}
           theme={{
             textDayHeaderFontFamily: 'KBO-Dia-Gothic-medium',
             arrowColor: palette.commonColor.green,
@@ -286,7 +285,7 @@ function Calendar() {
                     textAlign: 'right',
                   },
                 ]}>
-                {!!team ? `홈 ${3}번 / 원정 ${2}번` : `${5}번`}
+                {'3승 2패'}
               </Text>
             </View>
           )}
@@ -374,13 +373,13 @@ const styles = StyleSheet.create({
     height: 342,
     marginTop: 20,
     borderRadius: 16,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 0,
+    // },
+    // shadowColor: '#000',
+    // shadowOpacity: 0.15,
+    // shadowRadius: 24,
     zIndex: 99,
   },
   headerText: {
