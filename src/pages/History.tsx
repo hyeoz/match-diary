@@ -1,9 +1,17 @@
-import { Dimensions, FlatList, Image, ScrollView, Text } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  Dimensions,
+  FlatList,
+  Image,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ImageOrVideo } from 'react-native-image-crop-picker';
 
 import TouchableWrapper from '@components/TouchableWrapper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
-import { ImageOrVideo } from 'react-native-image-crop-picker';
+import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 
 /* TODO
   - 본인이 쓴 글 무한스크롤로 보여주는 화면 구현
@@ -34,20 +42,45 @@ function History() {
     });
   };
 
-  console.log(allImages, 'ALL IMAGES');
-
   return (
     <TouchableWrapper>
-      <FlatList
-        data={allImages}
-        renderItem={item => (
-          <Image
-            source={{ uri: item.item.sourceURL }}
-            width={(width - 24 - 24) / 4}
-            height={(width - 24 - 24) / 4}
-          />
-        )}
-      />
+      <View
+        style={{
+          marginTop: 20,
+          paddingVertical: 10,
+          marginBottom: 24,
+        }}>
+        <Text
+          style={{
+            textAlign: 'center',
+            fontWeight: '700',
+            fontSize: 18,
+            fontFamily: 'KBO-Dia-Gothic-bold',
+          }}>
+          내 직관일기 모아보기
+        </Text>
+      </View>
+      <ScrollView
+        style={{
+          // justifyContent: 'center',
+          paddingHorizontal: 8,
+          // paddingVertical: 40,
+        }}>
+        <FlatList
+          data={allImages}
+          renderItem={item => (
+            <Image
+              source={{ uri: item.item.sourceURL }}
+              width={(width - 16 - 8) / 3}
+              height={(IMAGE_HEIGHT * ((width - 16 - 8) / 3)) / IMAGE_WIDTH}
+              style={{
+                margin: 2,
+              }}
+            />
+          )}
+          numColumns={3}
+        />
+      </ScrollView>
     </TouchableWrapper>
   );
 }
