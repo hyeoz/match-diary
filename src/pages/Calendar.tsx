@@ -13,14 +13,14 @@ import { DayProps } from 'react-native-calendars/src/calendar/day';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
 
-import TouchableWrapper from '../components/TouchableWrapper';
-import { Detail } from '../components/Detail';
-import UploadModal from '../components/UploadModal';
-import { DATE_FORMAT } from '../utils/STATIC_DATA';
-import { palette } from '../style/palette';
-import Ball from '../assets/svg/ball.svg';
-import Pin from '../assets/svg/paperclip.svg';
-import { useMyState } from '../store/default';
+import TouchableWrapper from '@components/TouchableWrapper';
+import { Detail } from '@components/Detail';
+import UploadModal from '@components/UploadModal';
+import { DATE_FORMAT } from '@utils/STATIC_DATA';
+import { palette } from '@style/palette';
+import Ball from '@assets/svg/ball.svg';
+import Pin from '@assets/svg/paperclip.svg';
+import { useMyState } from '@stores/default';
 
 /* DONE
   - 데이터 있는 경우 marking

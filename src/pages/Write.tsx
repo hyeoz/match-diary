@@ -1,26 +1,14 @@
-import {
-  Alert,
-  Dimensions,
-  Image,
-  Modal,
-  PermissionsAndroid,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
-
-import TouchableWrapper from '../components/TouchableWrapper';
-import { Detail } from '../components/Detail';
-import UploadModal from '../components/UploadModal';
-import Add from '../assets/svg/add.svg';
-import { DATE_FORMAT } from '../utils/STATIC_DATA';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
+
+import TouchableWrapper from '@components/TouchableWrapper';
+import { Detail } from '@components/Detail';
+import UploadModal from '@components/UploadModal';
+import Add from '@assets/svg/add.svg';
+import { DATE_FORMAT } from '@utils/STATIC_DATA';
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 

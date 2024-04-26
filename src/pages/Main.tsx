@@ -5,7 +5,7 @@ import {
 } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import BottomTab from '../components/BottomTab';
+import BottomTab from '@components/BottomTab';
 import Calendar from './Calendar';
 import More from './More';
 import Discover from './Discover';

@@ -15,8 +15,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
 
-import TouchableWrapper from '../components/TouchableWrapper';
-import { MY_TEAM_KEY } from '../utils/STATIC_DATA';
+import TouchableWrapper from '@components/TouchableWrapper';
+import { MY_TEAM_KEY } from '@utils/STATIC_DATA';
 import Dog from '@assets/svg/landers.svg';
 import Bear from '@assets/svg/bears.svg';
 import Dino from '@assets/svg/dinos.svg';
@@ -27,8 +27,8 @@ import Twin from '@assets/svg/twins.svg';
 import Seagull from '@assets/svg/seagull.svg';
 import Tiger from '@assets/svg/tigers.svg';
 import Wiz from '@assets/svg/wiz.svg';
-import { renderIconSizeWithColor } from '../utils/helper';
-import { palette } from '../style/palette';
+import { renderIconSizeWithColor } from '@utils/helper';
+import { palette } from '@style/palette';
 
 const { width, height } = Dimensions.get('window');
 

@@ -14,14 +14,14 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-import { useBottomTabState, useMyState } from '../store/default';
-import Home from '../assets/svg/home.svg';
-import Calendar from '../assets/svg/calendar.svg';
-import More from '../assets/svg/more.svg';
-import Explore from '../assets/svg/explore.svg';
-import List from '../assets/svg/list.svg';
-import Write from '../assets/svg/write.svg';
-import { palette } from '../style/palette';
+import { useBottomTabState, useMyState } from '@stores/default';
+import { palette } from '@style/palette.ts';
+import Home from '@assets/svg/home.svg';
+import Calendar from '@assets/svg/calendar.svg';
+import More from '@assets/svg/more.svg';
+import Explore from '@assets/svg/explore.svg';
+import Photos from '@assets/svg/photos.svg';
+import Write from '@assets/svg/write.svg';
 
 const { width } = Dimensions.get('window');
 
@@ -131,7 +131,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                 <TouchableOpacity onPress={() => onPressNavigate('HistoryTab')}>
                   <View style={styles.floatIconWrapper}>
                     <View style={styles.floatIconBg} />
-                    <List
+                    <Photos
                       width={28}
                       height={28}
                       color={isRouteMatchStyle('HistoryTab', '#fff')}

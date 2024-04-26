@@ -15,11 +15,11 @@ import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 
-import Add from '../assets/svg/add.svg';
-import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '../utils/STATIC_DATA';
-import { palette } from '../style/palette';
-import { hasAndroidPermission } from '../utils/helper';
-import { DetailPropsType } from '../types/types';
+import Add from '@assets/svg/add.svg';
+import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
+import { palette } from '@style/palette';
+import { hasAndroidPermission } from '@utils/helper';
+import { DetailPropsType } from '@type/types';
 
 const { width } = Dimensions.get('window');
 const formattedToday = dayjs().format(DATE_FORMAT);
