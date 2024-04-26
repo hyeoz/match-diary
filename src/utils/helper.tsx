@@ -13,10 +13,11 @@ export const hasAndroidPermission = async () => {
   return status === 'granted';
 };
 
-export const renderIconSize = (
+export const renderIconSizeWithColor = (
   Svg: React.FC<SvgProps>,
   width: number,
   height?: number,
+  color?: string,
 ) => {
-  return <Svg width={width} height={height ?? width} />;
+  return <Svg width={width} height={height ?? width} color={color} />;
 };

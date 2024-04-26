@@ -109,7 +109,11 @@ export default function UploadModal({
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
                     <View style={modalStyles.emptyImageWrapper}>
-                      <Add width={32} height={32} color={'#888'} />
+                      <Add
+                        width={32}
+                        height={32}
+                        color={palette.greyColor.gray8}
+                      />
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -151,7 +155,7 @@ export default function UploadModal({
               <Text
                 style={{
                   textAlign: 'right',
-                  color: '#999',
+                  color: palette.greyColor.gray9,
                   marginTop: 4,
                   fontSize: 12,
                   fontFamily: 'KBO-Dia-Gothic-medium',
@@ -169,7 +173,7 @@ export default function UploadModal({
                 modalStyles.button,
                 {
                   borderWidth: 1,
-                  borderColor: '#c8c8c8',
+                  borderColor: palette.greyColor.border,
                 },
               ]}>
               <View>

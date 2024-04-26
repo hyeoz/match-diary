@@ -27,7 +27,8 @@ import Twin from '@assets/svg/twins.svg';
 import Seagull from '@assets/svg/seagull.svg';
 import Tiger from '@assets/svg/tigers.svg';
 import Wiz from '@assets/svg/wiz.svg';
-import { renderIconSize } from '../utils/helper';
+import { renderIconSizeWithColor } from '../utils/helper';
+import { palette } from '../style/palette';
 
 const { width, height } = Dimensions.get('window');
 
@@ -48,52 +49,52 @@ const teamArray: TeamListItemType[] = [
   {
     key: 'SSG',
     label: 'SSG 랜더스',
-    icon: renderIconSize(Dog, 48),
+    icon: renderIconSizeWithColor(Dog, 48, undefined, palette.teamColor.ssg),
   },
   {
     key: 'LG',
     label: 'LG 트윈스',
-    icon: renderIconSize(Twin, 48),
+    icon: renderIconSizeWithColor(Twin, 48, undefined, palette.teamColor.lg),
   },
   {
     key: 'KT',
     label: 'KT 위즈',
-    icon: renderIconSize(Wiz, 48),
+    icon: renderIconSizeWithColor(Wiz, 48, undefined, palette.teamColor.kt),
   },
   {
     key: 'HH',
     label: '한화 이글스',
-    icon: renderIconSize(Eagle, 48),
+    icon: renderIconSizeWithColor(Eagle, 48, undefined, palette.teamColor.hh),
   },
   {
     key: 'LT',
     label: '롯데 자이언츠',
-    icon: renderIconSize(Seagull, 48),
+    icon: renderIconSizeWithColor(Seagull, 48, undefined, palette.teamColor.lt),
   },
   {
     key: 'HR',
     label: '키움 히어로즈',
-    icon: renderIconSize(Hero, 48),
+    icon: renderIconSizeWithColor(Hero, 48, undefined, palette.teamColor.hr),
   },
   {
     key: 'NC',
     label: 'NC 다이노스',
-    icon: renderIconSize(Dino, 48),
+    icon: renderIconSizeWithColor(Dino, 48, undefined, palette.teamColor.nc),
   },
   {
     key: 'KIA',
     label: '기아 타이거즈',
-    icon: renderIconSize(Tiger, 48),
+    icon: renderIconSizeWithColor(Tiger, 48, undefined, palette.teamColor.kia),
   },
   {
     key: 'SS',
     label: '삼성 라이온즈',
-    icon: renderIconSize(Lion, 48),
+    icon: renderIconSizeWithColor(Lion, 48, undefined, palette.teamColor.ss),
   },
   {
     key: 'DS',
     label: '두산 베어스',
-    icon: renderIconSize(Bear, 48),
+    icon: renderIconSizeWithColor(Bear, 48, undefined, palette.teamColor.ds),
   },
 ];
 
@@ -170,7 +171,10 @@ function More() {
     if (!selectedTeam) return;
 
     const res = await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
-
+    Toast.show({
+      text1: '마이팀 설정이 완료되었어요!',
+      topOffset: 80,
+    });
     setTeamModalVisible(false);
   };
 
@@ -209,7 +213,7 @@ function More() {
                   fontSize: 18,
                   fontFamily: 'KBO-Dia-Gothic-bold',
                 }}>
-                HEADER
+                마이팀 선택하기
               </Text>
             </View>
 
@@ -236,19 +240,37 @@ function More() {
             }}>
             <TouchableOpacity
               onPress={() => setTeamModalVisible(false)}
-              style={{ flex: 1, borderWidth: 1, borderRadius: 8, padding: 16 }}>
-              <Text style={{ textAlign: 'center' }}>취소하기</Text>
+              style={{
+                flex: 1,
+                borderWidth: 1,
+                borderColor: palette.greyColor.border,
+                borderRadius: 8,
+                padding: 16,
+              }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontFamily: 'KBO-Dia-Gothic-bold',
+                }}>
+                취소하기
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onPressSave}
               style={{
                 flex: 1,
-                borderWidth: 1,
-                borderColor: 'red',
+                backgroundColor: palette.commonColor.green,
                 borderRadius: 8,
                 padding: 16,
               }}>
-              <Text style={{ textAlign: 'center' }}>저장하기</Text>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontFamily: 'KBO-Dia-Gothic-bold',
+                  color: '#fff',
+                }}>
+                저장하기
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -304,19 +326,18 @@ function TeamListItem({
           width: (width - 48 - 24) / 3,
           aspectRatio: 1 / 1,
           borderWidth: 1,
-          borderColor: 'red',
+          borderColor: palette.greyColor.border,
           borderRadius: 6,
           marginBottom: 12,
           marginRight: 12,
           padding: 8,
         },
-        isSelected ? { backgroundColor: 'red' } : {},
+        isSelected ? { backgroundColor: palette.commonColor.greenBg } : {},
       ]}
       onPress={() => setSelectedTeam(item.key)}>
-      <Text>{props.index}</Text>
-
       <View
         style={{
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
         }}>
