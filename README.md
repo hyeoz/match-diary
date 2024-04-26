@@ -59,7 +59,7 @@ This is one way to run your app — you can also run it directly from within And
 <a href="https://www.flaticon.com/free-icons/maps-and-location" title="maps and location icons">Maps and location icons created by Freepik - Flaticon</a><br />
 <a href="https://www.flaticon.com/free-icons/contract" title="contract icons">Contract icons created by Freepik - Flaticon</a><br />
 <a href="https://www.flaticon.com/free-icons/search" title="search icons">Search icons created by Freepik - Flaticon</a><br />
-<a href="https://www.flaticon.com/free-icons/history" title="history icons">History icons created by Chanut-is-Industries - Flaticon</a><br />
+<a href="https://www.flaticon.com/free-icons/photos" title="photos icons">Photos icons created by Vectors Tank - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/clip" title="clip icons">Clip icons created by Freepik - Flaticon</a>
 
 <a href="https://www.flaticon.com/free-icons/dog" title="dog icons">Dog icons created by Freepik - Flaticon</a>
