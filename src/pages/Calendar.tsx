@@ -13,25 +13,24 @@ import { DayProps } from 'react-native-calendars/src/calendar/day';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
 
-import TouchableWrapper from '../components/TouchableWrapper';
-import { Detail } from '../components/Detail';
-import UploadModal from '../components/UploadModal';
-import { DATE_FORMAT } from '../utils/STATIC_DATA';
-import { palette } from '../style/palette';
-import Ball from '../assets/svg/ball.svg';
-import Pin from '../assets/svg/paperclip.svg';
-import { useMyState } from '../store/default';
+import TouchableWrapper from '@components/TouchableWrapper';
+import { Detail } from '@components/Detail';
+import UploadModal from '@components/UploadModal';
+import { useMyState } from '@stores/default';
+import { DATE_FORMAT } from '@utils/STATIC_DATA';
+import Ball from '@assets/svg/ball.svg';
+import Pin from '@assets/svg/paperclip.svg';
+import { palette } from '@style/palette';
 
 /* DONE
   - 데이터 있는 경우 marking
   - 데이터 있는 경우 디테일 컴포넌트 보여주기
-
-*/
-
-/* TODO
   - 횟수 / 마이팀 있는 경우 승률 보여주기
   - 데이터 있는 경우 클릭 시 모달 열어서 데이터 보여주기 / 수정
   - 데이터 없는 경우 빈 화면 보여주기
+*/
+
+/* TODO
   - 데이터 없는 경우 생성 모달 열기
   - 캘린더 스타일링, config, 날짜 넘기는 액션 구현
 */
@@ -193,8 +192,6 @@ function Calendar() {
         />
       </View>
 
-      {/* TODO 데이터 있는 경우 보여주기 */}
-      {/* TODO 데이터 없는 경우 직관기록이 없어요 */}
       <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
         <View style={styles.detailWrapper}>
           <Pin
@@ -373,13 +370,6 @@ const styles = StyleSheet.create({
     height: 342,
     marginTop: 20,
     borderRadius: 16,
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 0,
-    // },
-    // shadowColor: '#000',
-    // shadowOpacity: 0.15,
-    // shadowRadius: 24,
     zIndex: 99,
   },
   headerText: {

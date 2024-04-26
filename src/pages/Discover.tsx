@@ -1,5 +1,6 @@
 import { Text } from 'react-native';
-import TouchableWrapper from '../components/TouchableWrapper';
+
+import TouchableWrapper from '@components/TouchableWrapper';
 
 function Discover() {
   return (

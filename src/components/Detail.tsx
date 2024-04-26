@@ -15,10 +15,10 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 
-import Stamp from '../assets/svg/stamp.svg';
-import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '../utils/STATIC_DATA';
-import { hasAndroidPermission } from '../utils/helper';
-import { DetailPropsType } from '../types/types';
+import { DetailPropsType } from '@type/types';
+import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
+import { hasAndroidPermission } from '@utils/helper';
+import Stamp from '@assets/svg/stamp.svg';
 
 const { width, height } = Dimensions.get('window');
 const formattedToday = dayjs().format(DATE_FORMAT);

@@ -4,7 +4,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 
-import { useBottomTabState } from '../store/default';
+import { useBottomTabState } from '@stores/default';
 
 function TouchableWrapper({
   children,

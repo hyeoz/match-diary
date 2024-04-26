@@ -2,10 +2,9 @@ import React, { useEffect } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import splash from '../assets/splash.png';
-import splash_text from '../assets/splash_text.png';
-import { RootStackListType } from '../types/types';
-import { palette } from '../style/palette';
+import splash_text from '@assets/splash_text.png';
+import { RootStackListType } from '@type/types';
+import { palette } from '@style/palette';
 
 // TODO types
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
