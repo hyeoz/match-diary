@@ -14,7 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-import { useBottomTabState } from '../store/default';
+import { useBottomTabState, useMyState } from '../store/default';
 import Home from '../assets/svg/home.svg';
 import Calendar from '../assets/svg/calendar.svg';
 import More from '../assets/svg/more.svg';
@@ -23,13 +23,12 @@ import List from '../assets/svg/list.svg';
 import Write from '../assets/svg/write.svg';
 import { palette } from '../style/palette';
 
-/* reference: https://dribbble.com/shots/6117913-Tab-Bar-Interaction-XVIII?utm_source=Clipboard_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share&utm_source=Pinterest_Shot&utm_campaign=Volorf&utm_content=Tab+Bar+Interaction+XVIII&utm_medium=Social_Share */
-
 const { width } = Dimensions.get('window');
 
 function BottomTab({ ...props }: BottomTabBarProps) {
   const { state, navigation } = props;
   const { isOpen, update } = useBottomTabState();
+  const { team } = useMyState();
   const homeHeight = useSharedValue(64);
   const homeDeg = useSharedValue(0);
 
@@ -58,13 +57,18 @@ function BottomTab({ ...props }: BottomTabBarProps) {
     homeDeg.value = withTiming(0, { duration: 300 });
   };
 
+  const onPressNavigate = (destination: string) => {
+    isOpen && update();
+    navigation.navigate(destination);
+  };
+
   const isRouteMatchStyle = (
     routeName: string,
     matchColor?: string,
     defaultColor?: string,
   ) => {
     if (currentTab.name === routeName) {
-      return matchColor ?? palette.teamColor.ssg;
+      return palette.teamColor[team] ?? matchColor;
     } else {
       return defaultColor ?? '#333';
     }
@@ -87,7 +91,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
               marginRight: 32,
             },
           ]}
-          onPress={() => navigation.navigate('CalendarTab')}>
+          onPress={() => onPressNavigate('CalendarTab')}>
           <Calendar
             width={32}
             height={32}
@@ -104,7 +108,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                   justifyContent: 'space-evenly',
                 }}>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('DiscoverTab')}>
+                  onPress={() => onPressNavigate('DiscoverTab')}>
                   <View style={styles.floatIconWrapper}>
                     <View style={styles.floatIconBg} />
                     <Explore
@@ -114,7 +118,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                     />
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Main')}>
+                <TouchableOpacity onPress={() => onPressNavigate('Main')}>
                   <View style={styles.floatIconWrapper}>
                     <View style={styles.floatIconBg} />
                     <Write
@@ -124,8 +128,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                     />
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('HistoryTab')}>
+                <TouchableOpacity onPress={() => onPressNavigate('HistoryTab')}>
                   <View style={styles.floatIconWrapper}>
                     <View style={styles.floatIconBg} />
                     <List
@@ -167,7 +170,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
         </View>
         <TouchableOpacity
           style={styles.tabItem}
-          onPress={() => navigation.navigate('MoreTab')}>
+          onPress={() => onPressNavigate('MoreTab')}>
           <More width={40} height={40} color={isRouteMatchStyle('MoreTab')} />
         </TouchableOpacity>
       </View>
