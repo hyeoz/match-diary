@@ -5,6 +5,7 @@ import {
   Image,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,6 +13,7 @@ import { ImageOrVideo } from 'react-native-image-crop-picker';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
+import { palette } from '@style/palette';
 
 /* TODO
   - 본인이 쓴 글 무한스크롤로 보여주는 화면 구현
@@ -63,23 +65,63 @@ function History() {
       <ScrollView
         style={{
           // justifyContent: 'center',
+          flex: 1,
           paddingHorizontal: 8,
           // paddingVertical: 40,
         }}>
-        <FlatList
-          data={allImages}
-          renderItem={item => (
-            <Image
-              source={{ uri: item.item.sourceURL }}
-              width={(width - 16 - 8) / 3}
-              height={(IMAGE_HEIGHT * ((width - 16 - 8) / 3)) / IMAGE_WIDTH}
+        {allImages.length ? (
+          <FlatList
+            data={allImages}
+            renderItem={item => (
+              <Image
+                source={{ uri: item.item.sourceURL }}
+                width={(width - 16 - 8) / 3}
+                height={(IMAGE_HEIGHT * ((width - 16 - 8) / 3)) / IMAGE_WIDTH}
+                style={{
+                  margin: 2,
+                }}
+              />
+            )}
+            numColumns={3}
+          />
+        ) : (
+          <View>
+            <Text
               style={{
-                margin: 2,
-              }}
-            />
-          )}
-          numColumns={3}
-        />
+                fontFamily: 'KBO-Dia-Gothic-bold',
+                textAlign: 'center',
+                color: palette.greyColor.gray8,
+                fontSize: 24,
+                marginTop: 32,
+              }}>
+              저장된 직관 일기가 없어요.
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: palette.commonColor.greenBg,
+                  alignSelf: 'flex-start',
+                  padding: 16,
+                  borderRadius: 12,
+                  marginTop: 24,
+                }}>
+                <Text
+                  style={{
+                    fontFamily: 'KBO-Dia-Gothic-bold',
+                    color: '#fff',
+                    textAlign: 'center',
+                    fontSize: 24,
+                  }}>
+                  지금 기록하러 가기!
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </TouchableWrapper>
   );
