@@ -21,6 +21,8 @@ import { DATE_FORMAT } from '@utils/STATIC_DATA';
 import Ball from '@assets/svg/ball.svg';
 import Pin from '@assets/svg/paperclip.svg';
 import { palette } from '@style/palette';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 /* DONE
   - 데이터 있는 경우 marking
@@ -81,6 +83,7 @@ LocaleConfig.locales['kr'] = {
 LocaleConfig.defaultLocale = 'kr';
 
 function Calendar() {
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState(dayjs().format(DATE_FORMAT));
   const [isVisible, setIsVisible] = useState(false);
@@ -100,7 +103,7 @@ function Calendar() {
 
   useEffect(() => {
     getAllItems();
-  }, []);
+  }, [navigation.getState().key]);
 
   useEffect(() => {
     getSelectedItem();
