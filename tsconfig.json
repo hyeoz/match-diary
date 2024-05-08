@@ -12,7 +12,8 @@
       "@style/*": ["style/*"],
       "@stores/*": ["stores/*"],
       "@type/*": ["type/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@api/*": ["api/*"]
     }
   },
   "extends": "@tsconfig/react-native/tsconfig.json"
