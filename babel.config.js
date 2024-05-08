@@ -27,6 +27,7 @@ module.exports = {
           '@stores': './src/stores',
           '@type': './src/type',
           '@utils': './src/utils',
+          '@api': './src/api',
         },
       },
     ],

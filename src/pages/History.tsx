@@ -14,6 +14,8 @@ import { ImageOrVideo } from 'react-native-image-crop-picker';
 import TouchableWrapper from '@components/TouchableWrapper';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 /* TODO
   - 본인이 쓴 글 무한스크롤로 보여주는 화면 구현
@@ -24,11 +26,12 @@ import { palette } from '@style/palette';
 const { width } = Dimensions.get('window');
 
 function History() {
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [allImages, setAllImages] = useState<ImageOrVideo[]>([]);
 
   useEffect(() => {
     getAllItem();
-  }, []);
+  }, [navigation.getState().key]);
 
   const getAllItem = async () => {
     const _keys = await AsyncStorage.getAllKeys();
@@ -108,6 +111,9 @@ function History() {
                   padding: 16,
                   borderRadius: 12,
                   marginTop: 24,
+                }}
+                onPress={() => {
+                  navigation.navigate('Main');
                 }}>
                 <Text
                   style={{

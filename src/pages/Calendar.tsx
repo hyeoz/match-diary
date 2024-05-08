@@ -12,15 +12,24 @@ import { DateData, MarkedDates } from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
 import { useMyState } from '@stores/default';
-import { DATE_FORMAT } from '@utils/STATIC_DATA';
+import {
+  DATE_FORMAT,
+  DAYS_NAME_KOR,
+  DAYS_NAME_KOR_SHORT,
+  MONTH_LIST,
+} from '@utils/STATIC_DATA';
+import { palette } from '@style/palette';
 import Ball from '@assets/svg/ball.svg';
 import Pin from '@assets/svg/paperclip.svg';
-import { palette } from '@style/palette';
+import { API, StrapiType } from '@api/index';
+import { MatchDataType } from '@type/types';
 
 /* DONE
   - 데이터 있는 경우 marking
@@ -38,49 +47,16 @@ import { palette } from '@style/palette';
 const { width } = Dimensions.get('window');
 
 LocaleConfig.locales['kr'] = {
-  monthNames: [
-    '1월',
-    '2월',
-    '3월',
-    '4월',
-    '5월',
-    '6월',
-    '7월',
-    '8월',
-    '9월',
-    '10월',
-    '11월',
-    '12월',
-  ],
-  monthNamesShort: [
-    '1월',
-    '2월',
-    '3월',
-    '4월',
-    '5월',
-    '6월',
-    '7월',
-    '8월',
-    '9월',
-    '10월',
-    '11월',
-    '12월',
-  ],
-  dayNames: [
-    '일요일',
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-  ],
-  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+  monthNames: MONTH_LIST,
+  monthNamesShort: MONTH_LIST,
+  dayNames: DAYS_NAME_KOR,
+  dayNamesShort: DAYS_NAME_KOR_SHORT,
   today: '오늘',
 };
 LocaleConfig.defaultLocale = 'kr';
 
 function Calendar() {
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState(dayjs().format(DATE_FORMAT));
   const [isVisible, setIsVisible] = useState(false);
@@ -98,11 +74,14 @@ function Calendar() {
     setIsVisible: setIsVisible,
   };
 
-  useEffect(() => {
-    getAllItems();
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
+    getAllItems();
+  }, [navigation.getState().key]);
+
+  useEffect(() => {
+    getMatchData();
     getSelectedItem();
   }, [selectedDate]);
 
@@ -160,6 +139,13 @@ function Calendar() {
     ),
     [onDayPress, selectedDate],
   );
+
+  const getMatchData = async () => {
+    const res = await API.get<StrapiType<MatchDataType>>(
+      `/schedule-2024s?filters[date]=${selectedDate}`,
+    );
+    console.log(res.data.data, 'RES');
+  };
 
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
