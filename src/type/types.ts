@@ -29,10 +29,12 @@ export type DetailPropsType = {
 
 // 경기 일정 API 리스폰스 타입
 export type MatchDataType = {
-  away: string;
   createdAt: string;
   date: string;
   home: string;
+  away: string;
+  homeScore?: number;
+  awayScore?: number;
   publishedAt: string;
   updatedAt: string;
 };

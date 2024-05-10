@@ -32,6 +32,19 @@ const DAYS_NAME_KOR = [
 
 const DAYS_NAME_KOR_SHORT = ['일', '월', '화', '수', '목', '금', '토'];
 
+const stadiumObject: { [key: string]: string } = {
+  KIA: '광주',
+  NC: '마산',
+  KT: '수원',
+  SSG: '인천',
+  LG: '잠실',
+  삼성: '대구',
+  롯데: '사직',
+  두산: '잠실',
+  한화: '대전',
+  키움: '고청',
+};
+
 export {
   DATE_FORMAT,
   IMAGE_HEIGHT,
@@ -40,4 +53,5 @@ export {
   MONTH_LIST,
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
+  stadiumObject,
 };
