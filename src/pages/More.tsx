@@ -62,17 +62,17 @@ const teamArray: TeamListItemType[] = [
     icon: renderIconSizeWithColor(Wiz, 48, undefined, palette.teamColor.kt),
   },
   {
-    key: 'HH',
+    key: '한화',
     label: '한화 이글스',
     icon: renderIconSizeWithColor(Eagle, 48, undefined, palette.teamColor.hh),
   },
   {
-    key: 'LT',
+    key: '롯데',
     label: '롯데 자이언츠',
     icon: renderIconSizeWithColor(Seagull, 48, undefined, palette.teamColor.lt),
   },
   {
-    key: 'HR',
+    key: '키움',
     label: '키움 히어로즈',
     icon: renderIconSizeWithColor(Hero, 48, undefined, palette.teamColor.hr),
   },
@@ -87,12 +87,12 @@ const teamArray: TeamListItemType[] = [
     icon: renderIconSizeWithColor(Tiger, 48, undefined, palette.teamColor.kia),
   },
   {
-    key: 'SS',
+    key: '삼성',
     label: '삼성 라이온즈',
     icon: renderIconSizeWithColor(Lion, 48, undefined, palette.teamColor.ss),
   },
   {
-    key: 'DS',
+    key: '두산',
     label: '두산 베어스',
     icon: renderIconSizeWithColor(Bear, 48, undefined, palette.teamColor.ds),
   },

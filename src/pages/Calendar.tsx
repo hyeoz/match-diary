@@ -24,6 +24,7 @@ import {
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
   MONTH_LIST,
+  stadiumObject,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import Ball from '@assets/svg/ball.svg';
@@ -63,6 +64,7 @@ function Calendar() {
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
   const [isEdit, setIsEdit] = useState(false);
+  const [myTeamMatch, setMyTeamMatch] = useState<MatchDataType>();
   const { team } = useMyState();
 
   const detailProps = {
@@ -144,8 +146,16 @@ function Calendar() {
     const res = await API.get<StrapiType<MatchDataType>>(
       `/schedule-2024s?filters[date]=${selectedDate}`,
     );
-    console.log(res.data.data, 'RES');
+
+    if (!!team) {
+      const filteredMatch = res.data.data.filter(
+        data => data.attributes.home === team || data.attributes.away === team,
+      );
+      console.log(filteredMatch);
+      setMyTeamMatch(filteredMatch[0].attributes);
+    }
   };
+  console.log(team, 'TEAM');
 
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
@@ -202,15 +212,42 @@ function Calendar() {
                   width: '100%',
                   height: 200,
                   padding: 16,
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
                 }}>
+                <View>
+                  <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
+                    오늘의 경기
+                  </Text>
+                  <Text
+                    style={[
+                      styles.stickyNoteText,
+                      {
+                        textAlign: 'center',
+                        fontSize: 20,
+                      },
+                    ]}>
+                    {myTeamMatch?.home} VS {myTeamMatch?.away}
+                  </Text>
+                  {!!myTeamMatch?.home && (
+                    <Text
+                      style={[
+                        styles.stickyNoteText,
+                        { fontSize: 18, textAlign: 'center' },
+                      ]}>
+                      ({stadiumObject[myTeamMatch?.home]})
+                    </Text>
+                  )}
+                </View>
                 <Text
                   style={[
                     styles.stickyNoteText,
                     {
                       fontSize: 20,
+                      textAlign: 'right',
                     },
                   ]}>
-                  야구장 가고싶다
+                  야구장 가고싶다...
                 </Text>
               </View>
               <View style={[styles.shadow]}></View>
