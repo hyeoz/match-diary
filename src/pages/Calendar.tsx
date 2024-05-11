@@ -19,6 +19,7 @@ import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
 import { useMyState } from '@stores/default';
+import { API, StrapiType } from '@api/index';
 import {
   DATE_FORMAT,
   DAYS_NAME_KOR,
@@ -27,10 +28,10 @@ import {
   stadiumObject,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
+import { MatchDataType } from '@type/types';
 import Ball from '@assets/svg/ball.svg';
 import Pin from '@assets/svg/paperclip.svg';
-import { API, StrapiType } from '@api/index';
-import { MatchDataType } from '@type/types';
+import AnswerCircle from '@assets/svg/answer_circle.svg';
 
 /* DONE
   - 데이터 있는 경우 marking
@@ -74,6 +75,7 @@ function Calendar() {
     setMemo: setMemo,
     setIsEdit: setIsEdit,
     setIsVisible: setIsVisible,
+    myTeamMatch,
   };
 
   useEffect(() => {}, []);
@@ -151,11 +153,9 @@ function Calendar() {
       const filteredMatch = res.data.data.filter(
         data => data.attributes.home === team || data.attributes.away === team,
       );
-      console.log(filteredMatch);
       setMyTeamMatch(filteredMatch[0].attributes);
     }
   };
-  console.log(team, 'TEAM');
 
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
@@ -230,13 +230,29 @@ function Calendar() {
                     {myTeamMatch?.home} VS {myTeamMatch?.away}
                   </Text>
                   {!!myTeamMatch?.home && (
-                    <Text
-                      style={[
-                        styles.stickyNoteText,
-                        { fontSize: 18, textAlign: 'center' },
-                      ]}>
-                      ({stadiumObject[myTeamMatch?.home]})
-                    </Text>
+                    <View>
+                      <AnswerCircle
+                        width={88}
+                        height={88}
+                        style={{
+                          position: 'absolute',
+                          top: -30,
+                          left: '50%',
+                          transform: [
+                            {
+                              translateX: -44,
+                            },
+                          ],
+                        }}
+                      />
+                      <Text
+                        style={[
+                          styles.stickyNoteText,
+                          { fontSize: 18, textAlign: 'center' },
+                        ]}>
+                        ({stadiumObject[myTeamMatch?.home]})
+                      </Text>
+                    </View>
                   )}
                 </View>
                 <Text
