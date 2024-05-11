@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -15,9 +15,15 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 
-import { DetailPropsType } from '@type/types';
-import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
+import { DetailPropsType, MatchDataType } from '@type/types';
+import { useMyState } from '@stores/default';
 import { hasAndroidPermission } from '@utils/helper';
+import {
+  DATE_FORMAT,
+  IMAGE_HEIGHT,
+  IMAGE_WIDTH,
+  stadiumObject,
+} from '@utils/STATIC_DATA';
 import Stamp from '@assets/svg/stamp.svg';
 
 const { width, height } = Dimensions.get('window');
@@ -30,11 +36,30 @@ export function Detail({
   setMemo,
   setIsEdit,
   setIsVisible,
+  myTeamMatch,
   isCalendar = false,
-}: DetailPropsType & { isCalendar?: boolean }) {
+}: DetailPropsType & { myTeamMatch?: MatchDataType; isCalendar?: boolean }) {
   const shareImageRef = useRef<ViewShot>(null);
-  // TODO 마이팀 정보 있을 때 승패
   const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
+  const { team } = useMyState();
+
+  useEffect(() => {
+    if (!myTeamMatch) return;
+
+    const { homeScore, awayScore, home, away } = myTeamMatch;
+
+    if (homeScore && awayScore) {
+      if (home === team) {
+        setResult(
+          homeScore > awayScore ? 'W' : homeScore < awayScore ? 'L' : 'D',
+        );
+      } else {
+        setResult(
+          homeScore > awayScore ? 'L' : homeScore < awayScore ? 'W' : 'D',
+        );
+      }
+    }
+  }, [myTeamMatch]);
 
   const onPressDelete = async () => {
     Alert.alert(
@@ -172,7 +197,7 @@ export function Detail({
                     : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16
                 }
               />
-              {!!result && (
+              {!!result && myTeamMatch && (
                 <View
                   style={{
                     position: 'absolute',
@@ -229,12 +254,12 @@ export function Detail({
                   fontSize: isCalendar ? 10 : 12,
                   marginTop: isCalendar ? 10 : 20,
                 }}>
-                {'24.04.18 '}
-                {'SSG'}
-                {' vs '}
-                {'KIA'}
+                {dayjs(myTeamMatch?.date).format('YYYY.MM.DD')}{' '}
+                {myTeamMatch?.home}
+                {' VS '}
+                {myTeamMatch?.away}
                 {' @'}
-                {'인천SS랜더스필드'}
+                {stadiumObject[myTeamMatch?.home!]}
               </Text>
             </View>
             <View
