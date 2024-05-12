@@ -44,6 +44,7 @@ import AnswerCircle from '@assets/svg/answer_circle.svg';
 /* TODO
   - 데이터 없는 경우 생성 모달 열기
   - 캘린더 스타일링, config, 날짜 넘기는 액션 구현
+  - 직관기록 계산
 */
 
 const { width } = Dimensions.get('window');
@@ -57,6 +58,22 @@ LocaleConfig.locales['kr'] = {
 };
 LocaleConfig.defaultLocale = 'kr';
 
+const initCountData = {
+  byMonth: {
+    home: 0,
+    away: 0,
+  },
+  bySeason: {
+    home: 0,
+    away: 0,
+  },
+  rate: {
+    win: 0,
+    lose: 0,
+    draw: 0,
+  },
+};
+
 function Calendar() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
@@ -66,6 +83,9 @@ function Calendar() {
   const [memo, setMemo] = useState('');
   const [isEdit, setIsEdit] = useState(false);
   const [myTeamMatch, setMyTeamMatch] = useState<MatchDataType>();
+  // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
+  const [matchRecord, setMatchRecord] = useState(initCountData);
+
   const { team } = useMyState();
 
   const detailProps = {
@@ -78,10 +98,9 @@ function Calendar() {
     myTeamMatch,
   };
 
-  useEffect(() => {}, []);
-
   useEffect(() => {
     getAllItems();
+    getAllRecord();
   }, [navigation.getState().key]);
 
   useEffect(() => {
@@ -124,7 +143,6 @@ function Calendar() {
   };
 
   const onDayPress = useCallback((day?: DateData) => {
-    console.log('PRESS DAY', day);
     setSelectedDate(dayjs(day?.dateString).format(DATE_FORMAT));
   }, []);
 
@@ -149,6 +167,9 @@ function Calendar() {
       `/schedule-2024s?filters[date]=${selectedDate}`,
     );
 
+    if (!res.data.data.length) {
+      return setMyTeamMatch(undefined);
+    }
     if (!!team) {
       const filteredMatch = res.data.data.filter(
         data => data.attributes.home === team || data.attributes.away === team,
@@ -157,6 +178,61 @@ function Calendar() {
     }
   };
 
+  // TODO 직관 기록 계산
+  const getAllRecord = async () => {
+    const keys = (await AsyncStorage.getAllKeys()).filter(
+      key => key !== 'MY_TEAM',
+    );
+
+    let _count = initCountData;
+    keys.forEach(async key => {
+      const res = await API.get<StrapiType<MatchDataType>>(
+        `/schedule-2024s?filters[date]=${key}`,
+      );
+      // // 이번 시즌 직관 기록
+      // if (
+      //   !team ||
+      //   data.attributes.homeScore === undefined ||
+      //   data.attributes.awayScore === undefined
+      // ) {
+      //   _count.bySeason.home += 1;
+      //   return;
+      // }
+      // if (team && team === data.attributes.home) {
+      //   _count.bySeason.home += 1;
+      //   // 직관 승률
+      //   if (data.attributes.homeScore > data.attributes.awayScore) {
+      //     _count.rate.win += 1;
+      //   } else if (data.attributes.homeScore < data.attributes.awayScore) {
+      //     _count.rate.lose += 1;
+      //   } else {
+      //     _count.rate.draw += 1;
+      //   }
+      // } else {
+      //   _count.bySeason.away += 1;
+      // }
+
+      // // 이번 달 직관 기록
+      // if (dayjs(data.attributes.date).month() === dayjs().month()) {
+      //   if (
+      //     !team ||
+      //     data.attributes.homeScore === undefined ||
+      //     data.attributes.awayScore === undefined
+      //   ) {
+      //     _count.byMonth.home += 1;
+      //     return;
+      //   }
+      //   if (team && team === data.attributes.home) {
+      //     _count.byMonth.home += 1;
+      //   } else {
+      //     _count.byMonth.away += 1;
+      //   }
+      // }
+    });
+
+    setMatchRecord(_count);
+  };
+  console.log(matchRecord, 'RECORD');
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
@@ -215,46 +291,64 @@ function Calendar() {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}>
-                <View>
-                  <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
-                    오늘의 경기
-                  </Text>
-                  <Text
-                    style={[
-                      styles.stickyNoteText,
-                      {
-                        textAlign: 'center',
-                        fontSize: 20,
-                      },
-                    ]}>
-                    {myTeamMatch?.home} VS {myTeamMatch?.away}
-                  </Text>
-                  {!!myTeamMatch?.home && (
-                    <View>
-                      <AnswerCircle
-                        width={88}
-                        height={88}
-                        style={{
-                          position: 'absolute',
-                          top: -30,
-                          left: '50%',
-                          transform: [
-                            {
-                              translateX: -44,
-                            },
-                          ],
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.stickyNoteText,
-                          { fontSize: 18, textAlign: 'center' },
-                        ]}>
-                        ({stadiumObject[myTeamMatch?.home]})
-                      </Text>
-                    </View>
-                  )}
-                </View>
+                {myTeamMatch ? (
+                  <View>
+                    <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
+                      오늘의 경기
+                    </Text>
+                    <Text
+                      style={[
+                        styles.stickyNoteText,
+                        {
+                          textAlign: 'center',
+                          fontSize: 20,
+                        },
+                      ]}>
+                      {myTeamMatch?.home} VS {myTeamMatch?.away}
+                    </Text>
+                    {!!myTeamMatch?.home && (
+                      <View>
+                        <AnswerCircle
+                          width={88}
+                          height={88}
+                          style={{
+                            position: 'absolute',
+                            top: -30,
+                            left: '50%',
+                            transform: [
+                              {
+                                translateX: -44,
+                              },
+                            ],
+                          }}
+                        />
+                        <Text
+                          style={[
+                            styles.stickyNoteText,
+                            { fontSize: 18, textAlign: 'center' },
+                          ]}>
+                          ({stadiumObject[myTeamMatch?.home]})
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                ) : (
+                  <View>
+                    <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
+                      오늘의 경기
+                    </Text>
+                    <Text
+                      style={[
+                        styles.stickyNoteText,
+                        {
+                          textAlign: 'center',
+                          fontSize: 20,
+                        },
+                      ]}>
+                      없음TT
+                    </Text>
+                  </View>
+                )}
                 <Text
                   style={[
                     styles.stickyNoteText,
@@ -266,8 +360,8 @@ function Calendar() {
                   야구장 가고싶다...
                 </Text>
               </View>
-              <View style={[styles.shadow]}></View>
-              <View style={styles.effect}></View>
+              <View style={[styles.shadow]} />
+              <View style={styles.effect} />
             </View>
           )}
         </View>
@@ -344,7 +438,6 @@ function DayComponent({
   date?: DateData | undefined;
   selectedDate: string;
 }) {
-  // console.log('DAY');
   return (
     <TouchableOpacity
       onPress={() => onPress && onPress(date)}

@@ -108,7 +108,7 @@ export function Detail({
       return;
     }
 
-    const res = await CameraRoll.saveToCameraRoll(uri);
+    await CameraRoll.saveToCameraRoll(uri);
 
     Toast.show({
       type: 'success',
@@ -164,29 +164,15 @@ export function Detail({
                 position: 'relative',
               }}>
               <View
-                style={{
-                  width: isCalendar ? width * 0.6 - 12 : width * 0.7 - 12,
-                  height: isCalendar
-                    ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 12
-                    : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
-                  shadowOffset: {
-                    width: 2,
-                    height: 2,
+                style={[
+                  polaroidStyles.photo,
+                  {
+                    width: isCalendar ? width * 0.6 - 12 : width * 0.7 - 12,
+                    height: isCalendar
+                      ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 12
+                      : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
                   },
-                  borderWidth: 2,
-                  borderColor: 'transparent',
-                  // borderColor: '#000',
-                  borderBottomWidth: 0,
-                  borderRightWidth: 0,
-                  shadowColor: '#000',
-                  shadowOpacity: 1,
-                  overflow: 'hidden',
-                  backgroundColor: 'transparent',
-                  position: 'absolute',
-                  zIndex: 9,
-                  left: -2,
-                  top: -2,
-                }}
+                ]}
               />
               <Image
                 source={{ uri: image?.sourceURL }}
@@ -280,8 +266,8 @@ export function Detail({
             </View>
           </TouchableOpacity>
         </View>
-        {isCalendar && <View style={[polaroidStyles.shadow]}></View>}
-        {isCalendar && <View style={polaroidStyles.effect}></View>}
+        {isCalendar && <View style={[polaroidStyles.shadow]} />}
+        {isCalendar && <View style={polaroidStyles.effect} />}
       </ViewShot>
       <View
         style={
@@ -324,7 +310,24 @@ const polaroidStyles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 16,
   },
-
+  photo: {
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    borderWidth: 2,
+    borderColor: 'transparent',
+    borderBottomWidth: 0,
+    borderRightWidth: 0,
+    shadowColor: '#000',
+    shadowOpacity: 1,
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    zIndex: 9,
+    left: -2,
+    top: -2,
+  },
   effect: {
     position: 'absolute',
     height: 200,

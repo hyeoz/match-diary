@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
@@ -9,6 +9,8 @@ import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
 import Add from '@assets/svg/add.svg';
 import { DATE_FORMAT } from '@utils/STATIC_DATA';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 
@@ -30,6 +32,7 @@ const formattedToday = dayjs().format(DATE_FORMAT);
 */
 
 function Write() {
+  const navigate = useNavigation<NativeStackNavigationProp<any>>();
   const [isVisible, setIsVisible] = useState(false);
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
@@ -42,6 +45,24 @@ function Write() {
     }
     checkItem();
   }, [isVisible]);
+
+  useEffect(() => {
+    getMyTeam();
+  }, []);
+
+  const getMyTeam = async () => {
+    const res = await AsyncStorage.getItem('MY_TEAM');
+    if (!res) {
+      Alert.prompt(
+        '마이팀 설정이 필요해요!',
+        '지금 설정 페이지로 이동할게요.',
+        () => {
+          navigate.navigate('MoreTab');
+        },
+        'default',
+      );
+    }
+  };
 
   const checkItem = async () => {
     const res = await AsyncStorage.getItem(formattedToday);

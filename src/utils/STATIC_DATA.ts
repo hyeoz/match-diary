@@ -42,7 +42,7 @@ const stadiumObject: { [key: string]: string } = {
   롯데: '사직',
   두산: '잠실',
   한화: '대전',
-  키움: '고청',
+  키움: '고척',
 };
 
 export {
