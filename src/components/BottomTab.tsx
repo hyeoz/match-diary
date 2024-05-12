@@ -189,7 +189,6 @@ const styles = StyleSheet.create({
   },
   tabWrapper: {
     flexDirection: 'row',
-    // justifyContent: 'space-around',
     position: 'absolute',
     bottom: 0,
     backgroundColor: '#FFF',
