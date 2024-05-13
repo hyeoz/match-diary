@@ -5,9 +5,11 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import splash_text from '@assets/splash_text.png';
 import { RootStackListType } from '@type/types';
 import { palette } from '@style/palette';
+import { useMyState } from '@stores/default';
 
-// TODO types
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
+  const { team } = useMyState();
+
   useEffect(() => {
     setTimeout(() => {
       navigation.replace('Main');
@@ -15,7 +17,13 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: palette.teamColor[team] ?? palette.teamColor.SSG, // 랜더스 컬러
+        },
+      ]}>
       <Image source={splash_text} style={styles.logo} alt="SPLASH" />
     </View>
   );
@@ -26,7 +34,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: palette.teamColor.ssg, // 랜더스 컬러
   },
   logo: {
     width: 200,
