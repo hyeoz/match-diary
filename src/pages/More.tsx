@@ -29,6 +29,7 @@ import Tiger from '@assets/svg/tigers.svg';
 import Wiz from '@assets/svg/wiz.svg';
 import { renderIconSizeWithColor } from '@utils/helper';
 import { palette } from '@style/palette';
+import { useMyState } from '@/stores/default';
 
 const { width, height } = Dimensions.get('window');
 
@@ -100,6 +101,7 @@ const teamArray: TeamListItemType[] = [
 
 function More() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const { setTeam } = useMyState();
   const [teamModalVisible, setTeamModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
 
@@ -171,6 +173,7 @@ function More() {
     if (!selectedTeam) return;
 
     const res = await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
+    setTeam(selectedTeam);
     Toast.show({
       text1: '마이팀 설정이 완료되었어요!',
       topOffset: 80,
