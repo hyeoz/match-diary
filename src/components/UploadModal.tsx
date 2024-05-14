@@ -16,7 +16,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 
 import Add from '@assets/svg/add.svg';
-import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
+import {
+  DATE_FORMAT,
+  DATE_FORMAT_SLASH,
+  IMAGE_HEIGHT,
+  IMAGE_WIDTH,
+} from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { hasAndroidPermission } from '@utils/helper';
 import { DetailPropsType } from '@type/types';
@@ -128,7 +133,7 @@ export default function UploadModal({
                   fontFamily: 'UhBee Seulvely',
                   marginTop: 6,
                 }}>
-                {'2024/04/18'}
+                {dayjs().format(DATE_FORMAT_SLASH)}
                 {' @'}
                 {'인천SS랜더스필드'}
               </Text>

@@ -1,4 +1,5 @@
 const DATE_FORMAT = 'YYYY-MM-DD';
+const DATE_FORMAT_SLASH = 'YYYY/MM/DD';
 
 const IMAGE_WIDTH = 1080;
 const IMAGE_HEIGHT = 1080;
@@ -47,6 +48,7 @@ const stadiumObject: { [key: string]: string } = {
 
 export {
   DATE_FORMAT,
+  DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
   MY_TEAM_KEY,
