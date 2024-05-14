@@ -50,52 +50,57 @@ const teamArray: TeamListItemType[] = [
   {
     key: 'SSG',
     label: 'SSG 랜더스',
-    icon: renderIconSizeWithColor(Dog, 48, undefined, palette.teamColor.ssg),
+    icon: renderIconSizeWithColor(Dog, 48, undefined, palette.teamColor.SSG),
   },
   {
     key: 'LG',
     label: 'LG 트윈스',
-    icon: renderIconSizeWithColor(Twin, 48, undefined, palette.teamColor.lg),
+    icon: renderIconSizeWithColor(Twin, 48, undefined, palette.teamColor.LG),
   },
   {
     key: 'KT',
     label: 'KT 위즈',
-    icon: renderIconSizeWithColor(Wiz, 48, undefined, palette.teamColor.kt),
+    icon: renderIconSizeWithColor(Wiz, 48, undefined, palette.teamColor.KT),
   },
   {
     key: '한화',
     label: '한화 이글스',
-    icon: renderIconSizeWithColor(Eagle, 48, undefined, palette.teamColor.hh),
+    icon: renderIconSizeWithColor(Eagle, 48, undefined, palette.teamColor.한화),
   },
   {
     key: '롯데',
     label: '롯데 자이언츠',
-    icon: renderIconSizeWithColor(Seagull, 48, undefined, palette.teamColor.lt),
+    icon: renderIconSizeWithColor(
+      Seagull,
+      48,
+      undefined,
+      palette.teamColor.롯데,
+    ),
   },
   {
     key: '키움',
     label: '키움 히어로즈',
-    icon: renderIconSizeWithColor(Hero, 48, undefined, palette.teamColor.hr),
+    icon: renderIconSizeWithColor(Hero, 48, undefined, palette.teamColor.키움),
   },
   {
     key: 'NC',
     label: 'NC 다이노스',
-    icon: renderIconSizeWithColor(Dino, 48, undefined, palette.teamColor.nc),
+    icon: renderIconSizeWithColor(Dino, 48, undefined, palette.teamColor.NC),
   },
   {
     key: 'KIA',
     label: '기아 타이거즈',
-    icon: renderIconSizeWithColor(Tiger, 48, undefined, palette.teamColor.kia),
+    icon: renderIconSizeWithColor(Tiger, 48, undefined, palette.teamColor.KIA),
   },
   {
     key: '삼성',
     label: '삼성 라이온즈',
-    icon: renderIconSizeWithColor(Lion, 48, undefined, palette.teamColor.ss),
+    icon: renderIconSizeWithColor(Lion, 48, undefined, palette.teamColor.삼성),
   },
   {
     key: '두산',
     label: '두산 베어스',
-    icon: renderIconSizeWithColor(Bear, 48, undefined, palette.teamColor.ds),
+    icon: renderIconSizeWithColor(Bear, 48, undefined, palette.teamColor.두산),
   },
 ];
 
