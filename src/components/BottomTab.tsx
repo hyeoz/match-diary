@@ -14,7 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-import { useBottomTabState, useMyState } from '@stores/default';
+import { useBottomTabState, useMyState, useTabHistory } from '@stores/default';
 import { palette } from '@style/palette.ts';
 import Home from '@assets/svg/home.svg';
 import Calendar from '@assets/svg/calendar.svg';
@@ -28,6 +28,7 @@ const { width } = Dimensions.get('window');
 function BottomTab({ ...props }: BottomTabBarProps) {
   const { state, navigation } = props;
   const { isOpen, update } = useBottomTabState();
+  const { accumulate } = useTabHistory();
   const { team } = useMyState();
   const homeHeight = useSharedValue(64);
   const homeDeg = useSharedValue(0);
@@ -43,6 +44,16 @@ function BottomTab({ ...props }: BottomTabBarProps) {
       handleHomeRotate();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const _history = navigation.getState().history as
+      | { key: string; type: string }[]
+      | undefined;
+
+    if (!_history) return;
+
+    accumulate(_history[_history.length - 1]?.key);
+  }, [navigation.getState().history]);
 
   const handleHeightScaleUp = () => {
     homeHeight.value = withSpring(192);

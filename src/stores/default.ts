@@ -7,6 +7,14 @@ const useBottomTabState = create<{ isOpen: boolean; update: () => void }>(
   }),
 );
 
+const useTabHistory = create<{
+  history: string[];
+  accumulate: (key: string) => void;
+}>(set => ({
+  history: [],
+  accumulate: key => set(prev => ({ history: [...prev.history, key] })),
+}));
+
 // TODO 마이팀도 유저정보처럼 계속 유지되어야 하기때문에 storage 로 관리하기
 const useMyState = create<{ team: string; setTeam: (team: string) => void }>(
   set => ({
@@ -16,4 +24,4 @@ const useMyState = create<{ team: string; setTeam: (team: string) => void }>(
   }),
 );
 
-export { useBottomTabState, useMyState };
+export { useBottomTabState, useTabHistory, useMyState };

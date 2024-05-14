@@ -148,7 +148,7 @@ export default function UploadModal({
                     setMemo(value);
                   }
                 }}
-                placeholder="사진과 함께 기록할 내용을 적어주세요!"
+                placeholder={`사진과 함께 기록할 내용을 적어주세요!\n두 줄에서 세 줄이 가장 적당해요 ;)`}
                 style={modalStyles.input}
                 numberOfLines={8}
               />
