@@ -72,6 +72,7 @@ This is one way to run your app — you can also run it directly from within And
 <a href="https://www.flaticon.com/free-icons/tiger" title="tiger icons">Tiger icons created by BomSymbols - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/lion" title="lion icons">Lion icons created by Atif Arshad - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/bear" title="bear icons">Bear icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/contact" title="contact icons">Contact icons created by Cuputo - Flaticon</a>
 
 <a href="https://www.koreabaseball.com/Reference/etc/KboFont.aspx">KBO DIA 고딕체</a>
 <a href="http://uhbeefont.com/font/w/UhBeeSeulvely.html">어비 슬기로운 생활체</a>
