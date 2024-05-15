@@ -31,10 +31,13 @@ export type DetailPropsType = {
 export type MatchDataType = {
   createdAt: string;
   date: string;
+  time: string;
   home: string;
   away: string;
   homeScore?: number;
   awayScore?: number;
+  stadium: string;
+  memo: string;
   publishedAt: string;
   updatedAt: string;
 };
