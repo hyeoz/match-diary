@@ -4,7 +4,7 @@ import { ImageOrVideo } from 'react-native-image-crop-picker';
 export type RootStackListType = {
   Main: any;
   Calendar: any;
-  Discover: any;
+  Contact: any;
   Write: any;
   History: any;
   More: any;
