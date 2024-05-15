@@ -103,6 +103,11 @@ const stadiumGeo: {
   },
 };
 
+// 인스타그램 링크
+const INSTAGRAM_LINK = 'instagram://user?username=match_diary';
+// 인스타그램이 설치되어 있지 않을 때 웹 링크
+const INSTAGRAM_WEB_LINK = 'https://www.instagram.com/match_diary/';
+
 export {
   DATE_FORMAT,
   DATE_FORMAT_SLASH,
@@ -116,4 +121,6 @@ export {
   stadiumShortName,
   stadiumLongName,
   stadiumGeo,
+  INSTAGRAM_LINK,
+  INSTAGRAM_WEB_LINK,
 };
