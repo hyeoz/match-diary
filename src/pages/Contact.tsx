@@ -15,13 +15,9 @@ function Contact() {
   const { team } = useMyState();
 
   const onPressInstagram = async () => {
-    const supported = await Linking.canOpenURL(INSTAGRAM_LINK);
-
-    if (supported) {
-      Linking.openURL(INSTAGRAM_LINK);
-    } else {
+    Linking.openURL(INSTAGRAM_LINK).catch(() => {
       Linking.openURL(INSTAGRAM_WEB_LINK);
-    }
+    });
   };
 
   return (
