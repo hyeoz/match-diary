@@ -48,6 +48,7 @@
 		5B7EB9410499542E8C5724F5 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-matchdiary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = matchdiary/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		828C0BF12BF3503A00EFB615 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-matchdiary-matchdiaryTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.release.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.release.xcconfig"; sourceTree = "<group>"; };
 		9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_bold.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_bold.ttf"; sourceTree = "<group>"; };
 		A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_light.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_light.ttf"; sourceTree = "<group>"; };
@@ -135,6 +136,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				828C0BF12BF3503A00EFB615 /* Config.xcconfig */,
 				13B07FAE1A68108700A75B9A /* matchdiary */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* matchdiaryTests */,
@@ -539,6 +541,7 @@
 		};
 		83CBBA201A601CBA00E9B192 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 828C0BF12BF3503A00EFB615 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;

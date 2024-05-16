@@ -16,90 +16,16 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
 
 import TouchableWrapper from '@components/TouchableWrapper';
-import { MY_TEAM_KEY } from '@utils/STATIC_DATA';
-import Dog from '@assets/svg/landers.svg';
-import Bear from '@assets/svg/bears.svg';
-import Dino from '@assets/svg/dinos.svg';
-import Eagle from '@assets/svg/eagles.svg';
-import Hero from '@assets/svg/heros.svg';
-import Lion from '@assets/svg/lions.svg';
-import Twin from '@assets/svg/twins.svg';
-import Seagull from '@assets/svg/seagull.svg';
-import Tiger from '@assets/svg/tigers.svg';
-import Wiz from '@assets/svg/wiz.svg';
-import { renderIconSizeWithColor } from '@utils/helper';
+import { MY_TEAM_KEY, TEAM_ICON_ARRAY } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
+import { useMyState } from '@/stores/default';
+import { MoreListItemType, TeamListItemType } from '@/type/types';
 
 const { width, height } = Dimensions.get('window');
 
-type DefaultListItemType = {
-  key: string;
-  label: string;
-};
-
-type TeamListItemType = DefaultListItemType & {
-  icon: React.JSX.Element;
-};
-
-type MoreListItemType = DefaultListItemType & {
-  onPressAction?: () => void;
-};
-
-const teamArray: TeamListItemType[] = [
-  {
-    key: 'SSG',
-    label: 'SSG 랜더스',
-    icon: renderIconSizeWithColor(Dog, 48, undefined, palette.teamColor.ssg),
-  },
-  {
-    key: 'LG',
-    label: 'LG 트윈스',
-    icon: renderIconSizeWithColor(Twin, 48, undefined, palette.teamColor.lg),
-  },
-  {
-    key: 'KT',
-    label: 'KT 위즈',
-    icon: renderIconSizeWithColor(Wiz, 48, undefined, palette.teamColor.kt),
-  },
-  {
-    key: '한화',
-    label: '한화 이글스',
-    icon: renderIconSizeWithColor(Eagle, 48, undefined, palette.teamColor.hh),
-  },
-  {
-    key: '롯데',
-    label: '롯데 자이언츠',
-    icon: renderIconSizeWithColor(Seagull, 48, undefined, palette.teamColor.lt),
-  },
-  {
-    key: '키움',
-    label: '키움 히어로즈',
-    icon: renderIconSizeWithColor(Hero, 48, undefined, palette.teamColor.hr),
-  },
-  {
-    key: 'NC',
-    label: 'NC 다이노스',
-    icon: renderIconSizeWithColor(Dino, 48, undefined, palette.teamColor.nc),
-  },
-  {
-    key: 'KIA',
-    label: '기아 타이거즈',
-    icon: renderIconSizeWithColor(Tiger, 48, undefined, palette.teamColor.kia),
-  },
-  {
-    key: '삼성',
-    label: '삼성 라이온즈',
-    icon: renderIconSizeWithColor(Lion, 48, undefined, palette.teamColor.ss),
-  },
-  {
-    key: '두산',
-    label: '두산 베어스',
-    icon: renderIconSizeWithColor(Bear, 48, undefined, palette.teamColor.ds),
-  },
-];
-
 function More() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const { team, setTeam } = useMyState();
   const [teamModalVisible, setTeamModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
 
@@ -171,6 +97,7 @@ function More() {
     if (!selectedTeam) return;
 
     const res = await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
+    setTeam(selectedTeam);
     Toast.show({
       text1: '마이팀 설정이 완료되었어요!',
       topOffset: 80,
@@ -180,15 +107,49 @@ function More() {
 
   return (
     <TouchableWrapper>
-      <FlatList
-        renderItem={props => <ListItem {...props} navigation={navigation} />}
-        data={moreItems}
+      <View
         style={{
-          marginTop: 32,
-          borderTopWidth: 1,
-        }}
-        keyExtractor={item => item.key}
-      />
+          height: '45%',
+          backgroundColor: palette.teamColor[team],
+          justifyContent: 'center',
+          padding: 32,
+        }}>
+        <Text
+          style={{
+            fontFamily: 'KBO-Dia-Gothic-bold',
+            fontSize: 32,
+            color: '#fff',
+          }}>
+          SETTING
+        </Text>
+      </View>
+      <View
+        style={{
+          marginTop: -32,
+          justifyContent: 'center',
+          flexDirection: 'row',
+        }}>
+        <View
+          style={{
+            backgroundColor: '#fff',
+            width: '90%',
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 0,
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 16,
+          }}>
+          <FlatList
+            renderItem={props => (
+              <ListItem {...props} navigation={navigation} />
+            )}
+            data={moreItems}
+            keyExtractor={item => item.key}
+          />
+        </View>
+      </View>
 
       <Modal visible={teamModalVisible} animationType="slide">
         <View
@@ -219,7 +180,7 @@ function More() {
 
             <View style={{ width: '100%' }}>
               <FlatList
-                data={teamArray}
+                data={TEAM_ICON_ARRAY}
                 renderItem={props => (
                   <TeamListItem
                     {...props}
@@ -282,25 +243,26 @@ function More() {
 function ListItem({
   item,
   navigation,
+  index,
 }: ListRenderItemInfo<MoreListItemType> & {
   navigation: NativeStackNavigationProp<any>;
 }) {
   return (
     <View
       style={{
-        borderBottomWidth: 1,
+        borderBottomWidth: index === 2 ? 0 : 1,
+        borderColor: '#ddd',
+        margin: 16,
+        marginTop: 24,
+        marginBottom: 0,
       }}>
-      <TouchableOpacity
-        style={{
-          paddingHorizontal: 16,
-          paddingVertical: 24,
-        }}
-        onPress={item.onPressAction}>
+      <TouchableOpacity onPress={item.onPressAction}>
         <Text
           style={{
             opacity: 1,
             fontFamily: 'KBO-Dia-Gothic-bold',
             fontSize: 16,
+            marginBottom: 24,
           }}>
           {item.label}
         </Text>

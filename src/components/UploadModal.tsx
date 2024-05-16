@@ -10,19 +10,30 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useEffect, useState } from 'react';
 import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
+import 'dayjs/locale/ko';
+dayjs.locale('ko');
 
 import Add from '@assets/svg/add.svg';
-import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
+import {
+  API_DATE_FORMAT,
+  DATE_FORMAT,
+  DATE_FORMAT_SLASH,
+  IMAGE_HEIGHT,
+  IMAGE_WIDTH,
+} from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { hasAndroidPermission } from '@utils/helper';
-import { DetailPropsType } from '@type/types';
+import { DetailPropsType, MatchDataType } from '@type/types';
+import { API, StrapiType } from '@/api';
 
 const { width } = Dimensions.get('window');
 const formattedToday = dayjs().format(DATE_FORMAT);
+const apiFormattedToday = dayjs().format(API_DATE_FORMAT);
 
 export default function UploadModal({
   image,
@@ -32,6 +43,12 @@ export default function UploadModal({
   isVisible,
   setIsVisible,
 }: DetailPropsType & { isVisible: boolean }) {
+  const [stadium, setStadium] = useState<string[]>([]);
+
+  useEffect(() => {
+    getTodayMatch();
+  }, []);
+
   const onPressOpenGallery = () => {
     ImageCropPicker?.openPicker({
       width: IMAGE_WIDTH,
@@ -67,6 +84,19 @@ export default function UploadModal({
       setIsVisible(false);
     }
   };
+
+  const getTodayMatch = async () => {
+    const res = await API.get<StrapiType<MatchDataType>>(
+      `/schedule-2024s?filters[date]=${apiFormattedToday}`,
+    );
+    const _stadium = res.data.data.map(att => att.attributes.stadium);
+    const filteredStadium = _stadium.filter(
+      (sta, index) => _stadium.lastIndexOf(sta) === index,
+    ); // 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
+    setStadium(filteredStadium);
+  };
+
+  // TODO 경기장 셀렉트박스 구현
 
   return (
     <Modal animationType="slide" visible={isVisible}>
@@ -121,17 +151,30 @@ export default function UploadModal({
             </View>
 
             {/* TODO 경기정보 영역 */}
-            <View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+              }}>
               <Text
                 style={{
-                  textAlign: 'right',
                   fontFamily: 'UhBee Seulvely',
                   marginTop: 6,
                 }}>
-                {'2024/04/18'}
-                {' @'}
-                {'인천SS랜더스필드'}
+                {dayjs().format(DATE_FORMAT_SLASH)}
+                {/* {' @'}
+                {'인천SS랜더스필드'} */}
               </Text>
+              <TouchableOpacity>
+                <Text
+                  style={{
+                    fontFamily: 'UhBee Seulvely',
+                    marginTop: 6,
+                  }}>
+                  {' @'}
+                  {'인천SS랜더스필드'}
+                </Text>
+              </TouchableOpacity>
             </View>
 
             {/* 텍스트 */}
@@ -148,7 +191,7 @@ export default function UploadModal({
                     setMemo(value);
                   }
                 }}
-                placeholder="사진과 함께 기록할 내용을 적어주세요!"
+                placeholder={`사진과 함께 기록할 내용을 적어주세요!\n두 줄에서 세 줄이 가장 적당해요 ;)`}
                 style={modalStyles.input}
                 numberOfLines={8}
               />

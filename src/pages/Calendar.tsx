@@ -12,20 +12,20 @@ import { DateData, MarkedDates } from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useNavigationState } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
-import { useMyState } from '@stores/default';
+import { useMyState, useTabHistory } from '@stores/default';
 import { API, StrapiType } from '@api/index';
 import {
   DATE_FORMAT,
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
   MONTH_LIST,
-  stadiumObject,
+  STADIUM_SHORT_NAME,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { MatchDataType } from '@type/types';
@@ -75,7 +75,6 @@ const initCountData = {
 };
 
 function Calendar() {
-  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState(dayjs().format(DATE_FORMAT));
   const [isVisible, setIsVisible] = useState(false);
@@ -87,6 +86,7 @@ function Calendar() {
   const [matchRecord, setMatchRecord] = useState(initCountData);
 
   const { team } = useMyState();
+  const { history } = useTabHistory();
 
   const detailProps = {
     image: image,
@@ -101,7 +101,8 @@ function Calendar() {
   useEffect(() => {
     getAllItems();
     getAllRecord();
-  }, [navigation.getState().key]);
+    getSelectedItem();
+  }, [history]);
 
   useEffect(() => {
     getMatchData();
@@ -232,7 +233,7 @@ function Calendar() {
 
     setMatchRecord(_count);
   };
-  console.log(matchRecord, 'RECORD');
+  // console.log(matchRecord, 'RECORD');
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
@@ -327,7 +328,7 @@ function Calendar() {
                             styles.stickyNoteText,
                             { fontSize: 18, textAlign: 'center' },
                           ]}>
-                          ({stadiumObject[myTeamMatch?.home]})
+                          ({STADIUM_SHORT_NAME[myTeamMatch?.home]})
                         </Text>
                       </View>
                     )}

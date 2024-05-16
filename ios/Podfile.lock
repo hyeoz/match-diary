@@ -944,7 +944,7 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
-  - react-native-cameraroll (7.6.0):
+  - react-native-cameraroll (7.7.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1143,7 +1143,7 @@ PODS:
   - RNSVG (15.2.0):
     - React-Core
   - SocketRocket (0.6.1)
-  - TOCropViewController (2.6.1)
+  - TOCropViewController (2.7.4)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1401,7 +1401,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 85583ef014ce53d731a98c66a0e24496f7a83066
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: 84ea43c6c6232049135b1550b8c60b2faac19fab
-  react-native-cameraroll: 02b1aa5459f64d2abc8312261339b4f83850d5e4
+  react-native-cameraroll: 30b9c7bb77e2ced096bd4032c6bbbb2948b5d050
   react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
   React-nativeconfig: b4d4e9901d4cabb57be63053fd2aa6086eb3c85f
@@ -1430,8 +1430,8 @@ SPEC CHECKSUMS:
   RNScreens: 134a7511b12b8eb440b87aac21e36a71295d6024
   RNSVG: 43b64ed39c14ce830d840903774154ca0c1f27ec
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  TOCropViewController: edfd4f25713d56905ad1e0b9f5be3fbe0f59c863
-  Yoga: d17d2cc8105eed528474683b42e2ea310e1daf61
+  TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
+  Yoga: 805bf71192903b20fc14babe48080582fee65a80
 
 PODFILE CHECKSUM: c1f008ff13bed7b8205f74413af82345979582f7
 

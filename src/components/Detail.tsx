@@ -20,9 +20,11 @@ import { useMyState } from '@stores/default';
 import { hasAndroidPermission } from '@utils/helper';
 import {
   DATE_FORMAT,
+  DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
-  stadiumObject,
+  STADIUM_SHORT_NAME,
+  STADIUM_SHORT_TO_LONG,
 } from '@utils/STATIC_DATA';
 import Stamp from '@assets/svg/stamp.svg';
 
@@ -233,20 +235,26 @@ export function Detail({
                   </Text>
                 </View>
               )}
-              <Text
-                style={{
-                  width: '100%',
-                  fontFamily: 'UhBee Seulvely',
-                  fontSize: isCalendar ? 10 : 12,
-                  marginTop: isCalendar ? 10 : 20,
-                }}>
-                {dayjs(myTeamMatch?.date).format('YYYY.MM.DD')}{' '}
-                {myTeamMatch?.home}
-                {' VS '}
-                {myTeamMatch?.away}
-                {' @'}
-                {stadiumObject[myTeamMatch?.home!]}
-              </Text>
+              {myTeamMatch?.home && myTeamMatch.away && (
+                <Text
+                  style={{
+                    width: '100%',
+                    fontFamily: 'UhBee Seulvely',
+                    fontSize: isCalendar ? 10 : 12,
+                    marginTop: isCalendar ? 10 : 20,
+                  }}>
+                  {dayjs(myTeamMatch?.date).format(DATE_FORMAT_SLASH)}{' '}
+                  {myTeamMatch?.home}
+                  {' VS '}
+                  {myTeamMatch?.away}
+                  {' @'}
+                  {
+                    STADIUM_SHORT_TO_LONG[
+                      STADIUM_SHORT_NAME[myTeamMatch?.home!]
+                    ]
+                  }
+                </Text>
+              )}
             </View>
             <View
               style={{

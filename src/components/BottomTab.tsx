@@ -14,12 +14,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-import { useBottomTabState, useMyState } from '@stores/default';
+import { useBottomTabState, useMyState, useTabHistory } from '@stores/default';
 import { palette } from '@style/palette.ts';
 import Home from '@assets/svg/home.svg';
 import Calendar from '@assets/svg/calendar.svg';
 import More from '@assets/svg/more.svg';
-import Explore from '@assets/svg/explore.svg';
+// import Explore from '@assets/svg/explore.svg';
+import Send from '@assets/svg/send.svg';
 import Photos from '@assets/svg/photos.svg';
 import Write from '@assets/svg/write.svg';
 
@@ -28,6 +29,7 @@ const { width } = Dimensions.get('window');
 function BottomTab({ ...props }: BottomTabBarProps) {
   const { state, navigation } = props;
   const { isOpen, update } = useBottomTabState();
+  const { accumulate } = useTabHistory();
   const { team } = useMyState();
   const homeHeight = useSharedValue(64);
   const homeDeg = useSharedValue(0);
@@ -43,6 +45,16 @@ function BottomTab({ ...props }: BottomTabBarProps) {
       handleHomeRotate();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const _history = navigation.getState().history as
+      | { key: string; type: string }[]
+      | undefined;
+
+    if (!_history) return;
+
+    accumulate(_history[_history.length - 1]?.key);
+  }, [navigation.getState().history]);
 
   const handleHeightScaleUp = () => {
     homeHeight.value = withSpring(192);
@@ -107,17 +119,6 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                   height: 192,
                   justifyContent: 'space-evenly',
                 }}>
-                <TouchableOpacity
-                  onPress={() => onPressNavigate('DiscoverTab')}>
-                  <View style={styles.floatIconWrapper}>
-                    <View style={styles.floatIconBg} />
-                    <Explore
-                      width={24}
-                      height={24}
-                      color={isRouteMatchStyle('DiscoverTab', '#fff')}
-                    />
-                  </View>
-                </TouchableOpacity>
                 <TouchableOpacity onPress={() => onPressNavigate('Main')}>
                   <View style={styles.floatIconWrapper}>
                     <View style={styles.floatIconBg} />
@@ -135,6 +136,16 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                       width={28}
                       height={28}
                       color={isRouteMatchStyle('HistoryTab', '#fff')}
+                    />
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => onPressNavigate('ContactTab')}>
+                  <View style={styles.floatIconWrapper}>
+                    <View style={styles.floatIconBg} />
+                    <Send
+                      width={32}
+                      height={32}
+                      color={isRouteMatchStyle('ContactTab', '#fff')}
                     />
                   </View>
                 </TouchableOpacity>
@@ -156,7 +167,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                     width={28}
                     height={28}
                     color={
-                      ['Main', 'DiscoverTab', 'HistoryTab'].includes(
+                      ['Main', 'ContactTab', 'HistoryTab'].includes(
                         currentTab.name,
                       )
                         ? '#fff'

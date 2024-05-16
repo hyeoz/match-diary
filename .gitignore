@@ -69,3 +69,7 @@ yarn.lock
 # testing
 /coverage
 
+# 환경변수
+.env
+.env.development
+.env.product

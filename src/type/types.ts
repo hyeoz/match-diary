@@ -4,7 +4,7 @@ import { ImageOrVideo } from 'react-native-image-crop-picker';
 export type RootStackListType = {
   Main: any;
   Calendar: any;
-  Discover: any;
+  Contact: any;
   Write: any;
   History: any;
   More: any;
@@ -31,10 +31,27 @@ export type DetailPropsType = {
 export type MatchDataType = {
   createdAt: string;
   date: string;
+  time: string;
   home: string;
   away: string;
   homeScore?: number;
   awayScore?: number;
+  stadium: string;
+  memo: string;
   publishedAt: string;
   updatedAt: string;
+};
+
+// 더보기 페이지 타입
+export type DefaultListItemType = {
+  key: string;
+  label: string;
+};
+
+export type TeamListItemType = DefaultListItemType & {
+  icon: React.JSX.Element;
+};
+
+export type MoreListItemType = DefaultListItemType & {
+  onPressAction?: () => void;
 };

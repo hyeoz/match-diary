@@ -57,5 +57,10 @@
 		<string>KBO Dia Gothic_medium.ttf</string>
 		<string>UhBee Seulvely.ttf</string>
 	</array>
+	<key>NMFClientId</key>
+	<string>${REACT_APP_NAVER_MAPS_PRIMARY_KEY}</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<string>instagram</string>
 </dict>
+
 </plist>
