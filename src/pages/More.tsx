@@ -25,7 +25,7 @@ const { width, height } = Dimensions.get('window');
 
 function More() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
-  const { setTeam } = useMyState();
+  const { team, setTeam } = useMyState();
   const [teamModalVisible, setTeamModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
 
@@ -107,15 +107,49 @@ function More() {
 
   return (
     <TouchableWrapper>
-      <FlatList
-        renderItem={props => <ListItem {...props} navigation={navigation} />}
-        data={moreItems}
+      <View
         style={{
-          marginTop: 32,
-          borderTopWidth: 1,
-        }}
-        keyExtractor={item => item.key}
-      />
+          height: '45%',
+          backgroundColor: palette.teamColor[team],
+          justifyContent: 'center',
+          padding: 32,
+        }}>
+        <Text
+          style={{
+            fontFamily: 'KBO-Dia-Gothic-bold',
+            fontSize: 32,
+            color: '#fff',
+          }}>
+          SETTING
+        </Text>
+      </View>
+      <View
+        style={{
+          marginTop: -32,
+          justifyContent: 'center',
+          flexDirection: 'row',
+        }}>
+        <View
+          style={{
+            backgroundColor: '#fff',
+            width: '90%',
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 0,
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 16,
+          }}>
+          <FlatList
+            renderItem={props => (
+              <ListItem {...props} navigation={navigation} />
+            )}
+            data={moreItems}
+            keyExtractor={item => item.key}
+          />
+        </View>
+      </View>
 
       <Modal visible={teamModalVisible} animationType="slide">
         <View
@@ -209,25 +243,26 @@ function More() {
 function ListItem({
   item,
   navigation,
+  index,
 }: ListRenderItemInfo<MoreListItemType> & {
   navigation: NativeStackNavigationProp<any>;
 }) {
   return (
     <View
       style={{
-        borderBottomWidth: 1,
+        borderBottomWidth: index === 2 ? 0 : 1,
+        borderColor: '#ddd',
+        margin: 16,
+        marginTop: 24,
+        marginBottom: 0,
       }}>
-      <TouchableOpacity
-        style={{
-          paddingHorizontal: 16,
-          paddingVertical: 24,
-        }}
-        onPress={item.onPressAction}>
+      <TouchableOpacity onPress={item.onPressAction}>
         <Text
           style={{
             opacity: 1,
             fontFamily: 'KBO-Dia-Gothic-bold',
             fontSize: 16,
+            marginBottom: 24,
           }}>
           {item.label}
         </Text>
