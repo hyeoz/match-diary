@@ -25,7 +25,7 @@ import {
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
   MONTH_LIST,
-  stadiumShortName,
+  STADIUM_SHORT_NAME,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { MatchDataType } from '@type/types';
@@ -328,7 +328,7 @@ function Calendar() {
                             styles.stickyNoteText,
                             { fontSize: 18, textAlign: 'center' },
                           ]}>
-                          ({stadiumShortName[myTeamMatch?.home]})
+                          ({STADIUM_SHORT_NAME[myTeamMatch?.home]})
                         </Text>
                       </View>
                     )}

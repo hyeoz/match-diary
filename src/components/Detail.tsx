@@ -23,7 +23,8 @@ import {
   DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
-  stadiumObject,
+  STADIUM_SHORT_NAME,
+  STADIUM_SHORT_TO_LONG,
 } from '@utils/STATIC_DATA';
 import Stamp from '@assets/svg/stamp.svg';
 
@@ -247,7 +248,11 @@ export function Detail({
                   {' VS '}
                   {myTeamMatch?.away}
                   {' @'}
-                  {stadiumObject[myTeamMatch?.home!]}
+                  {
+                    STADIUM_SHORT_TO_LONG[
+                      STADIUM_SHORT_NAME[myTeamMatch?.home!]
+                    ]
+                  }
                 </Text>
               )}
             </View>

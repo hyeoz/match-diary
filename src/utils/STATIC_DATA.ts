@@ -1,3 +1,18 @@
+import { renderIconSizeWithColor } from '@utils/helper';
+import { TeamListItemType } from '@/type/types';
+import { palette } from '@/style/palette';
+// @assets
+import Dog from '@assets/svg/landers.svg';
+import Bear from '@assets/svg/bears.svg';
+import Dino from '@assets/svg/dinos.svg';
+import Eagle from '@assets/svg/eagles.svg';
+import Hero from '@assets/svg/heros.svg';
+import Lion from '@assets/svg/lions.svg';
+import Twin from '@assets/svg/twins.svg';
+import Seagull from '@assets/svg/seagull.svg';
+import Tiger from '@assets/svg/tigers.svg';
+import Wiz from '@assets/svg/wiz.svg';
+
 const DATE_FORMAT = 'YYYY-MM-DD';
 const DATE_FORMAT_SLASH = 'YYYY/MM/DD';
 const API_DATE_FORMAT = 'MM.DD(ddd)';
@@ -34,7 +49,65 @@ const DAYS_NAME_KOR = [
 
 const DAYS_NAME_KOR_SHORT = ['일', '월', '화', '수', '목', '금', '토'];
 
-const stadiumShortName: { [key: string]: string } = {
+const TEAM_ICON_ARRAY: TeamListItemType[] = [
+  {
+    key: 'SSG',
+    label: 'SSG 랜더스',
+    icon: renderIconSizeWithColor(Dog, 48, undefined, palette.teamColor.SSG),
+  },
+  {
+    key: 'LG',
+    label: 'LG 트윈스',
+    icon: renderIconSizeWithColor(Twin, 48, undefined, palette.teamColor.LG),
+  },
+  {
+    key: 'KT',
+    label: 'KT 위즈',
+    icon: renderIconSizeWithColor(Wiz, 48, undefined, palette.teamColor.KT),
+  },
+  {
+    key: '한화',
+    label: '한화 이글스',
+    icon: renderIconSizeWithColor(Eagle, 48, undefined, palette.teamColor.한화),
+  },
+  {
+    key: '롯데',
+    label: '롯데 자이언츠',
+    icon: renderIconSizeWithColor(
+      Seagull,
+      48,
+      undefined,
+      palette.teamColor.롯데,
+    ),
+  },
+  {
+    key: '키움',
+    label: '키움 히어로즈',
+    icon: renderIconSizeWithColor(Hero, 48, undefined, palette.teamColor.키움),
+  },
+  {
+    key: 'NC',
+    label: 'NC 다이노스',
+    icon: renderIconSizeWithColor(Dino, 48, undefined, palette.teamColor.NC),
+  },
+  {
+    key: 'KIA',
+    label: '기아 타이거즈',
+    icon: renderIconSizeWithColor(Tiger, 48, undefined, palette.teamColor.KIA),
+  },
+  {
+    key: '삼성',
+    label: '삼성 라이온즈',
+    icon: renderIconSizeWithColor(Lion, 48, undefined, palette.teamColor.삼성),
+  },
+  {
+    key: '두산',
+    label: '두산 베어스',
+    icon: renderIconSizeWithColor(Bear, 48, undefined, palette.teamColor.두산),
+  },
+];
+
+const STADIUM_SHORT_NAME: { [key: string]: string } = {
   LG: '잠실',
   두산: '잠실',
   SSG: '문학',
@@ -47,7 +120,7 @@ const stadiumShortName: { [key: string]: string } = {
   키움: '고척',
 };
 
-const stadiumLongName: { [key: string]: string } = {
+const STADIUM_SHORT_TO_LONG: { [key: string]: string } = {
   잠실: '잠실야구장',
   문학: '인천SSG랜더스필드',
   수원: '수원KT위즈파크',
@@ -59,7 +132,7 @@ const stadiumLongName: { [key: string]: string } = {
   고척: '고척스카이돔',
 };
 
-const stadiumGeo: {
+const STADIUM_GEO: {
   [key: string]: {
     lat: number;
     lon: number;
@@ -118,9 +191,10 @@ export {
   MONTH_LIST,
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
-  stadiumShortName,
-  stadiumLongName,
-  stadiumGeo,
+  STADIUM_GEO,
+  STADIUM_SHORT_NAME,
+  STADIUM_SHORT_TO_LONG,
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
+  TEAM_ICON_ARRAY,
 };

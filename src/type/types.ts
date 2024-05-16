@@ -41,3 +41,17 @@ export type MatchDataType = {
   publishedAt: string;
   updatedAt: string;
 };
+
+// 더보기 페이지 타입
+export type DefaultListItemType = {
+  key: string;
+  label: string;
+};
+
+export type TeamListItemType = DefaultListItemType & {
+  icon: React.JSX.Element;
+};
+
+export type MoreListItemType = DefaultListItemType & {
+  onPressAction?: () => void;
+};

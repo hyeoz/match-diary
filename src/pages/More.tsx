@@ -16,93 +16,12 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
 
 import TouchableWrapper from '@components/TouchableWrapper';
-import { MY_TEAM_KEY } from '@utils/STATIC_DATA';
-import Dog from '@assets/svg/landers.svg';
-import Bear from '@assets/svg/bears.svg';
-import Dino from '@assets/svg/dinos.svg';
-import Eagle from '@assets/svg/eagles.svg';
-import Hero from '@assets/svg/heros.svg';
-import Lion from '@assets/svg/lions.svg';
-import Twin from '@assets/svg/twins.svg';
-import Seagull from '@assets/svg/seagull.svg';
-import Tiger from '@assets/svg/tigers.svg';
-import Wiz from '@assets/svg/wiz.svg';
-import { renderIconSizeWithColor } from '@utils/helper';
+import { MY_TEAM_KEY, TEAM_ICON_ARRAY } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { useMyState } from '@/stores/default';
+import { MoreListItemType, TeamListItemType } from '@/type/types';
 
 const { width, height } = Dimensions.get('window');
-
-type DefaultListItemType = {
-  key: string;
-  label: string;
-};
-
-type TeamListItemType = DefaultListItemType & {
-  icon: React.JSX.Element;
-};
-
-type MoreListItemType = DefaultListItemType & {
-  onPressAction?: () => void;
-};
-
-const teamArray: TeamListItemType[] = [
-  {
-    key: 'SSG',
-    label: 'SSG 랜더스',
-    icon: renderIconSizeWithColor(Dog, 48, undefined, palette.teamColor.SSG),
-  },
-  {
-    key: 'LG',
-    label: 'LG 트윈스',
-    icon: renderIconSizeWithColor(Twin, 48, undefined, palette.teamColor.LG),
-  },
-  {
-    key: 'KT',
-    label: 'KT 위즈',
-    icon: renderIconSizeWithColor(Wiz, 48, undefined, palette.teamColor.KT),
-  },
-  {
-    key: '한화',
-    label: '한화 이글스',
-    icon: renderIconSizeWithColor(Eagle, 48, undefined, palette.teamColor.한화),
-  },
-  {
-    key: '롯데',
-    label: '롯데 자이언츠',
-    icon: renderIconSizeWithColor(
-      Seagull,
-      48,
-      undefined,
-      palette.teamColor.롯데,
-    ),
-  },
-  {
-    key: '키움',
-    label: '키움 히어로즈',
-    icon: renderIconSizeWithColor(Hero, 48, undefined, palette.teamColor.키움),
-  },
-  {
-    key: 'NC',
-    label: 'NC 다이노스',
-    icon: renderIconSizeWithColor(Dino, 48, undefined, palette.teamColor.NC),
-  },
-  {
-    key: 'KIA',
-    label: '기아 타이거즈',
-    icon: renderIconSizeWithColor(Tiger, 48, undefined, palette.teamColor.KIA),
-  },
-  {
-    key: '삼성',
-    label: '삼성 라이온즈',
-    icon: renderIconSizeWithColor(Lion, 48, undefined, palette.teamColor.삼성),
-  },
-  {
-    key: '두산',
-    label: '두산 베어스',
-    icon: renderIconSizeWithColor(Bear, 48, undefined, palette.teamColor.두산),
-  },
-];
 
 function More() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -227,7 +146,7 @@ function More() {
 
             <View style={{ width: '100%' }}>
               <FlatList
-                data={teamArray}
+                data={TEAM_ICON_ARRAY}
                 renderItem={props => (
                   <TeamListItem
                     {...props}
