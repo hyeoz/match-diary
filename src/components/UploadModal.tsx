@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Geolocation from '@react-native-community/geolocation';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -25,11 +26,12 @@ import {
   DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
+  STADIUM_GEO,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { hasAndroidPermission } from '@utils/helper';
 import { DetailPropsType, MatchDataType } from '@type/types';
-import { API, StrapiType } from '@/api';
+import { API, NAVER_API, StrapiType } from '@/api';
 
 const { width } = Dimensions.get('window');
 const formattedToday = dayjs().format(DATE_FORMAT);
@@ -44,10 +46,21 @@ export default function UploadModal({
   setIsVisible,
 }: DetailPropsType & { isVisible: boolean }) {
   const [stadium, setStadium] = useState<string[]>([]);
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
 
   useEffect(() => {
     getTodayMatch();
   }, []);
+
+  useEffect(() => {
+    getLocation();
+  }, [isVisible]);
+
+  useEffect(() => {
+    getStadiumDistance();
+    console.log({ latitude, longitude });
+  }, [latitude, longitude]);
 
   const onPressOpenGallery = () => {
     ImageCropPicker?.openPicker({
@@ -94,9 +107,37 @@ export default function UploadModal({
       (sta, index) => _stadium.lastIndexOf(sta) === index,
     ); // 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
     setStadium(filteredStadium);
+    console.log(filteredStadium);
   };
 
   // TODO 경기장 셀렉트박스 구현
+  const getStadiumDistance = async () => {
+    const start = `${latitude},${longitude}`;
+
+    stadium.forEach(async s => {
+      const geo = `${STADIUM_GEO[s].lat},${STADIUM_GEO[s].lon}`;
+      const res = await NAVER_API.get(
+        `/map-direction/v1/driving?start=${start}&goal=${geo}`,
+      );
+      console.log(res, '??');
+    });
+  };
+
+  const getLocation = async () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const _latitude = JSON.stringify(position.coords.latitude);
+        const _longitude = JSON.stringify(position.coords.longitude);
+
+        setLatitude(_latitude);
+        setLongitude(_longitude);
+      },
+      error => {
+        console.log(error.code, error.message);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+    );
+  };
 
   return (
     <Modal animationType="slide" visible={isVisible}>
