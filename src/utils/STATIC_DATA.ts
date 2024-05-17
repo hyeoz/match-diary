@@ -180,6 +180,8 @@ const STADIUM_GEO: {
 const INSTAGRAM_LINK = 'instagram://user?username=match_diary';
 // 인스타그램이 설치되어 있지 않을 때 웹 링크
 const INSTAGRAM_WEB_LINK = 'https://www.instagram.com/match_diary/';
+// 메일 링크
+const EMAIL_LINK = 'mailto:match.diary24@gmail.com';
 
 export {
   DATE_FORMAT,
@@ -197,4 +199,5 @@ export {
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
   TEAM_ICON_ARRAY,
+  EMAIL_LINK,
 };

@@ -17,11 +17,12 @@ import Toast from 'react-native-toast-message';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { MY_TEAM_KEY, TEAM_ICON_ARRAY } from '@utils/STATIC_DATA';
-import { palette } from '@style/palette';
 import { useMyState } from '@/stores/default';
+import { palette } from '@style/palette';
 import { MoreListItemType, TeamListItemType } from '@/type/types';
+import Arrow from '@assets/svg/arrow.svg';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 function More() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -29,7 +30,9 @@ function More() {
   const [teamModalVisible, setTeamModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    getMyTeam();
+  }, []);
 
   useEffect(() => {
     if (!teamModalVisible) {
@@ -85,18 +88,27 @@ function More() {
         Linking.openSettings();
       },
     },
+    // TODO 온보딩 이미지 보여주기
+    {
+      key: 'Help',
+      label: '도움말',
+      onPressAction: () => {},
+    },
   ];
 
   const getMyTeam = async () => {
-    const team = await AsyncStorage.getItem(MY_TEAM_KEY);
+    const _team = await AsyncStorage.getItem(MY_TEAM_KEY);
 
-    team && setSelectedTeam(team);
+    if (!_team) return;
+
+    setSelectedTeam(_team);
+    setTeam(_team);
   };
 
   const onPressSave = async () => {
     if (!selectedTeam) return;
 
-    const res = await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
+    await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
     setTeam(selectedTeam);
     Toast.show({
       text1: '마이팀 설정이 완료되었어요!',
@@ -109,7 +121,7 @@ function More() {
     <TouchableWrapper>
       <View
         style={{
-          height: '45%',
+          height: '50%',
           backgroundColor: palette.teamColor[team],
           justifyContent: 'center',
           padding: 32,
@@ -250,22 +262,29 @@ function ListItem({
   return (
     <View
       style={{
-        borderBottomWidth: index === 2 ? 0 : 1,
+        borderBottomWidth: index === 3 ? 0 : 1,
         borderColor: '#ddd',
         margin: 16,
         marginTop: 24,
         marginBottom: 0,
       }}>
-      <TouchableOpacity onPress={item.onPressAction}>
+      <TouchableOpacity
+        onPress={item.onPressAction}
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 20,
+        }}>
         <Text
           style={{
             opacity: 1,
             fontFamily: 'KBO-Dia-Gothic-bold',
             fontSize: 16,
-            marginBottom: 24,
           }}>
           {item.label}
         </Text>
+        <Arrow color={'#222'} />
       </TouchableOpacity>
     </View>
   );
