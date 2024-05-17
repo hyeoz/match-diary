@@ -23,6 +23,8 @@ import More from '@assets/svg/more.svg';
 import Send from '@assets/svg/send.svg';
 import Photos from '@assets/svg/photos.svg';
 import Write from '@assets/svg/write.svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MY_TEAM_KEY } from '@/utils/STATIC_DATA';
 
 const { width } = Dimensions.get('window');
 
@@ -30,7 +32,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
   const { state, navigation } = props;
   const { isOpen, update } = useBottomTabState();
   const { accumulate } = useTabHistory();
-  const { team } = useMyState();
+  const { team, setTeam } = useMyState();
   const homeHeight = useSharedValue(64);
   const homeDeg = useSharedValue(0);
 
@@ -54,6 +56,8 @@ function BottomTab({ ...props }: BottomTabBarProps) {
     if (!_history) return;
 
     accumulate(_history[_history.length - 1]?.key);
+
+    getMyTeam();
   }, [navigation.getState().history]);
 
   const handleHeightScaleUp = () => {
@@ -84,6 +88,14 @@ function BottomTab({ ...props }: BottomTabBarProps) {
     } else {
       return defaultColor ?? '#333';
     }
+  };
+
+  const getMyTeam = async () => {
+    const _team = await AsyncStorage.getItem(MY_TEAM_KEY);
+
+    if (!_team) return;
+
+    setTeam(_team);
   };
 
   const animatedHeightStyle = useAnimatedStyle(() => ({
