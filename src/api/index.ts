@@ -1,7 +1,19 @@
 import axios from 'axios';
+import {
+  REACT_APP_NAVER_CLIENT_ID,
+  REACT_APP_NAVER_CLIENT_SECRET_KEY,
+} from '@env';
 
 export const API = axios.create({
   baseURL: 'http://localhost:1337/api', // TODO strapi 서버 URL 변경 필요
+});
+
+export const NAVER_API = axios.create({
+  baseURL: 'https://naveropenapi.apigw.ntruss.com',
+  headers: {
+    'X-NCP-APIGW-API-KEY-ID': REACT_APP_NAVER_CLIENT_ID,
+    'X-NCP-APIGW-API-KEY': REACT_APP_NAVER_CLIENT_SECRET_KEY,
+  },
 });
 
 export type StrapiType<T> = {

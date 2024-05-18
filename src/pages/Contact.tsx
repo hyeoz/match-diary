@@ -1,3 +1,4 @@
+import Clipboard from '@react-native-clipboard/clipboard';
 import {
   Animated,
   Dimensions,
@@ -8,6 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useEffect, useRef } from 'react';
+import Toast from 'react-native-toast-message';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { palette } from '@/style/palette';
@@ -18,7 +21,6 @@ import {
   INSTAGRAM_WEB_LINK,
 } from '@/utils/STATIC_DATA';
 import contact_cat from '@assets/contact_cat_img.webp';
-import { useEffect, useRef } from 'react';
 
 const { width } = Dimensions.get('window');
 
@@ -39,8 +41,15 @@ function Contact() {
     });
   };
   const onPressEmail = async () => {
+    // NOTE 시뮬레이터에서는 메일이 열리지 않을 수 있음
     Linking.openURL(EMAIL_LINK).catch(error => {
-      console.log(error, 'ERROR');
+      // 열리지 않았을 시 클립보드에 복사 후 토스트 메세지
+      Clipboard.setString(EMAIL_LINK.split(':')[1]);
+      Toast.show({
+        type: 'success',
+        text1: '메일 주소가 클립보드에 복사 되었어요.',
+        text2: '저희에게 문의 메일을 보내주세요!',
+      });
     });
   };
 
