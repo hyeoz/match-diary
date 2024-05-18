@@ -15,7 +15,7 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 
-import { DetailPropsType, MatchDataType } from '@type/types';
+import { DetailPropsType, MatchDataType } from '@/type/default';
 import { useMyState } from '@stores/default';
 import { hasAndroidPermission } from '@utils/helper';
 import {

@@ -1,5 +1,5 @@
 import { renderIconSizeWithColor } from '@utils/helper';
-import { TeamListItemType } from '@/type/types';
+import { TeamListItemType } from '@/type/default';
 import { palette } from '@/style/palette';
 // @assets
 import Dog from '@assets/svg/landers.svg';

@@ -30,8 +30,11 @@ import {
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { hasAndroidPermission } from '@utils/helper';
-import { DetailPropsType, MatchDataType } from '@type/types';
+import { DetailPropsType, MatchDataType } from '@/type/default';
 import { API, NAVER_API, StrapiType } from '@/api';
+import { NaverDirectionsResponseType } from '@/type/naver';
+import Arrow from '@assets/svg/arrow.svg';
+import SelectStadiumModal from './SelectStadiumModal';
 
 const { width } = Dimensions.get('window');
 const formattedToday = dayjs().format(DATE_FORMAT);
@@ -46,6 +49,8 @@ export default function UploadModal({
   setIsVisible,
 }: DetailPropsType & { isVisible: boolean }) {
   const [stadium, setStadium] = useState<string[]>([]);
+  const [selectedStadium, setSelectedStadium] = useState<string>('');
+  const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
 
@@ -112,14 +117,16 @@ export default function UploadModal({
 
   // TODO 경기장 셀렉트박스 구현
   const getStadiumDistance = async () => {
-    const start = `${latitude},${longitude}`;
+    // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
+    // const start = `${latitude},${longitude}`;
+    const start = `${longitude},${latitude}`;
 
     stadium.forEach(async s => {
-      const geo = `${STADIUM_GEO[s].lat},${STADIUM_GEO[s].lon}`;
-      const res = await NAVER_API.get(
-        `/map-direction/v1/driving?start=${start}&goal=${geo}`,
+      const geo = `${STADIUM_GEO[s].lon},${STADIUM_GEO[s].lat}`;
+      const res = await NAVER_API.get<NaverDirectionsResponseType>(
+        `/map-direction-15/v1/driving?start=${start}&goal=${geo}`,
       );
-      console.log(res, '??');
+      console.log(res.data.route.traoptimal[0].summary.distance, '???');
     });
   };
 
@@ -200,21 +207,31 @@ export default function UploadModal({
               <Text
                 style={{
                   fontFamily: 'UhBee Seulvely',
-                  marginTop: 6,
+                  marginTop: 8,
                 }}>
                 {dayjs().format(DATE_FORMAT_SLASH)}
-                {/* {' @'}
-                {'인천SS랜더스필드'} */}
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  marginLeft: 4,
+                  marginTop: 4,
+                  padding: 4,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+                onPress={() => setStadiumSelectVisible(true)}>
                 <Text
                   style={{
                     fontFamily: 'UhBee Seulvely',
-                    marginTop: 6,
+                    // marginTop: 6,
+                    color: selectedStadium.length ? '#222' : '#888',
                   }}>
                   {' @'}
-                  {'인천SS랜더스필드'}
+                  {selectedStadium.length
+                    ? selectedStadium
+                    : '경기장을 선택해주세요'}
                 </Text>
+                <Arrow width={16} height={16} color={'#666'} />
               </TouchableOpacity>
             </View>
 
@@ -287,6 +304,14 @@ export default function UploadModal({
           </View>
         </View>
       </View>
+
+      {stadiumSelectVisible && (
+        <SelectStadiumModal
+          stadiums={stadium}
+          setIsVisible={value => setStadiumSelectVisible(value)}
+          setSelectedStadium={value => setSelectedStadium(value)}
+        />
+      )}
 
       {/* NOTE root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
       <Toast />

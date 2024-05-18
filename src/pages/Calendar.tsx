@@ -28,7 +28,7 @@ import {
   STADIUM_SHORT_NAME,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
-import { MatchDataType } from '@type/types';
+import { MatchDataType } from '@/type/default';
 import Ball from '@assets/svg/ball.svg';
 import Pin from '@assets/svg/paperclip.svg';
 import AnswerCircle from '@assets/svg/answer_circle.svg';
