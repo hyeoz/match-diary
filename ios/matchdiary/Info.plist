@@ -60,7 +60,10 @@
 	<key>NMFClientId</key>
 	<string>${REACT_APP_NAVER_MAPS_PRIMARY_KEY}</string>
 	<key>LSApplicationQueriesSchemes</key>
-	<string>instagram</string>
+	<array>
+		<string>instagram</string>
+		<string>mailto</string>
+	</array>
 </dict>
 
 </plist>
