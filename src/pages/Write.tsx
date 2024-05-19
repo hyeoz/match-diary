@@ -81,6 +81,11 @@ function Write() {
       setMemo(json.memo);
       setSelectedStadium(json.selectedStadium);
       setIsEdit(true);
+    } else {
+      setImage(null);
+      setMemo('');
+      setSelectedStadium('');
+      setIsEdit(false);
     }
   };
 

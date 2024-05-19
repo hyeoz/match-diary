@@ -55,6 +55,9 @@ export default function UploadModal({
   const [stadiumInfo, setStadiumInfo] = useState<
     { name: string; distance: number }[]
   >([]);
+  const [matchInfo, setMatchInfo] = useState<{
+    [key: string]: { home: string; away: string };
+  }>();
   // const [selectedStadium, setSelectedStadium] = useState<string>('');
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [latitude, setLatitude] = useState('');
@@ -104,6 +107,8 @@ export default function UploadModal({
           memo,
           selectedStadium,
           date: formattedToday,
+          home: matchInfo?.[selectedStadium]?.home,
+          away: matchInfo?.[selectedStadium]?.away,
         }),
       );
       setIsVisible(false);
@@ -114,7 +119,20 @@ export default function UploadModal({
     const res = await API.get<StrapiType<MatchDataType>>(
       `/schedule-2024s?filters[date]=${apiFormattedToday}`,
     );
-    const _stadium = res.data.data.map(att => att.attributes.stadium);
+    console.log(res, 'RES!!!!');
+    const _stadium = res.data.data.map(att => {
+      setMatchInfo(prev => {
+        return {
+          ...prev,
+          [att.attributes.stadium]: {
+            home: att.attributes.home,
+            away: att.attributes.away,
+          },
+        };
+      });
+      return att.attributes.stadium;
+    });
+
     const filteredStadium = _stadium.filter(
       (sta, index) => _stadium.lastIndexOf(sta) === index,
     ); // 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
@@ -211,7 +229,7 @@ export default function UploadModal({
               )}
             </View>
 
-            {/* TODO 경기정보 영역 */}
+            {/* 경기정보 영역 */}
             <View
               style={{
                 flexDirection: 'row',
@@ -236,7 +254,6 @@ export default function UploadModal({
                 <Text
                   style={{
                     fontFamily: 'UhBee Seulvely',
-                    // marginTop: 6,
                     color: selectedStadium.length ? '#222' : '#888',
                   }}>
                   {' @'}

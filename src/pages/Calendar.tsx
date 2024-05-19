@@ -14,8 +14,6 @@ import { DateData, MarkedDates } from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
-import { useNavigation, useNavigationState } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
@@ -117,7 +115,7 @@ function Calendar() {
 
   const getSelectedItem = async () => {
     const res = await AsyncStorage.getItem(selectedDate);
-    console.log(res, 'RES????');
+
     if (res) {
       const json: {
         image: ImageOrVideo;
@@ -180,7 +178,6 @@ function Calendar() {
         API_DATE_FORMAT,
       )}`,
     );
-    console.log(res.data);
 
     if (!res.data.data.length) {
       return setMatches([]);
@@ -202,55 +199,70 @@ function Calendar() {
     );
 
     let _count = initCountData;
-    keys.forEach(async key => {
+
+    for (let i = 0; i < keys.length; i++) {
       const res = await API.get<StrapiType<MatchDataType>>(
-        `/schedule-2024s?filters[date]=${key}`,
+        `/schedule-2024s?filters[date]=${dayjs(keys[i]).format(
+          API_DATE_FORMAT,
+        )}`,
       );
-      // const data = res.data.data
-      // // 이번 시즌 직관 기록
-      // if (
-      //   !team ||
-      //   data.attributes.homeScore === undefined ||
-      //   data.attributes.awayScore === undefined
-      // ) {
-      //   _count.bySeason.home += 1;
-      //   return;
-      // }
-      // if (team && team === data.attributes.home) {
-      //   _count.bySeason.home += 1;
-      //   // 직관 승률
-      //   if (data.attributes.homeScore > data.attributes.awayScore) {
-      //     _count.rate.win += 1;
-      //   } else if (data.attributes.homeScore < data.attributes.awayScore) {
-      //     _count.rate.lose += 1;
-      //   } else {
-      //     _count.rate.draw += 1;
-      //   }
-      // } else {
-      //   _count.bySeason.away += 1;
-      // }
+      const data = res.data.data[0];
 
-      // // 이번 달 직관 기록
-      // if (dayjs(data.attributes.date).month() === dayjs().month()) {
-      //   if (
-      //     !team ||
-      //     data.attributes.homeScore === undefined ||
-      //     data.attributes.awayScore === undefined
-      //   ) {
-      //     _count.byMonth.home += 1;
-      //     return;
-      //   }
-      //   if (team && team === data.attributes.home) {
-      //     _count.byMonth.home += 1;
-      //   } else {
-      //     _count.byMonth.away += 1;
-      //   }
-      // }
-    });
+      if (!data) return;
 
-    setMatchRecord(_count);
+      if (!team) {
+        // 이번 시즌 직관 기록
+        _count.bySeason.home += 1;
+        // 이번 달 직관 기록
+        if (dayjs(keys[i]).month() === dayjs().month()) {
+          _count.byMonth.home += 1;
+        }
+        return;
+      } else if (team === data.attributes.home) {
+        // 이번 시즌 직관 기록
+        _count.bySeason.home += 1;
+        // 이번 달 직관 기록
+        if (dayjs(keys[i]).month() === dayjs().month()) {
+          _count.byMonth.home += 1;
+        }
+
+        // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
+        if (!data.attributes.homeScore || !data.attributes.awayScore) return;
+        if (data.attributes.homeScore > data.attributes.awayScore) {
+          _count = {
+            ..._count,
+            rate: {
+              ..._count.rate,
+              win: _count.rate.win + 1,
+            },
+          };
+          _count.rate.win += 1;
+        } else if (data.attributes.homeScore < data.attributes.awayScore) {
+          _count.rate.lose += 1;
+        } else {
+          _count.rate.draw += 1;
+        }
+      } else {
+        // 이번 시즌 직관 기록
+        _count.bySeason.away += 1;
+        // 이번 달 직관 기록
+        if (dayjs(keys[i]).month() === dayjs().month()) {
+          _count.byMonth.away += 1;
+        }
+
+        // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
+        if (!data.attributes.homeScore || !data.attributes.awayScore) return;
+        if (data.attributes.homeScore < data.attributes.awayScore) {
+          _count.rate.win += 1;
+        } else if (data.attributes.homeScore > data.attributes.awayScore) {
+          _count.rate.lose += 1;
+        } else {
+          _count.rate.draw += 1;
+        }
+      }
+    }
   };
-  console.log({ matches });
+
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
@@ -407,7 +419,9 @@ function Calendar() {
                   textAlign: 'right',
                 },
               ]}>
-              {!!team ? `홈 ${1}번 / 원정 ${0}번` : `${1}번`}
+              {!!team
+                ? `홈 ${matchRecord.byMonth.home}번 / 원정 ${matchRecord.byMonth.away}번`
+                : `${matchRecord.byMonth.home}번`}
             </Text>
             <Text style={[styles.stickyNoteText]}>이번 시즌 직관 기록</Text>
             <Text
@@ -417,7 +431,9 @@ function Calendar() {
                   textAlign: 'right',
                 },
               ]}>
-              {!!team ? `홈 ${3}번 / 원정 ${2}번` : `${5}번`}
+              {!!team
+                ? `홈 ${matchRecord.bySeason.home}번 / 원정 ${matchRecord.bySeason.away}번`
+                : `${matchRecord.bySeason.home}번`}
             </Text>
           </View>
           {!!team && (
@@ -440,7 +456,7 @@ function Calendar() {
                     textAlign: 'right',
                   },
                 ]}>
-                {'3승 2패'}
+                {`${matchRecord.rate.win}승 ${matchRecord.rate.lose}패`}
               </Text>
             </View>
           )}
