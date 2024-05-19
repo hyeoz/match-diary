@@ -19,7 +19,10 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
 
-import Add from '@assets/svg/add.svg';
+import SelectStadiumModal from './SelectStadiumModal';
+import { API, NAVER_API, StrapiType } from '@/api';
+import { DetailPropsType, MatchDataType } from '@/type/default';
+import { NaverDirectionsResponseType } from '@/type/naver';
 import {
   API_DATE_FORMAT,
   DATE_FORMAT,
@@ -27,14 +30,12 @@ import {
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
   STADIUM_GEO,
+  STADIUM_SHORT_TO_LONG,
 } from '@utils/STATIC_DATA';
-import { palette } from '@style/palette';
 import { hasAndroidPermission } from '@utils/helper';
-import { DetailPropsType, MatchDataType } from '@/type/default';
-import { API, NAVER_API, StrapiType } from '@/api';
-import { NaverDirectionsResponseType } from '@/type/naver';
+import { palette } from '@style/palette';
+import Add from '@assets/svg/add.svg';
 import Arrow from '@assets/svg/arrow.svg';
-import SelectStadiumModal from './SelectStadiumModal';
 
 const { width } = Dimensions.get('window');
 const formattedToday = dayjs().format(DATE_FORMAT);
@@ -49,6 +50,9 @@ export default function UploadModal({
   setIsVisible,
 }: DetailPropsType & { isVisible: boolean }) {
   const [stadium, setStadium] = useState<string[]>([]);
+  const [stadiumInfo, setStadiumInfo] = useState<
+    { name: string; distance: number }[]
+  >([]);
   const [selectedStadium, setSelectedStadium] = useState<string>('');
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [latitude, setLatitude] = useState('');
@@ -82,10 +86,10 @@ export default function UploadModal({
   };
 
   const onSave = async () => {
-    if (!image || !memo) {
+    if (!image || !memo || !selectedStadium) {
       Toast.show({
         type: 'error',
-        text1: '아직 작성하지 않은 항목이 있어요!',
+        text1: '아직 입력하지 않은 항목이 있어요!',
         topOffset: 64,
       });
     } else if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
@@ -97,6 +101,7 @@ export default function UploadModal({
         JSON.stringify({
           image,
           memo,
+          selectedStadium,
         }),
       );
       setIsVisible(false);
@@ -112,7 +117,6 @@ export default function UploadModal({
       (sta, index) => _stadium.lastIndexOf(sta) === index,
     ); // 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
     setStadium(filteredStadium);
-    console.log(filteredStadium);
   };
 
   // TODO 경기장 셀렉트박스 구현
@@ -121,13 +125,20 @@ export default function UploadModal({
     // const start = `${latitude},${longitude}`;
     const start = `${longitude},${latitude}`;
 
+    const _stadiumInfo: { name: string; distance: number }[] = [];
     stadium.forEach(async s => {
       const geo = `${STADIUM_GEO[s].lon},${STADIUM_GEO[s].lat}`;
       const res = await NAVER_API.get<NaverDirectionsResponseType>(
         `/map-direction-15/v1/driving?start=${start}&goal=${geo}`,
       );
-      console.log(res.data.route.traoptimal[0].summary.distance, '???');
+      // console.log(res.data.route.traoptimal[0].summary.distance, '???');
+      _stadiumInfo.push({
+        name: STADIUM_SHORT_TO_LONG[s],
+        distance: res.data.route?.traoptimal[0].summary.distance,
+      });
     });
+
+    setStadiumInfo(_stadiumInfo);
   };
 
   const getLocation = async () => {
@@ -307,8 +318,9 @@ export default function UploadModal({
 
       {stadiumSelectVisible && (
         <SelectStadiumModal
-          stadiums={stadium}
+          stadiumInfo={stadiumInfo}
           setIsVisible={value => setStadiumSelectVisible(value)}
+          selectStadium={selectedStadium}
           setSelectedStadium={value => setSelectedStadium(value)}
         />
       )}
