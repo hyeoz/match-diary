@@ -25,6 +25,8 @@ export type DetailPropsType = {
   setMemo: React.Dispatch<React.SetStateAction<string>>;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
   setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedStadium: string;
+  setSelectedStadium: React.Dispatch<React.SetStateAction<string>>;
 };
 
 // 경기 일정 API 리스폰스 타입

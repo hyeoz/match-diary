@@ -80,6 +80,7 @@ function Calendar() {
   const [isVisible, setIsVisible] = useState(false);
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
+  const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
   const [myTeamMatch, setMyTeamMatch] = useState<MatchDataType>();
   // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
@@ -89,12 +90,14 @@ function Calendar() {
   const { history } = useTabHistory();
 
   const detailProps = {
-    image: image,
-    setImage: setImage,
-    memo: memo,
-    setMemo: setMemo,
-    setIsEdit: setIsEdit,
-    setIsVisible: setIsVisible,
+    image,
+    setImage,
+    memo,
+    setMemo,
+    setIsEdit,
+    setIsVisible,
+    selectedStadium,
+    setSelectedStadium,
     myTeamMatch,
   };
 
@@ -113,12 +116,18 @@ function Calendar() {
     const res = await AsyncStorage.getItem(selectedDate);
 
     if (res) {
-      const json: { image: ImageOrVideo; memo: string } = JSON.parse(res);
+      const json: {
+        image: ImageOrVideo;
+        memo: string;
+        selectedStadium: string;
+      } = JSON.parse(res);
       setImage(json.image);
       setMemo(json.memo);
+      setSelectedStadium(json.selectedStadium);
     } else {
       setImage(null);
       setMemo('');
+      setSelectedStadium('');
     }
   };
 

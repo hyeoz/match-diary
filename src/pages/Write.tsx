@@ -36,6 +36,7 @@ function Write() {
   const [isVisible, setIsVisible] = useState(false);
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
+  const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
@@ -71,17 +72,20 @@ function Write() {
       const json = JSON.parse(res);
       setImage(json.image);
       setMemo(json.memo);
+      setSelectedStadium(json.selectedStadium);
       setIsEdit(true);
     }
   };
 
   const detailProps = {
-    image: image,
-    setImage: setImage,
-    memo: memo,
-    setMemo: setMemo,
-    setIsEdit: setIsEdit,
-    setIsVisible: setIsVisible,
+    image,
+    setImage,
+    memo,
+    setMemo,
+    setIsEdit,
+    setIsVisible,
+    selectedStadium,
+    setSelectedStadium,
   };
 
   return (
