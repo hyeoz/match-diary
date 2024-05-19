@@ -30,7 +30,7 @@ export default function SelectStadiumModal({
   useEffect(() => {
     if (selectStadium) {
       setSelect(selectStadium);
-    } else {
+    } else if (sortedInfo[0]) {
       setSelect(sortedInfo[0].name);
     }
   }, [sortedInfo]);

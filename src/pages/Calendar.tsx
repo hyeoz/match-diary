@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   Dimensions,
+  FlatList,
+  ListRenderItemInfo,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -21,6 +23,7 @@ import UploadModal from '@components/UploadModal';
 import { useMyState, useTabHistory } from '@stores/default';
 import { API, StrapiType } from '@api/index';
 import {
+  API_DATE_FORMAT,
   DATE_FORMAT,
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
@@ -82,7 +85,7 @@ function Calendar() {
   const [memo, setMemo] = useState('');
   const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
-  const [myTeamMatch, setMyTeamMatch] = useState<MatchDataType>();
+  const [matches, setMatches] = useState<MatchDataType[]>([]);
   // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
   const [matchRecord, setMatchRecord] = useState(initCountData);
 
@@ -98,7 +101,7 @@ function Calendar() {
     setIsVisible,
     selectedStadium,
     setSelectedStadium,
-    myTeamMatch,
+    matches,
   };
 
   useEffect(() => {
@@ -153,7 +156,7 @@ function Calendar() {
   };
 
   const onDayPress = useCallback((day?: DateData) => {
-    setSelectedDate(dayjs(day?.dateString).format(DATE_FORMAT));
+    setSelectedDate(dayjs(day?.dateString).format(API_DATE_FORMAT));
   }, []);
 
   const dayComponent = useCallback(
@@ -176,15 +179,18 @@ function Calendar() {
     const res = await API.get<StrapiType<MatchDataType>>(
       `/schedule-2024s?filters[date]=${selectedDate}`,
     );
+    console.log(res.data);
 
     if (!res.data.data.length) {
-      return setMyTeamMatch(undefined);
+      return setMatches([]);
     }
     if (!!team) {
       const filteredMatch = res.data.data.filter(
         data => data.attributes.home === team || data.attributes.away === team,
       );
-      setMyTeamMatch(filteredMatch[0].attributes);
+      setMatches([filteredMatch[0].attributes]);
+    } else {
+      setMatches(res.data.data.map(d => d.attributes));
     }
   };
 
@@ -199,6 +205,7 @@ function Calendar() {
       const res = await API.get<StrapiType<MatchDataType>>(
         `/schedule-2024s?filters[date]=${key}`,
       );
+      // const data = res.data.data
       // // 이번 시즌 직관 기록
       // if (
       //   !team ||
@@ -242,7 +249,7 @@ function Calendar() {
 
     setMatchRecord(_count);
   };
-  // console.log(matchRecord, 'RECORD');
+  console.log({ matches });
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
@@ -301,7 +308,7 @@ function Calendar() {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}>
-                {myTeamMatch ? (
+                {matches.length === 1 ? (
                   <View>
                     <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
                       오늘의 경기
@@ -314,9 +321,9 @@ function Calendar() {
                           fontSize: 20,
                         },
                       ]}>
-                      {myTeamMatch?.home} VS {myTeamMatch?.away}
+                      {matches[0].home} VS {matches[0].away}
                     </Text>
-                    {!!myTeamMatch?.home && (
+                    {!!matches[0].home && (
                       <View>
                         <AnswerCircle
                           width={88}
@@ -337,10 +344,17 @@ function Calendar() {
                             styles.stickyNoteText,
                             { fontSize: 18, textAlign: 'center' },
                           ]}>
-                          ({STADIUM_SHORT_NAME[myTeamMatch?.home]})
+                          ({STADIUM_SHORT_NAME[matches[0].home]})
                         </Text>
                       </View>
                     )}
+                  </View>
+                ) : matches.length ? (
+                  <View>
+                    <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
+                      오늘의 경기
+                    </Text>
+                    <FlatList data={matches} renderItem={MatchesItem} />
                   </View>
                 ) : (
                   <View>
@@ -468,9 +482,8 @@ function DayComponent({
           style={{
             width: '50%',
             height: 12,
-            // backgroundColor: 'rgba(	123,	193,	88, 0.3)',
             backgroundColor:
-              dayjs(date?.dateString).format(DATE_FORMAT) === selectedDate
+              dayjs(date?.dateString).format(API_DATE_FORMAT) === selectedDate
                 ? 'rgba(	123,	193,	88, 0.3)'
                 : 'transparent',
             position: 'absolute',
@@ -499,6 +512,21 @@ function DayComponent({
       </View>
       {marking?.marked && <Ball width={16} height={16} />}
     </TouchableOpacity>
+  );
+}
+
+function MatchesItem({ ...props }: ListRenderItemInfo<MatchDataType>) {
+  const { home, away, stadium } = props.item;
+
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <View style={{ flexDirection: 'row', gap: 4 }}>
+        <Text style={styles.stickyNoteText}>{away}</Text>
+        <Text style={styles.stickyNoteText}>VS</Text>
+        <Text style={styles.stickyNoteText}>{home}</Text>
+      </View>
+      <Text style={styles.stickyNoteText}>@{stadium}</Text>
+    </View>
   );
 }
 

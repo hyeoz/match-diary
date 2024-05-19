@@ -68,7 +68,6 @@ export default function UploadModal({
 
   useEffect(() => {
     getStadiumDistance();
-    console.log({ latitude, longitude });
   }, [latitude, longitude]);
 
   const onPressOpenGallery = () => {
@@ -102,6 +101,7 @@ export default function UploadModal({
           image,
           memo,
           selectedStadium,
+          date: formattedToday,
         }),
       );
       setIsVisible(false);

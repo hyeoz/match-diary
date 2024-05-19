@@ -11,6 +11,7 @@ import Add from '@assets/svg/add.svg';
 import { DATE_FORMAT } from '@utils/STATIC_DATA';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTabHistory } from '@/stores/default';
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 
@@ -39,6 +40,8 @@ function Write() {
   const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
 
+  const { history } = useTabHistory();
+
   useEffect(() => {
     if (!isVisible) {
       setImage(null);
@@ -46,6 +49,10 @@ function Write() {
     }
     checkItem();
   }, [isVisible]);
+
+  useEffect(() => {
+    checkItem();
+  }, [history]);
 
   useEffect(() => {
     getMyTeam();
