@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   Dimensions,
+  FlatList,
+  ListRenderItemInfo,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -12,8 +14,6 @@ import { DateData, MarkedDates } from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
-import { useNavigation, useNavigationState } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
@@ -21,6 +21,7 @@ import UploadModal from '@components/UploadModal';
 import { useMyState, useTabHistory } from '@stores/default';
 import { API, StrapiType } from '@api/index';
 import {
+  API_DATE_FORMAT,
   DATE_FORMAT,
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
@@ -28,7 +29,7 @@ import {
   STADIUM_SHORT_NAME,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
-import { MatchDataType } from '@type/types';
+import { MatchDataType } from '@/type/default';
 import Ball from '@assets/svg/ball.svg';
 import Pin from '@assets/svg/paperclip.svg';
 import AnswerCircle from '@assets/svg/answer_circle.svg';
@@ -80,8 +81,9 @@ function Calendar() {
   const [isVisible, setIsVisible] = useState(false);
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
+  const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
-  const [myTeamMatch, setMyTeamMatch] = useState<MatchDataType>();
+  const [matches, setMatches] = useState<MatchDataType[]>([]);
   // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
   const [matchRecord, setMatchRecord] = useState(initCountData);
 
@@ -89,13 +91,15 @@ function Calendar() {
   const { history } = useTabHistory();
 
   const detailProps = {
-    image: image,
-    setImage: setImage,
-    memo: memo,
-    setMemo: setMemo,
-    setIsEdit: setIsEdit,
-    setIsVisible: setIsVisible,
-    myTeamMatch,
+    image,
+    setImage,
+    memo,
+    setMemo,
+    setIsEdit,
+    setIsVisible,
+    selectedStadium,
+    setSelectedStadium,
+    matches,
   };
 
   useEffect(() => {
@@ -113,12 +117,18 @@ function Calendar() {
     const res = await AsyncStorage.getItem(selectedDate);
 
     if (res) {
-      const json: { image: ImageOrVideo; memo: string } = JSON.parse(res);
+      const json: {
+        image: ImageOrVideo;
+        memo: string;
+        selectedStadium: string;
+      } = JSON.parse(res);
       setImage(json.image);
       setMemo(json.memo);
+      setSelectedStadium(json.selectedStadium);
     } else {
       setImage(null);
       setMemo('');
+      setSelectedStadium('');
     }
   };
 
@@ -140,7 +150,6 @@ function Calendar() {
       }
     });
     setMarkedDates(_marked);
-    // keys.length && setDatesHasItems(keys)
   };
 
   const onDayPress = useCallback((day?: DateData) => {
@@ -165,17 +174,21 @@ function Calendar() {
 
   const getMatchData = async () => {
     const res = await API.get<StrapiType<MatchDataType>>(
-      `/schedule-2024s?filters[date]=${selectedDate}`,
+      `/schedule-2024s?filters[date]=${dayjs(selectedDate).format(
+        API_DATE_FORMAT,
+      )}`,
     );
 
     if (!res.data.data.length) {
-      return setMyTeamMatch(undefined);
+      return setMatches([]);
     }
     if (!!team) {
       const filteredMatch = res.data.data.filter(
         data => data.attributes.home === team || data.attributes.away === team,
       );
-      setMyTeamMatch(filteredMatch[0].attributes);
+      setMatches([filteredMatch[0].attributes]);
+    } else {
+      setMatches(res.data.data.map(d => d.attributes));
     }
   };
 
@@ -186,54 +199,70 @@ function Calendar() {
     );
 
     let _count = initCountData;
-    keys.forEach(async key => {
+
+    for (let i = 0; i < keys.length; i++) {
       const res = await API.get<StrapiType<MatchDataType>>(
-        `/schedule-2024s?filters[date]=${key}`,
+        `/schedule-2024s?filters[date]=${dayjs(keys[i]).format(
+          API_DATE_FORMAT,
+        )}`,
       );
-      // // 이번 시즌 직관 기록
-      // if (
-      //   !team ||
-      //   data.attributes.homeScore === undefined ||
-      //   data.attributes.awayScore === undefined
-      // ) {
-      //   _count.bySeason.home += 1;
-      //   return;
-      // }
-      // if (team && team === data.attributes.home) {
-      //   _count.bySeason.home += 1;
-      //   // 직관 승률
-      //   if (data.attributes.homeScore > data.attributes.awayScore) {
-      //     _count.rate.win += 1;
-      //   } else if (data.attributes.homeScore < data.attributes.awayScore) {
-      //     _count.rate.lose += 1;
-      //   } else {
-      //     _count.rate.draw += 1;
-      //   }
-      // } else {
-      //   _count.bySeason.away += 1;
-      // }
+      const data = res.data.data[0];
 
-      // // 이번 달 직관 기록
-      // if (dayjs(data.attributes.date).month() === dayjs().month()) {
-      //   if (
-      //     !team ||
-      //     data.attributes.homeScore === undefined ||
-      //     data.attributes.awayScore === undefined
-      //   ) {
-      //     _count.byMonth.home += 1;
-      //     return;
-      //   }
-      //   if (team && team === data.attributes.home) {
-      //     _count.byMonth.home += 1;
-      //   } else {
-      //     _count.byMonth.away += 1;
-      //   }
-      // }
-    });
+      if (!data) return;
 
-    setMatchRecord(_count);
+      if (!team) {
+        // 이번 시즌 직관 기록
+        _count.bySeason.home += 1;
+        // 이번 달 직관 기록
+        if (dayjs(keys[i]).month() === dayjs().month()) {
+          _count.byMonth.home += 1;
+        }
+        return;
+      } else if (team === data.attributes.home) {
+        // 이번 시즌 직관 기록
+        _count.bySeason.home += 1;
+        // 이번 달 직관 기록
+        if (dayjs(keys[i]).month() === dayjs().month()) {
+          _count.byMonth.home += 1;
+        }
+
+        // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
+        if (!data.attributes.homeScore || !data.attributes.awayScore) return;
+        if (data.attributes.homeScore > data.attributes.awayScore) {
+          _count = {
+            ..._count,
+            rate: {
+              ..._count.rate,
+              win: _count.rate.win + 1,
+            },
+          };
+          _count.rate.win += 1;
+        } else if (data.attributes.homeScore < data.attributes.awayScore) {
+          _count.rate.lose += 1;
+        } else {
+          _count.rate.draw += 1;
+        }
+      } else {
+        // 이번 시즌 직관 기록
+        _count.bySeason.away += 1;
+        // 이번 달 직관 기록
+        if (dayjs(keys[i]).month() === dayjs().month()) {
+          _count.byMonth.away += 1;
+        }
+
+        // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
+        if (!data.attributes.homeScore || !data.attributes.awayScore) return;
+        if (data.attributes.homeScore < data.attributes.awayScore) {
+          _count.rate.win += 1;
+        } else if (data.attributes.homeScore > data.attributes.awayScore) {
+          _count.rate.lose += 1;
+        } else {
+          _count.rate.draw += 1;
+        }
+      }
+    }
   };
-  // console.log(matchRecord, 'RECORD');
+
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
@@ -292,7 +321,7 @@ function Calendar() {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}>
-                {myTeamMatch ? (
+                {matches.length === 1 ? (
                   <View>
                     <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
                       오늘의 경기
@@ -305,9 +334,9 @@ function Calendar() {
                           fontSize: 20,
                         },
                       ]}>
-                      {myTeamMatch?.home} VS {myTeamMatch?.away}
+                      {matches[0].home} VS {matches[0].away}
                     </Text>
-                    {!!myTeamMatch?.home && (
+                    {!!matches[0].home && (
                       <View>
                         <AnswerCircle
                           width={88}
@@ -328,10 +357,17 @@ function Calendar() {
                             styles.stickyNoteText,
                             { fontSize: 18, textAlign: 'center' },
                           ]}>
-                          ({STADIUM_SHORT_NAME[myTeamMatch?.home]})
+                          ({STADIUM_SHORT_NAME[matches[0].home]})
                         </Text>
                       </View>
                     )}
+                  </View>
+                ) : matches.length ? (
+                  <View>
+                    <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
+                      오늘의 경기
+                    </Text>
+                    <FlatList data={matches} renderItem={MatchesItem} />
                   </View>
                 ) : (
                   <View>
@@ -383,7 +419,9 @@ function Calendar() {
                   textAlign: 'right',
                 },
               ]}>
-              {!!team ? `홈 ${1}번 / 원정 ${0}번` : `${1}번`}
+              {!!team
+                ? `홈 ${matchRecord.byMonth.home}번 / 원정 ${matchRecord.byMonth.away}번`
+                : `${matchRecord.byMonth.home}번`}
             </Text>
             <Text style={[styles.stickyNoteText]}>이번 시즌 직관 기록</Text>
             <Text
@@ -393,7 +431,9 @@ function Calendar() {
                   textAlign: 'right',
                 },
               ]}>
-              {!!team ? `홈 ${3}번 / 원정 ${2}번` : `${5}번`}
+              {!!team
+                ? `홈 ${matchRecord.bySeason.home}번 / 원정 ${matchRecord.bySeason.away}번`
+                : `${matchRecord.bySeason.home}번`}
             </Text>
           </View>
           {!!team && (
@@ -416,7 +456,7 @@ function Calendar() {
                     textAlign: 'right',
                   },
                 ]}>
-                {'3승 2패'}
+                {`${matchRecord.rate.win}승 ${matchRecord.rate.lose}패`}
               </Text>
             </View>
           )}
@@ -459,7 +499,6 @@ function DayComponent({
           style={{
             width: '50%',
             height: 12,
-            // backgroundColor: 'rgba(	123,	193,	88, 0.3)',
             backgroundColor:
               dayjs(date?.dateString).format(DATE_FORMAT) === selectedDate
                 ? 'rgba(	123,	193,	88, 0.3)'
@@ -490,6 +529,21 @@ function DayComponent({
       </View>
       {marking?.marked && <Ball width={16} height={16} />}
     </TouchableOpacity>
+  );
+}
+
+function MatchesItem({ ...props }: ListRenderItemInfo<MatchDataType>) {
+  const { home, away, stadium } = props.item;
+
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <View style={{ flexDirection: 'row', gap: 4 }}>
+        <Text style={styles.stickyNoteText}>{away}</Text>
+        <Text style={styles.stickyNoteText}>VS</Text>
+        <Text style={styles.stickyNoteText}>{home}</Text>
+      </View>
+      <Text style={styles.stickyNoteText}>@{stadium}</Text>
+    </View>
   );
 }
 

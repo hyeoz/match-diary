@@ -15,7 +15,7 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 
-import { DetailPropsType, MatchDataType } from '@type/types';
+import { DetailPropsType, MatchDataType } from '@/type/default';
 import { useMyState } from '@stores/default';
 import { hasAndroidPermission } from '@utils/helper';
 import {
@@ -38,6 +38,8 @@ export function Detail({
   setMemo,
   setIsEdit,
   setIsVisible,
+  selectedStadium,
+  setSelectedStadium,
   myTeamMatch,
   isCalendar = false,
 }: DetailPropsType & { myTeamMatch?: MatchDataType; isCalendar?: boolean }) {
@@ -235,26 +237,24 @@ export function Detail({
                   </Text>
                 </View>
               )}
-              {myTeamMatch?.home && myTeamMatch.away && (
-                <Text
-                  style={{
-                    width: '100%',
-                    fontFamily: 'UhBee Seulvely',
-                    fontSize: isCalendar ? 10 : 12,
-                    marginTop: isCalendar ? 10 : 20,
-                  }}>
-                  {dayjs(myTeamMatch?.date).format(DATE_FORMAT_SLASH)}{' '}
-                  {myTeamMatch?.home}
-                  {' VS '}
-                  {myTeamMatch?.away}
-                  {' @'}
-                  {
-                    STADIUM_SHORT_TO_LONG[
-                      STADIUM_SHORT_NAME[myTeamMatch?.home!]
-                    ]
-                  }
-                </Text>
-              )}
+              <Text
+                style={{
+                  width: '100%',
+                  fontFamily: 'UhBee Seulvely',
+                  fontSize: isCalendar ? 10 : 12,
+                  marginTop: isCalendar ? 10 : 20,
+                }}>
+                {dayjs(myTeamMatch?.date).format(DATE_FORMAT_SLASH)}{' '}
+                {myTeamMatch?.home && myTeamMatch.away && (
+                  <>
+                    {myTeamMatch?.home}
+                    {' VS '}
+                    {myTeamMatch?.away}
+                  </>
+                )}
+                {' @'}
+                {selectedStadium}
+              </Text>
             </View>
             <View
               style={{

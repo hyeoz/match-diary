@@ -11,6 +11,7 @@ import Add from '@assets/svg/add.svg';
 import { DATE_FORMAT } from '@utils/STATIC_DATA';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTabHistory } from '@/stores/default';
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 
@@ -36,7 +37,10 @@ function Write() {
   const [isVisible, setIsVisible] = useState(false);
   const [image, setImage] = useState<ImageOrVideo | null>(null);
   const [memo, setMemo] = useState('');
+  const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
+
+  const { history } = useTabHistory();
 
   useEffect(() => {
     if (!isVisible) {
@@ -45,6 +49,10 @@ function Write() {
     }
     checkItem();
   }, [isVisible]);
+
+  useEffect(() => {
+    checkItem();
+  }, [history]);
 
   useEffect(() => {
     getMyTeam();
@@ -71,17 +79,25 @@ function Write() {
       const json = JSON.parse(res);
       setImage(json.image);
       setMemo(json.memo);
+      setSelectedStadium(json.selectedStadium);
       setIsEdit(true);
+    } else {
+      setImage(null);
+      setMemo('');
+      setSelectedStadium('');
+      setIsEdit(false);
     }
   };
 
   const detailProps = {
-    image: image,
-    setImage: setImage,
-    memo: memo,
-    setMemo: setMemo,
-    setIsEdit: setIsEdit,
-    setIsVisible: setIsVisible,
+    image,
+    setImage,
+    memo,
+    setMemo,
+    setIsEdit,
+    setIsVisible,
+    selectedStadium,
+    setSelectedStadium,
   };
 
   return (

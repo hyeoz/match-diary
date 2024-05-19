@@ -19,7 +19,7 @@ import TouchableWrapper from '@components/TouchableWrapper';
 import { MY_TEAM_KEY, TEAM_ICON_ARRAY } from '@utils/STATIC_DATA';
 import { useMyState } from '@/stores/default';
 import { palette } from '@style/palette';
-import { MoreListItemType, TeamListItemType } from '@/type/types';
+import { MoreListItemType, TeamListItemType } from '@/type/default';
 import Arrow from '@assets/svg/arrow.svg';
 
 const { width } = Dimensions.get('window');
