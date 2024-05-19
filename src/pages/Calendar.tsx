@@ -117,7 +117,7 @@ function Calendar() {
 
   const getSelectedItem = async () => {
     const res = await AsyncStorage.getItem(selectedDate);
-
+    console.log(res, 'RES????');
     if (res) {
       const json: {
         image: ImageOrVideo;
@@ -156,7 +156,7 @@ function Calendar() {
   };
 
   const onDayPress = useCallback((day?: DateData) => {
-    setSelectedDate(dayjs(day?.dateString).format(API_DATE_FORMAT));
+    setSelectedDate(dayjs(day?.dateString).format(DATE_FORMAT));
   }, []);
 
   const dayComponent = useCallback(
@@ -177,7 +177,9 @@ function Calendar() {
 
   const getMatchData = async () => {
     const res = await API.get<StrapiType<MatchDataType>>(
-      `/schedule-2024s?filters[date]=${selectedDate}`,
+      `/schedule-2024s?filters[date]=${dayjs(selectedDate).format(
+        API_DATE_FORMAT,
+      )}`,
     );
     console.log(res.data);
 
@@ -483,7 +485,7 @@ function DayComponent({
             width: '50%',
             height: 12,
             backgroundColor:
-              dayjs(date?.dateString).format(API_DATE_FORMAT) === selectedDate
+              dayjs(date?.dateString).format(DATE_FORMAT) === selectedDate
                 ? 'rgba(	123,	193,	88, 0.3)'
                 : 'transparent',
             position: 'absolute',
