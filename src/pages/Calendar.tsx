@@ -152,7 +152,6 @@ function Calendar() {
       }
     });
     setMarkedDates(_marked);
-    // keys.length && setDatesHasItems(keys)
   };
 
   const onDayPress = useCallback((day?: DateData) => {

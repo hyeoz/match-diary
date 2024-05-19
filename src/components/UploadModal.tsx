@@ -46,6 +46,8 @@ export default function UploadModal({
   setImage,
   memo,
   setMemo,
+  selectedStadium,
+  setSelectedStadium,
   isVisible,
   setIsVisible,
 }: DetailPropsType & { isVisible: boolean }) {
@@ -53,7 +55,7 @@ export default function UploadModal({
   const [stadiumInfo, setStadiumInfo] = useState<
     { name: string; distance: number }[]
   >([]);
-  const [selectedStadium, setSelectedStadium] = useState<string>('');
+  // const [selectedStadium, setSelectedStadium] = useState<string>('');
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
