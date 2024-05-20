@@ -5,7 +5,7 @@ import {
 } from '@env';
 
 export const API = axios.create({
-  baseURL: 'http://localhost:1337/api', // TODO strapi 서버 URL 변경 필요
+  baseURL: 'https://match-diary-backend-79e304d3a79e.herokuapp.com/api', // TODO strapi 서버 URL 변경 필요
 });
 
 export const NAVER_API = axios.create({
