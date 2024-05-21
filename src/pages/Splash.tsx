@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import splash_text from '@assets/splash_text.png';
 import { RootStackListType } from '@/type/default';
 import { palette } from '@style/palette';
 import { useMyState } from '@stores/default';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import splash_text from '@assets/splash_text.png';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   const { team } = useMyState();
@@ -24,8 +24,6 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
     if (!res) return;
     setDefaultTeam(res);
   };
-
-  console.log('SPLASH!!');
 
   return (
     <View

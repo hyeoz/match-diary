@@ -119,7 +119,7 @@ export default function UploadModal({
     const res = await API.get<StrapiType<MatchDataType>>(
       `/schedule-2024s?filters[date]=${apiFormattedToday}`,
     );
-    console.log(res, 'RES!!!!');
+    // console.log(res, 'RES!!!!');
     const _stadium = res.data.data.map(att => {
       setMatchInfo(prev => {
         return {
