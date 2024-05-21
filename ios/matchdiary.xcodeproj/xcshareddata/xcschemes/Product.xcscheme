@@ -16,9 +16,9 @@
                   <BuildableReference
                      BuildableIdentifier = "primary"
                      BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-                     BuildableName = "직관일기.app"
-                     BlueprintName = "직관일기"
-                     ReferencedContainer = "container:직관일기.xcodeproj">
+                     BuildableName = "matchdiary.app"
+                     BlueprintName = "matchdiary"
+                     ReferencedContainer = "container:matchdiary.xcodeproj">
                   </BuildableReference>
                </EnvironmentBuildable>
             </ActionContent>
@@ -34,9 +34,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "직관일기.app"
-               BlueprintName = "직관일기"
-               ReferencedContainer = "container:직관일기.xcodeproj">
+               BuildableName = "matchdiary.app"
+               BlueprintName = "matchdiary"
+               ReferencedContainer = "container:matchdiary.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -63,9 +63,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "직관일기.app"
-            BlueprintName = "직관일기"
-            ReferencedContainer = "container:직관일기.xcodeproj">
+            BuildableName = "matchdiary.app"
+            BlueprintName = "matchdiary"
+            ReferencedContainer = "container:matchdiary.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -80,9 +80,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "직관일기.app"
-            BlueprintName = "직관일기"
-            ReferencedContainer = "container:직관일기.xcodeproj">
+            BuildableName = "matchdiary.app"
+            BlueprintName = "matchdiary"
+            ReferencedContainer = "container:matchdiary.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
