@@ -31,7 +31,9 @@ import Toast from 'react-native-toast-message';
 
 import Router from './src/router';
 import { STADIUM_GEO } from '@/utils/STATIC_DATA';
-import PushNotification from 'react-native-push-notification';
+import PushNotification, {
+  ReceivedNotification,
+} from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
 function App(): React.JSX.Element {
@@ -71,6 +73,11 @@ function App(): React.JSX.Element {
     PushNotification.configure({
       onNotification: function (notification) {
         console.log('NOTIFICATION:', notification);
+        // 기본 알림 처리 막기
+        notification.finish(PushNotificationIOS.FetchResult.NoData);
+
+        // 커스텀 알림 생성
+        showNotificationAlert(notification);
       },
       permissions: {
         alert: true,
@@ -91,6 +98,11 @@ function App(): React.JSX.Element {
   BackgroundGeolocation.onGeofence(event => {
     // console.log({ event });
     if (event.action === 'ENTER') {
+      // TODO
+      PushNotification.localNotification({
+        message: '오늘의 직관 일기를 기록해봐요!',
+        title: `혹시 ${event.identifier}경기장이신가요?`,
+      });
     }
   });
 
@@ -103,6 +115,25 @@ function App(): React.JSX.Element {
         { text: '설정으로 이동', onPress: () => openSettings() },
       ],
     );
+  };
+
+  const showNotificationAlert = (
+    notification: Omit<ReceivedNotification, 'userInfo'>,
+  ) => {
+    // const { message } = notification;
+
+    // 커스텀 알림 생성
+    PushNotification.localNotification({
+      title: '"직관일기" 가 알림을 보내고 싶어합니다.',
+      message: '경기장 근처에서 알림을 보내드릴게요!',
+      playSound: true, // 사운드 재생 여부
+      soundName: 'default', // 사용할 사운드 파일
+      vibrate: true, // 진동 여부
+      priority: 'high', // 알림 우선순위
+      visibility: 'public', // 알림의 공개 범위
+      channelId: 'custom-channel-id', // Android에서 필요한 채널 ID
+      userInfo: {}, // 사용자 정의 데이터
+    });
   };
 
   const requestLocationPermission = async () => {
