@@ -25,6 +25,8 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
     setDefaultTeam(res);
   };
 
+  console.log('SPLASH!!');
+
   return (
     <View
       style={[

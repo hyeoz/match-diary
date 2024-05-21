@@ -35,13 +35,13 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
-  // return [super application:application didFinishLaunchingWithOptions:launchOptions];
 
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
 
-  return YES;
+  // return YES;
+  return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
