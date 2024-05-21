@@ -82,8 +82,8 @@ function More() {
       },
     },
     {
-      key: 'AlertSetting',
-      label: '알림설정',
+      key: 'Setting',
+      label: '앱 설정',
       onPressAction: () => {
         Linking.openSettings();
       },

@@ -26,9 +26,13 @@ import {
   RESULTS,
   openSettings,
 } from 'react-native-permissions';
+import BackgroundGeolocation from 'react-native-background-geolocation';
+import Toast from 'react-native-toast-message';
 
 import Router from './src/router';
-import Toast from 'react-native-toast-message';
+import { STADIUM_GEO } from '@/utils/STATIC_DATA';
+import PushNotification from 'react-native-push-notification';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
 function App(): React.JSX.Element {
   const navigationRef = useNavigationContainerRef();
@@ -39,37 +43,100 @@ function App(): React.JSX.Element {
   };
 
   useEffect(() => {
-    const requestLocationPermission = async () => {
-      if (Platform.OS === 'ios') {
-        const status = await check(PERMISSIONS.IOS.LOCATION_ALWAYS);
-        // if (status === RESULTS.DENIED) {
-        // } else if (status !== RESULTS.GRANTED) {
-        // const statusWhenInUse = await request(
-        //   PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
-        // );
-        // if (statusWhenInUse === RESULTS.GRANTED) {
-        // 위치 "항상" 권한 요청
-        // const statusAlways = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
-        // if (statusAlways !== RESULTS.GRANTED) {
-        //   console.log('위치 "항상" 권한이 거부되었습니다.');
-        // }
-        // } else {
-        //   Alert.alert(
-        //     '위치 서비스 비활성화',
-        //     '위치 서비스가 비활성화되어 있습니다. 활성화하려면 설정으로 이동하십시오.',
-        //     [
-        //       { text: '취소', style: 'cancel' },
-        //       { text: '설정으로 이동', onPress: () => openSettings() },
-        //     ],
-        //   );
-        //   console.log('위치 "앱을 사용하는 동안" 권한이 거부되었습니다.');
-        // }
-        // }
+    // NOTE geofence 설정 및 시작
+    BackgroundGeolocation.ready({}, state => {
+      if (!state.enabled) {
+        showLocationAlert();
+      } else {
+        BackgroundGeolocation.addGeofences(
+          Object.entries(STADIUM_GEO).map(item => ({
+            identifier: item[0],
+            longitude: item[1].lon,
+            latitude: item[1].lat,
+            radius: 350,
+            notifyOnEntry: true,
+          })),
+        )
+          .then(success => {
+            BackgroundGeolocation.start();
+          })
+          .catch(error => console.log({ error }));
       }
-    };
+    });
 
+    // NOTE permission 관련
     requestLocationPermission();
+
+    // NOTE push 알림 설정
+    PushNotification.configure({
+      onNotification: function (notification) {
+        console.log('NOTIFICATION:', notification);
+      },
+      permissions: {
+        alert: true,
+        badge: true,
+        sound: true,
+      },
+      popInitialNotification: true,
+      requestPermissions: true,
+    });
+
+    // clean up
+    return () => {
+      BackgroundGeolocation.stop();
+    };
   }, []);
+
+  // NOTE geofence 기능
+  BackgroundGeolocation.onGeofence(event => {
+    // console.log({ event });
+    if (event.action === 'ENTER') {
+    }
+  });
+
+  const showLocationAlert = () => {
+    return Alert.alert(
+      '위치 서비스 비활성화',
+      '더 많은 기능을 위해 위치 정보 이용을 허용해주세요!',
+      [
+        { text: '취소', style: 'cancel' },
+        { text: '설정으로 이동', onPress: () => openSettings() },
+      ],
+    );
+  };
+
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'ios') {
+      // IOS 13부터는 WHEN_IN_USE 부터 확인해야 함
+      const status = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+
+      // WHEN_IN_USE === TRUE
+      if (status === RESULTS.GRANTED) {
+        // ALWAYS CHECK
+        const statusAlways = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
+
+        // ALWAYS === FALSE
+        if (statusAlways !== RESULTS.GRANTED) {
+          // ALWAYS REQUESTS
+          const statusAlwaysRequest = await request(
+            PERMISSIONS.IOS.LOCATION_ALWAYS,
+          );
+
+          if (statusAlwaysRequest !== RESULTS.GRANTED) {
+            showLocationAlert();
+          }
+        }
+      } else {
+        // WHEN_IN_USE === FALSE
+        const statusInUseRequest = await request(
+          PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
+        );
+        if (statusInUseRequest !== RESULTS.GRANTED) {
+          showLocationAlert();
+        }
+      }
+    }
+  };
 
   return (
     <>
