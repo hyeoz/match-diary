@@ -25,6 +25,7 @@ import Photos from '@assets/svg/photos.svg';
 import Write from '@assets/svg/write.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MY_TEAM_KEY } from '@/utils/STATIC_DATA';
+import BackgroundGeolocation from 'react-native-background-geolocation';
 
 const { width } = Dimensions.get('window');
 
@@ -59,6 +60,11 @@ function BottomTab({ ...props }: BottomTabBarProps) {
 
     getMyTeam();
   }, [navigation.getState().history]);
+
+  BackgroundGeolocation.onGeofence(event => {
+    console.log({ event });
+  });
+  console.log('EVERYTIME');
 
   const handleHeightScaleUp = () => {
     homeHeight.value = withSpring(192);

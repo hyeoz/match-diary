@@ -3,13 +3,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Splash from './pages/Splash';
 import Main from './pages/Main';
-import { useNavigation } from '@react-navigation/native';
+import BackgroundGeolocation from 'react-native-background-geolocation';
+import { STADIUM_GEO } from './utils/STATIC_DATA';
 
 const Stack = createNativeStackNavigator();
 
 const Router = () => {
-  const navigation = useNavigation();
-
   return (
     <Stack.Navigator
       initialRouteName="Splash"

@@ -36,11 +36,20 @@
 	<key>NSAllowsLocalNetworking</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
-	<string>???</string>
+	<string/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>???</string>
+	<string>앱이 사용되는 동안 위치 정보가 필요합니다. </string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>앱이 백그라운드에서 위치 정보를 사용하기 위해 필요합니다.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>앱이 백그라운드에서도 위치 정보를 사용하기 위해 필요합니다. "항상"을 선택해주시면, 경기장 근처에서 알림을 보내드릴게요!</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>location</string>
+	</array>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>???</string>
+	<string>기록을 위해 사진 사용을 허용해주세요!</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow access to your photo gallery</string>
 	<key>UIAppFonts</key>
@@ -49,10 +58,6 @@
 		<string>KBO Dia Gothic_light.ttf</string>
 		<string>KBO Dia Gothic_medium.ttf</string>
 		<string>UhBee Seulvely.ttf</string>
-	</array>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
