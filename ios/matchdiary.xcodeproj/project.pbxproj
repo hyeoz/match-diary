@@ -104,7 +104,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
-			name = "직관일기";
+			name = "matchdiary";
 			sourceTree = "<group>";
 		};
 		18F433A5485F43B4B0FA4DAB /* Resources */ = {
@@ -212,8 +212,8 @@
 			);
 			dependencies = (
 			);
-			name = "직관일기";
-			productName = "직관일기";
+			name = "matchdiary";
+			productName = "matchdiary";
 			productReference = 13B07F961A680F5B00A75B9A /* 직관일기.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -499,7 +499,7 @@
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = amd64;
 				INFOPLIST_FILE = "직관일기/Info.plist";
-             INFOPLIST_KEY_CFBundleDisplayName = "직관일기";
+             INFOPLIST_KEY_CFBundleDisplayName = "matchdiary";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -511,7 +511,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "직관일기";
+				PRODUCT_NAME = "matchdiary";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -529,7 +529,7 @@
 				DEVELOPMENT_TEAM = 25KGF8Y83H;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = amd64;
 				INFOPLIST_FILE = "직관일기/Info.plist";
-             INFOPLIST_KEY_CFBundleDisplayName = "직관일기";
+             INFOPLIST_KEY_CFBundleDisplayName = "matchdiary";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -541,7 +541,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "직관일기";
+				PRODUCT_NAME = "matchdiary";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
