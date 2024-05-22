@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -67,7 +67,11 @@ function More() {
               text: '삭제하기',
               onPress: async () => {
                 try {
+                  const _team = await AsyncStorage.getItem(MY_TEAM_KEY);
                   await AsyncStorage.clear();
+                  if (_team) {
+                    await AsyncStorage.setItem(MY_TEAM_KEY, _team);
+                  }
                   Toast.show({
                     type: 'success',
                     text1: '모든 데이터가 정상적으로 삭제되었어요!',
