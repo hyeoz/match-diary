@@ -28,13 +28,13 @@ import {
 } from 'react-native-permissions';
 import BackgroundGeolocation from 'react-native-background-geolocation';
 import Toast from 'react-native-toast-message';
-
-import Router from './src/router';
-import { STADIUM_GEO } from '@/utils/STATIC_DATA';
 import PushNotification, {
   ReceivedNotification,
 } from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
+
+import Router from './src/router';
+import { STADIUM_GEO } from '@/utils/STATIC_DATA';
 
 function App(): React.JSX.Element {
   const navigationRef = useNavigationContainerRef();
@@ -72,7 +72,6 @@ function App(): React.JSX.Element {
     // NOTE push 알림 설정
     PushNotification.configure({
       onNotification: function (notification) {
-        console.log('NOTIFICATION:', notification);
         // 기본 알림 처리 막기
         notification.finish(PushNotificationIOS.FetchResult.NoData);
 
@@ -88,23 +87,24 @@ function App(): React.JSX.Element {
       requestPermissions: true,
     });
 
+    // NOTE geofence 기능
+    const onGeo = BackgroundGeolocation.onGeofence(event => {
+      // console.log({ event });
+      if (event.action === 'ENTER') {
+        // TODO
+        PushNotification.localNotification({
+          message: '오늘의 직관 일기를 기록해봐요!',
+          title: `혹시 ${event.identifier}경기장이신가요?`,
+        });
+      }
+    });
+
     // clean up
     return () => {
       BackgroundGeolocation.stop();
+      onGeo.remove();
     };
   }, []);
-
-  // NOTE geofence 기능
-  BackgroundGeolocation.onGeofence(event => {
-    // console.log({ event });
-    if (event.action === 'ENTER') {
-      // TODO
-      PushNotification.localNotification({
-        message: '오늘의 직관 일기를 기록해봐요!',
-        title: `혹시 ${event.identifier}경기장이신가요?`,
-      });
-    }
-  });
 
   const showLocationAlert = () => {
     return Alert.alert(
