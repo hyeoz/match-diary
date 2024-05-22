@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dimensions,
   FlatList,
@@ -16,8 +16,9 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTabHistory } from '@/stores/default';
 
-/* TODO
+/* DONE
   - 본인이 쓴 글 무한스크롤로 보여주는 화면 구현
   - image 만 보여주기
   - 눌렀을 때 액션?
@@ -29,9 +30,11 @@ function History() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [allImages, setAllImages] = useState<ImageOrVideo[]>([]);
 
+  const { history } = useTabHistory();
+
   useEffect(() => {
     getAllItem();
-  }, [navigation.getState().key]);
+  }, [history]);
 
   const getAllItem = async () => {
     const _keys = await AsyncStorage.getAllKeys();
