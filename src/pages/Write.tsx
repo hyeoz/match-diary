@@ -1,17 +1,17 @@
+import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
-import Add from '@assets/svg/add.svg';
 import { DATE_FORMAT } from '@utils/STATIC_DATA';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTabHistory } from '@/stores/default';
+import Add from '@assets/svg/add.svg';
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 
@@ -24,10 +24,6 @@ const formattedToday = dayjs().format(DATE_FORMAT);
     - 원본이미지 path 를 사용하는 방식으로 먼저 구현
   - 해당 날짜에 이미 업로드한 경우 업로드버튼 대신 공유용 이미지(폴라로이드) 띄우기
   - 업로드 모달에서 생성이 아닌 수정인 경우 공유하기 버튼 생성 (이미지 파일로 내보낼 수 있도록)
-*/
-
-/* TODO
-  - 위치정보 불러오기 (푸쉬메세지)
   - 마이페이지에서 마이팀 설정 시 승/패 정보도
   - 당일 날짜로 경기 정보 불러오기
 */
@@ -61,13 +57,22 @@ function Write() {
   const getMyTeam = async () => {
     const res = await AsyncStorage.getItem('MY_TEAM');
     if (!res) {
-      Alert.prompt(
-        '마이팀 설정이 필요해요!',
-        '지금 설정 페이지로 이동할게요.',
-        () => {
-          navigate.navigate('MoreTab');
-        },
-        'default',
+      Alert.alert(
+        '아직 마이팀 설정을 하지 않았어요!',
+        '지금 설정 페이지로 이동할까요?',
+        [
+          {
+            text: '취소',
+            onPress: () => {},
+            style: 'cancel',
+          },
+          {
+            text: '이동하기',
+            onPress: () => {
+              navigate.navigate('MoreTab');
+            },
+          },
+        ],
       );
     }
   };

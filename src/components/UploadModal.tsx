@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -64,16 +64,13 @@ export default function UploadModal({
   const [longitude, setLongitude] = useState('');
 
   useEffect(() => {
-    getTodayMatch();
-  }, []);
-
-  useEffect(() => {
     getLocation();
   }, [isVisible]);
 
   useEffect(() => {
+    getTodayMatch();
     getStadiumDistance();
-  }, [latitude, longitude]);
+  }, [latitude, longitude, isVisible]);
 
   const onPressOpenGallery = () => {
     ImageCropPicker?.openPicker({
@@ -119,7 +116,6 @@ export default function UploadModal({
     const res = await API.get<StrapiType<MatchDataType>>(
       `/schedule-2024s?filters[date]=${apiFormattedToday}`,
     );
-    // console.log(res, 'RES!!!!');
     const _stadium = res.data.data.map(att => {
       setMatchInfo(prev => {
         return {
@@ -139,7 +135,9 @@ export default function UploadModal({
     setStadium(filteredStadium);
   };
 
-  // TODO 경기장 셀렉트박스 구현
+  console.log(stadiumInfo, 'RES!!!!');
+
+  // 경기장 셀렉트박스 구현
   const getStadiumDistance = async () => {
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
     // const start = `${latitude},${longitude}`;
@@ -149,9 +147,9 @@ export default function UploadModal({
     stadium.forEach(async s => {
       const geo = `${STADIUM_GEO[s].lon},${STADIUM_GEO[s].lat}`;
       const res = await NAVER_API.get<NaverDirectionsResponseType>(
-        `/map-direction-15/v1/driving?start=${start}&goal=${geo}`,
+        `/map-direction/v1/driving?start=${start}&goal=${geo}`,
       );
-      // console.log(res.data.route.traoptimal[0].summary.distance, '???');
+      console.log(res.data, '???');
       _stadiumInfo.push({
         name: STADIUM_SHORT_TO_LONG[s],
         distance: res.data.route?.traoptimal[0].summary.distance,

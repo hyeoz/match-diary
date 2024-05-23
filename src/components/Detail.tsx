@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -23,8 +23,6 @@ import {
   DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
-  STADIUM_SHORT_NAME,
-  STADIUM_SHORT_TO_LONG,
 } from '@utils/STATIC_DATA';
 import Stamp from '@assets/svg/stamp.svg';
 
@@ -42,7 +40,12 @@ export function Detail({
   setSelectedStadium,
   myTeamMatch,
   isCalendar = false,
-}: DetailPropsType & { myTeamMatch?: MatchDataType; isCalendar?: boolean }) {
+  refetch,
+}: DetailPropsType & {
+  myTeamMatch?: MatchDataType;
+  isCalendar?: boolean;
+  refetch?: () => void;
+}) {
   const shareImageRef = useRef<ViewShot>(null);
   const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
   const { team } = useMyState();
@@ -83,6 +86,7 @@ export function Detail({
               setImage(null);
               setMemo('');
               setIsEdit(false);
+              refetch && refetch();
             } catch (e) {
               console.error(e);
             }

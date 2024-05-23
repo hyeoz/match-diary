@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Dimensions,
   FlatList,
@@ -40,12 +40,12 @@ import AnswerCircle from '@assets/svg/answer_circle.svg';
   - 횟수 / 마이팀 있는 경우 승률 보여주기
   - 데이터 있는 경우 클릭 시 모달 열어서 데이터 보여주기 / 수정
   - 데이터 없는 경우 빈 화면 보여주기
+  - 데이터 없는 경우 생성 모달 열기
+  - 직관기록 계산
 */
 
 /* TODO
-  - 데이터 없는 경우 생성 모달 열기
   - 캘린더 스타일링, config, 날짜 넘기는 액션 구현
-  - 직관기록 계산
 */
 
 const { width } = Dimensions.get('window');
@@ -198,6 +198,9 @@ function Calendar() {
       key => key !== 'MY_TEAM',
     );
 
+    if (keys.length === matchRecord.bySeason.home + matchRecord.bySeason.away)
+      return;
+
     let _count = initCountData;
 
     for (let i = 0; i < keys.length; i++) {
@@ -261,6 +264,8 @@ function Calendar() {
         }
       }
     }
+    console.log(_count);
+    setMatchRecord(_count);
   };
 
   return (
@@ -305,7 +310,14 @@ function Calendar() {
             }}
           />
           {image && memo ? (
-            <Detail {...detailProps} isCalendar />
+            <Detail
+              {...detailProps}
+              isCalendar
+              refetch={() => {
+                getAllItems();
+                getAllRecord();
+              }}
+            />
           ) : (
             <View
               style={{
