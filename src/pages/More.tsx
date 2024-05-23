@@ -27,10 +27,12 @@ import Arrow from '@assets/svg/arrow.svg';
 import help1 from '@assets/help1.png';
 import help1_animated from '@assets/help1_animated.gif';
 import help2 from '@assets/help2.png';
+import help2_animated from '@assets/help2_animated.gif';
 import help3 from '@assets/help3.png';
+import help3_animated from '@assets/help3_animated.gif';
 
 const { width, height } = Dimensions.get('window');
-const images = [help1_animated, help2, help3];
+const images = [help1_animated, help2_animated, help3_animated];
 
 function More() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -290,7 +292,7 @@ function More() {
                     style={{
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover',
+                      objectFit: 'contain',
                     }}
                   />
                 </View>
