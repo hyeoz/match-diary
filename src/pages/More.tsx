@@ -3,6 +3,7 @@ import {
   Alert,
   Dimensions,
   FlatList,
+  Image,
   Linking,
   ListRenderItemInfo,
   Modal,
@@ -14,6 +15,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
+import Carousel from 'react-native-reanimated-carousel';
+import 'react-native-gesture-handler';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { MY_TEAM_KEY, TEAM_ICON_ARRAY } from '@utils/STATIC_DATA';
@@ -21,14 +24,23 @@ import { useMyState } from '@/stores/default';
 import { palette } from '@style/palette';
 import { MoreListItemType, TeamListItemType } from '@/type/default';
 import Arrow from '@assets/svg/arrow.svg';
+import help1 from '@assets/help1.png';
+import help1_animated from '@assets/help1_animated.gif';
+import help2 from '@assets/help2.png';
+import help2_animated from '@assets/help2_animated.gif';
+import help3 from '@assets/help3.png';
+import help3_animated from '@assets/help3_animated.gif';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+const images = [help1_animated, help2_animated, help3_animated];
 
 function More() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { team, setTeam } = useMyState();
   const [teamModalVisible, setTeamModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
+  const [helpModalVisible, setHelpModalVisible] = useState(false);
+  const [helpSnapIndex, setHelpSnapIndex] = useState(0);
 
   useEffect(() => {
     getMyTeam();
@@ -96,7 +108,9 @@ function More() {
     {
       key: 'Help',
       label: '도움말',
-      onPressAction: () => {},
+      onPressAction: () => {
+        setHelpModalVisible(true);
+      },
     },
   ];
 
@@ -249,6 +263,62 @@ function More() {
                 저장하기
               </Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={helpModalVisible}>
+        <View
+          style={{
+            flex: 1,
+            // padding: 32,
+            marginVertical: 80,
+          }}>
+          <Carousel
+            width={width}
+            data={images}
+            onSnapToItem={index => {
+              console.log(index, 'SNAP');
+              setHelpSnapIndex(index);
+            }}
+            renderItem={({ item, index }) => {
+              return (
+                <View
+                  style={{
+                    flex: 1,
+                  }}>
+                  <Image
+                    source={item}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                    }}
+                  />
+                </View>
+              );
+            }}
+            style={{}}
+          />
+
+          <View
+            style={{
+              flexDirection: 'row',
+              height: height * 0.35,
+              justifyContent: 'center',
+              gap: 6,
+              marginTop: 24,
+            }}>
+            {images.map((item, index) => (
+              <View
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 99,
+                  backgroundColor: helpSnapIndex === index ? '#222' : '#ddd',
+                }}
+              />
+            ))}
           </View>
         </View>
       </Modal>
