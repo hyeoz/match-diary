@@ -106,7 +106,8 @@ function Calendar() {
     getAllItems();
     getAllRecord();
     getSelectedItem();
-  }, [history]);
+    getMatchData();
+  }, [history, team]);
 
   useEffect(() => {
     getMatchData();

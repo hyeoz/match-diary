@@ -7,6 +7,8 @@ import {
   Linking,
   ListRenderItemInfo,
   Modal,
+  SafeAreaView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -17,6 +19,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
 import Carousel from 'react-native-reanimated-carousel';
 import 'react-native-gesture-handler';
+import FastImage from 'react-native-fast-image';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { MY_TEAM_KEY, TEAM_ICON_ARRAY } from '@utils/STATIC_DATA';
@@ -24,11 +27,8 @@ import { useMyState } from '@/stores/default';
 import { palette } from '@style/palette';
 import { MoreListItemType, TeamListItemType } from '@/type/default';
 import Arrow from '@assets/svg/arrow.svg';
-import help1 from '@assets/help1.png';
 import help1_animated from '@assets/help1_animated.gif';
-import help2 from '@assets/help2.png';
 import help2_animated from '@assets/help2_animated.gif';
-import help3 from '@assets/help3.png';
 import help3_animated from '@assets/help3_animated.gif';
 
 const { width, height } = Dimensions.get('window');
@@ -53,6 +53,10 @@ function More() {
       getMyTeam();
     }
   }, [teamModalVisible]);
+
+  useEffect(() => {
+    setHelpSnapIndex(0);
+  }, [helpModalVisible]);
 
   const moreItems: MoreListItemType[] = [
     {
@@ -181,6 +185,7 @@ function More() {
         </View>
       </View>
 
+      {/* NOTE 마이팀 설정 모달 */}
       <Modal visible={teamModalVisible} animationType="slide">
         <View
           style={{
@@ -267,49 +272,45 @@ function More() {
         </View>
       </Modal>
 
-      <Modal visible={helpModalVisible}>
+      {/* NOTE 도움말 모달 */}
+      <Modal visible={helpModalVisible} animationType="slide">
         <View
           style={{
-            flex: 1,
-            // padding: 32,
-            marginVertical: 80,
+            width,
+            height,
+            position: 'absolute',
+            backgroundColor: '#C9D8B3',
+            top: 0,
           }}>
           <Carousel
             width={width}
             data={images}
-            onSnapToItem={index => {
-              console.log(index, 'SNAP');
-              setHelpSnapIndex(index);
-            }}
+            onSnapToItem={index => setHelpSnapIndex(index)}
             renderItem={({ item, index }) => {
               return (
                 <View
                   style={{
                     flex: 1,
                   }}>
-                  <Image
+                  <FastImage
                     source={item}
                     style={{
                       width: '100%',
                       height: '100%',
-                      objectFit: 'contain',
                     }}
+                    resizeMode="contain"
                   />
                 </View>
               );
             }}
-            style={{}}
           />
-
           <View
             style={{
               flexDirection: 'row',
-              height: height * 0.35,
               justifyContent: 'center',
               gap: 6,
-              marginTop: 24,
             }}>
-            {images.map((item, index) => (
+            {images.map((_, index) => (
               <View
                 style={{
                   width: 10,
@@ -320,6 +321,48 @@ function More() {
               />
             ))}
           </View>
+          <View
+            style={{
+              flex: 1,
+              margin: 24,
+              // marginBottom: 64,
+            }}>
+            {/* 설명 영역 */}
+            <View
+              style={{
+                borderRadius: 24,
+                width: '100%',
+                height: '70%',
+                backgroundColor: '#fff',
+              }}>
+              <HelpContentItem index={helpSnapIndex} />
+            </View>
+          </View>
+        </View>
+        <View
+          style={{
+            width,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            position: 'absolute',
+            bottom: 80,
+          }}>
+          <TouchableOpacity onPress={() => setHelpModalVisible(false)}>
+            <Arrow
+              width={40}
+              height={40}
+              style={{
+                // width: 64,
+                // height: 64,
+                transform: [
+                  {
+                    rotate: '90deg',
+                  },
+                ],
+              }}
+              color={palette.greyColor.gray6}
+            />
+          </TouchableOpacity>
         </View>
       </Modal>
     </TouchableWrapper>
@@ -401,5 +444,99 @@ function TeamListItem({
     </TouchableOpacity>
   );
 }
+
+function HelpContentItem({ index }: { index: number }) {
+  if (index === 0) {
+    return (
+      <View style={styles.contentWrapper}>
+        <Text style={styles.contentMainText}>
+          오늘의 직관 기록을 쉽게 기록해요!
+        </Text>
+        <View style={styles.contentRow}>
+          <Text>{'\u2022'}</Text>
+          <Text style={styles.contentText}>
+            경기장을 선택하고, 사진과 간단한 메모를 추가할 수 있어요.
+          </Text>
+        </View>
+        <View style={styles.contentRow}>
+          <Text>{'\u2022'}</Text>
+          <Text style={styles.contentText}>
+            혹시 경기장 근처에 계시다면, 푸쉬 알림을 보내드릴게요!
+          </Text>
+        </View>
+        <View style={styles.contentRow}>
+          <Text>{'\u2022'}</Text>
+          <Text style={styles.contentText}>
+            (백그라운드 위치 정보 사용 동의가 필요합니다.)
+          </Text>
+        </View>
+      </View>
+    );
+  }
+  if (index === 1) {
+    return (
+      <View style={styles.contentWrapper}>
+        <Text style={styles.contentMainText}>
+          내 직관 일기를 확인, 공유할 수 있어요
+        </Text>
+        <View style={styles.contentRow}>
+          <Text>{'\u2022'}</Text>
+          <Text style={styles.contentText}>
+            캘린더 화면에서 내가 작성한 직관일기는 물론, 직관 기록을 확인할 수
+            있어요.
+          </Text>
+        </View>
+        <View style={styles.contentRow}>
+          <Text>{'\u2022'}</Text>
+          <Text style={styles.contentText}>
+            기록이 없는 날은 그 날의 경기 일정도 확인 가능해요!
+          </Text>
+        </View>
+        <View style={styles.contentRow}>
+          <Text>{'\u2022'}</Text>
+          <Text style={styles.contentText}>
+            지금까지의 모든 직관일기를 한 눈에 볼 수 있어요.
+          </Text>
+        </View>
+      </View>
+    );
+  }
+  return (
+    <View style={styles.contentWrapper}>
+      <Text style={styles.contentMainText}>내가 응원하는 팀을 설정해요.</Text>
+      <View style={styles.contentRow}>
+        <Text>{'\u2022'}</Text>
+        <Text style={styles.contentText}>
+          응원 팀의 색으로 테마 컬러를 바꿀 수 있어요!
+        </Text>
+      </View>
+      <View style={styles.contentRow}>
+        <Text>{'\u2022'}</Text>
+        <Text style={styles.contentText}>
+          저장된 응원 팀 기준으로 직관 기록을 계산하고, 일정을 보여드릴게요.
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  contentWrapper: {
+    padding: 24,
+    gap: 8,
+    justifyContent: 'center',
+  },
+  contentRow: { flexDirection: 'row', gap: 6 },
+  contentText: {
+    fontFamily: 'KBO-Dia-Gothic-light',
+    fontSize: 16,
+    lineHeight: 21,
+  },
+  contentMainText: {
+    fontFamily: 'KBO-Dia-Gothic-medium',
+    fontSize: 18,
+    marginBottom: 16,
+  },
+});
 
 export default More;
