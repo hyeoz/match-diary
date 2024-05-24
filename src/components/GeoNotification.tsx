@@ -30,6 +30,7 @@ export default function GeoNotification() {
     // NOTE push 알림 설정
     PushNotification.configure({
       onNotification: function (notification) {
+        console.log({ notification });
         // 기본 알림 처리 막기
         notification.finish(PushNotificationIOS.FetchResult.NoData);
 
@@ -46,7 +47,27 @@ export default function GeoNotification() {
     });
 
     // NOTE geofence 설정 및 시작
-    BackgroundGeolocation.configure({});
+    BackgroundGeolocation.ready(
+      {
+        // reset: true,
+        // distanceFilter: 50,
+        // stopTimeout: 1,
+        // debug: true,
+        // logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
+        // desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+        // stopOnTerminate: false,
+        // startOnBoot: true,
+        // geofenceProximityRadius: 1000, // 지오펜스 근접 반경 설정
+        notification: {
+          text: '오늘의 직관 일기를 기록해봐요!',
+        },
+      },
+      state => {
+        if (state.enabled) {
+          BackgroundGeolocation.start();
+        }
+      },
+    );
 
     BackgroundGeolocation.addGeofences(
       Object.entries(STADIUM_GEO).map(item => ({
@@ -60,18 +81,23 @@ export default function GeoNotification() {
 
     // NOTE geofence 기능
     const onGeo = BackgroundGeolocation.onGeofence(event => {
-      // console.log({ event });
+      console.log({ event });
       if (event.action === 'ENTER') {
         // TODO test 필요
-        PushNotification.localNotification({
-          id: uuid.v4() as string,
-          title: `혹시 ${event.identifier}경기장이신가요?`,
-          message: '오늘의 직관 일기를 기록해봐요!',
+        // PushNotification.localNotification({
+        //   id: uuid.v4() as string,
+        //   title: `혹시 ${event.identifier}경기장이신가요?`,
+        //   message: '오늘의 직관 일기를 기록해봐요!',
+        //   priority: 'high',
+        //   visibility: 'private',
+        // });
+        BackgroundGeolocation.setConfig({
+          notification: {
+            title: `혹시 ${event.identifier}경기장이신가요?`,
+          },
         });
       }
     });
-
-    BackgroundGeolocation.start();
 
     // clean up
     return () => {
