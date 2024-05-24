@@ -947,7 +947,7 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
-  - react-native-cameraroll (7.7.0):
+  - react-native-cameraroll (7.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1446,7 +1446,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 85583ef014ce53d731a98c66a0e24496f7a83066
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: 84ea43c6c6232049135b1550b8c60b2faac19fab
-  react-native-cameraroll: 30b9c7bb77e2ced096bd4032c6bbbb2948b5d050
+  react-native-cameraroll: abd04892a6cf688ae1dd1b49377c835d1c1146b3
   react-native-geolocation: ed9e1d132f576b9a4a503af46f9704413ea0dec1
   react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
@@ -1477,14 +1477,14 @@ SPEC CHECKSUMS:
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNGestureHandler: 96439cf6543defdde87459e48cd1a3f0e45a008e
   RNImageCropPicker: e7ab6fb43d2fc3e84651e786ef4a080d63b0ed3d
-  RNPermissions: 294531ede5a64d1528463e88fffef05675842042
+  RNPermissions: bb696030f8cca10f1d5a97d34699c97a33a76b45
   RNReanimated: f6b02d8f5eaa2830296411d4ec3b8ef5442dd13d
   RNScreens: 134a7511b12b8eb440b87aac21e36a71295d6024
   RNSVG: a48668fd382115bc89761ce291a81c4ca5f2fd2e
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
-  Yoga: d17d2cc8105eed528474683b42e2ea310e1daf61
+  Yoga: 805bf71192903b20fc14babe48080582fee65a80
 
-PODFILE CHECKSUM: c9575c1e9f7ea32cc59d2dcb425b0bb665dacbfa
+PODFILE CHECKSUM: 9d7543f0bfa72f1a5e92b90462db2790dd779c12
 
 COCOAPODS: 1.13.0
