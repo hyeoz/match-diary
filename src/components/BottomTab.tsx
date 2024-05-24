@@ -1,11 +1,5 @@
 import React, { useEffect } from 'react';
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -13,19 +7,17 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useBottomTabState, useMyState, useTabHistory } from '@stores/default';
+import { MY_TEAM_KEY } from '@/utils/STATIC_DATA';
 import { palette } from '@style/palette.ts';
 import Home from '@assets/svg/home.svg';
 import Calendar from '@assets/svg/calendar.svg';
 import More from '@assets/svg/more.svg';
-// import Explore from '@assets/svg/explore.svg';
 import Send from '@assets/svg/send.svg';
 import Photos from '@assets/svg/photos.svg';
 import Write from '@assets/svg/write.svg';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MY_TEAM_KEY } from '@/utils/STATIC_DATA';
-import BackgroundGeolocation from 'react-native-background-geolocation';
 
 const { width } = Dimensions.get('window');
 
@@ -60,11 +52,6 @@ function BottomTab({ ...props }: BottomTabBarProps) {
 
     getMyTeam();
   }, [navigation.getState().history]);
-
-  BackgroundGeolocation.onGeofence(event => {
-    console.log({ event });
-  });
-  console.log('EVERYTIME');
 
   const handleHeightScaleUp = () => {
     homeHeight.value = withSpring(192);

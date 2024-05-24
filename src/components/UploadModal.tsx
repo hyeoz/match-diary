@@ -135,8 +135,6 @@ export default function UploadModal({
     setStadium(filteredStadium);
   };
 
-  console.log(stadiumInfo, 'RES!!!!');
-
   // 경기장 셀렉트박스 구현
   const getStadiumDistance = async () => {
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
@@ -149,7 +147,6 @@ export default function UploadModal({
       const res = await NAVER_API.get<NaverDirectionsResponseType>(
         `/map-direction/v1/driving?start=${start}&goal=${geo}`,
       );
-      console.log(res.data, '???');
       _stadiumInfo.push({
         name: STADIUM_SHORT_TO_LONG[s],
         distance: res.data.route?.traoptimal[0].summary.distance,

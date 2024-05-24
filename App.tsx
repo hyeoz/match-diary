@@ -18,6 +18,7 @@ import PushNotification, {
   ReceivedNotification,
 } from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import uuid from 'react-native-uuid';
 
 import Router from './src/router';
 import { STADIUM_GEO } from '@/utils/STATIC_DATA';
@@ -77,10 +78,11 @@ function App(): React.JSX.Element {
     const onGeo = BackgroundGeolocation.onGeofence(event => {
       // console.log({ event });
       if (event.action === 'ENTER') {
-        // TODO
+        // TODO test 필요
         PushNotification.localNotification({
-          message: '오늘의 직관 일기를 기록해봐요!',
+          id: uuid.v4() as string,
           title: `혹시 ${event.identifier}경기장이신가요?`,
+          message: '오늘의 직관 일기를 기록해봐요!',
         });
       }
     });
