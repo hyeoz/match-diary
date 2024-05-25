@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>matchdiary</string>
+	<string>직관일기</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -47,6 +47,7 @@
 	<array>
 		<string>remote-notification</string>
 		<string>location</string>
+		<string>fetch</string>
 	</array>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>기록을 위해 사진 사용을 허용해주세요!</string>
