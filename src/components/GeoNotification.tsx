@@ -46,18 +46,22 @@ export default function GeoNotification() {
       requestPermissions: true,
     });
 
+    BackgroundGeolocation.onAuthorization(event => {
+      console.log('????', event);
+    });
+
     // NOTE geofence 설정 및 시작
     BackgroundGeolocation.ready(
       {
-        // reset: true,
-        // distanceFilter: 50,
-        // stopTimeout: 1,
-        // debug: true,
-        // logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
-        // desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
-        // stopOnTerminate: false,
-        // startOnBoot: true,
-        // geofenceProximityRadius: 1000, // 지오펜스 근접 반경 설정
+        reset: true,
+        distanceFilter: 50,
+        stopTimeout: 1,
+        debug: false, // Authorization status changed 3 자동 알림 수정 중
+        logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
+        desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+        stopOnTerminate: false,
+        startOnBoot: true,
+        geofenceProximityRadius: 1000, // 지오펜스 근접 반경 설정
         notification: {
           text: '오늘의 직관 일기를 기록해봐요!',
         },
@@ -81,16 +85,15 @@ export default function GeoNotification() {
 
     // NOTE geofence 기능
     const onGeo = BackgroundGeolocation.onGeofence(event => {
-      console.log({ event });
       if (event.action === 'ENTER') {
         // TODO test 필요
-        // PushNotification.localNotification({
-        //   id: uuid.v4() as string,
-        //   title: `혹시 ${event.identifier}경기장이신가요?`,
-        //   message: '오늘의 직관 일기를 기록해봐요!',
-        //   priority: 'high',
-        //   visibility: 'private',
-        // });
+        PushNotification.localNotification({
+          id: uuid.v4() as string,
+          title: `혹시 ${event.identifier}경기장이신가요?`,
+          message: '오늘의 직관 일기를 기록해봐요!',
+          priority: 'high',
+          visibility: 'private',
+        });
         BackgroundGeolocation.setConfig({
           notification: {
             title: `혹시 ${event.identifier}경기장이신가요?`,
