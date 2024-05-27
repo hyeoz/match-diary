@@ -15,6 +15,7 @@
 		52301F1075AD4E1A8F7F45B3 /* KBO Dia Gothic_medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */; };
 		70D30454468D46D7BC8396FB /* KBO Dia Gothic_light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		82E0F6FD2C0410EA00CF8481 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 82E0F6FC2C0410EA00CF8481 /* main.jsbundle */; };
 		AA3409FB7357FB55EF6CF656 /* libPods-matchdiary-matchdiaryTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D40EC65513D390EF3618D982 /* libPods-matchdiary-matchdiaryTests.a */; };
 		B2F677DFA9D350DB18D31815 /* libPods-matchdiary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AD7849CDC458BBAC47526C8 /* libPods-matchdiary.a */; };
 		DCD04D0FC21345F59D991345 /* UhBee Seulvely.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */; };
@@ -47,6 +48,7 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = matchdiary/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		828C0BF12BF3503A00EFB615 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		82CD87832BFB48490074A314 /* matchdiary.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = matchdiary.entitlements; path = matchdiary/matchdiary.entitlements; sourceTree = "<group>"; };
+		82E0F6FC2C0410EA00CF8481 /* main.jsbundle */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_bold.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_bold.ttf"; sourceTree = "<group>"; };
 		A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_light.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_light.ttf"; sourceTree = "<group>"; };
 		AF879578CB6C1AAD1F97ED7D /* Pods-matchdiary-matchdiaryTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.release.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				82E0F6FC2C0410EA00CF8481 /* main.jsbundle */,
 				828C0BF12BF3503A00EFB615 /* Config.xcconfig */,
 				13B07FAE1A68108700A75B9A /* matchdiary */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -265,6 +268,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				82E0F6FD2C0410EA00CF8481 /* main.jsbundle in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				04C8A557BC8C423EAFC15784 /* KBO Dia Gothic_bold.ttf in Resources */,
@@ -499,7 +503,8 @@
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = amd64;
 				INFOPLIST_FILE = matchdiary/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = matchdiary;
+				INFOPLIST_KEY_CFBundleDisplayName = "직관일기";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -529,7 +534,8 @@
 				DEVELOPMENT_TEAM = 25KGF8Y83H;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = amd64;
 				INFOPLIST_FILE = matchdiary/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = matchdiary;
+				INFOPLIST_KEY_CFBundleDisplayName = "직관일기";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
