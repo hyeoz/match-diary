@@ -2,6 +2,7 @@ import {
   Alert,
   Dimensions,
   Image,
+  KeyboardAvoidingView,
   Modal,
   Platform,
   StyleSheet,
@@ -174,7 +175,8 @@ export default function UploadModal({
 
   return (
     <Modal animationType="slide" visible={isVisible}>
-      <View style={modalStyles.wrapper}>
+      <KeyboardAvoidingView style={modalStyles.wrapper}>
+        {/* <View> */}
         <View style={modalStyles.header}>
           <Text
             style={{
@@ -182,6 +184,7 @@ export default function UploadModal({
               fontWeight: '700',
               fontSize: 18,
               fontFamily: 'KBO-Dia-Gothic-bold',
+              color: '#000',
             }}>
             업로드
           </Text>
@@ -328,8 +331,8 @@ export default function UploadModal({
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-
+        {/* </View> */}
+      </KeyboardAvoidingView>
       {stadiumSelectVisible && (
         <SelectStadiumModal
           stadiumInfo={stadiumInfo}
