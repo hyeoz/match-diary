@@ -3,6 +3,7 @@
     "jsx": "react",
     "experimentalDecorators": true,
     "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
     "baseUrl": "./src/",
     "paths": {
       "@/*": ["*"],
