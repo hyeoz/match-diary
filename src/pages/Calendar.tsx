@@ -30,9 +30,7 @@ import {
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { MatchDataType } from '@/type/default';
-import Ball from '@assets/svg/ball.svg';
-import Pin from '@assets/svg/paperclip.svg';
-import AnswerCircle from '@assets/svg/answer_circle.svg';
+import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
 
 /* DONE
   - 데이터 있는 경우 marking
@@ -302,7 +300,7 @@ function Calendar() {
 
       <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
         <View style={styles.detailWrapper}>
-          <Pin
+          <PaperClip
             width={32}
             height={32}
             style={{

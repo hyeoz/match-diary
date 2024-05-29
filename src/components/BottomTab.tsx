@@ -12,12 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBottomTabState, useMyState, useTabHistory } from '@stores/default';
 import { MY_TEAM_KEY } from '@/utils/STATIC_DATA';
 import { palette } from '@style/palette.ts';
-import Home from '@assets/svg/home.svg';
-import Calendar from '@assets/svg/calendar.svg';
-import More from '@assets/svg/more.svg';
-import Send from '@assets/svg/send.svg';
-import Photos from '@assets/svg/photos.svg';
-import Write from '@assets/svg/write.svg';
+import { Home, Calendar, More, Send, Photos, Write } from '@assets/svg';
 
 const { width } = Dimensions.get('window');
 

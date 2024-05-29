@@ -36,8 +36,7 @@ import {
 } from '@utils/STATIC_DATA';
 import { hasAndroidPermission } from '@utils/helper';
 import { palette } from '@style/palette';
-import Add from '@assets/svg/add.svg';
-import Arrow from '@assets/svg/arrow.svg';
+import { Add, Arrow } from '@assets/svg';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('screen');
