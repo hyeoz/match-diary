@@ -11,7 +11,7 @@ import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
 import { DATE_FORMAT } from '@utils/STATIC_DATA';
 import { useTabHistory } from '@/stores/default';
-import Add from '@assets/svg/add.svg';
+import { Add } from '@assets/svg';
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 
