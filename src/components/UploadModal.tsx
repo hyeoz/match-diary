@@ -37,6 +37,13 @@ import {
 import { hasAndroidPermission } from '@utils/helper';
 import { palette } from '@style/palette';
 import { Add, Arrow } from '@assets/svg';
+import Loading from './Loading';
+
+/* TODO
+  - 로딩
+  - 네이버 API 디바이스 테스트
+  - API 최적화
+*/
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('screen');
@@ -65,6 +72,7 @@ export default function UploadModal({
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
@@ -82,7 +90,7 @@ export default function UploadModal({
 
   useEffect(() => {
     getTodayMatch();
-    getStadiumDistance();
+    isVisible && !!latitude && !!longitude && getAllStadiumDistance();
   }, [latitude, longitude, isVisible]);
 
   const onPressOpenGallery = () => {
@@ -144,29 +152,39 @@ export default function UploadModal({
 
     const filteredStadium = _stadium.filter(
       (sta, index) => _stadium.lastIndexOf(sta) === index,
-    ); // 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
+    ); // NOTE 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
     setStadium(filteredStadium);
   };
 
   // 경기장 셀렉트박스 구현
-  const getStadiumDistance = async () => {
+  const getAllStadiumDistance = async () => {
+    setLoading(true);
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
-    // const start = `${latitude},${longitude}`;
     const start = `${longitude},${latitude}`;
-
     const _stadiumInfo: { name: string; distance: number }[] = [];
-    stadium.forEach(async s => {
-      const geo = `${STADIUM_GEO[s].lon},${STADIUM_GEO[s].lat}`;
-      const res = await NAVER_API.get<NaverDirectionsResponseType>(
-        `/map-direction/v1/driving?start=${start}&goal=${geo}`,
-      );
-      _stadiumInfo.push({
-        name: STADIUM_SHORT_TO_LONG[s],
-        distance: res.data.route?.traoptimal[0].summary.distance ?? 0,
-      });
-    });
+
+    for (let sta of stadium) {
+      console.log({ sta });
+      await getStadiumDistance(sta, _stadiumInfo, start);
+    }
 
     setStadiumInfo(_stadiumInfo);
+    setLoading(false);
+  };
+
+  const getStadiumDistance = async (
+    stadium: string,
+    result: { name: string; distance: number }[],
+    start: string,
+  ) => {
+    const geo = `${STADIUM_GEO[stadium].lon},${STADIUM_GEO[stadium].lat}`;
+    const res = await NAVER_API.get<NaverDirectionsResponseType>(
+      `/map-direction/v1/driving?start=${start}&goal=${geo}`,
+    );
+    result.push({
+      name: STADIUM_SHORT_TO_LONG[stadium],
+      distance: res.data.route?.traoptimal[0].summary.distance ?? 0,
+    });
   };
 
   const getLocation = async () => {
@@ -391,13 +409,14 @@ export default function UploadModal({
           </View>
         </View>
       </View>
-      {/* </TouchableWithoutFeedback> */}
+
       {stadiumSelectVisible && (
         <SelectStadiumModal
           stadiumInfo={stadiumInfo}
           setIsVisible={value => setStadiumSelectVisible(value)}
           selectStadium={selectedStadium}
           setSelectedStadium={value => setSelectedStadium(value)}
+          isLoading={loading}
         />
       )}
 
