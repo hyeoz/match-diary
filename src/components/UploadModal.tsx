@@ -96,7 +96,7 @@ export default function UploadModal({
         setImage(value);
       })
       .catch(res => {
-        console.error(res);
+        // console.error(res);
       });
   };
 
