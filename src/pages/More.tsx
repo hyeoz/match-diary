@@ -3,11 +3,9 @@ import {
   Alert,
   Dimensions,
   FlatList,
-  Image,
   Linking,
   ListRenderItemInfo,
   Modal,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -26,7 +24,7 @@ import { MY_TEAM_KEY, TEAM_ICON_ARRAY } from '@utils/STATIC_DATA';
 import { useMyState } from '@/stores/default';
 import { palette } from '@style/palette';
 import { MoreListItemType, TeamListItemType } from '@/type/default';
-import Arrow from '@assets/svg/arrow.svg';
+import { Arrow, Plus } from '@/assets/svg';
 import help1_animated from '@assets/help1_animated.gif';
 import help2_animated from '@assets/help2_animated.gif';
 import help3_animated from '@assets/help3_animated.gif';
@@ -176,9 +174,7 @@ function More() {
             shadowRadius: 16,
           }}>
           <FlatList
-            renderItem={props => (
-              <ListItem {...props} navigation={navigation} />
-            )}
+            renderItem={props => <ListItem {...props} />}
             data={moreItems}
             keyExtractor={item => item.key}
           />
@@ -274,19 +270,62 @@ function More() {
 
       {/* NOTE 도움말 모달 */}
       <Modal visible={helpModalVisible} animationType="slide">
+        {/* <TouchableOpacity
+          onPress={() => setHelpModalVisible(false)}
+          style={{
+            width,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            position: 'absolute',
+            top: 0,
+            zIndex: 999,
+          }}>
+          <Arrow
+            width={40}
+            height={40}
+            style={{
+              // width: 64,
+              // height: 64,
+              transform: [
+                {
+                  rotate: '90deg',
+                },
+              ],
+            }}
+            color={palette.greyColor.gray6}
+          />
+        </TouchableOpacity> */}
+
         <View
           style={{
             width,
             height,
             position: 'absolute',
             backgroundColor: '#C9D8B3',
-            top: 0,
+            paddingTop: 40,
           }}>
+          <TouchableOpacity onPress={() => setHelpModalVisible(false)}>
+            <Plus
+              width={40}
+              height={40}
+              style={{
+                marginHorizontal: 24,
+                marginTop: 24,
+                marginBottom: -12,
+                transform: [
+                  {
+                    rotate: '45deg',
+                  },
+                ],
+              }}
+              color={palette.greyColor.gray6}
+            />
+          </TouchableOpacity>
           <Carousel
             width={width}
             data={images}
             onSnapToItem={index => setHelpSnapIndex(index)}
-            renderItem={({ item, index }) => {
+            renderItem={({ item }) => {
               return (
                 <View
                   style={{
@@ -339,43 +378,12 @@ function More() {
             </View>
           </View>
         </View>
-        <View
-          style={{
-            width,
-            flexDirection: 'row',
-            justifyContent: 'center',
-            position: 'absolute',
-            bottom: 80,
-          }}>
-          <TouchableOpacity onPress={() => setHelpModalVisible(false)}>
-            <Arrow
-              width={40}
-              height={40}
-              style={{
-                // width: 64,
-                // height: 64,
-                transform: [
-                  {
-                    rotate: '90deg',
-                  },
-                ],
-              }}
-              color={palette.greyColor.gray6}
-            />
-          </TouchableOpacity>
-        </View>
       </Modal>
     </TouchableWrapper>
   );
 }
 
-function ListItem({
-  item,
-  navigation,
-  index,
-}: ListRenderItemInfo<MoreListItemType> & {
-  navigation: NativeStackNavigationProp<any>;
-}) {
+function ListItem({ item, index }: ListRenderItemInfo<MoreListItemType>) {
   return (
     <View
       style={{
@@ -446,78 +454,81 @@ function TeamListItem({
 }
 
 function HelpContentItem({ index }: { index: number }) {
-  if (index === 0) {
-    return (
-      <View style={styles.contentWrapper}>
-        <Text style={styles.contentMainText}>
-          오늘의 직관 기록을 쉽게 기록해요!
-        </Text>
-        <View style={styles.contentRow}>
-          <Text>{'\u2022'}</Text>
-          <Text style={styles.contentText}>
-            경기장을 선택하고, 사진과 간단한 메모를 추가할 수 있어요.
+  switch (index) {
+    case 0:
+      return (
+        <View style={styles.contentWrapper}>
+          <Text style={styles.contentMainText}>
+            오늘의 직관 기록을 쉽게 기록해요!
           </Text>
+          <View style={styles.contentRow}>
+            <Text>{'\u2022'}</Text>
+            <Text style={styles.contentText}>
+              경기장을 선택하고, 사진과 간단한 메모를 추가할 수 있어요.
+            </Text>
+          </View>
+          <View style={styles.contentRow}>
+            <Text>{'\u2022'}</Text>
+            <Text style={styles.contentText}>
+              혹시 경기장 근처에 계시다면, 푸쉬 알림을 보내드릴게요!
+            </Text>
+          </View>
+          <View style={styles.contentRow}>
+            <Text>{'\u2022'}</Text>
+            <Text style={styles.contentText}>
+              (백그라운드 위치 정보 사용 동의가 필요합니다.)
+            </Text>
+          </View>
         </View>
-        <View style={styles.contentRow}>
-          <Text>{'\u2022'}</Text>
-          <Text style={styles.contentText}>
-            혹시 경기장 근처에 계시다면, 푸쉬 알림을 보내드릴게요!
+      );
+    case 1:
+      return (
+        <View style={styles.contentWrapper}>
+          <Text style={styles.contentMainText}>
+            내 직관 일기를 확인, 공유할 수 있어요
           </Text>
+          <View style={styles.contentRow}>
+            <Text>{'\u2022'}</Text>
+            <Text style={styles.contentText}>
+              캘린더 화면에서 내가 작성한 직관일기는 물론, 직관 기록을 확인할 수
+              있어요.
+            </Text>
+          </View>
+          <View style={styles.contentRow}>
+            <Text>{'\u2022'}</Text>
+            <Text style={styles.contentText}>
+              기록이 없는 날은 그 날의 경기 일정도 확인 가능해요!
+            </Text>
+          </View>
+          <View style={styles.contentRow}>
+            <Text>{'\u2022'}</Text>
+            <Text style={styles.contentText}>
+              지금까지의 모든 직관일기를 한 눈에 볼 수 있어요.
+            </Text>
+          </View>
         </View>
-        <View style={styles.contentRow}>
-          <Text>{'\u2022'}</Text>
-          <Text style={styles.contentText}>
-            (백그라운드 위치 정보 사용 동의가 필요합니다.)
+      );
+    default:
+      return (
+        <View style={styles.contentWrapper}>
+          <Text style={styles.contentMainText}>
+            내가 응원하는 팀을 설정해요.
           </Text>
+          <View style={styles.contentRow}>
+            <Text>{'\u2022'}</Text>
+            <Text style={styles.contentText}>
+              응원 팀의 색으로 테마 컬러를 바꿀 수 있어요!
+            </Text>
+          </View>
+          <View style={styles.contentRow}>
+            <Text>{'\u2022'}</Text>
+            <Text style={styles.contentText}>
+              저장된 응원 팀 기준으로 직관 기록을 계산하고, 일정을 보여드릴게요.
+            </Text>
+          </View>
         </View>
-      </View>
-    );
+      );
   }
-  if (index === 1) {
-    return (
-      <View style={styles.contentWrapper}>
-        <Text style={styles.contentMainText}>
-          내 직관 일기를 확인, 공유할 수 있어요
-        </Text>
-        <View style={styles.contentRow}>
-          <Text>{'\u2022'}</Text>
-          <Text style={styles.contentText}>
-            캘린더 화면에서 내가 작성한 직관일기는 물론, 직관 기록을 확인할 수
-            있어요.
-          </Text>
-        </View>
-        <View style={styles.contentRow}>
-          <Text>{'\u2022'}</Text>
-          <Text style={styles.contentText}>
-            기록이 없는 날은 그 날의 경기 일정도 확인 가능해요!
-          </Text>
-        </View>
-        <View style={styles.contentRow}>
-          <Text>{'\u2022'}</Text>
-          <Text style={styles.contentText}>
-            지금까지의 모든 직관일기를 한 눈에 볼 수 있어요.
-          </Text>
-        </View>
-      </View>
-    );
-  }
-  return (
-    <View style={styles.contentWrapper}>
-      <Text style={styles.contentMainText}>내가 응원하는 팀을 설정해요.</Text>
-      <View style={styles.contentRow}>
-        <Text>{'\u2022'}</Text>
-        <Text style={styles.contentText}>
-          응원 팀의 색으로 테마 컬러를 바꿀 수 있어요!
-        </Text>
-      </View>
-      <View style={styles.contentRow}>
-        <Text>{'\u2022'}</Text>
-        <Text style={styles.contentText}>
-          저장된 응원 팀 기준으로 직관 기록을 계산하고, 일정을 보여드릴게요.
-        </Text>
-      </View>
-    </View>
-  );
 }
 
 const styles = StyleSheet.create({
