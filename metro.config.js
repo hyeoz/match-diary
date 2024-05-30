@@ -17,6 +17,8 @@ const config = {
     assetExts: assetExts.filter(ext => ext !== 'svg'),
     sourceExts: [...sourceExts, 'svg'],
   },
+  watchFolders: ['./src', './node_modules'],
+  maxWorkers: 2,
 };
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);
