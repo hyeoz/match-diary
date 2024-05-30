@@ -306,8 +306,8 @@ function More() {
           }}>
           <TouchableOpacity onPress={() => setHelpModalVisible(false)}>
             <Plus
-              width={40}
-              height={40}
+              width={24}
+              height={24}
               style={{
                 marginHorizontal: 24,
                 marginTop: 24,
