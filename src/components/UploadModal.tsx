@@ -164,7 +164,6 @@ export default function UploadModal({
     const _stadiumInfo: { name: string; distance: number }[] = [];
 
     for (let sta of stadium) {
-      console.log({ sta });
       await getStadiumDistance(sta, _stadiumInfo, start);
     }
 
