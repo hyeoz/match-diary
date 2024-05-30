@@ -24,7 +24,7 @@ import {
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
 } from '@utils/STATIC_DATA';
-import Stamp from '@assets/svg/stamp.svg';
+import { Stamp } from '@assets/svg';
 
 const { width, height } = Dimensions.get('window');
 const formattedToday = dayjs().format(DATE_FORMAT);

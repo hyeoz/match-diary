@@ -30,7 +30,6 @@ export default function GeoNotification() {
     // NOTE push 알림 설정
     PushNotification.configure({
       onNotification: function (notification) {
-        console.log({ notification });
         // 기본 알림 처리 막기
         notification.finish(PushNotificationIOS.FetchResult.NoData);
 
@@ -44,10 +43,6 @@ export default function GeoNotification() {
       },
       popInitialNotification: true,
       requestPermissions: true,
-    });
-
-    BackgroundGeolocation.onAuthorization(event => {
-      console.log('????', event);
     });
 
     // NOTE geofence 설정 및 시작

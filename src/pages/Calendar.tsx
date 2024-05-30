@@ -30,9 +30,8 @@ import {
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { MatchDataType } from '@/type/default';
-import Ball from '@assets/svg/ball.svg';
-import Pin from '@assets/svg/paperclip.svg';
-import AnswerCircle from '@assets/svg/answer_circle.svg';
+import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
+import Loading from '@/components/Loading';
 
 /* DONE
   - 데이터 있는 경우 marking
@@ -45,7 +44,8 @@ import AnswerCircle from '@assets/svg/answer_circle.svg';
 */
 
 /* TODO
-  - 캘린더 스타일링, config, 날짜 넘기는 액션 구현
+  - 캘린더 스타일링, 로딩 구현
+  - API 최적화
 */
 
 const { width } = Dimensions.get('window');
@@ -86,6 +86,7 @@ function Calendar() {
   const [matches, setMatches] = useState<MatchDataType[]>([]);
   // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
   const [matchRecord, setMatchRecord] = useState(initCountData);
+  const [loading, setLoading] = useState(false);
 
   const { team } = useMyState();
   const { history } = useTabHistory();
@@ -174,6 +175,7 @@ function Calendar() {
   );
 
   const getMatchData = async () => {
+    setLoading(true);
     const res = await API.get<StrapiType<MatchDataType>>(
       `/schedule-2024s?filters[date]=${dayjs(selectedDate).format(
         API_DATE_FORMAT,
@@ -191,9 +193,10 @@ function Calendar() {
     } else {
       setMatches(res.data.data.map(d => d.attributes));
     }
+    setLoading(false);
   };
 
-  // TODO 직관 기록 계산
+  // NOTE 직관 기록 계산
   const getAllRecord = async () => {
     const keys = (await AsyncStorage.getAllKeys()).filter(
       key => key !== 'MY_TEAM',
@@ -265,7 +268,7 @@ function Calendar() {
         }
       }
     }
-    console.log(_count);
+
     setMatchRecord(_count);
   };
 
@@ -302,7 +305,7 @@ function Calendar() {
 
       <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
         <View style={styles.detailWrapper}>
-          <Pin
+          <PaperClip
             width={32}
             height={32}
             style={{
@@ -335,46 +338,50 @@ function Calendar() {
                   justifyContent: 'space-between',
                 }}>
                 {matches.length === 1 ? (
-                  <View>
-                    <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
-                      오늘의 경기
-                    </Text>
-                    <Text
-                      style={[
-                        styles.stickyNoteText,
-                        {
-                          textAlign: 'center',
-                          fontSize: 20,
-                        },
-                      ]}>
-                      {matches[0].home} VS {matches[0].away}
-                    </Text>
-                    {!!matches[0].home && (
-                      <View>
-                        <AnswerCircle
-                          width={88}
-                          height={88}
-                          style={{
-                            position: 'absolute',
-                            top: -30,
-                            left: '50%',
-                            transform: [
-                              {
-                                translateX: -44,
-                              },
-                            ],
-                          }}
-                        />
-                        <Text
-                          style={[
-                            styles.stickyNoteText,
-                            { fontSize: 18, textAlign: 'center' },
-                          ]}>
-                          ({STADIUM_SHORT_NAME[matches[0].home]})
-                        </Text>
-                      </View>
-                    )}
-                  </View>
+                  loading ? (
+                    <Loading />
+                  ) : (
+                    <View>
+                      <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
+                        오늘의 경기
+                      </Text>
+                      <Text
+                        style={[
+                          styles.stickyNoteText,
+                          {
+                            textAlign: 'center',
+                            fontSize: 20,
+                          },
+                        ]}>
+                        {matches[0].home} VS {matches[0].away}
+                      </Text>
+                      {!!matches[0].home && (
+                        <View>
+                          <AnswerCircle
+                            width={88}
+                            height={88}
+                            style={{
+                              position: 'absolute',
+                              top: -30,
+                              left: '50%',
+                              transform: [
+                                {
+                                  translateX: -44,
+                                },
+                              ],
+                            }}
+                          />
+                          <Text
+                            style={[
+                              styles.stickyNoteText,
+                              { fontSize: 18, textAlign: 'center' },
+                            ]}>
+                            ({STADIUM_SHORT_NAME[matches[0].home]})
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )
                 ) : matches.length ? (
                   <View>
                     <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>

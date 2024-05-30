@@ -2,16 +2,18 @@ import { renderIconSizeWithColor } from '@utils/helper';
 import { TeamListItemType } from '@/type/default';
 import { palette } from '@/style/palette';
 // @assets
-import Dog from '@assets/svg/landers.svg';
-import Bear from '@assets/svg/bears.svg';
-import Dino from '@assets/svg/dinos.svg';
-import Eagle from '@assets/svg/eagles.svg';
-import Hero from '@assets/svg/heros.svg';
-import Lion from '@assets/svg/lions.svg';
-import Twin from '@assets/svg/twins.svg';
-import Seagull from '@assets/svg/seagull.svg';
-import Tiger from '@assets/svg/tigers.svg';
-import Wiz from '@assets/svg/wiz.svg';
+import {
+  Landers,
+  Bears,
+  Dinos,
+  Eagles,
+  Heros,
+  Lions,
+  Twins,
+  Seagull,
+  Tigers,
+  Wiz,
+} from '@assets/svg';
 
 const DATE_FORMAT = 'YYYY-MM-DD';
 const DATE_FORMAT_SLASH = 'YYYY/MM/DD';
@@ -53,12 +55,17 @@ const TEAM_ICON_ARRAY: TeamListItemType[] = [
   {
     key: 'SSG',
     label: 'SSG 랜더스',
-    icon: renderIconSizeWithColor(Dog, 48, undefined, palette.teamColor.SSG),
+    icon: renderIconSizeWithColor(
+      Landers,
+      48,
+      undefined,
+      palette.teamColor.SSG,
+    ),
   },
   {
     key: 'LG',
     label: 'LG 트윈스',
-    icon: renderIconSizeWithColor(Twin, 48, undefined, palette.teamColor.LG),
+    icon: renderIconSizeWithColor(Twins, 48, undefined, palette.teamColor.LG),
   },
   {
     key: 'KT',
@@ -68,7 +75,12 @@ const TEAM_ICON_ARRAY: TeamListItemType[] = [
   {
     key: '한화',
     label: '한화 이글스',
-    icon: renderIconSizeWithColor(Eagle, 48, undefined, palette.teamColor.한화),
+    icon: renderIconSizeWithColor(
+      Eagles,
+      48,
+      undefined,
+      palette.teamColor.한화,
+    ),
   },
   {
     key: '롯데',
@@ -83,27 +95,27 @@ const TEAM_ICON_ARRAY: TeamListItemType[] = [
   {
     key: '키움',
     label: '키움 히어로즈',
-    icon: renderIconSizeWithColor(Hero, 48, undefined, palette.teamColor.키움),
+    icon: renderIconSizeWithColor(Heros, 48, undefined, palette.teamColor.키움),
   },
   {
     key: 'NC',
     label: 'NC 다이노스',
-    icon: renderIconSizeWithColor(Dino, 48, undefined, palette.teamColor.NC),
+    icon: renderIconSizeWithColor(Dinos, 48, undefined, palette.teamColor.NC),
   },
   {
     key: 'KIA',
     label: '기아 타이거즈',
-    icon: renderIconSizeWithColor(Tiger, 48, undefined, palette.teamColor.KIA),
+    icon: renderIconSizeWithColor(Tigers, 48, undefined, palette.teamColor.KIA),
   },
   {
     key: '삼성',
     label: '삼성 라이온즈',
-    icon: renderIconSizeWithColor(Lion, 48, undefined, palette.teamColor.삼성),
+    icon: renderIconSizeWithColor(Lions, 48, undefined, palette.teamColor.삼성),
   },
   {
     key: '두산',
     label: '두산 베어스',
-    icon: renderIconSizeWithColor(Bear, 48, undefined, palette.teamColor.두산),
+    icon: renderIconSizeWithColor(Bears, 48, undefined, palette.teamColor.두산),
   },
 ];
 
@@ -177,9 +189,9 @@ const STADIUM_GEO: {
 };
 
 // 인스타그램 링크
-const INSTAGRAM_LINK = 'instagram://user?username=match_diary';
+const INSTAGRAM_LINK = 'instagram://user?username=match_diary_official';
 // 인스타그램이 설치되어 있지 않을 때 웹 링크
-const INSTAGRAM_WEB_LINK = 'https://www.instagram.com/match_diary/';
+const INSTAGRAM_WEB_LINK = 'https://www.instagram.com/match_diary_official/';
 // 메일 링크
 const EMAIL_LINK = 'mailto:match.diary24@gmail.com';
 

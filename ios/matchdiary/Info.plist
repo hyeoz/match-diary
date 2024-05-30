@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -36,29 +38,31 @@
 	<key>NSAllowsLocalNetworking</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
-	<string/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>앱이 사용되는 동안 위치 정보가 필요합니다. </string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>앱이 백그라운드에서 위치 정보를 사용하기 위해 필요합니다.</string>
+	<string></string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>앱이 백그라운드에서도 위치 정보를 사용하기 위해 필요합니다. "항상"을 선택해주시면, 경기장 근처에서 알림을 보내드릴게요!</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-		<string>location</string>
-		<string>fetch</string>
-	</array>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>앱이 백그라운드에서 위치 정보를 사용하기 위해 필요합니다.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>앱이 사용되는 동안 위치 정보가 필요합니다. </string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>기록을 위해 사진 사용을 허용해주세요!</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow access to your photo gallery</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Allow access to motion usage</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>KBO Dia Gothic_bold.ttf</string>
 		<string>KBO Dia Gothic_light.ttf</string>
 		<string>KBO Dia Gothic_medium.ttf</string>
 		<string>UhBee Seulvely.ttf</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>location</string>
+		<string>fetch</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string></string>

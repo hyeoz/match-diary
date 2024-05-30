@@ -2,6 +2,8 @@ import {
   Alert,
   Dimensions,
   Image,
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
   Platform,
   StyleSheet,
@@ -34,10 +36,17 @@ import {
 } from '@utils/STATIC_DATA';
 import { hasAndroidPermission } from '@utils/helper';
 import { palette } from '@style/palette';
-import Add from '@assets/svg/add.svg';
-import Arrow from '@assets/svg/arrow.svg';
+import { Add, Arrow } from '@assets/svg';
+import Loading from './Loading';
+
+/* TODO
+  - 로딩
+  - 네이버 API 디바이스 테스트
+  - API 최적화
+*/
 
 const { width } = Dimensions.get('window');
+const { height } = Dimensions.get('screen');
 const formattedToday = dayjs().format(DATE_FORMAT);
 const apiFormattedToday = dayjs().format(API_DATE_FORMAT);
 
@@ -62,6 +71,18 @@ export default function UploadModal({
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
+  const [isKeyboardShow, setIsKeyboardShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
+    Keyboard.addListener('keyboardWillHide', () => setIsKeyboardShow(false));
+
+    return () => {
+      Keyboard.removeAllListeners('keyboardWillShow');
+      Keyboard.removeAllListeners('keyboardWillHide');
+    };
+  }, []);
 
   useEffect(() => {
     getLocation();
@@ -69,7 +90,7 @@ export default function UploadModal({
 
   useEffect(() => {
     getTodayMatch();
-    getStadiumDistance();
+    isVisible && !!latitude && !!longitude && getAllStadiumDistance();
   }, [latitude, longitude, isVisible]);
 
   const onPressOpenGallery = () => {
@@ -82,7 +103,7 @@ export default function UploadModal({
         setImage(value);
       })
       .catch(res => {
-        console.error(res);
+        // console.error(res);
       });
   };
 
@@ -131,29 +152,38 @@ export default function UploadModal({
 
     const filteredStadium = _stadium.filter(
       (sta, index) => _stadium.lastIndexOf(sta) === index,
-    ); // 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
+    ); // NOTE 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
     setStadium(filteredStadium);
   };
 
   // 경기장 셀렉트박스 구현
-  const getStadiumDistance = async () => {
+  const getAllStadiumDistance = async () => {
+    setLoading(true);
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
-    // const start = `${latitude},${longitude}`;
     const start = `${longitude},${latitude}`;
-
     const _stadiumInfo: { name: string; distance: number }[] = [];
-    stadium.forEach(async s => {
-      const geo = `${STADIUM_GEO[s].lon},${STADIUM_GEO[s].lat}`;
-      const res = await NAVER_API.get<NaverDirectionsResponseType>(
-        `/map-direction/v1/driving?start=${start}&goal=${geo}`,
-      );
-      _stadiumInfo.push({
-        name: STADIUM_SHORT_TO_LONG[s],
-        distance: res.data.route?.traoptimal[0].summary.distance,
-      });
-    });
+
+    for (let sta of stadium) {
+      await getStadiumDistance(sta, _stadiumInfo, start);
+    }
 
     setStadiumInfo(_stadiumInfo);
+    setLoading(false);
+  };
+
+  const getStadiumDistance = async (
+    stadium: string,
+    result: { name: string; distance: number }[],
+    start: string,
+  ) => {
+    const geo = `${STADIUM_GEO[stadium].lon},${STADIUM_GEO[stadium].lat}`;
+    const res = await NAVER_API.get<NaverDirectionsResponseType>(
+      `/map-direction/v1/driving?start=${start}&goal=${geo}`,
+    );
+    result.push({
+      name: STADIUM_SHORT_TO_LONG[stadium],
+      distance: res.data.route?.traoptimal[0].summary.distance ?? 0,
+    });
   };
 
   const getLocation = async () => {
@@ -182,6 +212,7 @@ export default function UploadModal({
               fontWeight: '700',
               fontSize: 18,
               fontFamily: 'KBO-Dia-Gothic-bold',
+              color: '#000',
             }}>
             업로드
           </Text>
@@ -195,7 +226,7 @@ export default function UploadModal({
           }}>
           {/* SECTION CONTENTS */}
           <View style={modalStyles.contentWrapper}>
-            <View>
+            <View style={{ position: 'relative' }}>
               <Text style={modalStyles.labelText}>대표 이미지</Text>
               {/* 이미지 */}
               {image ? (
@@ -241,6 +272,7 @@ export default function UploadModal({
                 style={{
                   marginLeft: 4,
                   marginTop: 4,
+                  marginBottom: 32,
                   padding: 4,
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -259,9 +291,33 @@ export default function UploadModal({
                 <Arrow width={16} height={16} color={'#666'} />
               </TouchableOpacity>
             </View>
+          </View>
 
+          <KeyboardAvoidingView
+            contentContainerStyle={[
+              { height: 'auto' },
+              isKeyboardShow
+                ? {
+                    width: width,
+                    backgroundColor: 'rgba(0,0,0,0.4)',
+                  }
+                : {},
+            ]}
+            keyboardVerticalOffset={80}
+            behavior="position">
             {/* 텍스트 */}
-            <View>
+            <View
+              style={
+                isKeyboardShow
+                  ? {
+                      bottom: 0,
+                      position: 'absolute',
+                      paddingHorizontal: 24,
+                      paddingVertical: 12,
+                      backgroundColor: '#fff',
+                    }
+                  : {}
+              }>
               <Text style={modalStyles.labelText}>내용</Text>
               <TextInput
                 multiline
@@ -288,8 +344,31 @@ export default function UploadModal({
                 }}>
                 {memo.length} / 200
               </Text>
+              {isKeyboardShow && (
+                <TouchableOpacity
+                  onPress={() => {
+                    Keyboard.dismiss();
+                  }}
+                  style={{
+                    width: '100%',
+                    alignItems: 'center',
+                  }}>
+                  <Arrow
+                    width={24}
+                    height={24}
+                    color={'#666'}
+                    style={{
+                      transform: [
+                        {
+                          rotate: '90deg',
+                        },
+                      ],
+                    }}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
-          </View>
+          </KeyboardAvoidingView>
 
           {/* SECTION BUTTONS */}
           <View style={modalStyles.buttonWrapper}>
@@ -336,6 +415,7 @@ export default function UploadModal({
           setIsVisible={value => setStadiumSelectVisible(value)}
           selectStadium={selectedStadium}
           setSelectedStadium={value => setSelectedStadium(value)}
+          isLoading={loading}
         />
       )}
 
@@ -348,8 +428,11 @@ export default function UploadModal({
 const modalStyles = StyleSheet.create({
   header: {
     borderBottomWidth: 1,
-    paddingVertical: 10,
-    marginBottom: 24,
+    paddingBottom: 10,
+    top: 0,
+    left: 0,
+    position: 'absolute',
+    width: width - 48,
   },
   wrapper: {
     flex: 1,
@@ -359,16 +442,17 @@ const modalStyles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   contentWrapper: {
-    // gap: 8,
+    top: 48,
+    // height: height - 190,
   },
   input: {
     width: width - 48,
-    height: 150,
+    height: 120,
     borderWidth: 1,
     borderRadius: 4,
     borderColor: '#888',
     paddingHorizontal: 10,
-    paddingTop: 10,
+    // paddingTop: 10,
     fontFamily: 'KBO-Dia-Gothic-mediumd',
   },
   emptyImageWrapper: {
@@ -385,6 +469,7 @@ const modalStyles = StyleSheet.create({
     flexDirection: 'row',
     gap: 16,
     width: '100%',
+    paddingTop: 48,
   },
   button: {
     width: width / 2 - 24 - 8,
