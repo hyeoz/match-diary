@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Toast from 'react-native-toast-message';
 
 import TouchableWrapper from '@components/TouchableWrapper';
@@ -72,9 +72,6 @@ function Contact() {
   return (
     <TouchableWrapper>
       <View style={styles.wrapper}>
-        {/* <Text style={styles.headerText}>Contact</Text>
-        <Text style={styles.headerText}>Us!</Text>
-        <Text style={styles.defaultText}>연락주세용ㅇ;ㅣ~~~</Text> */}
         <Image
           source={contact_cat}
           style={{

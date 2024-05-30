@@ -189,9 +189,9 @@ const STADIUM_GEO: {
 };
 
 // 인스타그램 링크
-const INSTAGRAM_LINK = 'instagram://user?username=match_diary';
+const INSTAGRAM_LINK = 'instagram://user?username=match_diary_official';
 // 인스타그램이 설치되어 있지 않을 때 웹 링크
-const INSTAGRAM_WEB_LINK = 'https://www.instagram.com/match_diary/';
+const INSTAGRAM_WEB_LINK = 'https://www.instagram.com/match_diary_official/';
 // 메일 링크
 const EMAIL_LINK = 'mailto:match.diary24@gmail.com';
 
