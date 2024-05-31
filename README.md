@@ -1,56 +1,16 @@
 # 직관일기
 
-## 쉽고 빠르게 본인의 야구 경기 직관 기록을 남길 수 있는 서비스입니다.
+## INTRODUCE
 
-현재 앱 스토어 심사 전 최종 QA 진행중입니다. 곧 만나요!
+쉽고 빠르게 본인의 야구 경기 직관 기록을 남길 수 있는 서비스입니다.
 
-# 로컬에서 실행하기
+현재 앱 스토어 심사 전 진행중입니다. 곧 만나요!
 
-## Getting Started
+## IOS ONLY
 
-> **Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+현재는 IOS 만 서비스 중이에요 TT.
 
-### Step 1: Start the Metro Server
-
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
-
-To start Metro, run the following command from the _root_ of your React Native project:
-
-```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
-```
-
-### Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
-
-```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### For iOS
-
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+더 많은 디바이스와 함께하기 위해 TEAM직관일기가 더 노력할게요!
 
 ## Attribute for Assets
 
