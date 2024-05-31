@@ -2,7 +2,16 @@
 
 ## INTRODUCE
 
-쉽고 빠르게 본인의 야구 경기 직관 기록을 남길 수 있는 서비스입니다.
+<p align="center">
+  <img src="https://github.com/hyeoz/match-diary/assets/76167244/e0f09f69-1e27-46a7-b7a0-984149c3d665" alt="Image 1" width="150" />
+  <img src="https://github.com/hyeoz/match-diary/assets/76167244/6e128a44-dc5d-421d-be20-44c3d2973a5f" alt="Image 2" width="150"/>
+  <img src="https://github.com/hyeoz/match-diary/assets/76167244/2440e73b-ebde-43b4-85ef-f33729b5392c" alt="Image 3" width="150"/>
+  <img src="https://github.com/hyeoz/match-diary/assets/76167244/9a89ec87-1090-44a0-a29f-7899c470403c" alt="Image 4" width="150"/>
+  <img src="https://github.com/hyeoz/match-diary/assets/76167244/fb490698-aa61-4fdc-9bc9-025e16b30045" alt="Image 5" width="150"/>
+  
+</p>
+
+<strong>쉽고 빠르게 본인의 야구 경기 직관 기록을 남길 수 있는 서비스입니다.</strong>
 
 현재 앱 스토어 심사 전 진행중입니다. 곧 만나요!
 
