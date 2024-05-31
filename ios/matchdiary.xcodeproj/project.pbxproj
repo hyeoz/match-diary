@@ -12,13 +12,13 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		2F614DD8003E3426D78B0FF6 /* libPods-matchdiary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 243F3421C8703CE70639F850 /* libPods-matchdiary.a */; };
 		52301F1075AD4E1A8F7F45B3 /* KBO Dia Gothic_medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */; };
 		70D30454468D46D7BC8396FB /* KBO Dia Gothic_light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		82E0F6FD2C0410EA00CF8481 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 82E0F6FC2C0410EA00CF8481 /* main.jsbundle */; };
+		B033A4F4A0B40B22EAB48218 /* libPods-matchdiary-matchdiaryTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BC42B2D87D87B4358BA1AD5D /* libPods-matchdiary-matchdiaryTests.a */; };
 		DCD04D0FC21345F59D991345 /* UhBee Seulvely.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */; };
-		F3628F81235B5DEE01E4E105 /* libPods-matchdiary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D6F6CBEA83121389996CF87 /* libPods-matchdiary.a */; };
-		FF344CBA9FE26974F34B2511 /* libPods-matchdiary-matchdiaryTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FCBA1E4D70A216F12EB94E65 /* libPods-matchdiary-matchdiaryTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,10 +32,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0017CCBBF8518BA7E5A9D40F /* Pods-matchdiary.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.debug.xcconfig"; sourceTree = "<group>"; };
 		00E356EE1AD99517003FC87E /* matchdiaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = matchdiaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* matchdiaryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = matchdiaryTests.m; sourceTree = "<group>"; };
-		08C8AA5B61C211A0F1C0A1A1 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* matchdiary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = matchdiary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = matchdiary/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = matchdiary/AppDelegate.mm; sourceTree = "<group>"; };
@@ -43,19 +43,19 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = matchdiary/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = matchdiary/main.m; sourceTree = "<group>"; };
 		1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_medium.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_medium.ttf"; sourceTree = "<group>"; };
+		243F3421C8703CE70639F850 /* libPods-matchdiary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		37AC3F4AC287B90E26C4C224 /* Pods-matchdiary-matchdiaryTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.release.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.release.xcconfig"; sourceTree = "<group>"; };
 		47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "UhBee Seulvely.ttf"; path = "../src/assets/fonts/UhBee Seulvely.ttf"; sourceTree = "<group>"; };
-		4D6F6CBEA83121389996CF87 /* libPods-matchdiary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = matchdiary/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		828C0BF12BF3503A00EFB615 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		82CD87832BFB48490074A314 /* matchdiary.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = matchdiary.entitlements; path = matchdiary/matchdiary.entitlements; sourceTree = "<group>"; };
 		82E0F6FC2C0410EA00CF8481 /* main.jsbundle */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		9B1BA4E7B025DEEDDC01EFA0 /* Pods-matchdiary.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.release.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.release.xcconfig"; sourceTree = "<group>"; };
 		9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_bold.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_bold.ttf"; sourceTree = "<group>"; };
 		A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_light.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_light.ttf"; sourceTree = "<group>"; };
-		C0110C9697E384F3428985BC /* Pods-matchdiary-matchdiaryTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.release.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.release.xcconfig"; sourceTree = "<group>"; };
+		BB7B91B92C68C1CB834FAD02 /* Pods-matchdiary.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.release.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.release.xcconfig"; sourceTree = "<group>"; };
+		BC42B2D87D87B4358BA1AD5D /* libPods-matchdiary-matchdiaryTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary-matchdiaryTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8D5D17CD5BE421ED17AFAD8 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F60C7B44B46C1CE5A8A0DE8A /* Pods-matchdiary.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.debug.xcconfig"; sourceTree = "<group>"; };
-		FCBA1E4D70A216F12EB94E65 /* libPods-matchdiary-matchdiaryTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary-matchdiaryTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,7 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FF344CBA9FE26974F34B2511 /* libPods-matchdiary-matchdiaryTests.a in Frameworks */,
+				B033A4F4A0B40B22EAB48218 /* libPods-matchdiary-matchdiaryTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,7 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F3628F81235B5DEE01E4E105 /* libPods-matchdiary.a in Frameworks */,
+				2F614DD8003E3426D78B0FF6 /* libPods-matchdiary.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,8 +124,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				4D6F6CBEA83121389996CF87 /* libPods-matchdiary.a */,
-				FCBA1E4D70A216F12EB94E65 /* libPods-matchdiary-matchdiaryTests.a */,
+				243F3421C8703CE70639F850 /* libPods-matchdiary.a */,
+				BC42B2D87D87B4358BA1AD5D /* libPods-matchdiary-matchdiaryTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -167,10 +167,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				F60C7B44B46C1CE5A8A0DE8A /* Pods-matchdiary.debug.xcconfig */,
-				9B1BA4E7B025DEEDDC01EFA0 /* Pods-matchdiary.release.xcconfig */,
-				08C8AA5B61C211A0F1C0A1A1 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */,
-				C0110C9697E384F3428985BC /* Pods-matchdiary-matchdiaryTests.release.xcconfig */,
+				0017CCBBF8518BA7E5A9D40F /* Pods-matchdiary.debug.xcconfig */,
+				BB7B91B92C68C1CB834FAD02 /* Pods-matchdiary.release.xcconfig */,
+				C8D5D17CD5BE421ED17AFAD8 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */,
+				37AC3F4AC287B90E26C4C224 /* Pods-matchdiary-matchdiaryTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -182,12 +182,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "matchdiaryTests" */;
 			buildPhases = (
-				A94CCAB72DC2B421517FDC23 /* [CP] Check Pods Manifest.lock */,
+				FC7CA4033660DD24348B8CF8 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				9FFF029129FC4C37DE9CAEE1 /* [CP] Embed Pods Frameworks */,
-				9E805DF255733444E1FD1F1F /* [CP] Copy Pods Resources */,
+				DE7C4D070EBCE8A18BEDD586 /* [CP] Embed Pods Frameworks */,
+				23E7B42106B52EE77CB17563 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -203,14 +203,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "matchdiary" */;
 			buildPhases = (
-				14DBAD9C2FD5D522A58F1C27 /* [CP] Check Pods Manifest.lock */,
+				C2A3A9D783A350881A07C542 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				82141FBB2C08039900A1C9A8 /* ShellScript */,
-				348FF7A5F0D415FC6B9CB8F6 /* [CP] Embed Pods Frameworks */,
-				E5689A40C5221EE3B972EF74 /* [CP] Copy Pods Resources */,
+				0E00BACF8A853E013F485D63 /* [CP] Embed Pods Frameworks */,
+				0802A86A72EDE1C32B3F2319 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -284,7 +284,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 8;
 			files = (
 			);
 			inputPaths = (
@@ -294,11 +294,79 @@
 			name = "Bundle React Native code and images";
 			outputPaths = (
 			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\nexport ENVFILE=../.env\n/usr/bin/env ruby \"./../node_modules/react-native-config/ios/ReactNativeConfig/BuildDotenvConfig.rb\" \"../..\" \"./../node_modules/react-native-config/ios/ReactNativeConfig\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		0802A86A72EDE1C32B3F2319 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-resources.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
-		14DBAD9C2FD5D522A58F1C27 /* [CP] Check Pods Manifest.lock */ = {
+		0E00BACF8A853E013F485D63 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		23E7B42106B52EE77CB17563 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		82141FBB2C08039900A1C9A8 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\n";
+		};
+		C2A3A9D783A350881A07C542 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -320,58 +388,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		348FF7A5F0D415FC6B9CB8F6 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		82141FBB2C08039900A1C9A8 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 8;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\n";
-		};
-		9E805DF255733444E1FD1F1F /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		9FFF029129FC4C37DE9CAEE1 /* [CP] Embed Pods Frameworks */ = {
+		DE7C4D070EBCE8A18BEDD586 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -388,7 +405,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A94CCAB72DC2B421517FDC23 /* [CP] Check Pods Manifest.lock */ = {
+		FC7CA4033660DD24348B8CF8 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -408,23 +425,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E5689A40C5221EE3B972EF74 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -460,7 +460,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 08C8AA5B61C211A0F1C0A1A1 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */;
+			baseConfigurationReference = C8D5D17CD5BE421ED17AFAD8 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -487,7 +487,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C0110C9697E384F3428985BC /* Pods-matchdiary-matchdiaryTests.release.xcconfig */;
+			baseConfigurationReference = 37AC3F4AC287B90E26C4C224 /* Pods-matchdiary-matchdiaryTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -511,7 +511,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F60C7B44B46C1CE5A8A0DE8A /* Pods-matchdiary.debug.xcconfig */;
+			baseConfigurationReference = 0017CCBBF8518BA7E5A9D40F /* Pods-matchdiary.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -543,7 +543,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9B1BA4E7B025DEEDDC01EFA0 /* Pods-matchdiary.release.xcconfig */;
+			baseConfigurationReference = BB7B91B92C68C1CB834FAD02 /* Pods-matchdiary.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -652,6 +652,7 @@
 		};
 		83CBBA211A601CBA00E9B192 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 828C0BF12BF3503A00EFB615 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
