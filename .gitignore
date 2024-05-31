@@ -72,4 +72,8 @@ yarn.lock
 # 환경변수
 .env
 .env.development
-.env.product
+.env.production
+
+#react-native-config
+ios/tmp.xcconfig
+ios/.xcode.env
