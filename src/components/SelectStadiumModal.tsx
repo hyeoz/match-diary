@@ -38,6 +38,8 @@ export default function SelectStadiumModal({
     }
   }, [sortedInfo]);
 
+  console.log({ sortedInfo, stadiumInfo });
+
   return (
     <TouchableOpacity
       onPress={() => {
