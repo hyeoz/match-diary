@@ -164,7 +164,7 @@ export default function UploadModal({
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
     const start = `${longitude},${latitude}`;
     const _stadiumInfo: { name: string; distance: number }[] = [];
-    console.log(stadium, start, '??? start');
+
     for (let sta of stadium) {
       if (sta === '경기가 없어요!') {
         _stadiumInfo.push({ name: sta, distance: 0 });
@@ -186,7 +186,7 @@ export default function UploadModal({
     const res = await NAVER_API.get<NaverDirectionsResponseType>(
       `/map-direction/v1/driving?start=${start}&goal=${geo}`,
     );
-    console.log({ res });
+
     result.push({
       name: STADIUM_SHORT_TO_LONG[stadium],
       distance: res.data.route?.traoptimal[0].summary.distance ?? 0,
