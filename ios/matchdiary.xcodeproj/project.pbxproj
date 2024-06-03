@@ -364,7 +364,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n# In Xcode, under Build Phases > New Run Script Phase:\nexport ENVFILE=.env.production\n\"${SRCROOT}/../node_modules/react-native-dotenv/ios/react_native_dotenv.sh\"\n\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\n";
 		};
 		C2A3A9D783A350881A07C542 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

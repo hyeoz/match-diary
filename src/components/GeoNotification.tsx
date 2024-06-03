@@ -81,7 +81,6 @@ export default function GeoNotification() {
     // NOTE geofence 기능
     const onGeo = BackgroundGeolocation.onGeofence(event => {
       if (event.action === 'ENTER') {
-        // TODO test 필요
         PushNotification.localNotification({
           id: uuid.v4() as string,
           title: `혹시 ${event.identifier}경기장이신가요?`,

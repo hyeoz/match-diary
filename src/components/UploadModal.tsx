@@ -38,6 +38,7 @@ import { hasAndroidPermission } from '@utils/helper';
 import { palette } from '@style/palette';
 import { Add, Arrow } from '@assets/svg';
 import Loading from './Loading';
+import { PERMISSIONS, check, request } from 'react-native-permissions';
 
 /* TODO
   - 로딩
@@ -72,7 +73,7 @@ export default function UploadModal({
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
@@ -85,13 +86,11 @@ export default function UploadModal({
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     getLocation();
-  }, [isVisible]);
-
-  useEffect(() => {
     getTodayMatch();
-    isVisible && !!latitude && !!longitude && getAllStadiumDistance();
-  }, [latitude, longitude, isVisible]);
+    getAllStadiumDistance();
+  }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
   const onPressOpenGallery = () => {
     ImageCropPicker?.openPicker({
@@ -137,34 +136,41 @@ export default function UploadModal({
     const res = await API.get<StrapiType<MatchDataType>>(
       `/schedule-2024s?filters[date]=${apiFormattedToday}`,
     );
-    const _stadium = res.data.data.map(att => {
-      setMatchInfo(prev => {
-        return {
-          ...prev,
-          [att.attributes.stadium]: {
-            home: att.attributes.home,
-            away: att.attributes.away,
-          },
-        };
+    if (!res.data.data.length) {
+      setStadium(['경기가 없어요!']);
+    } else {
+      const _stadium = res.data.data.map(att => {
+        setMatchInfo(prev => {
+          return {
+            ...prev,
+            [att.attributes.stadium]: {
+              home: att.attributes.home,
+              away: att.attributes.away,
+            },
+          };
+        });
+        return att.attributes.stadium;
       });
-      return att.attributes.stadium;
-    });
 
-    const filteredStadium = _stadium.filter(
-      (sta, index) => _stadium.lastIndexOf(sta) === index,
-    ); // NOTE 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
-    setStadium(filteredStadium);
+      const filteredStadium = _stadium.filter(
+        (sta, index) => _stadium.lastIndexOf(sta) === index,
+      ); // NOTE 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
+      setStadium(filteredStadium);
+    }
   };
 
   // 경기장 셀렉트박스 구현
   const getAllStadiumDistance = async () => {
-    setLoading(true);
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
     const start = `${longitude},${latitude}`;
     const _stadiumInfo: { name: string; distance: number }[] = [];
 
     for (let sta of stadium) {
-      await getStadiumDistance(sta, _stadiumInfo, start);
+      if (sta === '경기가 없어요!') {
+        _stadiumInfo.push({ name: sta, distance: 0 });
+      } else {
+        await getStadiumDistance(sta, _stadiumInfo, start);
+      }
     }
 
     setStadiumInfo(_stadiumInfo);
@@ -180,6 +186,7 @@ export default function UploadModal({
     const res = await NAVER_API.get<NaverDirectionsResponseType>(
       `/map-direction/v1/driving?start=${start}&goal=${geo}`,
     );
+
     result.push({
       name: STADIUM_SHORT_TO_LONG[stadium],
       distance: res.data.route?.traoptimal[0].summary.distance ?? 0,
@@ -195,10 +202,11 @@ export default function UploadModal({
         setLatitude(_latitude);
         setLongitude(_longitude);
       },
-      error => {
+      async error => {
         console.log(error.code, error.message);
+        return await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+      { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 },
     );
   };
 
