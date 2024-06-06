@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* matchdiaryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* matchdiaryTests.m */; };
+		03022ACB2C11A580005970F4 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 03022ACA2C11A580005970F4 /* assets */; };
 		04C8A557BC8C423EAFC15784 /* KBO Dia Gothic_bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -36,6 +37,7 @@
 		00E356EE1AD99517003FC87E /* matchdiaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = matchdiaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* matchdiaryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = matchdiaryTests.m; sourceTree = "<group>"; };
+		03022ACA2C11A580005970F4 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* matchdiary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = matchdiary.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = matchdiary/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = matchdiary/AppDelegate.mm; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				03022ACA2C11A580005970F4 /* assets */,
 				82E0F6FC2C0410EA00CF8481 /* main.jsbundle */,
 				828C0BF12BF3503A00EFB615 /* Config.xcconfig */,
 				13B07FAE1A68108700A75B9A /* matchdiary */,
@@ -269,6 +272,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03022ACB2C11A580005970F4 /* assets in Resources */,
 				82E0F6FD2C0410EA00CF8481 /* main.jsbundle in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
