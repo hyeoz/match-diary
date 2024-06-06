@@ -24,7 +24,7 @@ import { MY_TEAM_KEY, TEAM_ICON_ARRAY } from '@utils/STATIC_DATA';
 import { useMyState } from '@/stores/default';
 import { palette } from '@style/palette';
 import { MoreListItemType, TeamListItemType } from '@/type/default';
-import { Arrow, Plus } from '@/assets/svg';
+import { Arrow, Plus } from '@assets/svg';
 import help1_animated from '@assets/help1_animated.gif';
 import help2_animated from '@assets/help2_animated.gif';
 import help3_animated from '@assets/help3_animated.gif';
