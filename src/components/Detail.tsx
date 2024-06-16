@@ -352,7 +352,7 @@ const polaroidStyles = StyleSheet.create({
     position: 'absolute',
     bottom: 15,
     left: 10,
-    width: '90%',
+    width: '87%',
     height: '90%',
     top: 16,
     backgroundColor: '#fff',
