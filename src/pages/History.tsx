@@ -17,6 +17,7 @@ import { palette } from '@style/palette';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTabHistory } from '@/stores/default';
+import FastImage from 'react-native-fast-image';
 
 /* DONE
   - 본인이 쓴 글 무한스크롤로 보여주는 화면 구현
@@ -79,12 +80,12 @@ function History() {
           <FlatList
             data={allImages}
             renderItem={item => (
-              <Image
+              <FastImage
                 source={{ uri: item.item.sourceURL }}
-                width={(width - 16 - 8) / 3}
-                height={(IMAGE_HEIGHT * ((width - 16 - 8) / 3)) / IMAGE_WIDTH}
                 style={{
                   margin: 2,
+                  width: (width - 16 - 8) / 3,
+                  height: (IMAGE_HEIGHT * ((width - 16 - 8) / 3)) / IMAGE_WIDTH,
                 }}
               />
             )}

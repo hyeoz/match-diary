@@ -39,6 +39,7 @@ import { palette } from '@style/palette';
 import { Add, Arrow } from '@assets/svg';
 import Loading from './Loading';
 import { PERMISSIONS, check, request } from 'react-native-permissions';
+import FastImage from 'react-native-fast-image';
 
 /* TODO
   - 로딩
@@ -240,10 +241,12 @@ export default function UploadModal({
               {image ? (
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
-                    <Image
+                    <FastImage
                       source={{ uri: image.path }} // TODO 현재 불러온 이미지 path 기준으로 보여줌 -> 원본이미지 삭제 시 뜨지않음
-                      width={width - 48}
-                      height={(IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH}
+                      style={{
+                        width: width - 48,
+                        height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
+                      }}
                     />
                   </View>
                 </TouchableOpacity>

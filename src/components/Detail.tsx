@@ -25,6 +25,7 @@ import {
   IMAGE_WIDTH,
 } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
+import FastImage from 'react-native-fast-image';
 
 const { width, height } = Dimensions.get('window');
 const formattedToday = dayjs().format(DATE_FORMAT);
@@ -51,7 +52,9 @@ export function Detail({
   const { team } = useMyState();
 
   useEffect(() => {
-    if (!myTeamMatch) return;
+    if (!myTeamMatch) {
+      return;
+    }
 
     const { homeScore, awayScore, home, away } = myTeamMatch;
 
@@ -182,14 +185,14 @@ export function Detail({
                   },
                 ]}
               />
-              <Image
+              <FastImage
                 source={{ uri: image?.sourceURL }}
-                width={isCalendar ? width * 0.6 - 32 : width * 0.7 - 16}
-                height={
-                  isCalendar
+                style={{
+                  width: isCalendar ? width * 0.6 - 32 : width * 0.7 - 16,
+                  height: isCalendar
                     ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 16
-                    : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16
-                }
+                    : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
+                }}
               />
               {!!result && myTeamMatch && (
                 <View

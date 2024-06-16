@@ -202,8 +202,9 @@ function Calendar() {
       key => key !== 'MY_TEAM',
     );
 
-    if (keys.length === matchRecord.bySeason.home + matchRecord.bySeason.away)
+    if (keys.length === matchRecord.bySeason.home + matchRecord.bySeason.away) {
       return;
+    }
 
     let _count = initCountData;
 
@@ -215,7 +216,9 @@ function Calendar() {
       );
       const data = res.data.data[0];
 
-      if (!data) return;
+      if (!data) {
+        return;
+      }
 
       if (!team) {
         // 이번 시즌 직관 기록
@@ -234,8 +237,17 @@ function Calendar() {
         }
 
         // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
-        if (!data.attributes.homeScore || !data.attributes.awayScore) return;
-        if (data.attributes.homeScore > data.attributes.awayScore) {
+        if (
+          data.attributes.homeScore === -1 ||
+          data.attributes.awayScore === -1
+        ) {
+          return;
+        }
+
+        if (
+          (data.attributes.homeScore as number) >
+          (data.attributes.awayScore as number)
+        ) {
           _count = {
             ..._count,
             rate: {
@@ -244,7 +256,10 @@ function Calendar() {
             },
           };
           _count.rate.win += 1;
-        } else if (data.attributes.homeScore < data.attributes.awayScore) {
+        } else if (
+          (data.attributes.homeScore as number) <
+          (data.attributes.awayScore as number)
+        ) {
           _count.rate.lose += 1;
         } else {
           _count.rate.draw += 1;
@@ -258,10 +273,21 @@ function Calendar() {
         }
 
         // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
-        if (!data.attributes.homeScore || !data.attributes.awayScore) return;
-        if (data.attributes.homeScore < data.attributes.awayScore) {
+        if (
+          data.attributes.homeScore === -1 ||
+          data.attributes.awayScore === -1
+        ) {
+          return;
+        }
+        if (
+          (data.attributes.homeScore as number) <
+          (data.attributes.awayScore as number)
+        ) {
           _count.rate.win += 1;
-        } else if (data.attributes.homeScore > data.attributes.awayScore) {
+        } else if (
+          (data.attributes.homeScore as number) >
+          (data.attributes.awayScore as number)
+        ) {
           _count.rate.lose += 1;
         } else {
           _count.rate.draw += 1;
