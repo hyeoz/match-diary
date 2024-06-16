@@ -7,6 +7,7 @@ import { RootStackListType } from '@/type/default';
 import { palette } from '@style/palette';
 import { useMyState } from '@stores/default';
 import splash_text from '@assets/splash_text.png';
+import FastImage from 'react-native-fast-image';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   const { team } = useMyState();
@@ -33,7 +34,7 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
           backgroundColor: palette.teamColor[defaultTeam], // 랜더스 컬러
         },
       ]}>
-      <Image source={splash_text} style={styles.logo} alt="SPLASH" />
+      <FastImage source={splash_text} style={styles.logo} />
     </View>
   );
 }

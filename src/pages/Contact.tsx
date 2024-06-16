@@ -21,6 +21,7 @@ import {
   INSTAGRAM_WEB_LINK,
 } from '@/utils/STATIC_DATA';
 import contact_cat from '@assets/contact_cat_img.webp';
+import FastImage from 'react-native-fast-image';
 
 const { width } = Dimensions.get('window');
 
@@ -72,7 +73,7 @@ function Contact() {
   return (
     <TouchableWrapper>
       <View style={styles.wrapper}>
-        <Image
+        <FastImage
           source={contact_cat}
           style={{
             position: 'absolute',

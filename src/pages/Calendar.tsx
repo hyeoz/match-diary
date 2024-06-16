@@ -198,14 +198,25 @@ function Calendar() {
 
   // NOTE 직관 기록 계산
   const getAllRecord = async () => {
+    let _count = {
+      byMonth: {
+        home: 0,
+        away: 0,
+      },
+      bySeason: {
+        home: 0,
+        away: 0,
+      },
+      rate: {
+        win: 0,
+        lose: 0,
+        draw: 0,
+      },
+    };
+
     const keys = (await AsyncStorage.getAllKeys()).filter(
       key => key !== 'MY_TEAM',
     );
-
-    if (keys.length === matchRecord.bySeason.home + matchRecord.bySeason.away)
-      return;
-
-    let _count = initCountData;
 
     for (let i = 0; i < keys.length; i++) {
       const res = await API.get<StrapiType<MatchDataType>>(
@@ -215,7 +226,9 @@ function Calendar() {
       );
       const data = res.data.data[0];
 
-      if (!data) return;
+      if (!data) {
+        return;
+      }
 
       if (!team) {
         // 이번 시즌 직관 기록
@@ -233,9 +246,10 @@ function Calendar() {
           _count.byMonth.home += 1;
         }
 
-        // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
-        if (!data.attributes.homeScore || !data.attributes.awayScore) return;
-        if (data.attributes.homeScore > data.attributes.awayScore) {
+        if (
+          (data.attributes.homeScore as number) >
+          (data.attributes.awayScore as number)
+        ) {
           _count = {
             ..._count,
             rate: {
@@ -244,7 +258,10 @@ function Calendar() {
             },
           };
           _count.rate.win += 1;
-        } else if (data.attributes.homeScore < data.attributes.awayScore) {
+        } else if (
+          (data.attributes.homeScore as number) <
+          (data.attributes.awayScore as number)
+        ) {
           _count.rate.lose += 1;
         } else {
           _count.rate.draw += 1;
@@ -257,11 +274,15 @@ function Calendar() {
           _count.byMonth.away += 1;
         }
 
-        // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
-        if (!data.attributes.homeScore || !data.attributes.awayScore) return;
-        if (data.attributes.homeScore < data.attributes.awayScore) {
+        if (
+          (data.attributes.homeScore as number) <
+          (data.attributes.awayScore as number)
+        ) {
           _count.rate.win += 1;
-        } else if (data.attributes.homeScore > data.attributes.awayScore) {
+        } else if (
+          (data.attributes.homeScore as number) >
+          (data.attributes.awayScore as number)
+        ) {
           _count.rate.lose += 1;
         } else {
           _count.rate.draw += 1;
@@ -321,6 +342,11 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
+              myTeamMatch={matches.find(
+                match =>
+                  dayjs(match.date).format(DATE_FORMAT) ===
+                  dayjs(selectedDate).format(DATE_FORMAT),
+              )}
             />
           ) : (
             <View
@@ -603,7 +629,7 @@ const styles = StyleSheet.create({
   },
   stickyNoteText: {
     fontFamily: 'UhBee Seulvely',
-    fontSize: 13,
+    fontSize: 12,
   },
 
   container: {
