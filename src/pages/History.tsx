@@ -38,17 +38,20 @@ function History() {
   }, [history]);
 
   const getAllItem = async () => {
-    const _keys = await AsyncStorage.getAllKeys();
+    const _keys = (await AsyncStorage.getAllKeys()).filter(
+      key => key !== 'MY_TEAM',
+    );
 
-    _keys.forEach(async (key: string) => {
-      const res = await AsyncStorage.getItem(key);
+    if (allImages.length === _keys.length) return;
+    const images: ImageOrVideo[] = [];
 
+    for (let i = 0; i < _keys.length; i++) {
+      const res = await AsyncStorage.getItem(_keys[i]);
       if (!res) return;
+      images.push(JSON.parse(res).image);
+    }
 
-      const _image = JSON.parse(res).image;
-
-      setAllImages(prev => [...prev, _image]);
-    });
+    setAllImages(images);
   };
 
   return (
