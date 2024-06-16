@@ -198,15 +198,11 @@ function Calendar() {
 
   // NOTE 직관 기록 계산
   const getAllRecord = async () => {
+    let _count = { ...initCountData };
+
     const keys = (await AsyncStorage.getAllKeys()).filter(
       key => key !== 'MY_TEAM',
     );
-
-    if (keys.length === matchRecord.bySeason.home + matchRecord.bySeason.away) {
-      return;
-    }
-
-    let _count = initCountData;
 
     for (let i = 0; i < keys.length; i++) {
       const res = await API.get<StrapiType<MatchDataType>>(
@@ -234,14 +230,6 @@ function Calendar() {
         // 이번 달 직관 기록
         if (dayjs(keys[i]).month() === dayjs().month()) {
           _count.byMonth.home += 1;
-        }
-
-        // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
-        if (
-          data.attributes.homeScore === -1 ||
-          data.attributes.awayScore === -1
-        ) {
-          return;
         }
 
         if (
@@ -272,13 +260,6 @@ function Calendar() {
           _count.byMonth.away += 1;
         }
 
-        // 직관 승률 (마이팀 경기가 아닌 경우 승률에는 포함되지 않습니다!)
-        if (
-          data.attributes.homeScore === -1 ||
-          data.attributes.awayScore === -1
-        ) {
-          return;
-        }
         if (
           (data.attributes.homeScore as number) <
           (data.attributes.awayScore as number)
