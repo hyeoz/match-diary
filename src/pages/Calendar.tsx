@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
   },
   stickyNoteText: {
     fontFamily: 'UhBee Seulvely',
-    fontSize: 13,
+    fontSize: 12,
   },
 
   container: {
