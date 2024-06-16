@@ -198,7 +198,21 @@ function Calendar() {
 
   // NOTE 직관 기록 계산
   const getAllRecord = async () => {
-    let _count = { ...initCountData };
+    let _count = {
+      byMonth: {
+        home: 0,
+        away: 0,
+      },
+      bySeason: {
+        home: 0,
+        away: 0,
+      },
+      rate: {
+        win: 0,
+        lose: 0,
+        draw: 0,
+      },
+    };
 
     const keys = (await AsyncStorage.getAllKeys()).filter(
       key => key !== 'MY_TEAM',
