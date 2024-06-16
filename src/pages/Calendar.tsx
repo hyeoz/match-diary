@@ -195,7 +195,7 @@ function Calendar() {
     }
     setLoading(false);
   };
-
+  console.log(matches, '????');
   // NOTE 직관 기록 계산
   const getAllRecord = async () => {
     let _count = {
@@ -342,6 +342,11 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
+              myTeamMatch={matches.find(
+                match =>
+                  dayjs(match.date).format(DATE_FORMAT) ===
+                  dayjs(selectedDate).format(DATE_FORMAT),
+              )}
             />
           ) : (
             <View
