@@ -41,16 +41,10 @@ import Loading from './Loading';
 import { PERMISSIONS, check, request } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 
-/* TODO
-  - 로딩
-  - 네이버 API 디바이스 테스트
-  - API 최적화
-*/
-
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('screen');
 const formattedToday = dayjs().format(DATE_FORMAT);
-const apiFormattedToday = dayjs().format(API_DATE_FORMAT);
+const apiFormattedToday = dayjs().format(API_DATE_FORMAT); // TODO 선택한 날짜로 들어가도록 (이전 날짜 기록 추가 기능)
 
 export default function UploadModal({
   image,
@@ -277,6 +271,7 @@ export default function UploadModal({
                   fontFamily: 'UhBee Seulvely',
                   marginTop: 8,
                 }}>
+{/*                 TODO 선택한 날짜 넣기 */}
                 {dayjs().format(DATE_FORMAT_SLASH)}
               </Text>
               <TouchableOpacity
