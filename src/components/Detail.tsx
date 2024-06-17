@@ -28,7 +28,7 @@ import { Stamp } from '@assets/svg';
 import FastImage from 'react-native-fast-image';
 
 const { width, height } = Dimensions.get('window');
-const formattedToday = dayjs().format(DATE_FORMAT);
+const formattedToday = dayjs().format(DATE_FORMAT); // TODO 오늘날짜 아니고 선택한 날짜
 
 export function Detail({
   image,
@@ -194,6 +194,7 @@ export function Detail({
                     : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
                 }}
               />
+{/*               TODO 승패태그 확인하기 (myTeamMatch 데이터 확인) */}
               {!!result && myTeamMatch && (
                 <View
                   style={{
