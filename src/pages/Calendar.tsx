@@ -33,18 +33,8 @@ import { MatchDataType } from '@/type/default';
 import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
 import Loading from '@/components/Loading';
 
-/* DONE
-  - 데이터 있는 경우 marking
-  - 데이터 있는 경우 디테일 컴포넌트 보여주기
-  - 횟수 / 마이팀 있는 경우 승률 보여주기
-  - 데이터 있는 경우 클릭 시 모달 열어서 데이터 보여주기 / 수정
-  - 데이터 없는 경우 빈 화면 보여주기
-  - 데이터 없는 경우 생성 모달 열기
-  - 직관기록 계산
-*/
-
 /* TODO
-  - 캘린더 스타일링, 로딩 구현
+  - 캘린더 스타일링
   - API 최적화
 */
 
@@ -342,6 +332,7 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
+{/*               TODO myTeamMatch 데이터 다시 확인 */}
               myTeamMatch={matches.find(
                 match =>
                   dayjs(match.date).format(DATE_FORMAT) ===
