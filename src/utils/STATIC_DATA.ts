@@ -17,7 +17,7 @@ import {
 
 const DATE_FORMAT = 'YYYY-MM-DD';
 const DATE_FORMAT_SLASH = 'YYYY/MM/DD';
-const API_DATE_FORMAT = 'MM.DD(ddd)';
+const API_DATE_FORMAT = 'YYYY.MM.DD(ddd)';
 
 const IMAGE_WIDTH = 1080;
 const IMAGE_HEIGHT = 1080;

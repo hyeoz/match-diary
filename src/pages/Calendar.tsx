@@ -332,15 +332,19 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
-{/*               TODO myTeamMatch 데이터 다시 확인 */}
-              myTeamMatch={matches.find(
-                match =>
-                  dayjs(match.date).format(DATE_FORMAT) ===
-                  dayjs(selectedDate).format(DATE_FORMAT),
-              )}
+              // TODO myTeamMatch 데이터 다시 확인
+              myTeamMatch={matches.find(match => {
+                const _date = match.date.split('(')[0].replaceAll('.', '/');
+
+                return (
+                  dayjs(_date).format(DATE_FORMAT) ===
+                  dayjs(selectedDate).format(DATE_FORMAT)
+                );
+              })}
             />
           ) : (
-            <View
+            <TouchableOpacity
+              onPress={() => setIsVisible(true)}
               style={{
                 padding: 16,
               }}>
@@ -436,10 +440,10 @@ function Calendar() {
               </View>
               <View style={[styles.shadow]} />
               <View style={styles.effect} />
-            </View>
+            </TouchableOpacity>
           )}
         </View>
-        {/* TODO 총 직관기록 / 승패 / 승률 */}
+        {/* SECTION 총 직관기록 / 승패 / 승률 */}
         <View
           style={{
             flex: 1,
@@ -500,7 +504,7 @@ function Calendar() {
         </View>
       </View>
 
-      <UploadModal {...detailProps} isVisible={isVisible} />
+      <UploadModal {...detailProps} isVisible={isVisible} date={selectedDate} />
     </TouchableWrapper>
   );
 }

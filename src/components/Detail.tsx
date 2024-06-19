@@ -188,13 +188,13 @@ export function Detail({
               <FastImage
                 source={{ uri: image?.sourceURL }}
                 style={{
-                  width: isCalendar ? width * 0.6 - 32 : width * 0.7 - 16,
+                  width: isCalendar ? width * 0.6 - 28 : width * 0.7 - 16,
                   height: isCalendar
                     ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 16
                     : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
                 }}
               />
-{/*               TODO 승패태그 확인하기 (myTeamMatch 데이터 확인) */}
+              {/* TODO 승패태그 확인하기 (myTeamMatch 데이터 확인) */}
               {!!result && myTeamMatch && (
                 <View
                   style={{
@@ -252,7 +252,9 @@ export function Detail({
                   fontSize: isCalendar ? 10 : 12,
                   marginTop: isCalendar ? 10 : 20,
                 }}>
-                {dayjs(myTeamMatch?.date).format(DATE_FORMAT_SLASH)}{' '}
+                {dayjs(
+                  myTeamMatch?.date.split('(')[0].replaceAll('.', '/'),
+                ).format('YY.MM.DD')}{' '}
                 {myTeamMatch?.home && myTeamMatch.away && (
                   <>
                     {myTeamMatch?.home}

@@ -44,7 +44,6 @@ import FastImage from 'react-native-fast-image';
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('screen');
 const formattedToday = dayjs().format(DATE_FORMAT);
-const apiFormattedToday = dayjs().format(API_DATE_FORMAT); // TODO 선택한 날짜로 들어가도록 (이전 날짜 기록 추가 기능)
 
 export default function UploadModal({
   image,
@@ -55,7 +54,8 @@ export default function UploadModal({
   setSelectedStadium,
   isVisible,
   setIsVisible,
-}: DetailPropsType & { isVisible: boolean }) {
+  date,
+}: DetailPropsType & { isVisible: boolean; date?: string }) {
   const [stadium, setStadium] = useState<string[]>([]);
   const [stadiumInfo, setStadiumInfo] = useState<
     { name: string; distance: number }[]
@@ -69,6 +69,8 @@ export default function UploadModal({
   const [longitude, setLongitude] = useState('');
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT); // TODO 선택한 날짜로 들어가도록 (이전 날짜 기록 추가 기능)
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
@@ -236,7 +238,7 @@ export default function UploadModal({
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
                     <FastImage
-                      source={{ uri: image.path }} // TODO 현재 불러온 이미지 path 기준으로 보여줌 -> 원본이미지 삭제 시 뜨지않음
+                      source={{ uri: image.path }}
                       style={{
                         width: width - 48,
                         height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
@@ -271,8 +273,8 @@ export default function UploadModal({
                   fontFamily: 'UhBee Seulvely',
                   marginTop: 8,
                 }}>
-{/*                 TODO 선택한 날짜 넣기 */}
-                {dayjs().format(DATE_FORMAT_SLASH)}
+                {/* TODO 선택한 날짜 넣기 */}
+                {dayjs(date).format(DATE_FORMAT_SLASH)}
               </Text>
               <TouchableOpacity
                 style={{
