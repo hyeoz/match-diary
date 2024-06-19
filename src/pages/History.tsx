@@ -103,6 +103,7 @@ function History() {
                 }}
               />
             )}
+            nestedScrollEnabled={true}
             numColumns={3}
           />
         ) : (
