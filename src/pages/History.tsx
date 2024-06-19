@@ -18,6 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTabHistory } from '@/stores/default';
 import FastImage from 'react-native-fast-image';
+import Loading from '@/components/Loading';
 
 /* DONE
   - 본인이 쓴 글 무한스크롤로 보여주는 화면 구현
@@ -30,6 +31,7 @@ const { width } = Dimensions.get('window');
 function History() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [allImages, setAllImages] = useState<ImageOrVideo[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const { history } = useTabHistory();
 
@@ -38,19 +40,28 @@ function History() {
   }, [history]);
 
   const getAllItem = async () => {
+    setLoading(true);
+
     const _keys = (await AsyncStorage.getAllKeys()).filter(
       key => key !== 'MY_TEAM',
     );
 
-    if (allImages.length === _keys.length) return;
+    if (allImages.length === _keys.length) {
+      setLoading(false);
+      return;
+    }
     const images: ImageOrVideo[] = [];
 
     for (let i = 0; i < _keys.length; i++) {
       const res = await AsyncStorage.getItem(_keys[i]);
-      if (!res) return;
+      if (!res) {
+        setLoading(false);
+        return;
+      }
       images.push(JSON.parse(res).image);
     }
 
+    setLoading(false);
     setAllImages(images);
   };
 
@@ -74,12 +85,12 @@ function History() {
       </View>
       <ScrollView
         style={{
-          // justifyContent: 'center',
           flex: 1,
           paddingHorizontal: 8,
-          // paddingVertical: 40,
         }}>
-        {allImages.length ? (
+        {loading ? (
+          <Loading />
+        ) : allImages.length ? (
           <FlatList
             data={allImages}
             renderItem={item => (
@@ -92,6 +103,7 @@ function History() {
                 }}
               />
             )}
+            nestedScrollEnabled={true}
             numColumns={3}
           />
         ) : (

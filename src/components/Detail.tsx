@@ -28,7 +28,7 @@ import { Stamp } from '@assets/svg';
 import FastImage from 'react-native-fast-image';
 
 const { width, height } = Dimensions.get('window');
-const formattedToday = dayjs().format(DATE_FORMAT);
+const formattedToday = dayjs().format(DATE_FORMAT); // TODO 오늘날짜 아니고 선택한 날짜
 
 export function Detail({
   image,
@@ -58,7 +58,9 @@ export function Detail({
 
     const { homeScore, awayScore, home, away } = myTeamMatch;
 
-    if (homeScore && awayScore) {
+    if (homeScore === -1 || awayScore === -1) return;
+
+    if (homeScore !== undefined && awayScore !== undefined) {
       if (home === team) {
         setResult(
           homeScore > awayScore ? 'W' : homeScore < awayScore ? 'L' : 'D',
@@ -188,7 +190,7 @@ export function Detail({
               <FastImage
                 source={{ uri: image?.sourceURL }}
                 style={{
-                  width: isCalendar ? width * 0.6 - 32 : width * 0.7 - 16,
+                  width: isCalendar ? width * 0.6 - 28 : width * 0.7 - 16,
                   height: isCalendar
                     ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 16
                     : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
@@ -251,7 +253,9 @@ export function Detail({
                   fontSize: isCalendar ? 10 : 12,
                   marginTop: isCalendar ? 10 : 20,
                 }}>
-                {dayjs(myTeamMatch?.date).format(DATE_FORMAT_SLASH)}{' '}
+                {dayjs(
+                  myTeamMatch?.date.split('(')[0].replaceAll('.', '/'),
+                ).format('YY.MM.DD')}{' '}
                 {myTeamMatch?.home && myTeamMatch.away && (
                   <>
                     {myTeamMatch?.home}

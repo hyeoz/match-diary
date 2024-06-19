@@ -41,16 +41,8 @@ import Loading from './Loading';
 import { PERMISSIONS, check, request } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 
-/* TODO
-  - 로딩
-  - 네이버 API 디바이스 테스트
-  - API 최적화
-*/
-
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('screen');
-const formattedToday = dayjs().format(DATE_FORMAT);
-const apiFormattedToday = dayjs().format(API_DATE_FORMAT);
 
 export default function UploadModal({
   image,
@@ -61,7 +53,8 @@ export default function UploadModal({
   setSelectedStadium,
   isVisible,
   setIsVisible,
-}: DetailPropsType & { isVisible: boolean }) {
+  date,
+}: DetailPropsType & { isVisible: boolean; date?: string }) {
   const [stadium, setStadium] = useState<string[]>([]);
   const [stadiumInfo, setStadiumInfo] = useState<
     { name: string; distance: number }[]
@@ -75,6 +68,9 @@ export default function UploadModal({
   const [longitude, setLongitude] = useState('');
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const formattedToday = dayjs(date).format(DATE_FORMAT);
+  const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
@@ -103,7 +99,7 @@ export default function UploadModal({
         setImage(value);
       })
       .catch(res => {
-        // console.error(res);
+        console.error(res);
       });
   };
 
@@ -242,7 +238,7 @@ export default function UploadModal({
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
                     <FastImage
-                      source={{ uri: image.path }} // TODO 현재 불러온 이미지 path 기준으로 보여줌 -> 원본이미지 삭제 시 뜨지않음
+                      source={{ uri: image.path }}
                       style={{
                         width: width - 48,
                         height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
@@ -277,7 +273,7 @@ export default function UploadModal({
                   fontFamily: 'UhBee Seulvely',
                   marginTop: 8,
                 }}>
-                {dayjs().format(DATE_FORMAT_SLASH)}
+                {dayjs(date).format(DATE_FORMAT_SLASH)}
               </Text>
               <TouchableOpacity
                 style={{

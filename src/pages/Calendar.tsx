@@ -33,18 +33,8 @@ import { MatchDataType } from '@/type/default';
 import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
 import Loading from '@/components/Loading';
 
-/* DONE
-  - 데이터 있는 경우 marking
-  - 데이터 있는 경우 디테일 컴포넌트 보여주기
-  - 횟수 / 마이팀 있는 경우 승률 보여주기
-  - 데이터 있는 경우 클릭 시 모달 열어서 데이터 보여주기 / 수정
-  - 데이터 없는 경우 빈 화면 보여주기
-  - 데이터 없는 경우 생성 모달 열기
-  - 직관기록 계산
-*/
-
 /* TODO
-  - 캘린더 스타일링, 로딩 구현
+  - 캘린더 스타일링
   - API 최적화
 */
 
@@ -104,11 +94,14 @@ function Calendar() {
   };
 
   useEffect(() => {
-    getAllItems();
-    getAllRecord();
     getSelectedItem();
     getMatchData();
   }, [history, team]);
+
+  useEffect(() => {
+    getAllItems();
+    getAllRecord();
+  }, [history, team, isVisible]);
 
   useEffect(() => {
     getMatchData();
@@ -224,7 +217,10 @@ function Calendar() {
           API_DATE_FORMAT,
         )}`,
       );
-      const data = res.data.data[0];
+
+      const data = res.data.data.find(
+        data => data.attributes.home === team || data.attributes.away === team,
+      );
 
       if (!data) {
         return;
@@ -342,14 +338,19 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
-              myTeamMatch={matches.find(
-                match =>
-                  dayjs(match.date).format(DATE_FORMAT) ===
-                  dayjs(selectedDate).format(DATE_FORMAT),
-              )}
+              // TODO myTeamMatch 데이터 다시 확인
+              myTeamMatch={matches.find(match => {
+                const _date = match.date.split('(')[0].replaceAll('.', '/');
+
+                return (
+                  dayjs(_date).format(DATE_FORMAT) ===
+                  dayjs(selectedDate).format(DATE_FORMAT)
+                );
+              })}
             />
           ) : (
-            <View
+            <TouchableOpacity
+              onPress={() => setIsVisible(true)}
               style={{
                 padding: 16,
               }}>
@@ -445,10 +446,10 @@ function Calendar() {
               </View>
               <View style={[styles.shadow]} />
               <View style={styles.effect} />
-            </View>
+            </TouchableOpacity>
           )}
         </View>
-        {/* TODO 총 직관기록 / 승패 / 승률 */}
+        {/* SECTION 총 직관기록 / 승패 / 승률 */}
         <View
           style={{
             flex: 1,
@@ -509,7 +510,7 @@ function Calendar() {
         </View>
       </View>
 
-      <UploadModal {...detailProps} isVisible={isVisible} />
+      <UploadModal {...detailProps} isVisible={isVisible} date={selectedDate} />
     </TouchableWrapper>
   );
 }
