@@ -58,7 +58,9 @@ export function Detail({
 
     const { homeScore, awayScore, home, away } = myTeamMatch;
 
-    if (homeScore && awayScore) {
+    if (homeScore === -1 || awayScore === -1) return;
+
+    if (homeScore !== undefined && awayScore !== undefined) {
       if (home === team) {
         setResult(
           homeScore > awayScore ? 'W' : homeScore < awayScore ? 'L' : 'D',
@@ -194,7 +196,6 @@ export function Detail({
                     : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
                 }}
               />
-              {/* TODO 승패태그 확인하기 (myTeamMatch 데이터 확인) */}
               {!!result && myTeamMatch && (
                 <View
                   style={{

@@ -43,7 +43,6 @@ import FastImage from 'react-native-fast-image';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('screen');
-const formattedToday = dayjs().format(DATE_FORMAT);
 
 export default function UploadModal({
   image,
@@ -70,7 +69,8 @@ export default function UploadModal({
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT); // TODO 선택한 날짜로 들어가도록 (이전 날짜 기록 추가 기능)
+  const formattedToday = dayjs(date).format(DATE_FORMAT);
+  const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
@@ -99,7 +99,7 @@ export default function UploadModal({
         setImage(value);
       })
       .catch(res => {
-        // console.error(res);
+        console.error(res);
       });
   };
 
@@ -273,7 +273,6 @@ export default function UploadModal({
                   fontFamily: 'UhBee Seulvely',
                   marginTop: 8,
                 }}>
-                {/* TODO 선택한 날짜 넣기 */}
                 {dayjs(date).format(DATE_FORMAT_SLASH)}
               </Text>
               <TouchableOpacity
