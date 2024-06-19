@@ -210,7 +210,7 @@ function Calendar() {
     const keys = (await AsyncStorage.getAllKeys()).filter(
       key => key !== 'MY_TEAM',
     );
-    console.log(keys);
+
     for (let i = 0; i < keys.length; i++) {
       const res = await API.get<StrapiType<MatchDataType>>(
         `/schedule-2024s?filters[date]=${dayjs(keys[i]).format(
@@ -235,7 +235,6 @@ function Calendar() {
         }
         return;
       } else if (team === data.attributes.home) {
-        console.log('HOME');
         // 이번 시즌 직관 기록
         _count.bySeason.home += 1;
         // 이번 달 직관 기록
@@ -264,8 +263,6 @@ function Calendar() {
           _count.rate.draw += 1;
         }
       } else {
-        console.log('AWAY');
-
         // 이번 시즌 직관 기록
         _count.bySeason.away += 1;
         // 이번 달 직관 기록
