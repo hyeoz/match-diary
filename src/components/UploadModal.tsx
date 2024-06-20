@@ -169,7 +169,6 @@ export default function UploadModal({
         await getStadiumDistance(sta, _stadiumInfo, start);
       }
     }
-
     setStadiumInfo(_stadiumInfo);
     setLoading(false);
   };
