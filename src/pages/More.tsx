@@ -137,17 +137,23 @@ function More() {
   };
 
   const onPressSave = async () => {
-    if (!selectedTeam || !currentNickname) return;
-
-    await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
-    await AsyncStorage.setItem('NICKNAME', currentNickname);
-    setTeam(selectedTeam);
-    setNickname(currentNickname);
-    Toast.show({
-      text1: '내 정보 수정이 완료되었어요!',
-      topOffset: 80,
-    });
-    setTeamModalVisible(false);
+    if (!selectedTeam || !currentNickname) {
+      Toast.show({
+        type: 'error',
+        text1: '아직 입력하지 않은 항목이 있어요!',
+        topOffset: 64,
+      });
+    } else {
+      await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
+      await AsyncStorage.setItem('NICKNAME', currentNickname);
+      setTeam(selectedTeam);
+      setNickname(currentNickname);
+      Toast.show({
+        text1: '내 정보 수정이 완료되었어요!',
+        topOffset: 80,
+      });
+      setTeamModalVisible(false);
+    }
   };
 
   return (
@@ -329,6 +335,9 @@ function More() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* NOTE root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
+        <Toast />
       </Modal>
 
       {/* SECTION 도움말 모달 */}
