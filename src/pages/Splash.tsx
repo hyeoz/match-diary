@@ -8,22 +8,46 @@ import { palette } from '@style/palette';
 import { useMyState } from '@stores/default';
 import splash_text from '@assets/splash_text.png';
 import FastImage from 'react-native-fast-image';
+import { getRandomElement } from '@/utils/helper';
+import {
+  NICKNAME_ADJECTIVE,
+  NICKNAME_NOUN,
+} from '@/utils/NICKNAME_STATIC_DATA';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
-  const { team } = useMyState();
+  const { team, setNickname } = useMyState();
   const [defaultTeam, setDefaultTeam] = useState(team);
 
   useEffect(() => {
-    getMyTeam();
-    setTimeout(() => {
-      navigation.replace('Main');
-    }, 5000);
+    const setReplace = async () =>
+      new Promise(() =>
+        setTimeout(() => {
+          navigation.replace('Main');
+        }, 3000),
+      );
+    const getAll = async () => {
+      await getMyTeam();
+      await getMyNickname();
+      await setReplace();
+    };
+    getAll();
   }, []);
 
   const getMyTeam = async () => {
     const res = await AsyncStorage.getItem('MY_TEAM');
     if (!res) return;
     setDefaultTeam(res);
+  };
+
+  const getMyNickname = async () => {
+    const res = await AsyncStorage.getItem('NICKNAME');
+
+    if (!res) {
+      const randomAdj = getRandomElement(NICKNAME_ADJECTIVE);
+      const randomNoun = getRandomElement(NICKNAME_NOUN);
+      // setNickname(`${randomAdj} ${randomNoun}`);
+      await AsyncStorage.setItem('NICKNAME', `${randomAdj} ${randomNoun}`);
+    }
   };
 
   return (

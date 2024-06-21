@@ -338,7 +338,6 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
-              // TODO myTeamMatch 데이터 다시 확인
               myTeamMatch={matches.find(match => {
                 const _date = match.date.split('(')[0].replaceAll('.', '/');
 
@@ -347,6 +346,7 @@ function Calendar() {
                   dayjs(selectedDate).format(DATE_FORMAT)
                 );
               })}
+              date={selectedDate}
             />
           ) : (
             <TouchableOpacity

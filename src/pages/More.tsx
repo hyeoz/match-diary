@@ -3,11 +3,13 @@ import {
   Alert,
   Dimensions,
   FlatList,
+  KeyboardAvoidingView,
   Linking,
   ListRenderItemInfo,
   Modal,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -34,21 +36,22 @@ const images = [help1_animated, help2_animated, help3_animated];
 
 function More() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
-  const { team, setTeam } = useMyState();
+  const { team, setTeam, nickname, setNickname } = useMyState();
   const [teamModalVisible, setTeamModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
+  const [currentNickname, setCurrentNickname] = useState('');
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [helpSnapIndex, setHelpSnapIndex] = useState(0);
 
   useEffect(() => {
-    getMyTeam();
+    getMyInfo();
   }, []);
 
   useEffect(() => {
     if (!teamModalVisible) {
       setSelectedTeam('');
     } else {
-      getMyTeam();
+      getMyInfo();
     }
   }, [teamModalVisible]);
 
@@ -59,7 +62,7 @@ function More() {
   const moreItems: MoreListItemType[] = [
     {
       key: 'MyTeam',
-      label: '마이팀 설정하기',
+      label: '내 정보 수정',
       onPressAction: () => {
         setTeamModalVisible(!teamModalVisible);
       },
@@ -106,7 +109,6 @@ function More() {
         Linking.openSettings();
       },
     },
-    // TODO 온보딩 이미지 보여주기
     {
       key: 'Help',
       label: '도움말',
@@ -116,25 +118,42 @@ function More() {
     },
   ];
 
-  const getMyTeam = async () => {
+  const getMyInfo = async () => {
+    // NOTE 닉네임 불러오기
+    const _nickname = await AsyncStorage.getItem('NICKNAME');
+
+    if (_nickname) {
+      setNickname(_nickname);
+      setCurrentNickname(_nickname);
+    }
+
+    // NOTE 마이팀 불러오기
     const _team = await AsyncStorage.getItem(MY_TEAM_KEY);
 
-    if (!_team) return;
-
-    setSelectedTeam(_team);
-    setTeam(_team);
+    if (_team) {
+      setSelectedTeam(_team);
+      setTeam(_team);
+    }
   };
 
   const onPressSave = async () => {
-    if (!selectedTeam) return;
-
-    await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
-    setTeam(selectedTeam);
-    Toast.show({
-      text1: '마이팀 설정이 완료되었어요!',
-      topOffset: 80,
-    });
-    setTeamModalVisible(false);
+    if (!selectedTeam || !currentNickname) {
+      Toast.show({
+        type: 'error',
+        text1: '아직 입력하지 않은 항목이 있어요!',
+        topOffset: 64,
+      });
+    } else {
+      await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
+      await AsyncStorage.setItem('NICKNAME', currentNickname);
+      setTeam(selectedTeam);
+      setNickname(currentNickname);
+      Toast.show({
+        text1: '내 정보 수정이 완료되었어요!',
+        topOffset: 80,
+      });
+      setTeamModalVisible(false);
+    }
   };
 
   return (
@@ -181,7 +200,7 @@ function More() {
         </View>
       </View>
 
-      {/* NOTE 마이팀 설정 모달 */}
+      {/* SECTION 내 정보 모달 */}
       <Modal visible={teamModalVisible} animationType="slide">
         <View
           style={{
@@ -196,7 +215,7 @@ function More() {
               style={{
                 borderBottomWidth: 1,
                 paddingVertical: 10,
-                marginBottom: 24,
+                marginBottom: 8,
               }}>
               <Text
                 style={{
@@ -205,11 +224,61 @@ function More() {
                   fontSize: 18,
                   fontFamily: 'KBO-Dia-Gothic-bold',
                 }}>
-                마이팀 선택하기
+                내 정보 수정
               </Text>
             </View>
 
             <View style={{ width: '100%' }}>
+              <View
+                style={{
+                  paddingVertical: 10,
+                  marginBottom: 8,
+                }}>
+                <Text
+                  style={{
+                    fontWeight: '700',
+                    fontSize: 18,
+                    fontFamily: 'KBO-Dia-Gothic-bold',
+                  }}>
+                  닉네임 설정
+                </Text>
+              </View>
+              {/* <KeyboardAvoidingView> */}
+              <TextInput
+                value={currentNickname}
+                maxLength={8}
+                onChangeText={value => {
+                  setCurrentNickname(value);
+                }}
+                style={{
+                  width: width - 48,
+                  height: 40,
+                  borderWidth: 1,
+                  borderRadius: 4,
+                  borderColor: '#888',
+                  paddingHorizontal: 10,
+                  fontFamily: 'KBO-Dia-Gothic-mediumd',
+                }}
+              />
+              {/* </KeyboardAvoidingView> */}
+            </View>
+
+            <View style={{ width: '100%' }}>
+              <View
+                style={{
+                  paddingVertical: 10,
+                  marginBottom: 8,
+                }}>
+                <Text
+                  style={{
+                    // textAlign: 'center',
+                    fontWeight: '700',
+                    fontSize: 18,
+                    fontFamily: 'KBO-Dia-Gothic-bold',
+                  }}>
+                  마이팀 설정
+                </Text>
+              </View>
               <FlatList
                 data={TEAM_ICON_ARRAY}
                 renderItem={props => (
@@ -219,7 +288,7 @@ function More() {
                     setSelectedTeam={setSelectedTeam}
                   />
                 )}
-                numColumns={3}
+                numColumns={4}
               />
             </View>
           </View>
@@ -266,36 +335,13 @@ function More() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* NOTE root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
+        <Toast />
       </Modal>
 
-      {/* NOTE 도움말 모달 */}
+      {/* SECTION 도움말 모달 */}
       <Modal visible={helpModalVisible} animationType="slide">
-        {/* <TouchableOpacity
-          onPress={() => setHelpModalVisible(false)}
-          style={{
-            width,
-            flexDirection: 'row',
-            justifyContent: 'center',
-            position: 'absolute',
-            top: 0,
-            zIndex: 999,
-          }}>
-          <Arrow
-            width={40}
-            height={40}
-            style={{
-              // width: 64,
-              // height: 64,
-              transform: [
-                {
-                  rotate: '90deg',
-                },
-              ],
-            }}
-            color={palette.greyColor.gray6}
-          />
-        </TouchableOpacity> */}
-
         <View
           style={{
             width,
@@ -429,7 +475,7 @@ function TeamListItem({
     <TouchableOpacity
       style={[
         {
-          width: (width - 48 - 24) / 3,
+          width: (width - 60 - 24) / 4,
           aspectRatio: 1 / 1,
           borderWidth: 1,
           borderColor: palette.greyColor.border,

@@ -28,7 +28,6 @@ import { Stamp } from '@assets/svg';
 import FastImage from 'react-native-fast-image';
 
 const { width, height } = Dimensions.get('window');
-const formattedToday = dayjs().format(DATE_FORMAT); // TODO 오늘날짜 아니고 선택한 날짜
 
 export function Detail({
   image,
@@ -42,7 +41,9 @@ export function Detail({
   myTeamMatch,
   isCalendar = false,
   refetch,
+  date,
 }: DetailPropsType & {
+  date?: string;
   myTeamMatch?: MatchDataType;
   isCalendar?: boolean;
   refetch?: () => void;
@@ -50,6 +51,7 @@ export function Detail({
   const shareImageRef = useRef<ViewShot>(null);
   const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
   const { team } = useMyState();
+  const formattedToday = dayjs(date).format(DATE_FORMAT);
 
   useEffect(() => {
     if (!myTeamMatch) {
@@ -248,7 +250,7 @@ export function Detail({
               )}
               <Text
                 style={{
-                  width: '100%',
+                  width: '105%',
                   fontFamily: 'UhBee Seulvely',
                   fontSize: isCalendar ? 10 : 12,
                   marginTop: isCalendar ? 10 : 20,
@@ -277,7 +279,7 @@ export function Detail({
                   fontSize: 12,
                   fontFamily: 'UhBee Seulvely',
                   lineHeight: 14,
-                  marginTop: 6,
+                  // marginTop: 6,
                 }}
                 numberOfLines={isCalendar ? 2 : undefined}>
                 {memo}
