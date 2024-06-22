@@ -1,28 +1,37 @@
-import Clipboard from '@react-native-clipboard/clipboard';
-import {
-  Animated,
-  Dimensions,
-  Image,
-  Linking,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import React, { useEffect, useRef } from 'react';
-import Toast from 'react-native-toast-message';
-import FastImage from 'react-native-fast-image';
+import React from 'react';
+import { FlatList, ListRenderItem, Text, View } from 'react-native';
 
 import TouchableWrapper from '@components/TouchableWrapper';
+
+const dummy = [
+  {
+    nickname: '혜오즈',
+    content: 'fkfkffkfkfkkfkf',
+    date: '2024.06.22 18:55',
+  },
+];
 
 function Contact() {
   return (
     <TouchableWrapper>
       <View>
-        <Text>새 기능 준비 중!</Text>
+        <FlatList
+          data={dummy}
+          renderItem={item => <ContactItems {...item} />}
+        />
       </View>
     </TouchableWrapper>
   );
 }
+
+const ContactItems = ({
+  nickname,
+}: ListRenderItem<{ nickname: string; content: string; date: string }>) => {
+  return (
+    <View>
+      <Text>{nickname}</Text>
+    </View>
+  );
+};
 
 export default Contact;
