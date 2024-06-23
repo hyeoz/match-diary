@@ -524,7 +524,7 @@ function More() {
             }}
           />
         </View>
-
+        {/* SECTION CONTACT 모달 */}
         <View
           style={{
             borderRadius: 0,
@@ -532,7 +532,7 @@ function More() {
             marginTop: -36,
             backgroundColor: palette.commonColor.greenBg,
             height: '100%',
-            paddingTop: 32,
+            paddingTop: '20%',
           }}>
           <Animated.View
             style={[
@@ -678,7 +678,7 @@ function ListItem({ item, index }: ListRenderItemInfo<MoreListItemType>) {
     </View>
   );
 }
-
+// 팀 선택 모달 아이템
 function TeamListItem({
   isSelected,
   setSelectedTeam,
@@ -716,7 +716,7 @@ function TeamListItem({
     </TouchableOpacity>
   );
 }
-
+// 도움말 리스트 아이템
 function HelpContentItem({ index }: { index: number }) {
   switch (index) {
     case 0:
