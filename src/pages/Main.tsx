@@ -8,7 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BottomTab from '@components/BottomTab';
 import Calendar from './Calendar';
 import More from './More';
-import Contact from './Contact';
+import Community from './Community';
 import Write from './Write';
 import History from './History';
 
@@ -25,12 +25,12 @@ function CalendarStackNavigator() {
   );
 }
 
-function MainContactStackNavigator() {
+function MainCommunityStackNavigator() {
   return (
     <Stack.Navigator
-      initialRouteName="Contact"
+      initialRouteName="Community"
       screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Contact" component={Contact} />
+      <Stack.Screen name="Community" component={Community} />
     </Stack.Navigator>
   );
 }
@@ -76,7 +76,7 @@ function Main() {
 
       {/* NOTE 중앙의 홈탭 클릭 시 expand */}
       <Tab.Screen name="Main" component={MainWriteStackNavigator} />
-      <Tab.Screen name="ContactTab" component={MainContactStackNavigator} />
+      <Tab.Screen name="ContactTab" component={MainCommunityStackNavigator} />
       <Tab.Screen name="HistoryTab" component={MainHistoryStackNavigator} />
 
       <Tab.Screen name="MoreTab" component={MoreStackNavigator} />

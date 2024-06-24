@@ -5,7 +5,8 @@ import {
 } from '@env';
 
 export const API = axios.create({
-  baseURL: 'https://match-diary-backend-79e304d3a79e.herokuapp.com/api',
+  // baseURL: 'https://match-diary-backend-79e304d3a79e.herokuapp.com/api',
+  baseURL: 'http://localhost:1337/api',
 });
 
 export const NAVER_API = axios.create({
@@ -21,7 +22,7 @@ export type StrapiType<T> = {
   meta: StrapiMetaType;
 };
 
-type StrapiDataType<T> = {
+export type StrapiDataType<T> = {
   attributes: T;
   id: number;
 };
