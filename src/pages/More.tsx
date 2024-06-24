@@ -28,7 +28,6 @@ import {
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
   MY_TEAM_KEY,
-  TEAM_ICON_ARRAY,
 } from '@utils/STATIC_DATA';
 import { useMyState } from '@/stores/default';
 import { palette } from '@style/palette';
@@ -39,6 +38,7 @@ import help2_animated from '@assets/help2_animated.gif';
 import help3_animated from '@assets/help3_animated.gif';
 import Clipboard from '@react-native-clipboard/clipboard';
 import contact_cat from '@assets/contact_cat_img.webp';
+import { getTeamArrayWithIcon } from '@/utils/helper';
 
 const { width, height } = Dimensions.get('window');
 const images = [help1_animated, help2_animated, help3_animated];
@@ -341,7 +341,7 @@ function More() {
                 </Text>
               </View>
               <FlatList
-                data={TEAM_ICON_ARRAY}
+                data={getTeamArrayWithIcon(48)}
                 renderItem={props => (
                   <TeamListItem
                     {...props}
@@ -524,7 +524,7 @@ function More() {
             }}
           />
         </View>
-
+        {/* SECTION CONTACT 모달 */}
         <View
           style={{
             borderRadius: 0,
@@ -532,7 +532,7 @@ function More() {
             marginTop: -36,
             backgroundColor: palette.commonColor.greenBg,
             height: '100%',
-            paddingTop: 32,
+            paddingTop: '20%',
           }}>
           <Animated.View
             style={[
@@ -678,7 +678,7 @@ function ListItem({ item, index }: ListRenderItemInfo<MoreListItemType>) {
     </View>
   );
 }
-
+// 팀 선택 모달 아이템
 function TeamListItem({
   isSelected,
   setSelectedTeam,
@@ -716,7 +716,7 @@ function TeamListItem({
     </TouchableOpacity>
   );
 }
-
+// 도움말 리스트 아이템
 function HelpContentItem({ index }: { index: number }) {
   switch (index) {
     case 0:

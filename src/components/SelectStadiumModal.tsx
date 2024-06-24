@@ -20,12 +20,14 @@ export default function SelectStadiumModal({
   selectStadium,
   setSelectedStadium,
   isLoading,
+  isCommunity = false,
 }: {
   stadiumInfo: { name: string; distance: number }[];
   setIsVisible: (value: boolean) => void;
   selectStadium?: string;
   setSelectedStadium: (value: string) => void;
   isLoading: boolean;
+  isCommunity?: boolean;
 }) {
   const [select, setSelect] = useState('');
   const sortedInfo = stadiumInfo.sort((a, b) => a.distance - b.distance);
@@ -82,6 +84,7 @@ export default function SelectStadiumModal({
               data={sortedInfo.map(info => ({
                 ...info,
                 isSelected: info.name === select,
+                isCommunity,
               }))}
               renderItem={item => (
                 <StadiumItem setSelect={value => setSelect(value)} {...item} />
@@ -124,8 +127,9 @@ function StadiumItem({
   name: string;
   distance: number;
   isSelected: boolean;
+  isCommunity: boolean;
 }> & { setSelect: (value: string) => void }) {
-  const { name, distance, isSelected } = props.item;
+  const { name, distance, isSelected, isCommunity } = props.item;
 
   return (
     <TouchableOpacity
@@ -170,13 +174,15 @@ function StadiumItem({
           {name}
         </Text>
       </View>
-      <Text
-        style={{
-          color: '#bbb',
-          fontFamily: 'KBO-Dia-Gothic-medium',
-        }}>
-        {(distance / 1000).toFixed(1)}km
-      </Text>
+      {!isCommunity && (
+        <Text
+          style={{
+            color: '#bbb',
+            fontFamily: 'KBO-Dia-Gothic-medium',
+          }}>
+          {(distance / 1000).toFixed(1)}km
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }

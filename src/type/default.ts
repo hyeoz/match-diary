@@ -57,3 +57,14 @@ export type TeamListItemType = DefaultListItemType & {
 export type MoreListItemType = DefaultListItemType & {
   onPressAction?: () => void;
 };
+
+// 커뮤니티 글 타입
+export type CommunityItemType = {
+  createdAt: string;
+  nickname: string;
+  content: string;
+  stadium: string;
+  team: string;
+  publishedAt: string;
+  updatedAt: string;
+};

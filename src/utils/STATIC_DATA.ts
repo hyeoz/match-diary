@@ -1,20 +1,3 @@
-import { renderIconSizeWithColor } from '@utils/helper';
-import { TeamListItemType } from '@/type/default';
-import { palette } from '@/style/palette';
-// @assets
-import {
-  Landers,
-  Bears,
-  Dinos,
-  Eagles,
-  Heros,
-  Lions,
-  Twins,
-  Seagull,
-  Tigers,
-  Wiz,
-} from '@assets/svg';
-
 const DATE_FORMAT = 'YYYY-MM-DD';
 const DATE_FORMAT_SLASH = 'YYYY/MM/DD';
 const API_DATE_FORMAT = 'YYYY.MM.DD(ddd)';
@@ -50,74 +33,6 @@ const DAYS_NAME_KOR = [
 ];
 
 const DAYS_NAME_KOR_SHORT = ['일', '월', '화', '수', '목', '금', '토'];
-
-const TEAM_ICON_ARRAY: TeamListItemType[] = [
-  {
-    key: 'SSG',
-    label: 'SSG 랜더스',
-    icon: renderIconSizeWithColor(
-      Landers,
-      48,
-      undefined,
-      palette.teamColor.SSG,
-    ),
-  },
-  {
-    key: 'LG',
-    label: 'LG 트윈스',
-    icon: renderIconSizeWithColor(Twins, 48, undefined, palette.teamColor.LG),
-  },
-  {
-    key: 'KT',
-    label: 'KT 위즈',
-    icon: renderIconSizeWithColor(Wiz, 48, undefined, palette.teamColor.KT),
-  },
-  {
-    key: '한화',
-    label: '한화 이글스',
-    icon: renderIconSizeWithColor(
-      Eagles,
-      48,
-      undefined,
-      palette.teamColor.한화,
-    ),
-  },
-  {
-    key: '롯데',
-    label: '롯데 자이언츠',
-    icon: renderIconSizeWithColor(
-      Seagull,
-      48,
-      undefined,
-      palette.teamColor.롯데,
-    ),
-  },
-  {
-    key: '키움',
-    label: '키움 히어로즈',
-    icon: renderIconSizeWithColor(Heros, 48, undefined, palette.teamColor.키움),
-  },
-  {
-    key: 'NC',
-    label: 'NC 다이노스',
-    icon: renderIconSizeWithColor(Dinos, 48, undefined, palette.teamColor.NC),
-  },
-  {
-    key: 'KIA',
-    label: '기아 타이거즈',
-    icon: renderIconSizeWithColor(Tigers, 48, undefined, palette.teamColor.KIA),
-  },
-  {
-    key: '삼성',
-    label: '삼성 라이온즈',
-    icon: renderIconSizeWithColor(Lions, 48, undefined, palette.teamColor.삼성),
-  },
-  {
-    key: '두산',
-    label: '두산 베어스',
-    icon: renderIconSizeWithColor(Bears, 48, undefined, palette.teamColor.두산),
-  },
-];
 
 const STADIUM_SHORT_NAME: { [key: string]: string } = {
   LG: '잠실',
@@ -210,6 +125,5 @@ export {
   STADIUM_SHORT_TO_LONG,
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
-  TEAM_ICON_ARRAY,
   EMAIL_LINK,
 };

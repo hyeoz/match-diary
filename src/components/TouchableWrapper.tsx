@@ -1,7 +1,10 @@
+import React from 'react';
 import {
+  Dimensions,
   SafeAreaView,
   StyleSheet,
-  TouchableWithoutFeedback,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { useBottomTabState } from '@stores/default';
@@ -15,10 +18,7 @@ function TouchableWrapper({
 }) {
   const { isOpen, update } = useBottomTabState();
   return (
-    <TouchableWithoutFeedback
-      onPress={() => isOpen && update()}
-      // style={styles.wrapper}
-    >
+    <View style={{ flex: 1 }}>
       <SafeAreaView
         style={[
           styles.pageWrapper,
@@ -27,8 +27,22 @@ function TouchableWrapper({
           },
         ]}>
         {children}
+        {isOpen && (
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              top: 0,
+              left: 0,
+            }}
+            onPress={() => {
+              isOpen && update();
+            }}
+          />
+        )}
       </SafeAreaView>
-    </TouchableWithoutFeedback>
+    </View>
   );
 }
 

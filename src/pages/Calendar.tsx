@@ -208,9 +208,8 @@ function Calendar() {
     };
 
     const keys = (await AsyncStorage.getAllKeys()).filter(
-      key => key !== 'MY_TEAM',
+      key => key !== 'MY_TEAM' && key !== 'NICKNAME',
     );
-
     for (let i = 0; i < keys.length; i++) {
       const res = await API.get<StrapiType<MatchDataType>>(
         `/schedule-2024s?filters[date]=${dayjs(keys[i]).format(
@@ -219,7 +218,7 @@ function Calendar() {
       );
 
       const data = res.data.data.find(
-        data => data.attributes.home === team || data.attributes.away === team,
+        dt => dt.attributes.home === team || dt.attributes.away === team,
       );
 
       if (!data) {
@@ -235,24 +234,18 @@ function Calendar() {
         }
         return;
       } else if (team === data.attributes.home) {
+        // NOTE 홈경기
         // 이번 시즌 직관 기록
         _count.bySeason.home += 1;
         // 이번 달 직관 기록
         if (dayjs(keys[i]).month() === dayjs().month()) {
           _count.byMonth.home += 1;
         }
-
+        // 직관 승률
         if (
           (data.attributes.homeScore as number) >
           (data.attributes.awayScore as number)
         ) {
-          _count = {
-            ..._count,
-            rate: {
-              ..._count.rate,
-              win: _count.rate.win + 1,
-            },
-          };
           _count.rate.win += 1;
         } else if (
           (data.attributes.homeScore as number) <
@@ -263,13 +256,14 @@ function Calendar() {
           _count.rate.draw += 1;
         }
       } else {
+        // NOTE 원정경기
         // 이번 시즌 직관 기록
         _count.bySeason.away += 1;
         // 이번 달 직관 기록
         if (dayjs(keys[i]).month() === dayjs().month()) {
           _count.byMonth.away += 1;
         }
-
+        // 직관 승률
         if (
           (data.attributes.homeScore as number) <
           (data.attributes.awayScore as number)
