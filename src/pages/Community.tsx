@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Dimensions,
   FlatList,
   ListRenderItemInfo,
   Modal,
@@ -10,9 +9,12 @@ import {
   View,
 } from 'react-native';
 import dayjs from 'dayjs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import SelectStadiumModal from '@/components/SelectStadiumModal';
+import Loading from '@/components/Loading';
 import { Arrow } from '@assets/svg';
 import { DATE_FORMAT, STADIUM_SHORT_TO_LONG } from '@/utils/STATIC_DATA';
 import { palette } from '@/style/palette';
@@ -20,11 +22,7 @@ import { CommunityItemType } from '@/type/default';
 import { API, StrapiDataType, StrapiType } from '@/api';
 import { getTeamArrayWithIcon } from '@/utils/helper';
 import { modalStyles } from '@/style/common';
-import Toast from 'react-native-toast-message';
 import { useMyState } from '@/stores/default';
-import { REACT_APP_HEROKU_API_KEY } from '@env';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Loading from '@/components/Loading';
 
 function Community() {
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
@@ -38,38 +36,50 @@ function Community() {
   const [memo, setMemo] = useState('');
   const [loading, setLoading] = useState(true);
 
-  const { nickname, team } = useMyState();
+  const { team } = useMyState();
 
   useEffect(() => {
     setAllItems([]);
     setPage(1);
     setIsReached(false);
+    getCommunityAllItems(1); // 초기화 후 첫 페이지 데이터 가져오기
   }, [selectedStadium]);
 
-  const getCommunityAllItems = useCallback(async () => {
-    setLoading(true);
-    const _stadium = Object.keys(STADIUM_SHORT_TO_LONG).find(
-      sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
-    );
-    const res = await API.get<StrapiType<CommunityItemType>>(
-      `/communities?filters[stadium]=${_stadium}&pagination[page]=${page}&pagination[pageSize]=10`,
-    );
+  const getCommunityAllItems = useCallback(
+    async (pageToLoad = page) => {
+      setLoading(true);
 
-    if (!res.data.data.length) {
-      setIsReached(true);
-      setPage(page - 1);
-      setLoading(false);
+      if (isReached) {
+        setLoading(false);
+        return;
+      }
 
-      return;
-    }
-    setAllItems(prev => {
-      const _data = [...prev, ...res.data.data];
-      return _data.filter(
-        (data, index) => _data.map(d => d.id).lastIndexOf(data.id) === index,
+      const _stadium = Object.keys(STADIUM_SHORT_TO_LONG).find(
+        sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
       );
-    });
-    setLoading(false);
-  }, [selectedStadium, page]);
+
+      const res = await API.get<StrapiType<CommunityItemType>>(
+        `/communities?filters[stadium]=${_stadium}&pagination[page]=${pageToLoad}&pagination[pageSize]=10&sort[createdAt]=desc`,
+      );
+
+      if (!res.data.data.length) {
+        setIsReached(true);
+        setPage(prev => Math.max(prev - 1, 1));
+      } else {
+        setAllItems(prev => {
+          const _data = [...prev, ...res.data.data];
+          return _data.filter(
+            (data, index) =>
+              _data.map(d => d.id).lastIndexOf(data.id) === index,
+          );
+        });
+        setPage(prev => prev + 1);
+      }
+
+      setLoading(false);
+    },
+    [selectedStadium, isReached],
+  );
 
   const onSave = async () => {
     if (!memo.length) {
@@ -77,7 +87,9 @@ function Community() {
         text1: '게시할 내용을 먼저 작성해주세요!',
         type: 'error',
       });
+      return;
     }
+
     const _nick = await AsyncStorage.getItem('NICKNAME');
 
     await API.post(
@@ -96,15 +108,15 @@ function Community() {
 
     setMemo('');
     setContentVisible(false);
-    getCommunityAllItems();
+    setPage(1);
+    setIsReached(false);
+    setAllItems([]);
+    getCommunityAllItems(1);
   };
 
   useEffect(() => {
-    if (isReached) {
-      return;
-    }
     getCommunityAllItems();
-  }, [getCommunityAllItems, isReached, selectedStadium]);
+  }, [getCommunityAllItems]);
 
   return (
     <TouchableWrapper>
