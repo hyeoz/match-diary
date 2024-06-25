@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Alert,
   Dimensions,
   FlatList,
-  ListRenderItem,
   ListRenderItemInfo,
   Text,
   TouchableOpacity,
@@ -14,16 +12,11 @@ import dayjs from 'dayjs';
 import TouchableWrapper from '@components/TouchableWrapper';
 import SelectStadiumModal from '@/components/SelectStadiumModal';
 import { Arrow } from '@assets/svg';
-import {
-  API_DATE_FORMAT,
-  DATE_FORMAT,
-  STADIUM_SHORT_TO_LONG,
-} from '@/utils/STATIC_DATA';
+import { DATE_FORMAT, STADIUM_SHORT_TO_LONG } from '@/utils/STATIC_DATA';
 import { palette } from '@/style/palette';
 import { CommunityItemType } from '@/type/default';
 import { API, StrapiDataType, StrapiType } from '@/api';
 import { getTeamArrayWithIcon } from '@/utils/helper';
-import Loading from '@/components/Loading';
 
 const { height } = Dimensions.get('window');
 
@@ -51,6 +44,7 @@ function Community() {
   }, [selectedStadium]);
 
   const getCommunityAllItems = useCallback(async () => {
+    setLoading(true);
     const _stadium = Object.keys(STADIUM_SHORT_TO_LONG).find(
       sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
     );
@@ -58,17 +52,21 @@ function Community() {
       `/communities?filters[stadium]=${_stadium}&pagination[page]=${page}&pagination[pageSize]=10`,
     );
 
-    if (!res.data.data) {
+    if (!res.data.data.length) {
       setIsReached(true);
+      setPage(page - 1);
+      setLoading(false);
       return;
     }
-    setAllItems(prev => [...prev, ...res.data.data]);
+    setAllItems(prev => {
+      const _data = [...prev, ...res.data.data];
+      return _data.filter(
+        (data, index) => _data.map(d => d.id).lastIndexOf(data.id) === index,
+      );
+    });
+    setLoading(false);
   }, [selectedStadium, page]);
 
-  const renderFooter = () => {
-    if (!loading) return null;
-    return <Loading />;
-  };
   useEffect(() => {
     if (isReached) {
       return;
@@ -153,13 +151,11 @@ function Community() {
               data={allItems}
               renderItem={item => <CommunityItems {...item} />}
               keyExtractor={item => item.id.toString()}
-              ListFooterComponent={renderFooter}
               onEndReached={() => {
-                console.log('end reached');
+                if (isReached) return;
                 setPage(page + 1);
-                Alert.alert(String(isReached));
               }}
-              onEndReachedThreshold={0.1}
+              onEndReachedThreshold={0.5}
               style={{
                 marginBottom: 120,
               }}
@@ -267,7 +263,8 @@ const CommunityItems = ({
         style={{
           fontFamily: 'KBO-Dia-Gothic-light',
         }}>
-        {item.attributes.content}
+        {/* {item.attributes.content} */}
+        {item.id}
       </Text>
     </View>
   );
