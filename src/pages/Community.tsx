@@ -3,7 +3,9 @@ import {
   Dimensions,
   FlatList,
   ListRenderItemInfo,
+  Modal,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -17,28 +19,29 @@ import { palette } from '@/style/palette';
 import { CommunityItemType } from '@/type/default';
 import { API, StrapiDataType, StrapiType } from '@/api';
 import { getTeamArrayWithIcon } from '@/utils/helper';
-
-const { height } = Dimensions.get('window');
+import { modalStyles } from '@/style/common';
+import Toast from 'react-native-toast-message';
+import { useMyState } from '@/stores/default';
+import { REACT_APP_HEROKU_API_KEY } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Loading from '@/components/Loading';
 
 function Community() {
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [selectedStadium, setSelectedStadium] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [stadiumInfo, setStadiumInfo] = useState<
-    { name: string; distance: number }[]
-  >(
-    Object.values(STADIUM_SHORT_TO_LONG).map(stadium => ({
-      name: stadium,
-      distance: 0,
-    })),
-  );
   const [allItems, setAllItems] = useState<StrapiDataType<CommunityItemType>[]>(
     [],
   );
   const [page, setPage] = useState(1);
   const [isReached, setIsReached] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
+  const [memo, setMemo] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const { nickname, team } = useMyState();
 
   useEffect(() => {
+    setAllItems([]);
     setPage(1);
     setIsReached(false);
   }, [selectedStadium]);
@@ -56,6 +59,7 @@ function Community() {
       setIsReached(true);
       setPage(page - 1);
       setLoading(false);
+
       return;
     }
     setAllItems(prev => {
@@ -66,6 +70,34 @@ function Community() {
     });
     setLoading(false);
   }, [selectedStadium, page]);
+
+  const onSave = async () => {
+    if (!memo.length) {
+      Toast.show({
+        text1: '게시할 내용을 먼저 작성해주세요!',
+        type: 'error',
+      });
+    }
+    const _nick = await AsyncStorage.getItem('NICKNAME');
+
+    await API.post(
+      '/communities',
+      JSON.stringify({
+        data: {
+          nickname: _nick,
+          team,
+          content: memo,
+          stadium: Object.keys(STADIUM_SHORT_TO_LONG).find(
+            sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
+          ),
+        },
+      }),
+    );
+
+    setMemo('');
+    setContentVisible(false);
+    getCommunityAllItems();
+  };
 
   useEffect(() => {
     if (isReached) {
@@ -106,6 +138,7 @@ function Community() {
                 if (!selectedStadium.length) {
                   return;
                 }
+                setContentVisible(true);
               }}>
               <Text
                 style={{
@@ -144,7 +177,9 @@ function Community() {
           <Arrow width={16} height={16} color={'#666'} />
         </TouchableOpacity>
 
-        {selectedStadium.length ? (
+        {loading ? (
+          <Loading />
+        ) : selectedStadium.length ? (
           allItems.length ? (
             <FlatList
               showsVerticalScrollIndicator={false}
@@ -188,7 +223,10 @@ function Community() {
 
       {stadiumSelectVisible ? (
         <SelectStadiumModal
-          stadiumInfo={stadiumInfo}
+          stadiumInfo={Object.values(STADIUM_SHORT_TO_LONG).map(stadium => ({
+            name: stadium,
+            distance: 0,
+          }))}
           setIsVisible={value => setStadiumSelectVisible(value)}
           selectStadium={selectedStadium}
           setSelectedStadium={value => setSelectedStadium(value)}
@@ -198,6 +236,79 @@ function Community() {
       ) : (
         <></>
       )}
+
+      <Modal visible={contentVisible} animationType="slide">
+        <View style={modalStyles.wrapper}>
+          <View
+            style={{
+              borderBottomWidth: 1,
+              paddingBottom: 10,
+            }}>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontWeight: '700',
+                fontSize: 18,
+                fontFamily: 'KBO-Dia-Gothic-bold',
+                color: '#000',
+              }}>
+              업로드
+            </Text>
+          </View>
+
+          <View
+            style={{
+              marginTop: 32,
+            }}>
+            <TextInput
+              multiline
+              value={memo}
+              onChangeText={value => {
+                setMemo(value);
+              }}
+              placeholder={`공유하고 싶은 내용을 작성해주세요!\n수정 및 삭제가 불가하니, 신중히 작성해주세요 ;)`}
+              style={modalStyles.input}
+            />
+          </View>
+          <View style={modalStyles.buttonWrapper}>
+            <TouchableOpacity
+              onPress={() => setContentVisible(false)}
+              style={[
+                modalStyles.button,
+                {
+                  borderWidth: 1,
+                  borderColor: palette.greyColor.border,
+                },
+              ]}>
+              <View>
+                <Text style={modalStyles.buttonText}>취소하기</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onSave}
+              style={[
+                modalStyles.button,
+                {
+                  backgroundColor: palette.commonColor.green,
+                },
+              ]}>
+              <View>
+                <Text
+                  style={[
+                    modalStyles.buttonText,
+                    {
+                      color: '#fff',
+                    },
+                  ]}>
+                  게시하기
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <Toast />
+      </Modal>
     </TouchableWrapper>
   );
 }
@@ -263,8 +374,8 @@ const CommunityItems = ({
         style={{
           fontFamily: 'KBO-Dia-Gothic-light',
         }}>
-        {/* {item.attributes.content} */}
-        {item.id}
+        {item.attributes.content}
+        {/* {item.id} */}
       </Text>
     </View>
   );
