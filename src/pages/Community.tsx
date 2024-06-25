@@ -1,80 +1,122 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Alert,
-  Dimensions,
   FlatList,
-  ListRenderItem,
   ListRenderItemInfo,
+  Modal,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import dayjs from 'dayjs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import SelectStadiumModal from '@/components/SelectStadiumModal';
+import Loading from '@/components/Loading';
 import { Arrow } from '@assets/svg';
-import {
-  API_DATE_FORMAT,
-  DATE_FORMAT,
-  STADIUM_SHORT_TO_LONG,
-} from '@/utils/STATIC_DATA';
+import { DATE_FORMAT, STADIUM_SHORT_TO_LONG } from '@/utils/STATIC_DATA';
 import { palette } from '@/style/palette';
 import { CommunityItemType } from '@/type/default';
 import { API, StrapiDataType, StrapiType } from '@/api';
 import { getTeamArrayWithIcon } from '@/utils/helper';
-import Loading from '@/components/Loading';
-
-const { height } = Dimensions.get('window');
+import { modalStyles } from '@/style/common';
+import { useMyState } from '@/stores/default';
 
 function Community() {
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [selectedStadium, setSelectedStadium] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [stadiumInfo, setStadiumInfo] = useState<
-    { name: string; distance: number }[]
-  >(
-    Object.values(STADIUM_SHORT_TO_LONG).map(stadium => ({
-      name: stadium,
-      distance: 0,
-    })),
-  );
   const [allItems, setAllItems] = useState<StrapiDataType<CommunityItemType>[]>(
     [],
   );
   const [page, setPage] = useState(1);
   const [isReached, setIsReached] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
+  const [memo, setMemo] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const { team } = useMyState();
 
   useEffect(() => {
+    setAllItems([]);
     setPage(1);
     setIsReached(false);
+    getCommunityAllItems(1); // 초기화 후 첫 페이지 데이터 가져오기
   }, [selectedStadium]);
 
-  const getCommunityAllItems = useCallback(async () => {
-    const _stadium = Object.keys(STADIUM_SHORT_TO_LONG).find(
-      sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
-    );
-    const res = await API.get<StrapiType<CommunityItemType>>(
-      `/communities?filters[stadium]=${_stadium}&pagination[page]=${page}&pagination[pageSize]=10`,
-    );
+  const getCommunityAllItems = useCallback(
+    async (pageToLoad = page) => {
+      setLoading(true);
 
-    if (!res.data.data) {
-      setIsReached(true);
+      if (isReached) {
+        setLoading(false);
+        return;
+      }
+
+      const _stadium = Object.keys(STADIUM_SHORT_TO_LONG).find(
+        sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
+      );
+
+      const res = await API.get<StrapiType<CommunityItemType>>(
+        `/communities?filters[stadium]=${_stadium}&pagination[page]=${pageToLoad}&pagination[pageSize]=10&sort[createdAt]=desc`,
+      );
+
+      if (!res.data.data.length) {
+        setIsReached(true);
+        setPage(prev => Math.max(prev - 1, 1));
+      } else {
+        setAllItems(prev => {
+          const _data = [...prev, ...res.data.data];
+          return _data.filter(
+            (data, index) =>
+              _data.map(d => d.id).lastIndexOf(data.id) === index,
+          );
+        });
+        setPage(prev => prev + 1);
+      }
+
+      setLoading(false);
+    },
+    [selectedStadium, isReached],
+  );
+
+  const onSave = async () => {
+    if (!memo.length) {
+      Toast.show({
+        text1: '게시할 내용을 먼저 작성해주세요!',
+        type: 'error',
+      });
       return;
     }
-    setAllItems(prev => [...prev, ...res.data.data]);
-  }, [selectedStadium, page]);
 
-  const renderFooter = () => {
-    if (!loading) return null;
-    return <Loading />;
+    const _nick = await AsyncStorage.getItem('NICKNAME');
+
+    await API.post(
+      '/communities',
+      JSON.stringify({
+        data: {
+          nickname: _nick,
+          team,
+          content: memo,
+          stadium: Object.keys(STADIUM_SHORT_TO_LONG).find(
+            sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
+          ),
+        },
+      }),
+    );
+
+    setMemo('');
+    setContentVisible(false);
+    setPage(1);
+    setIsReached(false);
+    setAllItems([]);
+    getCommunityAllItems(1);
   };
+
   useEffect(() => {
-    if (isReached) {
-      return;
-    }
     getCommunityAllItems();
-  }, [getCommunityAllItems, isReached, selectedStadium]);
+  }, [getCommunityAllItems]);
 
   return (
     <TouchableWrapper>
@@ -108,6 +150,7 @@ function Community() {
                 if (!selectedStadium.length) {
                   return;
                 }
+                setContentVisible(true);
               }}>
               <Text
                 style={{
@@ -146,20 +189,20 @@ function Community() {
           <Arrow width={16} height={16} color={'#666'} />
         </TouchableOpacity>
 
-        {selectedStadium.length ? (
+        {loading ? (
+          <Loading />
+        ) : selectedStadium.length ? (
           allItems.length ? (
             <FlatList
               showsVerticalScrollIndicator={false}
               data={allItems}
               renderItem={item => <CommunityItems {...item} />}
               keyExtractor={item => item.id.toString()}
-              ListFooterComponent={renderFooter}
               onEndReached={() => {
-                console.log('end reached');
+                if (isReached) return;
                 setPage(page + 1);
-                Alert.alert(String(isReached));
               }}
-              onEndReachedThreshold={0.1}
+              onEndReachedThreshold={0.5}
               style={{
                 marginBottom: 120,
               }}
@@ -192,7 +235,10 @@ function Community() {
 
       {stadiumSelectVisible ? (
         <SelectStadiumModal
-          stadiumInfo={stadiumInfo}
+          stadiumInfo={Object.values(STADIUM_SHORT_TO_LONG).map(stadium => ({
+            name: stadium,
+            distance: 0,
+          }))}
           setIsVisible={value => setStadiumSelectVisible(value)}
           selectStadium={selectedStadium}
           setSelectedStadium={value => setSelectedStadium(value)}
@@ -202,6 +248,79 @@ function Community() {
       ) : (
         <></>
       )}
+
+      <Modal visible={contentVisible} animationType="slide">
+        <View style={modalStyles.wrapper}>
+          <View
+            style={{
+              borderBottomWidth: 1,
+              paddingBottom: 10,
+            }}>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontWeight: '700',
+                fontSize: 18,
+                fontFamily: 'KBO-Dia-Gothic-bold',
+                color: '#000',
+              }}>
+              업로드
+            </Text>
+          </View>
+
+          <View
+            style={{
+              marginTop: 32,
+            }}>
+            <TextInput
+              multiline
+              value={memo}
+              onChangeText={value => {
+                setMemo(value);
+              }}
+              placeholder={`공유하고 싶은 내용을 작성해주세요!\n수정 및 삭제가 불가하니, 신중히 작성해주세요 ;)`}
+              style={modalStyles.input}
+            />
+          </View>
+          <View style={modalStyles.buttonWrapper}>
+            <TouchableOpacity
+              onPress={() => setContentVisible(false)}
+              style={[
+                modalStyles.button,
+                {
+                  borderWidth: 1,
+                  borderColor: palette.greyColor.border,
+                },
+              ]}>
+              <View>
+                <Text style={modalStyles.buttonText}>취소하기</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onSave}
+              style={[
+                modalStyles.button,
+                {
+                  backgroundColor: palette.commonColor.green,
+                },
+              ]}>
+              <View>
+                <Text
+                  style={[
+                    modalStyles.buttonText,
+                    {
+                      color: '#fff',
+                    },
+                  ]}>
+                  게시하기
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <Toast />
+      </Modal>
     </TouchableWrapper>
   );
 }
@@ -268,6 +387,7 @@ const CommunityItems = ({
           fontFamily: 'KBO-Dia-Gothic-light',
         }}>
         {item.attributes.content}
+        {/* {item.id} */}
       </Text>
     </View>
   );
