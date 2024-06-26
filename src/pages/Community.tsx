@@ -3,6 +3,7 @@ import {
   FlatList,
   ListRenderItemInfo,
   Modal,
+  RefreshControl,
   Text,
   TextInput,
   TouchableOpacity,
@@ -15,14 +16,14 @@ import Toast from 'react-native-toast-message';
 import TouchableWrapper from '@components/TouchableWrapper';
 import SelectStadiumModal from '@/components/SelectStadiumModal';
 import Loading from '@/components/Loading';
-import { Arrow } from '@assets/svg';
-import { DATE_FORMAT, STADIUM_SHORT_TO_LONG } from '@/utils/STATIC_DATA';
-import { palette } from '@/style/palette';
-import { CommunityItemType } from '@/type/default';
 import { API, StrapiDataType, StrapiType } from '@/api';
+import { CommunityItemType } from '@/type/default';
 import { getTeamArrayWithIcon } from '@/utils/helper';
-import { modalStyles } from '@/style/common';
+import { DATE_FORMAT, STADIUM_SHORT_TO_LONG } from '@/utils/STATIC_DATA';
 import { useMyState } from '@/stores/default';
+import { palette } from '@/style/palette';
+import { modalStyles } from '@/style/common';
+import { Arrow } from '@assets/svg';
 
 function Community() {
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
@@ -35,6 +36,7 @@ function Community() {
   const [contentVisible, setContentVisible] = useState(false);
   const [memo, setMemo] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const { team } = useMyState();
 
@@ -42,20 +44,24 @@ function Community() {
     setAllItems([]);
     setPage(1);
     setIsReached(false);
-    getCommunityAllItems(1);
+    getCommunityAllItems(1, selectedStadium, false);
   }, [selectedStadium]);
 
   const getCommunityAllItems = useCallback(
-    async (pageToLoad = page) => {
+    async (
+      pageToLoad = page,
+      stadium = selectedStadium,
+      reached = isReached,
+    ) => {
       setLoading(true);
 
-      if (isReached) {
+      if (reached) {
         setLoading(false);
         return;
       }
 
       const _stadium = Object.keys(STADIUM_SHORT_TO_LONG).find(
-        sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
+        sta => STADIUM_SHORT_TO_LONG[sta] === stadium,
       );
 
       try {
@@ -65,6 +71,9 @@ function Community() {
 
         if (!res.data.data.length) {
           setIsReached(true);
+        } else if (page === 1) {
+          setAllItems(res.data.data);
+          setPage(prev => prev + 1);
         } else {
           setAllItems([...allItems, ...res.data.data]);
           setPage(prev => prev + 1);
@@ -122,6 +131,14 @@ function Community() {
       });
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    setPage(1);
+    setIsReached(false);
+    await getCommunityAllItems(1);
+    setRefreshing(false);
+  }, [getCommunityAllItems]);
 
   return (
     <TouchableWrapper>
@@ -208,6 +225,9 @@ function Community() {
                 getCommunityAllItems();
               }}
               onEndReachedThreshold={0.5}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
               style={{
                 marginBottom: 120,
               }}
