@@ -41,9 +41,9 @@ function Community() {
   const { team } = useMyState();
 
   useEffect(() => {
-    setAllItems([]);
     setPage(1);
     setIsReached(false);
+    setAllItems([]);
     getCommunityAllItems(1, selectedStadium, false);
   }, [selectedStadium]);
 
@@ -71,16 +71,22 @@ function Community() {
 
         if (!res.data.data.length) {
           setIsReached(true);
-        } else if (page === 1) {
-          setAllItems(res.data.data);
+        } else if (pageToLoad === 1) {
+          setAllItems([...res.data.data]);
           setPage(prev => prev + 1);
         } else {
-          setAllItems([...allItems, ...res.data.data]);
+          const tempData = [...allItems, ...res.data.data];
+          setAllItems(
+            tempData.filter(
+              (item, index) =>
+                tempData.map(value => value.id).lastIndexOf(item.id) === index,
+            ),
+          );
           setPage(prev => prev + 1);
         }
       } catch (error) {
         Toast.show({
-          text1: '잠시 후다시 시도해주세요.',
+          text1: '잠시 후 다시 시도해주세요.',
           type: 'error',
         });
       } finally {
@@ -118,10 +124,7 @@ function Community() {
 
       setMemo('');
       setContentVisible(false);
-      setPage(1);
-      setIsReached(false);
-      setAllItems([]);
-      getCommunityAllItems(1);
+      await onRefresh();
     } catch (error) {
       Toast.show({
         text1:
@@ -136,7 +139,7 @@ function Community() {
     setRefreshing(true);
     setPage(1);
     setIsReached(false);
-    await getCommunityAllItems(1);
+    await getCommunityAllItems(1, selectedStadium, false);
     setRefreshing(false);
   }, [getCommunityAllItems]);
 
