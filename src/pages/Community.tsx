@@ -3,6 +3,7 @@ import {
   FlatList,
   ListRenderItemInfo,
   Modal,
+  RefreshControl,
   Text,
   TextInput,
   TouchableOpacity,
@@ -15,14 +16,14 @@ import Toast from 'react-native-toast-message';
 import TouchableWrapper from '@components/TouchableWrapper';
 import SelectStadiumModal from '@/components/SelectStadiumModal';
 import Loading from '@/components/Loading';
-import { Arrow } from '@assets/svg';
-import { DATE_FORMAT, STADIUM_SHORT_TO_LONG } from '@/utils/STATIC_DATA';
-import { palette } from '@/style/palette';
-import { CommunityItemType } from '@/type/default';
 import { API, StrapiDataType, StrapiType } from '@/api';
+import { CommunityItemType } from '@/type/default';
 import { getTeamArrayWithIcon } from '@/utils/helper';
-import { modalStyles } from '@/style/common';
+import { DATE_FORMAT, STADIUM_SHORT_TO_LONG } from '@/utils/STATIC_DATA';
 import { useMyState } from '@/stores/default';
+import { palette } from '@/style/palette';
+import { modalStyles } from '@/style/common';
+import { Arrow } from '@assets/svg';
 
 function Community() {
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
@@ -35,6 +36,7 @@ function Community() {
   const [contentVisible, setContentVisible] = useState(false);
   const [memo, setMemo] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const { team } = useMyState();
 
@@ -42,43 +44,50 @@ function Community() {
     setAllItems([]);
     setPage(1);
     setIsReached(false);
-    getCommunityAllItems(1); // 초기화 후 첫 페이지 데이터 가져오기
+    getCommunityAllItems(1, selectedStadium, false);
   }, [selectedStadium]);
 
   const getCommunityAllItems = useCallback(
-    async (pageToLoad = page) => {
+    async (
+      pageToLoad = page,
+      stadium = selectedStadium,
+      reached = isReached,
+    ) => {
       setLoading(true);
 
-      if (isReached) {
+      if (reached) {
         setLoading(false);
         return;
       }
 
       const _stadium = Object.keys(STADIUM_SHORT_TO_LONG).find(
-        sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
+        sta => STADIUM_SHORT_TO_LONG[sta] === stadium,
       );
 
-      const res = await API.get<StrapiType<CommunityItemType>>(
-        `/communities?filters[stadium]=${_stadium}&pagination[page]=${pageToLoad}&pagination[pageSize]=10&sort[createdAt]=desc`,
-      );
+      try {
+        const res = await API.get<StrapiType<CommunityItemType>>(
+          `/communities?filters[stadium]=${_stadium}&pagination[page]=${pageToLoad}&pagination[pageSize]=10&sort[createdAt]=desc`,
+        );
 
-      if (!res.data.data.length) {
-        setIsReached(true);
-        setPage(prev => Math.max(prev - 1, 1));
-      } else {
-        setAllItems(prev => {
-          const _data = [...prev, ...res.data.data];
-          return _data.filter(
-            (data, index) =>
-              _data.map(d => d.id).lastIndexOf(data.id) === index,
-          );
+        if (!res.data.data.length) {
+          setIsReached(true);
+        } else if (page === 1) {
+          setAllItems(res.data.data);
+          setPage(prev => prev + 1);
+        } else {
+          setAllItems([...allItems, ...res.data.data]);
+          setPage(prev => prev + 1);
+        }
+      } catch (error) {
+        Toast.show({
+          text1: '잠시 후다시 시도해주세요.',
+          type: 'error',
         });
-        setPage(prev => prev + 1);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     },
-    [selectedStadium, isReached],
+    [selectedStadium, isReached, allItems, page],
   );
 
   const onSave = async () => {
@@ -92,30 +101,43 @@ function Community() {
 
     const _nick = await AsyncStorage.getItem('NICKNAME');
 
-    await API.post(
-      '/communities',
-      JSON.stringify({
-        data: {
-          nickname: _nick,
-          team,
-          content: memo,
-          stadium: Object.keys(STADIUM_SHORT_TO_LONG).find(
-            sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
-          ),
-        },
-      }),
-    );
+    try {
+      await API.post(
+        '/communities',
+        JSON.stringify({
+          data: {
+            nickname: _nick,
+            team,
+            content: memo,
+            stadium: Object.keys(STADIUM_SHORT_TO_LONG).find(
+              sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
+            ),
+          },
+        }),
+      );
 
-    setMemo('');
-    setContentVisible(false);
-    setPage(1);
-    setIsReached(false);
-    setAllItems([]);
-    getCommunityAllItems(1);
+      setMemo('');
+      setContentVisible(false);
+      setPage(1);
+      setIsReached(false);
+      setAllItems([]);
+      getCommunityAllItems(1);
+    } catch (error) {
+      Toast.show({
+        text1:
+          (error as string) ??
+          '업로드 과정에서 문제가 발생했어요! 다시 시도해주세요.',
+        type: 'error',
+      });
+    }
   };
 
-  useEffect(() => {
-    getCommunityAllItems();
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    setPage(1);
+    setIsReached(false);
+    await getCommunityAllItems(1);
+    setRefreshing(false);
   }, [getCommunityAllItems]);
 
   return (
@@ -189,7 +211,7 @@ function Community() {
           <Arrow width={16} height={16} color={'#666'} />
         </TouchableOpacity>
 
-        {loading ? (
+        {loading && allItems.length === 0 ? (
           <Loading />
         ) : selectedStadium.length ? (
           allItems.length ? (
@@ -200,9 +222,12 @@ function Community() {
               keyExtractor={item => item.id.toString()}
               onEndReached={() => {
                 if (isReached) return;
-                setPage(page + 1);
+                getCommunityAllItems();
               }}
               onEndReachedThreshold={0.5}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
               style={{
                 marginBottom: 120,
               }}
