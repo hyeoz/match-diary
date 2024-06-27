@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import PushNotification, {
   ReceivedNotification,
 } from 'react-native-push-notification';
@@ -17,6 +17,8 @@ import { Alert, AppState, Platform } from 'react-native';
 import { STADIUM_GEO } from '@/utils/STATIC_DATA';
 
 export default function GeoNotification() {
+  const geoSwitch = useRef(false);
+
   useEffect(() => {
     let appState = AppState.currentState;
 
@@ -45,38 +47,7 @@ export default function GeoNotification() {
       requestPermissions: true,
     });
 
-    // NOTE geofence 설정 및 시작
-    BackgroundGeolocation.ready(
-      {
-        reset: true,
-        distanceFilter: 50,
-        stopTimeout: 1,
-        debug: false, // Authorization status changed 3 자동 알림 수정 중
-        logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
-        desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
-        stopOnTerminate: false,
-        startOnBoot: true,
-        geofenceProximityRadius: 1000, // 지오펜스 근접 반경 설정
-        notification: {
-          text: '오늘의 직관 일기를 기록해봐요!',
-        },
-      },
-      state => {
-        if (state.enabled) {
-          BackgroundGeolocation.start();
-        }
-      },
-    );
-
-    BackgroundGeolocation.addGeofences(
-      Object.entries(STADIUM_GEO).map(item => ({
-        identifier: item[0],
-        longitude: item[1].lon,
-        latitude: item[1].lat,
-        radius: 350,
-        notifyOnEntry: true,
-      })),
-    );
+    addGeofences();
 
     // NOTE geofence 기능
     const onGeo = BackgroundGeolocation.onGeofence(event => {
@@ -88,20 +59,60 @@ export default function GeoNotification() {
           priority: 'high',
           visibility: 'private',
         });
-        BackgroundGeolocation.setConfig({
-          notification: {
-            title: `혹시 ${event.identifier}경기장이신가요?`,
-          },
-        });
+        // BackgroundGeolocation.setConfig({
+        //   notification: {
+        //     title: `혹시 ${event.identifier}경기장이신가요?`,
+        //     text: '오늘의 직관 일기를 기록해봐요!',
+        //   },
+        // });
       }
     });
+    // NOTE geofence 설정 및 시작
+    BackgroundGeolocation.ready(
+      {
+        reset: true,
+        distanceFilter: 1000, // 위치 업데이트를 트리거하는 최소 거리(미터)
+        stopTimeout: 1, // 사용자가 멈춘 후 위치 추적을 중지하기 전에 대기하는 시간(분)
+        debug: false, // Authorization status changed 3 자동 알림 수정 숨기기
+        logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
+        desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+        stopOnTerminate: true, // true로 설정하면, 앱이 종료될 때 위치 추적도 중지
+        startOnBoot: false, // true로 설정하면, 기기가 재부팅될 때 자동으로 위치 추적을 시작
+        geofenceProximityRadius: 500, // 지오펜스 근접 반경 설정
+        notification: {
+          title: '',
+          text: '',
+          priority: BackgroundGeolocation.NOTIFICATION_PRIORITY_MIN,
+          channelId: 'custom-channel-id', // Ensure custom channelId to avoid default notifications
+        },
+      },
+      state => {
+        if (!geoSwitch.current) {
+          BackgroundGeolocation.start();
+        }
+        geoSwitch.current = true;
+      },
+    );
 
     // clean up
     return () => {
       BackgroundGeolocation.stop();
       onGeo.remove();
+      geoSwitch.current = false;
     };
   }, []);
+
+  const addGeofences = async () => {
+    await BackgroundGeolocation.addGeofences(
+      Object.entries(STADIUM_GEO).map(item => ({
+        identifier: item[0],
+        longitude: item[1].lon,
+        latitude: item[1].lat,
+        radius: 500,
+        notifyOnEntry: true,
+      })),
+    );
+  };
 
   const showLocationAlert = () => {
     return Alert.alert(
@@ -117,8 +128,6 @@ export default function GeoNotification() {
   const showNotificationAlert = (
     notification: Omit<ReceivedNotification, 'userInfo'>,
   ) => {
-    // const { message } = notification;
-
     // 커스텀 알림 생성
     PushNotification.localNotification({
       title: '"직관일기" 가 알림을 보내고 싶어합니다.',
