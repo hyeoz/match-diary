@@ -71,13 +71,13 @@ export default function GeoNotification() {
     BackgroundGeolocation.ready(
       {
         reset: true,
-        distanceFilter: 50,
-        stopTimeout: 1,
+        distanceFilter: 1000, // 위치 업데이트를 트리거하는 최소 거리(미터)
+        stopTimeout: 1, // 사용자가 멈춘 후 위치 추적을 중지하기 전에 대기하는 시간(분)
         debug: false, // Authorization status changed 3 자동 알림 수정 숨기기
         logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
         desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
-        stopOnTerminate: false,
-        startOnBoot: true,
+        stopOnTerminate: true, // true로 설정하면, 앱이 종료될 때 위치 추적도 중지
+        startOnBoot: false, // true로 설정하면, 기기가 재부팅될 때 자동으로 위치 추적을 시작
         geofenceProximityRadius: 500, // 지오펜스 근접 반경 설정
         notification: {
           title: '',
