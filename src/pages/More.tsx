@@ -57,7 +57,7 @@ function More() {
 
   useEffect(() => {
     getMyInfo();
-  }, []);
+  });
 
   useEffect(() => {
     if (!teamModalVisible) {
