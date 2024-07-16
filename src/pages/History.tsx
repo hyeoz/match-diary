@@ -10,21 +10,15 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
+import { useNavigation } from '@react-navigation/native';
+import FastImage from 'react-native-fast-image';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useTabHistory } from '@/stores/default';
-import FastImage from 'react-native-fast-image';
-import Loading from '@/components/Loading';
-
-/* DONE
-  - 본인이 쓴 글 무한스크롤로 보여주는 화면 구현
-  - image 만 보여주기
-  - 눌렀을 때 액션?
-*/
+import { useTabHistory } from '@stores/default';
+import Loading from '@components/Loading';
 
 const { width } = Dimensions.get('window');
 
