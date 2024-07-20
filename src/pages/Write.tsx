@@ -15,19 +15,6 @@ import { Add } from '@assets/svg';
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 
-/* DONE
-  - 이미지는 한 장만 업로드 가능
-  - 텍스트는 최대 200자
-  - 업로드한 컨텐츠는 스토리지 관리
-    - 이미지는 어떻게 관리하는지?
-    -> crop 후 path 를 return 해주는데, 이 path 를 이용하여 이미지를 보여줌
-    - 원본이미지 path 를 사용하는 방식으로 먼저 구현
-  - 해당 날짜에 이미 업로드한 경우 업로드버튼 대신 공유용 이미지(폴라로이드) 띄우기
-  - 업로드 모달에서 생성이 아닌 수정인 경우 공유하기 버튼 생성 (이미지 파일로 내보낼 수 있도록)
-  - 마이페이지에서 마이팀 설정 시 승/패 정보도
-  - 당일 날짜로 경기 정보 불러오기
-*/
-
 function Write() {
   const navigate = useNavigation<NativeStackNavigationProp<any>>();
   const [isVisible, setIsVisible] = useState(false);
@@ -52,7 +39,7 @@ function Write() {
 
   useEffect(() => {
     getMyTeam();
-  }, []);
+  });
 
   const getMyTeam = async () => {
     const res = await AsyncStorage.getItem('MY_TEAM');

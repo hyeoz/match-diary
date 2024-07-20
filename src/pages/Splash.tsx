@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import FastImage from 'react-native-fast-image';
 
 import { RootStackListType } from '@/type/default';
 import { palette } from '@style/palette';
 import { useMyState } from '@stores/default';
 import splash_text from '@assets/splash_text.png';
-import FastImage from 'react-native-fast-image';
 import { getRandomElement } from '@/utils/helper';
 import {
   NICKNAME_ADJECTIVE,
@@ -15,7 +15,7 @@ import {
 } from '@/utils/NICKNAME_STATIC_DATA';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
-  const { team, setNickname } = useMyState();
+  const { team } = useMyState();
   const [defaultTeam, setDefaultTeam] = useState(team);
 
   useEffect(() => {
@@ -31,11 +31,13 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
       await setReplace();
     };
     getAll();
-  }, []);
+  });
 
   const getMyTeam = async () => {
     const res = await AsyncStorage.getItem('MY_TEAM');
-    if (!res) return;
+    if (!res) {
+      return;
+    }
     setDefaultTeam(res);
   };
 
@@ -45,7 +47,6 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
     if (!res) {
       const randomAdj = getRandomElement(NICKNAME_ADJECTIVE);
       const randomNoun = getRandomElement(NICKNAME_NOUN);
-      // setNickname(`${randomAdj} ${randomNoun}`);
       await AsyncStorage.setItem('NICKNAME', `${randomAdj} ${randomNoun}`);
     }
   };
