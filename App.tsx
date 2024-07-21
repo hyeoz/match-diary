@@ -8,7 +8,7 @@ import {
 import Toast from 'react-native-toast-message';
 
 import Router from './src/router';
-import GeoNotification from '@/components/GeoNotification';
+// import GeoNotification from '@/components/GeoNotification';
 
 function App(): React.JSX.Element {
   const navigationRef = useNavigationContainerRef();
@@ -24,7 +24,7 @@ function App(): React.JSX.Element {
         <Router />
       </NavigationContainer>
       <Toast />
-      <GeoNotification />
+      {/* <GeoNotification /> */}
     </>
   );
 }
