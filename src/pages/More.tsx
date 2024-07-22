@@ -75,9 +75,7 @@ function More() {
     {
       key: 'MyTeam',
       label: '내 정보 수정',
-      onPressAction: () => {
-        setTeamModalVisible(!teamModalVisible);
-      },
+      onPressAction: () => setTeamModalVisible(!teamModalVisible),
     },
     {
       key: 'DeleteData',
@@ -117,23 +115,17 @@ function More() {
     {
       key: 'Setting',
       label: '앱 설정',
-      onPressAction: () => {
-        Linking.openSettings();
-      },
+      onPressAction: () => Linking.openSettings(),
     },
     {
       key: 'Help',
       label: '도움말',
-      onPressAction: () => {
-        setHelpModalVisible(true);
-      },
+      onPressAction: () => setHelpModalVisible(true),
     },
     {
       key: 'Contact',
       label: 'Contact',
-      onPressAction: () => {
-        setContactVisible(true);
-      },
+      onPressAction: () => setContactVisible(true),
     },
   ];
 
@@ -350,6 +342,7 @@ function More() {
                   />
                 )}
                 numColumns={4}
+                keyExtractor={item => item.key}
               />
             </View>
           </View>
@@ -437,7 +430,8 @@ function More() {
                 <View
                   style={{
                     flex: 1,
-                  }}>
+                  }}
+                  key={item}>
                   <FastImage
                     source={item}
                     style={{
@@ -464,6 +458,7 @@ function More() {
                   borderRadius: 99,
                   backgroundColor: helpSnapIndex === index ? '#222' : '#ddd',
                 }}
+                key={index}
               />
             ))}
           </View>
@@ -567,7 +562,7 @@ function More() {
               <Text style={styles.tooltipText}>더 많은 소식이 궁금하다면?</Text>
             </View>
           </Animated.View>
-          <View></View>
+          <View />
           <TouchableOpacity
             style={[
               styles.buttonBg,
