@@ -1,4 +1,5 @@
 import {
+  ActionSheetIOS,
   Alert,
   Dimensions,
   Image,
@@ -6,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
+import { PERMISSIONS, request } from 'react-native-permissions';
+import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Geolocation from '@react-native-community/geolocation';
@@ -37,13 +39,10 @@ import {
 import { hasAndroidPermission } from '@utils/helper';
 import { palette } from '@style/palette';
 import { Add, Arrow } from '@assets/svg';
-import Loading from './Loading';
-import { PERMISSIONS, check, request } from 'react-native-permissions';
-import FastImage from 'react-native-fast-image';
 import { modalStyles } from '@/style/common';
+import { launchCamera } from 'react-native-image-picker';
 
 const { width } = Dimensions.get('window');
-const { height } = Dimensions.get('screen');
 
 export default function UploadModal({
   image,
@@ -90,18 +89,31 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  const onPressOpenGallery = () => {
-    ImageCropPicker?.openPicker({
-      width: IMAGE_WIDTH,
-      height: IMAGE_HEIGHT,
-      cropping: true,
-    })
-      .then((value: ImageOrVideo) => {
-        setImage(value);
-      })
-      .catch(res => {
-        console.error(res);
-      });
+  const onPressOpenGallery = async () => {
+    // ImageCropPicker?.openPicker({
+    //   width: IMAGE_WIDTH,
+    //   height: IMAGE_HEIGHT,
+    //   cropping: true,
+    // })
+    //   .then((value: ImageOrVideo) => {
+    //     setImage(value);
+    //   })
+    //   .catch(res => {
+    //     console.error(res);
+    //   });
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['취소', '카메라', '앨범'],
+        cancelButtonIndex: 0,
+      },
+      buttonIndex => {
+        if (buttonIndex === 1) {
+          console.log('카메라 열기');
+        } else if (buttonIndex === 2) {
+          console.log('앨범 열기');
+        }
+      },
+    );
   };
 
   const onSave = async () => {
