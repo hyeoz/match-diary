@@ -40,7 +40,7 @@ import { hasAndroidPermission } from '@utils/helper';
 import { palette } from '@style/palette';
 import { Add, Arrow } from '@assets/svg';
 import { modalStyles } from '@/style/common';
-import { launchCamera } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 const { width } = Dimensions.get('window');
 
@@ -106,14 +106,33 @@ export default function UploadModal({
         options: ['취소', '카메라', '앨범'],
         cancelButtonIndex: 0,
       },
-      buttonIndex => {
-        if (buttonIndex === 1) {
-          console.log('카메라 열기');
-        } else if (buttonIndex === 2) {
-          console.log('앨범 열기');
-        }
-      },
+      buttonIndex => getImageAction(buttonIndex),
     );
+  };
+
+  const getImageAction = async (buttonIndex: number) => {
+    if (buttonIndex === 1) {
+      const result = await launchCamera(
+        {
+          mediaType: 'photo',
+          maxWidth: IMAGE_WIDTH,
+          maxHeight: IMAGE_HEIGHT,
+          quality: 1,
+          saveToPhotos: true,
+        },
+        res => {
+          console.log(res, '???');
+        },
+      );
+    } else if (buttonIndex === 2) {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        maxWidth: IMAGE_WIDTH,
+        maxHeight: IMAGE_HEIGHT,
+        quality: 1,
+      });
+      console.log(result);
+    }
   };
 
   const onSave = async () => {
