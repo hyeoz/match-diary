@@ -24,6 +24,8 @@
 
 더 많은 디바이스와 함께하기 위해 TEAM직관일기가 더 노력할게요!
 
+여러분들의 의견을 직관일기에 보내주세요. 기다리고 있을게요!
+
 ## Attribute for Assets
 
 <a href="https://www.flaticon.com/free-icons/baseball" title="baseball icons">Baseball icons created by Freepik - Flaticon</a><br />
