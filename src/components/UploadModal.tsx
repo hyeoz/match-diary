@@ -19,6 +19,7 @@ import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Geolocation from '@react-native-community/geolocation';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -40,7 +41,6 @@ import { hasAndroidPermission } from '@utils/helper';
 import { palette } from '@style/palette';
 import { Add, Arrow } from '@assets/svg';
 import { modalStyles } from '@/style/common';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 const { width } = Dimensions.get('window');
 
@@ -90,17 +90,6 @@ export default function UploadModal({
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
   const onPressOpenGallery = async () => {
-    // ImageCropPicker?.openPicker({
-    //   width: IMAGE_WIDTH,
-    //   height: IMAGE_HEIGHT,
-    //   cropping: true,
-    // })
-    //   .then((value: ImageOrVideo) => {
-    //     setImage(value);
-    //   })
-    //   .catch(res => {
-    //     console.error(res);
-    //   });
     ActionSheetIOS.showActionSheetWithOptions(
       {
         options: ['취소', '카메라', '앨범'],
@@ -127,11 +116,39 @@ export default function UploadModal({
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
-        maxWidth: IMAGE_WIDTH,
-        maxHeight: IMAGE_HEIGHT,
+        // maxWidth: IMAGE_WIDTH,
+        // maxHeight: IMAGE_HEIGHT,
         quality: 1,
       });
-      console.log(result);
+
+      if (!result.assets || !result.assets[0].uri) return;
+      console.log(result.assets[0].uri, 'URI');
+      await openPicker(result.assets[0].uri);
+    }
+  };
+
+  const openPicker = async (uri: string) => {
+    try {
+      // const res = await ImageCropPicker?.openPicker({
+      //   path: uri,
+      //   width: IMAGE_WIDTH,
+      //   height: IMAGE_HEIGHT,
+      //   cropping: true,
+      // });
+      const res = await ImageCropPicker.openCropper({
+        path: uri,
+        width: IMAGE_WIDTH,
+        height: IMAGE_HEIGHT,
+        cropping: true,
+        mediaType: 'photo',
+      });
+      // setImage(res);
+      console.log('OPEN PICKER');
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
+      });
     }
   };
 
