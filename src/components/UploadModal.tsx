@@ -1,4 +1,5 @@
 import {
+  ActionSheetIOS,
   Alert,
   Dimensions,
   Image,
@@ -6,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -14,9 +14,12 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
+import { PERMISSIONS, request } from 'react-native-permissions';
+import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Geolocation from '@react-native-community/geolocation';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -37,13 +40,9 @@ import {
 import { hasAndroidPermission } from '@utils/helper';
 import { palette } from '@style/palette';
 import { Add, Arrow } from '@assets/svg';
-import Loading from './Loading';
-import { PERMISSIONS, check, request } from 'react-native-permissions';
-import FastImage from 'react-native-fast-image';
 import { modalStyles } from '@/style/common';
 
 const { width } = Dimensions.get('window');
-const { height } = Dimensions.get('screen');
 
 export default function UploadModal({
   image,
@@ -90,18 +89,67 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  const onPressOpenGallery = () => {
-    ImageCropPicker?.openPicker({
-      width: IMAGE_WIDTH,
-      height: IMAGE_HEIGHT,
-      cropping: true,
-    })
-      .then((value: ImageOrVideo) => {
-        setImage(value);
-      })
-      .catch(res => {
-        console.error(res);
+  const onPressOpenGallery = async () => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['취소', '카메라', '앨범'],
+        cancelButtonIndex: 0,
+      },
+      buttonIndex => getImageAction(buttonIndex),
+    );
+  };
+
+  const getImageAction = async (buttonIndex: number) => {
+    if (buttonIndex === 1) {
+      const result = await launchCamera(
+        {
+          mediaType: 'photo',
+          maxWidth: IMAGE_WIDTH,
+          maxHeight: IMAGE_HEIGHT,
+          quality: 1,
+          saveToPhotos: true,
+        },
+        res => {
+          console.log(res, '???');
+        },
+      );
+    } else if (buttonIndex === 2) {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        // maxWidth: IMAGE_WIDTH,
+        // maxHeight: IMAGE_HEIGHT,
+        quality: 1,
       });
+
+      if (!result.assets || !result.assets[0].uri) return;
+      console.log(result.assets[0].uri, 'URI');
+      await openPicker(result.assets[0].uri);
+    }
+  };
+
+  const openPicker = async (uri: string) => {
+    try {
+      // const res = await ImageCropPicker?.openPicker({
+      //   path: uri,
+      //   width: IMAGE_WIDTH,
+      //   height: IMAGE_HEIGHT,
+      //   cropping: true,
+      // });
+      const res = await ImageCropPicker.openCropper({
+        path: uri,
+        width: IMAGE_WIDTH,
+        height: IMAGE_HEIGHT,
+        cropping: true,
+        mediaType: 'photo',
+      });
+      // setImage(res);
+      console.log('OPEN PICKER');
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
+      });
+    }
   };
 
   const onSave = async () => {
