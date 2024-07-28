@@ -116,8 +116,6 @@ export default function UploadModal({
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
-        // maxWidth: IMAGE_WIDTH,
-        // maxHeight: IMAGE_HEIGHT,
         quality: 1,
       });
 
@@ -129,12 +127,6 @@ export default function UploadModal({
 
   const openPicker = async (uri: string) => {
     try {
-      // const res = await ImageCropPicker?.openPicker({
-      //   path: uri,
-      //   width: IMAGE_WIDTH,
-      //   height: IMAGE_HEIGHT,
-      //   cropping: true,
-      // });
       const res = await ImageCropPicker.openCropper({
         path: uri,
         width: IMAGE_WIDTH,
@@ -142,8 +134,7 @@ export default function UploadModal({
         cropping: true,
         mediaType: 'photo',
       });
-      // setImage(res);
-      console.log('OPEN PICKER');
+      setImage(res);
     } catch (error) {
       Toast.show({
         type: 'error',
