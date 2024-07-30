@@ -101,18 +101,16 @@ export default function UploadModal({
 
   const getImageAction = async (buttonIndex: number) => {
     if (buttonIndex === 1) {
-      const result = await launchCamera(
-        {
-          mediaType: 'photo',
-          maxWidth: IMAGE_WIDTH,
-          maxHeight: IMAGE_HEIGHT,
-          quality: 1,
-          saveToPhotos: true,
-        },
-        res => {
-          console.log(res, '???');
-        },
-      );
+      const result = await launchCamera({
+        mediaType: 'photo',
+        maxWidth: IMAGE_WIDTH,
+        maxHeight: IMAGE_HEIGHT,
+        quality: 1,
+        saveToPhotos: true,
+      });
+
+      if (!result.assets || !result.assets[0].uri) return;
+      await openPicker(result.assets[0].uri);
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
@@ -120,7 +118,6 @@ export default function UploadModal({
       });
 
       if (!result.assets || !result.assets[0].uri) return;
-      console.log(result.assets[0].uri, 'URI');
       await openPicker(result.assets[0].uri);
     }
   };
