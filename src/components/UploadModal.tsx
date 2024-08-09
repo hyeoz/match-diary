@@ -38,9 +38,9 @@ import {
   STADIUM_SHORT_TO_LONG,
 } from '@utils/STATIC_DATA';
 import { hasAndroidPermission } from '@utils/helper';
-import { palette } from '@style/palette';
 import { Add, Arrow } from '@assets/svg';
-import { modalStyles } from '@/style/common';
+import { palette } from '@style/palette';
+import { modalStyles } from '@style/common';
 
 const { width } = Dimensions.get('window');
 
