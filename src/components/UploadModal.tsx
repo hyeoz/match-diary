@@ -109,7 +109,9 @@ export default function UploadModal({
         saveToPhotos: true,
       });
 
-      if (!result.assets || !result.assets[0].uri) return;
+      if (!result.assets || !result.assets[0].uri) {
+        return;
+      }
       await openPicker(result.assets[0].uri);
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
@@ -117,7 +119,9 @@ export default function UploadModal({
         quality: 1,
       });
 
-      if (!result.assets || !result.assets[0].uri) return;
+      if (!result.assets || !result.assets[0].uri) {
+        return;
+      }
       await openPicker(result.assets[0].uri);
     }
   };
@@ -131,6 +135,7 @@ export default function UploadModal({
         cropping: true,
         mediaType: 'photo',
       });
+      console.log(res);
       setImage(res);
     } catch (error) {
       Toast.show({
