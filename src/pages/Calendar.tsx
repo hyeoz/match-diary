@@ -96,17 +96,17 @@ function Calendar() {
   useEffect(() => {
     getSelectedItem();
     getMatchData();
-  }, [history, team]);
+  }, [history, team, selectedDate]);
 
   useEffect(() => {
     getAllItems();
     getAllRecord();
   }, [history, team, isVisible]);
 
-  useEffect(() => {
-    getMatchData();
-    getSelectedItem();
-  }, [selectedDate]);
+  // useEffect(() => {
+  //   getMatchData();
+  //   getSelectedItem();
+  // }, [selectedDate]);
 
   const getSelectedItem = async () => {
     const res = await AsyncStorage.getItem(selectedDate);
@@ -294,7 +294,7 @@ function Calendar() {
           }}
           markedDates={markedDates}
           firstDay={1}
-          renderHeader={date => {
+          renderHeader={(date: string) => {
             return (
               <View
                 style={{

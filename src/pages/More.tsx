@@ -57,7 +57,7 @@ function More() {
 
   useEffect(() => {
     getMyInfo();
-  });
+  }, []);
 
   useEffect(() => {
     if (!teamModalVisible) {
@@ -155,8 +155,10 @@ function More() {
         topOffset: 64,
       });
     } else {
-      await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
-      await AsyncStorage.setItem('NICKNAME', currentNickname);
+      await Promise.all([
+        AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam),
+        AsyncStorage.setItem('NICKNAME', currentNickname),
+      ]);
       setTeam(selectedTeam);
       setNickname(currentNickname);
       Toast.show({
