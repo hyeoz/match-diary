@@ -4,7 +4,6 @@ import {
   Animated,
   Dimensions,
   FlatList,
-  KeyboardAvoidingView,
   Linking,
   ListRenderItemInfo,
   Modal,
@@ -44,8 +43,7 @@ const { width, height } = Dimensions.get('window');
 const images = [help1_animated, help2_animated, help3_animated];
 
 function More() {
-  const navigation = useNavigation<NativeStackNavigationProp<any>>();
-  const { team, setTeam, nickname, setNickname } = useMyState();
+  const { team, setTeam, setNickname } = useMyState();
   const [teamModalVisible, setTeamModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
   const [currentNickname, setCurrentNickname] = useState('');
@@ -176,6 +174,7 @@ function More() {
       tooltipY.setValue(0);
     };
   }, []);
+
   const onPressInstagram = async () => {
     Linking.openURL(INSTAGRAM_LINK).catch(() => {
       Linking.openURL(INSTAGRAM_WEB_LINK);
@@ -298,7 +297,6 @@ function More() {
                   닉네임 설정
                 </Text>
               </View>
-              {/* <KeyboardAvoidingView> */}
               <TextInput
                 value={currentNickname}
                 maxLength={8}
@@ -315,7 +313,6 @@ function More() {
                   fontFamily: 'KBO-Dia-Gothic-mediumd',
                 }}
               />
-              {/* </KeyboardAvoidingView> */}
             </View>
 
             <View style={{ width: '100%' }}>
@@ -326,7 +323,6 @@ function More() {
                 }}>
                 <Text
                   style={{
-                    // textAlign: 'center',
                     fontWeight: '700',
                     fontSize: 18,
                     fontFamily: 'KBO-Dia-Gothic-bold',
@@ -468,7 +464,6 @@ function More() {
             style={{
               flex: 1,
               margin: 24,
-              // marginBottom: 64,
             }}>
             {/* 설명 영역 */}
             <View
