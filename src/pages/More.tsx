@@ -14,12 +14,11 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
 import Carousel from 'react-native-reanimated-carousel';
-import 'react-native-gesture-handler';
 import FastImage from 'react-native-fast-image';
+import Clipboard from '@react-native-clipboard/clipboard';
+import 'react-native-gesture-handler';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import {
@@ -35,7 +34,6 @@ import { Arrow, Plus } from '@assets/svg';
 import help1_animated from '@assets/help1_animated.gif';
 import help2_animated from '@assets/help2_animated.gif';
 import help3_animated from '@assets/help3_animated.gif';
-import Clipboard from '@react-native-clipboard/clipboard';
 import contact_cat from '@assets/contact_cat_img.webp';
 import { getTeamArrayWithIcon } from '@/utils/helper';
 
@@ -535,21 +533,7 @@ function More() {
                 transform: [{ translateY: tooltipY }],
               },
             ]}>
-            <View
-              style={{
-                position: 'absolute',
-                top: '80%',
-                left: '50%',
-                backgroundColor: '#fff',
-                width: Math.sqrt(193),
-                height: Math.sqrt(193),
-                transform: [
-                  { rotate: '45deg' },
-                  { translateY: 0 },
-                  { translateX: -4 },
-                ],
-              }}
-            />
+            <View style={styles.contactChevron} />
             <View
               style={{
                 backgroundColor: '#fff',
@@ -684,16 +668,7 @@ function TeamListItem({
   return (
     <TouchableOpacity
       style={[
-        {
-          width: (width - 60 - 24) / 4,
-          aspectRatio: 1 / 1,
-          borderWidth: 1,
-          borderColor: palette.greyColor.border,
-          borderRadius: 6,
-          marginBottom: 12,
-          marginRight: 12,
-          padding: 8,
-        },
+        styles.teamItem,
         isSelected ? { backgroundColor: palette.commonColor.greenBg } : {},
       ]}
       onPress={() => setSelectedTeam(item.key)}>
@@ -853,6 +828,27 @@ const styles = StyleSheet.create({
     // fontFamily: 'UhBee Seulvely',
     fontFamily: 'KBO-Dia-Gothic-bold',
     textAlign: 'center',
+  },
+
+  teamItem: {
+    width: (width - 60 - 24) / 4,
+    aspectRatio: 1 / 1,
+    borderWidth: 1,
+    borderColor: palette.greyColor.border,
+    borderRadius: 6,
+    marginBottom: 12,
+    marginRight: 12,
+    padding: 8,
+  },
+
+  contactChevron: {
+    position: 'absolute',
+    top: '80%',
+    left: '50%',
+    backgroundColor: '#fff',
+    width: Math.sqrt(193),
+    height: Math.sqrt(193),
+    transform: [{ rotate: '45deg' }, { translateY: 0 }, { translateX: -4 }],
   },
 });
 
