@@ -2,7 +2,6 @@ import {
   ActionSheetIOS,
   Alert,
   Dimensions,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -84,7 +83,9 @@ export default function UploadModal({
 
   useEffect(() => {
     setLoading(true);
-    getLocation();
+    if (Platform.OS === 'ios') {
+      getLocation();
+    }
     getTodayMatch();
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
