@@ -4,7 +4,6 @@ import {
   Animated,
   Dimensions,
   FlatList,
-  KeyboardAvoidingView,
   Linking,
   ListRenderItemInfo,
   Modal,
@@ -15,12 +14,11 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
 import Carousel from 'react-native-reanimated-carousel';
-import 'react-native-gesture-handler';
 import FastImage from 'react-native-fast-image';
+import Clipboard from '@react-native-clipboard/clipboard';
+import 'react-native-gesture-handler';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import {
@@ -36,7 +34,6 @@ import { Arrow, Plus } from '@assets/svg';
 import help1_animated from '@assets/help1_animated.gif';
 import help2_animated from '@assets/help2_animated.gif';
 import help3_animated from '@assets/help3_animated.gif';
-import Clipboard from '@react-native-clipboard/clipboard';
 import contact_cat from '@assets/contact_cat_img.webp';
 import { getTeamArrayWithIcon } from '@/utils/helper';
 
@@ -44,8 +41,7 @@ const { width, height } = Dimensions.get('window');
 const images = [help1_animated, help2_animated, help3_animated];
 
 function More() {
-  const navigation = useNavigation<NativeStackNavigationProp<any>>();
-  const { team, setTeam, nickname, setNickname } = useMyState();
+  const { team, setTeam, setNickname } = useMyState();
   const [teamModalVisible, setTeamModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState('');
   const [currentNickname, setCurrentNickname] = useState('');
@@ -57,7 +53,7 @@ function More() {
 
   useEffect(() => {
     getMyInfo();
-  });
+  }, []);
 
   useEffect(() => {
     if (!teamModalVisible) {
@@ -75,9 +71,7 @@ function More() {
     {
       key: 'MyTeam',
       label: '내 정보 수정',
-      onPressAction: () => {
-        setTeamModalVisible(!teamModalVisible);
-      },
+      onPressAction: () => setTeamModalVisible(!teamModalVisible),
     },
     {
       key: 'DeleteData',
@@ -117,23 +111,17 @@ function More() {
     {
       key: 'Setting',
       label: '앱 설정',
-      onPressAction: () => {
-        Linking.openSettings();
-      },
+      onPressAction: () => Linking.openSettings(),
     },
     {
       key: 'Help',
       label: '도움말',
-      onPressAction: () => {
-        setHelpModalVisible(true);
-      },
+      onPressAction: () => setHelpModalVisible(true),
     },
     {
       key: 'Contact',
       label: 'Contact',
-      onPressAction: () => {
-        setContactVisible(true);
-      },
+      onPressAction: () => setContactVisible(true),
     },
   ];
 
@@ -163,8 +151,10 @@ function More() {
         topOffset: 64,
       });
     } else {
-      await AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam);
-      await AsyncStorage.setItem('NICKNAME', currentNickname);
+      await Promise.all([
+        AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam),
+        AsyncStorage.setItem('NICKNAME', currentNickname),
+      ]);
       setTeam(selectedTeam);
       setNickname(currentNickname);
       Toast.show({
@@ -182,6 +172,7 @@ function More() {
       tooltipY.setValue(0);
     };
   }, []);
+
   const onPressInstagram = async () => {
     Linking.openURL(INSTAGRAM_LINK).catch(() => {
       Linking.openURL(INSTAGRAM_WEB_LINK);
@@ -304,7 +295,6 @@ function More() {
                   닉네임 설정
                 </Text>
               </View>
-              {/* <KeyboardAvoidingView> */}
               <TextInput
                 value={currentNickname}
                 maxLength={8}
@@ -321,7 +311,6 @@ function More() {
                   fontFamily: 'KBO-Dia-Gothic-mediumd',
                 }}
               />
-              {/* </KeyboardAvoidingView> */}
             </View>
 
             <View style={{ width: '100%' }}>
@@ -332,7 +321,6 @@ function More() {
                 }}>
                 <Text
                   style={{
-                    // textAlign: 'center',
                     fontWeight: '700',
                     fontSize: 18,
                     fontFamily: 'KBO-Dia-Gothic-bold',
@@ -350,6 +338,7 @@ function More() {
                   />
                 )}
                 numColumns={4}
+                keyExtractor={item => item.key}
               />
             </View>
           </View>
@@ -437,7 +426,8 @@ function More() {
                 <View
                   style={{
                     flex: 1,
-                  }}>
+                  }}
+                  key={item}>
                   <FastImage
                     source={item}
                     style={{
@@ -464,6 +454,7 @@ function More() {
                   borderRadius: 99,
                   backgroundColor: helpSnapIndex === index ? '#222' : '#ddd',
                 }}
+                key={index}
               />
             ))}
           </View>
@@ -471,7 +462,6 @@ function More() {
             style={{
               flex: 1,
               margin: 24,
-              // marginBottom: 64,
             }}>
             {/* 설명 영역 */}
             <View
@@ -543,21 +533,7 @@ function More() {
                 transform: [{ translateY: tooltipY }],
               },
             ]}>
-            <View
-              style={{
-                position: 'absolute',
-                top: '80%',
-                left: '50%',
-                backgroundColor: '#fff',
-                width: Math.sqrt(193),
-                height: Math.sqrt(193),
-                transform: [
-                  { rotate: '45deg' },
-                  { translateY: 0 },
-                  { translateX: -4 },
-                ],
-              }}
-            />
+            <View style={styles.contactChevron} />
             <View
               style={{
                 backgroundColor: '#fff',
@@ -567,7 +543,7 @@ function More() {
               <Text style={styles.tooltipText}>더 많은 소식이 궁금하다면?</Text>
             </View>
           </Animated.View>
-          <View></View>
+          <View />
           <TouchableOpacity
             style={[
               styles.buttonBg,
@@ -692,16 +668,7 @@ function TeamListItem({
   return (
     <TouchableOpacity
       style={[
-        {
-          width: (width - 60 - 24) / 4,
-          aspectRatio: 1 / 1,
-          borderWidth: 1,
-          borderColor: palette.greyColor.border,
-          borderRadius: 6,
-          marginBottom: 12,
-          marginRight: 12,
-          padding: 8,
-        },
+        styles.teamItem,
         isSelected ? { backgroundColor: palette.commonColor.greenBg } : {},
       ]}
       onPress={() => setSelectedTeam(item.key)}>
@@ -861,6 +828,27 @@ const styles = StyleSheet.create({
     // fontFamily: 'UhBee Seulvely',
     fontFamily: 'KBO-Dia-Gothic-bold',
     textAlign: 'center',
+  },
+
+  teamItem: {
+    width: (width - 60 - 24) / 4,
+    aspectRatio: 1 / 1,
+    borderWidth: 1,
+    borderColor: palette.greyColor.border,
+    borderRadius: 6,
+    marginBottom: 12,
+    marginRight: 12,
+    padding: 8,
+  },
+
+  contactChevron: {
+    position: 'absolute',
+    top: '80%',
+    left: '50%',
+    backgroundColor: '#fff',
+    width: Math.sqrt(193),
+    height: Math.sqrt(193),
+    transform: [{ rotate: '45deg' }, { translateY: 0 }, { translateX: -4 }],
   },
 });
 

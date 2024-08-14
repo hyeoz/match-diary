@@ -51,6 +51,8 @@
 	<string>앱에서 사용자가 일기를 기록할 때 사진을 추가할 수 있도록 사진 라이브러리 접근 권한이 필요해요!</string>
 	<key>NSMotionUsageDescription</key>
 	<string>앱이 백그라운드에서도 위치 기반으로 경기장과의 거리를 계산하기 위해 필요합니다. "항상"을 선택해주시면, 경기장 근처에서 알림을 보내드릴게요!</string>
+	<key>NSCameraUsageDescription</key>
+	<string>지금 바로 기록을 남길 수 있게 카메라를 허용해주세요!</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>KBO Dia Gothic_bold.ttf</string>
