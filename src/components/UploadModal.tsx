@@ -136,7 +136,6 @@ export default function UploadModal({
         cropping: true,
         mediaType: 'photo',
       });
-      console.log(res);
       setImage(res);
     } catch (error) {
       Toast.show({
@@ -249,6 +248,8 @@ export default function UploadModal({
     );
   };
 
+  console.log(image);
+
   return (
     <Modal animationType="slide" visible={isVisible}>
       <View style={modalStyles.wrapper}>
@@ -280,7 +281,7 @@ export default function UploadModal({
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
                     <FastImage
-                      source={{ uri: image.path }}
+                      source={{ uri: image.sourceURL }}
                       style={{
                         width: width - 48,
                         height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
