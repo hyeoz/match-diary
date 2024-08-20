@@ -63,7 +63,7 @@ const STADIUM_SHORT_TO_LONG: { [key: string]: string } = {
   // 제2구장추가
   포항: '포항야구장',
   울산: '울산문수야구장',
-  충주: '청주종합운동장야구장',
+  청주: '청주종합운동장야구장',
 };
 
 const STADIUM_GEO: {

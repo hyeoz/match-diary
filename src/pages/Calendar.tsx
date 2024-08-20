@@ -33,14 +33,9 @@ import { MatchDataType } from '@/type/default';
 import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
 import Loading from '@/components/Loading';
 
-/* TODO
-  - 캘린더 스타일링
-  - API 최적화
-*/
-
 const { width } = Dimensions.get('window');
 
-LocaleConfig.locales['kr'] = {
+LocaleConfig.locales.kr = {
   monthNames: MONTH_LIST,
   monthNamesShort: MONTH_LIST,
   dayNames: DAYS_NAME_KOR,
@@ -74,8 +69,7 @@ function Calendar() {
   const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
   const [matches, setMatches] = useState<MatchDataType[]>([]);
-  // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
-  const [matchRecord, setMatchRecord] = useState(initCountData);
+  const [matchRecord, setMatchRecord] = useState(initCountData); // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
   const [loading, setLoading] = useState(false);
 
   const { team } = useMyState();
@@ -102,11 +96,6 @@ function Calendar() {
     getAllItems();
     getAllRecord();
   }, [history, team, isVisible]);
-
-  // useEffect(() => {
-  //   getMatchData();
-  //   getSelectedItem();
-  // }, [selectedDate]);
 
   const getSelectedItem = async () => {
     const res = await AsyncStorage.getItem(selectedDate);
@@ -178,7 +167,7 @@ function Calendar() {
     if (!res.data.data.length) {
       return setMatches([]);
     }
-    if (!!team) {
+    if (team) {
       const filteredMatch = res.data.data.filter(
         data => data.attributes.home === team || data.attributes.away === team,
       );
