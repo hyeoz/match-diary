@@ -91,7 +91,7 @@ function History() {
             renderItem={item => {
               return (
                 <FastImage
-                  source={{ uri: item.item.sourceURL }}
+                  source={{ uri: item.item.path }}
                   style={{
                     margin: 2,
                     width: (width - 16 - 8) / 3,
