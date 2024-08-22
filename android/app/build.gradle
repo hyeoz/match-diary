@@ -90,7 +90,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.2.2"
         resValue "string", "MAPS_KEY", env["REACT_APP_NAVER_MAPS_PRIMARY_KEY"] ?: ''
         resValue "string", "NAVER_CLIENT_ID", env["REACT_APP_NAVER_CLIENT_ID"] ?: ''
         resValue "string", "NAVER_CLIENT_SECRET_KEY", env["REACT_APP_NAVER_CLIENT_SECRET_KEY"] ?: ''
