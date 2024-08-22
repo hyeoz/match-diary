@@ -77,3 +77,6 @@ yarn.lock
 #react-native-config
 ios/tmp.xcconfig
 ios/.xcode.env
+
+# 안드로이드 키값
+android/gradle.properties
