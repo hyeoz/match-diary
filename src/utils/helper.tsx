@@ -38,7 +38,6 @@ export const renderIconSizeWithColor = (
 };
 
 export const getRandomElement = (array: string[]) => {
-  console.log(array.length);
   return array[Math.floor(Math.random() * array.length)];
 };
 

@@ -100,6 +100,33 @@ export default function UploadModal({
     );
   };
 
+  const openPicker = async (uri: string) => {
+    if (!uri) {
+      Toast.show({
+        type: 'error',
+        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
+      });
+      return;
+    }
+
+    try {
+      const res = await ImageCropPicker.openCropper({
+        path: uri,
+        width: IMAGE_WIDTH,
+        height: IMAGE_HEIGHT,
+        cropping: true,
+        mediaType: 'photo',
+      });
+
+      setImage(res);
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
+      });
+    }
+  };
+
   const getImageAction = async (buttonIndex: number) => {
     if (buttonIndex === 1) {
       const result = await launchCamera({
@@ -109,39 +136,21 @@ export default function UploadModal({
         quality: 1,
         saveToPhotos: true,
       });
-
-      if (!result.assets || !result.assets[0].uri) {
+      const item = result.assets;
+      if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
-      await openPicker(result.assets[0].uri);
+      await openPicker(item[0].uri);
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 1,
       });
-
-      if (!result.assets || !result.assets[0].uri) {
+      const item = result.assets;
+      if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
-      await openPicker(result.assets[0].uri);
-    }
-  };
-
-  const openPicker = async (uri: string) => {
-    try {
-      const res = await ImageCropPicker.openCropper({
-        path: uri,
-        width: IMAGE_WIDTH,
-        height: IMAGE_HEIGHT,
-        cropping: true,
-        mediaType: 'photo',
-      });
-      setImage(res);
-    } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
-      });
+      await openPicker(item[0].uri);
     }
   };
 
@@ -248,7 +257,7 @@ export default function UploadModal({
     );
   };
 
-  console.log(image);
+  console.log(image, '???IMAGE');
 
   return (
     <Modal animationType="slide" visible={isVisible}>
@@ -281,7 +290,7 @@ export default function UploadModal({
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
                     <FastImage
-                      source={{ uri: image.sourceURL }}
+                      source={{ uri: image.path }}
                       style={{
                         width: width - 48,
                         height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
