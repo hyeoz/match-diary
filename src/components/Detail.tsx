@@ -190,7 +190,7 @@ export function Detail({
                 ]}
               />
               <FastImage
-                source={{ uri: image?.sourceURL }}
+                source={{ uri: image?.path }}
                 style={{
                   width: isCalendar ? width * 0.6 - 28 : width * 0.7 - 16,
                   height: isCalendar

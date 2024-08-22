@@ -88,16 +88,19 @@ function History() {
         ) : allImages.length ? (
           <FlatList
             data={allImages}
-            renderItem={item => (
-              <FastImage
-                source={{ uri: item.item.sourceURL }}
-                style={{
-                  margin: 2,
-                  width: (width - 16 - 8) / 3,
-                  height: (IMAGE_HEIGHT * ((width - 16 - 8) / 3)) / IMAGE_WIDTH,
-                }}
-              />
-            )}
+            renderItem={item => {
+              return (
+                <FastImage
+                  source={{ uri: item.item.sourceURL }}
+                  style={{
+                    margin: 2,
+                    width: (width - 16 - 8) / 3,
+                    height:
+                      (IMAGE_HEIGHT * ((width - 16 - 8) / 3)) / IMAGE_WIDTH,
+                  }}
+                />
+              );
+            }}
             nestedScrollEnabled={true}
             numColumns={3}
           />

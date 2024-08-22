@@ -257,8 +257,6 @@ export default function UploadModal({
     );
   };
 
-  console.log(image, '???IMAGE');
-
   return (
     <Modal animationType="slide" visible={isVisible}>
       <View style={modalStyles.wrapper}>
