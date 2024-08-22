@@ -132,8 +132,6 @@ export function Detail({
     });
   };
 
-  Alert.alert(image?.path + ' / ' + image?.sourceURL);
-
   return (
     <View
       style={
