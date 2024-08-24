@@ -19,6 +19,7 @@ import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Geolocation from '@react-native-community/geolocation';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import RNFS from 'react-native-fs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -40,6 +41,7 @@ import { hasAndroidPermission } from '@utils/helper';
 import { Add, Arrow } from '@assets/svg';
 import { palette } from '@style/palette';
 import { modalStyles } from '@style/common';
+import Loading from './Loading';
 
 const { width } = Dimensions.get('window');
 
@@ -67,6 +69,7 @@ export default function UploadModal({
   const [longitude, setLongitude] = useState('');
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [cropperLoading, setCropperLoading] = useState(false);
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
@@ -88,7 +91,81 @@ export default function UploadModal({
     }
     getTodayMatch();
     getAllStadiumDistance();
+
+    if (!isVisible) {
+      ImageCropPicker.clean();
+    }
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
+
+  const openPicker = async (uri: string) => {
+    if (!uri) {
+      Toast.show({
+        type: 'error',
+        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
+      });
+      return;
+    }
+
+    try {
+      setCropperLoading(true);
+      const res = await ImageCropPicker.openCropper({
+        path: uri,
+        width: IMAGE_WIDTH,
+        height: IMAGE_HEIGHT,
+        cropping: true,
+        mediaType: 'photo',
+      });
+      setCropperLoading(false);
+      // NOTE 이미지 저장 후 경로 저장하기
+      const destinationPath = `${RNFS.DocumentDirectoryPath}/${
+        res.sourceURL?.split('/').reverse()[0].split('.')[0]
+      }_cropped.${res.sourceURL?.split('/').reverse()[0].split('.')[1]}`;
+
+      try {
+        await RNFS.copyFile(res.path, destinationPath);
+        setImage({ ...res, path: destinationPath });
+      } catch (error) {
+        console.error(error);
+        Toast.show({
+          type: 'error',
+          text1: '이미지를 저장하는 데 문제가 생겼어요. 다시 시도해주세요!',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      Toast.show({
+        type: 'error',
+        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
+      });
+    }
+  };
+
+  const getImageAction = async (buttonIndex: number) => {
+    if (buttonIndex === 1) {
+      const result = await launchCamera({
+        mediaType: 'photo',
+        maxWidth: IMAGE_WIDTH,
+        maxHeight: IMAGE_HEIGHT,
+        quality: 0.8,
+        saveToPhotos: true,
+      });
+      const item = result.assets;
+      if (!item || !item[0].uri || !item[0].width || !item[0].height) {
+        return;
+      }
+      await openPicker(item[0].uri);
+    } else if (buttonIndex === 2) {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 0.8,
+      });
+      const item = result.assets;
+      if (!item || !item[0].uri || !item[0].width || !item[0].height) {
+        return;
+      }
+      await openPicker(item[0].uri);
+    }
+  };
 
   const onPressOpenGallery = async () => {
     ActionSheetIOS.showActionSheetWithOptions(
@@ -98,51 +175,6 @@ export default function UploadModal({
       },
       buttonIndex => getImageAction(buttonIndex),
     );
-  };
-
-  const getImageAction = async (buttonIndex: number) => {
-    if (buttonIndex === 1) {
-      const result = await launchCamera({
-        mediaType: 'photo',
-        maxWidth: IMAGE_WIDTH,
-        maxHeight: IMAGE_HEIGHT,
-        quality: 1,
-        saveToPhotos: true,
-      });
-
-      if (!result.assets || !result.assets[0].uri) {
-        return;
-      }
-      await openPicker(result.assets[0].uri);
-    } else if (buttonIndex === 2) {
-      const result = await launchImageLibrary({
-        mediaType: 'photo',
-        quality: 1,
-      });
-
-      if (!result.assets || !result.assets[0].uri) {
-        return;
-      }
-      await openPicker(result.assets[0].uri);
-    }
-  };
-
-  const openPicker = async (uri: string) => {
-    try {
-      const res = await ImageCropPicker.openCropper({
-        path: uri,
-        width: IMAGE_WIDTH,
-        height: IMAGE_HEIGHT,
-        cropping: true,
-        mediaType: 'photo',
-      });
-      setImage(res);
-    } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
-      });
-    }
   };
 
   const onSave = async () => {
@@ -248,8 +280,6 @@ export default function UploadModal({
     );
   };
 
-  console.log(image);
-
   return (
     <Modal animationType="slide" visible={isVisible}>
       <View style={modalStyles.wrapper}>
@@ -277,11 +307,20 @@ export default function UploadModal({
             <View style={{ position: 'relative' }}>
               <Text style={modalStyles.labelText}>대표 이미지</Text>
               {/* 이미지 */}
-              {image ? (
+              {cropperLoading ? (
+                <View
+                  style={{
+                    width: width - 48,
+                    height: width - 48,
+                    justifyContent: 'center',
+                  }}>
+                  <Loading />
+                </View>
+              ) : image ? (
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
                     <FastImage
-                      source={{ uri: image.sourceURL }}
+                      source={{ uri: image.path }}
                       style={{
                         width: width - 48,
                         height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
@@ -423,7 +462,10 @@ export default function UploadModal({
           {/* SECTION BUTTONS */}
           <View style={modalStyles.buttonWrapper}>
             <TouchableOpacity
-              onPress={() => setIsVisible(false)}
+              onPress={() => {
+                setIsVisible(false);
+                setCropperLoading(false);
+              }}
               style={[
                 modalStyles.button,
                 {
