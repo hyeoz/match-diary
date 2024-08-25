@@ -43,6 +43,10 @@ import { palette } from '@style/palette';
 import { modalStyles } from '@style/common';
 import Loading from './Loading';
 
+/* TODO
+  - 좌표 계산
+*/
+
 const { width } = Dimensions.get('window');
 
 export default function UploadModal({
