@@ -43,7 +43,8 @@ import { modalStyles } from '@style/common';
 import Loading from './Loading';
 
 /* TODO
-  - 좌표 계산
+  - 크롭 모달 두번째 호출 로딩
+  - 월요일 기록 후 직관 기록 0으로 뜨는 문제
 */
 
 const { width } = Dimensions.get('window');
