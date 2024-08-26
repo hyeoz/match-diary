@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
+import ImageCropPicker from 'react-native-image-crop-picker';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
@@ -94,13 +94,9 @@ export default function UploadModal({
     }
     getTodayMatch();
     getAllStadiumDistance();
-
-    if (!isVisible) {
-      ImageCropPicker.clean();
-    }
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  const openPicker = async (uri: string) => {
+  const openPicker = async (fileName: string, uri: string) => {
     if (!uri) {
       Toast.show({
         type: 'error',
@@ -111,6 +107,7 @@ export default function UploadModal({
 
     try {
       setCropperLoading(true);
+      await ImageCropPicker.clean();
       const res = await ImageCropPicker.openCropper({
         path: uri,
         width: IMAGE_WIDTH,
@@ -118,11 +115,8 @@ export default function UploadModal({
         cropping: true,
         mediaType: 'photo',
       });
-      setCropperLoading(false);
       // NOTE 이미지 저장 후 경로 저장하기
-      const destinationPath = `${RNFS.DocumentDirectoryPath}/${
-        res.sourceURL?.split('/').reverse()[0].split('.')[0]
-      }_cropped.${res.sourceURL?.split('/').reverse()[0].split('.')[1]}`;
+      const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${fileName}`;
 
       try {
         await RNFS.copyFile(res.path, destinationPath);
@@ -140,6 +134,8 @@ export default function UploadModal({
         type: 'error',
         text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
       });
+    } finally {
+      setCropperLoading(false);
     }
   };
 
@@ -156,7 +152,8 @@ export default function UploadModal({
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
-      await openPicker(item[0].uri);
+      const tempName = [...item[0].uri.split('/').reverse()][0];
+      await openPicker(item[0].fileName ?? tempName, item[0].uri);
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
@@ -166,7 +163,8 @@ export default function UploadModal({
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
-      await openPicker(item[0].uri);
+      const tempName = [...item[0].uri.split('/').reverse()][0];
+      await openPicker(item[0].fileName ?? tempName, item[0].uri);
     }
   };
 
@@ -466,7 +464,7 @@ export default function UploadModal({
           {/* SECTION BUTTONS */}
           <View style={modalStyles.buttonWrapper}>
             <TouchableOpacity
-              onPress={() => {
+              onPress={async () => {
                 setIsVisible(false);
                 setCropperLoading(false);
               }}
