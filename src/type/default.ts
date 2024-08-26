@@ -68,3 +68,5 @@ export type CommunityItemType = {
   publishedAt: string;
   updatedAt: string;
 };
+
+export type CoordinateType = { lat: number; lon: number };

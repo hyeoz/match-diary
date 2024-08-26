@@ -123,7 +123,7 @@ export function Detail({
       return;
     }
 
-    await CameraRoll.saveToCameraRoll(uri);
+    await CameraRoll.save(uri, { type: 'photo', album: '직관일기' });
 
     Toast.show({
       type: 'success',

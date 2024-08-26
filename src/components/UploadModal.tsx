@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import ImageCropPicker, { ImageOrVideo } from 'react-native-image-crop-picker';
+import ImageCropPicker from 'react-native-image-crop-picker';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
@@ -25,9 +25,8 @@ import 'dayjs/locale/ko';
 dayjs.locale('ko');
 
 import SelectStadiumModal from './SelectStadiumModal';
-import { API, NAVER_API, StrapiType } from '@/api';
-import { DetailPropsType, MatchDataType } from '@/type/default';
-import { NaverDirectionsResponseType } from '@/type/naver';
+import { API, StrapiType } from '@/api';
+import { CoordinateType, DetailPropsType, MatchDataType } from '@/type/default';
 import {
   API_DATE_FORMAT,
   DATE_FORMAT,
@@ -37,11 +36,15 @@ import {
   STADIUM_GEO,
   STADIUM_SHORT_TO_LONG,
 } from '@utils/STATIC_DATA';
-import { hasAndroidPermission } from '@utils/helper';
+import { getDistanceFromLatLonToKm, hasAndroidPermission } from '@utils/helper';
 import { Add, Arrow } from '@assets/svg';
 import { palette } from '@style/palette';
 import { modalStyles } from '@style/common';
 import Loading from './Loading';
+
+/* TODO
+  - 크롭 모달 두번째 호출 로딩 확인
+*/
 
 const { width } = Dimensions.get('window');
 
@@ -91,13 +94,9 @@ export default function UploadModal({
     }
     getTodayMatch();
     getAllStadiumDistance();
-
-    if (!isVisible) {
-      ImageCropPicker.clean();
-    }
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  const openPicker = async (uri: string) => {
+  const openPicker = async (fileName: string, uri: string) => {
     if (!uri) {
       Toast.show({
         type: 'error',
@@ -108,6 +107,7 @@ export default function UploadModal({
 
     try {
       setCropperLoading(true);
+      await ImageCropPicker.clean();
       const res = await ImageCropPicker.openCropper({
         path: uri,
         width: IMAGE_WIDTH,
@@ -115,11 +115,8 @@ export default function UploadModal({
         cropping: true,
         mediaType: 'photo',
       });
-      setCropperLoading(false);
       // NOTE 이미지 저장 후 경로 저장하기
-      const destinationPath = `${RNFS.DocumentDirectoryPath}/${
-        res.sourceURL?.split('/').reverse()[0].split('.')[0]
-      }_cropped.${res.sourceURL?.split('/').reverse()[0].split('.')[1]}`;
+      const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${fileName}`;
 
       try {
         await RNFS.copyFile(res.path, destinationPath);
@@ -137,6 +134,8 @@ export default function UploadModal({
         type: 'error',
         text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
       });
+    } finally {
+      setCropperLoading(false);
     }
   };
 
@@ -153,7 +152,8 @@ export default function UploadModal({
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
-      await openPicker(item[0].uri);
+      const tempName = [...item[0].uri.split('/').reverse()][0];
+      await openPicker(item[0].fileName ?? tempName, item[0].uri);
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
@@ -163,7 +163,8 @@ export default function UploadModal({
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
-      await openPicker(item[0].uri);
+      const tempName = [...item[0].uri.split('/').reverse()][0];
+      await openPicker(item[0].fileName ?? tempName, item[0].uri);
     }
   };
 
@@ -233,7 +234,7 @@ export default function UploadModal({
   // 경기장 셀렉트박스 구현
   const getAllStadiumDistance = async () => {
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
-    const start = `${longitude},${latitude}`;
+    const start = { lat: Number(latitude), lon: Number(longitude) };
     const _stadiumInfo: { name: string; distance: number }[] = [];
 
     for (let sta of stadium) {
@@ -250,16 +251,17 @@ export default function UploadModal({
   const getStadiumDistance = async (
     stadium: string,
     result: { name: string; distance: number }[],
-    start: string,
+    start: CoordinateType,
   ) => {
-    const geo = `${STADIUM_GEO[stadium].lon},${STADIUM_GEO[stadium].lat}`;
-    const res = await NAVER_API.get<NaverDirectionsResponseType>(
-      `/map-direction/v1/driving?start=${start}&goal=${geo}`,
-    );
+    const goal = {
+      lat: STADIUM_GEO[stadium].lat,
+      lon: STADIUM_GEO[stadium].lon,
+    };
+    const res = getDistanceFromLatLonToKm(start, goal);
 
     result.push({
       name: STADIUM_SHORT_TO_LONG[stadium],
-      distance: res.data.route?.traoptimal[0].summary.distance ?? 0,
+      distance: res,
     });
   };
 
@@ -462,7 +464,7 @@ export default function UploadModal({
           {/* SECTION BUTTONS */}
           <View style={modalStyles.buttonWrapper}>
             <TouchableOpacity
-              onPress={() => {
+              onPress={async () => {
                 setIsVisible(false);
                 setCropperLoading(false);
               }}

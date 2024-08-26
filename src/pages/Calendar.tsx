@@ -210,61 +210,59 @@ function Calendar() {
         dt => dt.attributes.home === team || dt.attributes.away === team,
       );
 
-      if (!data) {
-        return;
-      }
-
-      if (!team) {
-        // 이번 시즌 직관 기록
-        _count.bySeason.home += 1;
-        // 이번 달 직관 기록
-        if (dayjs(keys[i]).month() === dayjs().month()) {
-          _count.byMonth.home += 1;
-        }
-        return;
-      } else if (team === data.attributes.home) {
-        // NOTE 홈경기
-        // 이번 시즌 직관 기록
-        _count.bySeason.home += 1;
-        // 이번 달 직관 기록
-        if (dayjs(keys[i]).month() === dayjs().month()) {
-          _count.byMonth.home += 1;
-        }
-        // 직관 승률
-        if (
-          (data.attributes.homeScore as number) >
-          (data.attributes.awayScore as number)
-        ) {
-          _count.rate.win += 1;
-        } else if (
-          (data.attributes.homeScore as number) <
-          (data.attributes.awayScore as number)
-        ) {
-          _count.rate.lose += 1;
+      if (data) {
+        if (!team) {
+          // 이번 시즌 직관 기록
+          _count.bySeason.home += 1;
+          // 이번 달 직관 기록
+          if (dayjs(keys[i]).month() === dayjs().month()) {
+            _count.byMonth.home += 1;
+          }
+          return;
+        } else if (team === data.attributes.home) {
+          // NOTE 홈경기
+          // 이번 시즌 직관 기록
+          _count.bySeason.home += 1;
+          // 이번 달 직관 기록
+          if (dayjs(keys[i]).month() === dayjs().month()) {
+            _count.byMonth.home += 1;
+          }
+          // 직관 승률
+          if (
+            (data.attributes.homeScore as number) >
+            (data.attributes.awayScore as number)
+          ) {
+            _count.rate.win += 1;
+          } else if (
+            (data.attributes.homeScore as number) <
+            (data.attributes.awayScore as number)
+          ) {
+            _count.rate.lose += 1;
+          } else {
+            _count.rate.draw += 1;
+          }
         } else {
-          _count.rate.draw += 1;
-        }
-      } else {
-        // NOTE 원정경기
-        // 이번 시즌 직관 기록
-        _count.bySeason.away += 1;
-        // 이번 달 직관 기록
-        if (dayjs(keys[i]).month() === dayjs().month()) {
-          _count.byMonth.away += 1;
-        }
-        // 직관 승률
-        if (
-          (data.attributes.homeScore as number) <
-          (data.attributes.awayScore as number)
-        ) {
-          _count.rate.win += 1;
-        } else if (
-          (data.attributes.homeScore as number) >
-          (data.attributes.awayScore as number)
-        ) {
-          _count.rate.lose += 1;
-        } else {
-          _count.rate.draw += 1;
+          // NOTE 원정경기
+          // 이번 시즌 직관 기록
+          _count.bySeason.away += 1;
+          // 이번 달 직관 기록
+          if (dayjs(keys[i]).month() === dayjs().month()) {
+            _count.byMonth.away += 1;
+          }
+          // 직관 승률
+          if (
+            (data.attributes.homeScore as number) <
+            (data.attributes.awayScore as number)
+          ) {
+            _count.rate.win += 1;
+          } else if (
+            (data.attributes.homeScore as number) >
+            (data.attributes.awayScore as number)
+          ) {
+            _count.rate.lose += 1;
+          } else {
+            _count.rate.draw += 1;
+          }
         }
       }
     }
