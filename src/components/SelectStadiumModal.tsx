@@ -180,7 +180,7 @@ function StadiumItem({
             color: '#bbb',
             fontFamily: 'KBO-Dia-Gothic-medium',
           }}>
-          {(distance / 1000).toFixed(1)}km
+          {distance.toFixed(1)}km
         </Text>
       )}
     </TouchableOpacity>

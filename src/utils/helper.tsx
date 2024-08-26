@@ -15,8 +15,9 @@ import {
   Tigers,
   Wiz,
 } from '@assets/svg';
+import { CoordinateType } from '@/type/default';
 
-export const hasAndroidPermission = async () => {
+const hasAndroidPermission = async () => {
   const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
 
   const hasPermission = await PermissionsAndroid.check(permission);
@@ -28,7 +29,7 @@ export const hasAndroidPermission = async () => {
   return status === 'granted';
 };
 
-export const renderIconSizeWithColor = (
+const renderIconSizeWithColor = (
   Svg: React.FC<SvgProps>,
   width: number,
   height?: number,
@@ -37,11 +38,36 @@ export const renderIconSizeWithColor = (
   return <Svg width={width} height={height ?? width} color={color} />;
 };
 
-export const getRandomElement = (array: string[]) => {
+const getRandomElement = (array: string[]) => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
-export const getTeamArrayWithIcon = (iconSize?: number) => [
+// NOTE 하버사인 공식
+const radiusOfEarth = 6371;
+
+const deg2rad = (deg: number) => {
+  return deg * (Math.PI / 180);
+};
+
+const getDistanceFromLatLonToKm = (
+  start: CoordinateType,
+  goal: CoordinateType,
+) => {
+  const dLat = deg2rad(goal.lat - start.lat); // 위도 차이 (라디안으로 변환)
+  const dLon = deg2rad(goal.lon - start.lon); // 경도 차이 (라디안으로 변환)
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(start.lat)) *
+      Math.cos(deg2rad(goal.lat)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = radiusOfEarth * c; // 두 지점 사이의 거리 (단위: km)
+  return distance;
+};
+
+const getTeamArrayWithIcon = (iconSize?: number) => [
   {
     key: 'SSG',
     label: 'SSG 랜더스',
@@ -143,3 +169,11 @@ export const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
 ];
+
+export {
+  getRandomElement,
+  getTeamArrayWithIcon,
+  renderIconSizeWithColor,
+  hasAndroidPermission,
+  getDistanceFromLatLonToKm,
+};
