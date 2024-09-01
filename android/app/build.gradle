@@ -77,6 +77,11 @@ project.ext.envConfigFiles = [
     anothercustombuild: ".env",
 ]
 
+project.ext.react = [
+    enableHermes: true,  // If you want to enable Hermes, set it to true
+]
+def enableHermes = project.ext.react.get("enableHermes", false)
+
 def env = System.getenv()
 
 android {
@@ -84,7 +89,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.matchdiary"
+    namespace "com.matchdiary.origin"
     defaultConfig {
         applicationId "com.matchdiary.origin"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -111,6 +116,13 @@ android {
             keyPassword MYAPP_RELEASE_KEY_PASSWORD
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -122,17 +134,26 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    // Ensure Java and Kotlin toolchains are properly configured
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+    }
+    kotlin {
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+    }
 }
 
 dependencies {
-    // The version of react-native is set by the React Native Gradle Plugin
-    implementation("com.facebook.react:react-android")
-    implementation("com.facebook.react:flipper-integration")
-
-    if (hermesEnabled.toBoolean()) {
-        implementation("com.facebook.react:hermes-android")
+    implementation "com.facebook.react:react-native:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    if (project.ext.react.enableHermes) {
+        implementation "com.facebook.react:hermes-engine:+"
     } else {
-        implementation jscFlavor
+        implementation "org.webkit:android-jsc:+"
     }
 }
 
