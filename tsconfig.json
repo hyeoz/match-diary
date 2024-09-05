@@ -16,7 +16,8 @@
       "@type/*": ["type/*"],
       "@utils/*": ["utils/*"],
       "@api/*": ["api/*"]
-    }
+    },
+    "types": ["@react-native-async-storage/async-storage"]
   },
   "extends": "@tsconfig/react-native/tsconfig.json"
 }

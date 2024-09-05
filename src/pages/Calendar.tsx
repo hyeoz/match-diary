@@ -71,6 +71,7 @@ function Calendar() {
   const [matches, setMatches] = useState<MatchDataType[]>([]);
   const [matchRecord, setMatchRecord] = useState(initCountData); // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
   const [loading, setLoading] = useState(false);
+  const [weeksCount, setWeeksCount] = useState(0);
 
   const { team } = useMyState();
   const { history } = useTabHistory();
@@ -122,7 +123,7 @@ function Calendar() {
     const _marked: MarkedDates = {};
 
     // NOTE storage 에 데이터가 있는 경우 dot
-    keys.forEach(key => {
+    keys.forEach((key: string) => {
       _marked[key] = { marked: true };
 
       if (key === selectedDate) {
@@ -149,11 +150,13 @@ function Calendar() {
       <DayComponent
         key={props.date?.dateString}
         selectedDate={selectedDate}
+        weeksCount={weeksCount}
+        setWeeksCount={setWeeksCount}
         {...props}
         onPress={onDayPress}
       />
     ),
-    [onDayPress, selectedDate],
+    [onDayPress, selectedDate, weeksCount],
   );
 
   const getMatchData = async () => {
@@ -197,7 +200,7 @@ function Calendar() {
     };
 
     const keys = (await AsyncStorage.getAllKeys()).filter(
-      key => key !== 'MY_TEAM' && key !== 'NICKNAME',
+      (key: string) => key !== 'MY_TEAM' && key !== 'NICKNAME',
     );
     for (let i = 0; i < keys.length; i++) {
       const res = await API.get<StrapiType<MatchDataType>>(
@@ -282,6 +285,8 @@ function Calendar() {
           markedDates={markedDates}
           firstDay={1}
           renderHeader={(date: string) => {
+            setWeeksCount(0);
+
             return (
               <View
                 style={{
@@ -502,17 +507,28 @@ function DayComponent({
   marking,
   onPress,
   selectedDate,
+  weeksCount,
+  setWeeksCount,
   ...props
 }: DayProps & {
-  date?: DateData | undefined;
+  date?: DateData;
   selectedDate: string;
+  weeksCount: number;
+  setWeeksCount: React.Dispatch<React.SetStateAction<number>>;
 }) {
+  setWeeksCount(prev => {
+    if (props.accessibilityLabel?.includes('월요일')) {
+      return prev + 1;
+    }
+    return prev;
+  });
+
   return (
     <TouchableOpacity
       onPress={() => onPress && onPress(date)}
       style={{
         width: '100%',
-        height: 40,
+        height: weeksCount > 5 ? 30 : 40,
         gap: 6,
         margin: 0,
         alignItems: 'center',

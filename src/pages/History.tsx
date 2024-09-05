@@ -37,13 +37,14 @@ function History() {
     setLoading(true);
 
     const _keys = (await AsyncStorage.getAllKeys()).filter(
-      key => key !== 'MY_TEAM' && key !== 'NICKNAME',
+      (key: string) => key !== 'MY_TEAM' && key !== 'NICKNAME',
     );
 
     if (allImages.length === _keys.length) {
       setLoading(false);
       return;
     }
+
     const images: ImageOrVideo[] = [];
 
     for (let i = 0; i < _keys.length; i++) {
@@ -78,7 +79,7 @@ function History() {
           내 직관일기 모아보기
         </Text>
       </View>
-      <ScrollView
+      <View
         style={{
           flex: 1,
           paddingHorizontal: 8,
@@ -91,7 +92,7 @@ function History() {
             renderItem={item => {
               return (
                 <FastImage
-                  source={{ uri: item.item.path }}
+                  source={{ uri: item.item.sourceURL }}
                   style={{
                     margin: 2,
                     width: (width - 16 - 8) / 3,
@@ -129,9 +130,7 @@ function History() {
                   borderRadius: 12,
                   marginTop: 24,
                 }}
-                onPress={() => {
-                  navigation.navigate('Main');
-                }}>
+                onPress={() => navigation.navigate('Main')}>
                 <Text
                   style={{
                     fontFamily: 'KBO-Dia-Gothic-bold',
@@ -145,7 +144,7 @@ function History() {
             </View>
           </View>
         )}
-      </ScrollView>
+      </View>
     </TouchableWrapper>
   );
 }
