@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import { PERMISSIONS, request } from 'react-native-permissions';
+import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -96,7 +96,40 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  const openPicker = async (fileName: string, uri: string) => {
+  // const timeout = new Promise((_, reject) => {
+  //   setTimeout(() => reject(new Error('Timeout')), 10000);
+  //   return null;
+  // });
+  const checkIOSPermissions = async (type: 'CAMERA' | 'GALLARY') => {
+    if (Platform.OS === 'ios') {
+      const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
+      const photoLibraryStatus = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
+
+      if (type === 'GALLARY' && photoLibraryStatus === RESULTS.GRANTED) {
+        return true;
+      } else if (type === 'CAMERA' && cameraStatus === RESULTS.GRANTED) {
+        return true;
+      } else {
+        console.log('Camera or Photo Library permission is not granted');
+        return false;
+      }
+    }
+    return true; // iOS가 아닌 경우 true 반환
+  };
+
+  const openPicker = async (
+    fileName: string,
+    uri: string,
+    type: 'CAMERA' | 'GALLARY',
+  ) => {
+    const hasPermission = await checkIOSPermissions(type);
+    if (!hasPermission) {
+      Toast.show({
+        type: 'error',
+        text1: '권한 설정이 필요해요!',
+      });
+      return;
+    }
     if (!uri) {
       Toast.show({
         type: 'error',
@@ -104,10 +137,10 @@ export default function UploadModal({
       });
       return;
     }
-
     try {
       setCropperLoading(true);
       await ImageCropPicker.clean();
+      setTimeout(() => {}, 300); // 무한로딩 해결
       const res = await ImageCropPicker.openCropper({
         path: uri,
         width: IMAGE_WIDTH,
@@ -153,7 +186,7 @@ export default function UploadModal({
         return;
       }
       const tempName = [...item[0].uri.split('/').reverse()][0];
-      await openPicker(item[0].fileName ?? tempName, item[0].uri);
+      await openPicker(item[0].fileName ?? tempName, item[0].uri, 'CAMERA');
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
@@ -164,7 +197,7 @@ export default function UploadModal({
         return;
       }
       const tempName = [...item[0].uri.split('/').reverse()][0];
-      await openPicker(item[0].fileName ?? tempName, item[0].uri);
+      await openPicker(item[0].fileName ?? tempName, item[0].uri, 'GALLARY');
     }
   };
 
