@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -48,7 +47,6 @@ import Loading from './Loading';
 */
 
 const { width } = Dimensions.get('window');
-const { width: screenWidth, height: screenHeight } = Dimensions.get('screen');
 
 export default function UploadModal({
   image,
@@ -199,19 +197,58 @@ export default function UploadModal({
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
-      const tempName = [...item[0].uri.split('/').reverse()][0];
-      await openPicker(item[0].fileName ?? tempName, item[0].uri, 'CAMERA');
+      // const tempName = [...item[0].uri.split('/').reverse()][0];
+      // FIXME crop 기능 제외
+      // await openPicker(item[0].fileName ?? tempName, item[0].uri, 'CAMERA');
+      try {
+        setImage({
+          path: item[0].uri,
+          size: item[0].fileSize ?? 0,
+          width: item[0].width ?? IMAGE_WIDTH,
+          height: item[0].height ?? IMAGE_HEIGHT,
+          mime: item[0].type ?? 'image/jpeg',
+        });
+      } catch (error) {
+        console.error(error);
+        Toast.show({
+          type: 'error',
+          text1: '이미지를 불러오는 데 문제가 생겼어요. 다시 시도해주세요!',
+        });
+      }
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 0.8,
+        maxWidth: IMAGE_WIDTH,
+        maxHeight: IMAGE_HEIGHT,
       });
       const item = result.assets;
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
       const tempName = [...item[0].uri.split('/').reverse()][0];
-      await openPicker(item[0].fileName ?? tempName, item[0].uri, 'GALLARY');
+      // FIXME crop 기능 제외
+      // await openPicker(item[0].fileName ?? tempName, item[0].uri, 'GALLARY');
+      const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${
+        item[0].fileName ?? tempName
+      }`;
+
+      try {
+        await RNFS.copyFile(item[0].uri, destinationPath);
+        setImage({
+          path: destinationPath,
+          size: item[0].fileSize ?? 0,
+          width: item[0].width ?? IMAGE_WIDTH,
+          height: item[0].height ?? IMAGE_HEIGHT,
+          mime: item[0].type ?? 'image/jpeg',
+        });
+      } catch (error) {
+        console.error(error);
+        Toast.show({
+          type: 'error',
+          text1: '이미지를 저장하는 데 문제가 생겼어요. 다시 시도해주세요!',
+        });
+      }
     }
   };
 
