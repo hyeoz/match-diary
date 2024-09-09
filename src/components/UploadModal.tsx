@@ -43,8 +43,7 @@ import { modalStyles } from '@style/common';
 import Loading from './Loading';
 
 /* TODO
-  - 크롭 모달 두번째 호출 로딩 확인
-*/
+ */
 
 const { width } = Dimensions.get('window');
 
