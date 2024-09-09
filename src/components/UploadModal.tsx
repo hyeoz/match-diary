@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -47,6 +48,7 @@ import Loading from './Loading';
 */
 
 const { width } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('screen');
 
 export default function UploadModal({
   image,
@@ -73,6 +75,7 @@ export default function UploadModal({
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cropperLoading, setCropperLoading] = useState(false);
+  const [tempUri, setTempUri] = useState('');
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
@@ -104,14 +107,25 @@ export default function UploadModal({
     if (Platform.OS === 'ios') {
       const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
       const photoLibraryStatus = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
-
-      if (type === 'GALLARY' && photoLibraryStatus === RESULTS.GRANTED) {
-        return true;
-      } else if (type === 'CAMERA' && cameraStatus === RESULTS.GRANTED) {
-        return true;
+      console.log(
+        photoLibraryStatus,
+        RESULTS.GRANTED,
+        photoLibraryStatus === RESULTS.GRANTED,
+        cameraStatus,
+        RESULTS.GRANTED,
+      );
+      if (type === 'GALLARY') {
+        if (photoLibraryStatus === RESULTS.GRANTED) {
+          return true;
+        } else {
+          return false;
+        }
       } else {
-        console.log('Camera or Photo Library permission is not granted');
-        return false;
+        if (cameraStatus === RESULTS.GRANTED) {
+          return true;
+        } else {
+          return false;
+        }
       }
     }
     return true; // iOS가 아닌 경우 true 반환
@@ -128,7 +142,7 @@ export default function UploadModal({
         type: 'error',
         text1: '권한 설정이 필요해요!',
       });
-      return;
+      return request(PERMISSIONS.IOS.CAMERA);
     }
     if (!uri) {
       Toast.show({
@@ -140,7 +154,7 @@ export default function UploadModal({
     try {
       setCropperLoading(true);
       await ImageCropPicker.clean();
-      setTimeout(() => {}, 300); // 무한로딩 해결
+
       const res = await ImageCropPicker.openCropper({
         path: uri,
         width: IMAGE_WIDTH,
@@ -222,6 +236,11 @@ export default function UploadModal({
       Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
       return;
     } else {
+      const keys = await AsyncStorage.getAllKeys();
+      if (keys.includes(formattedToday)) {
+        await AsyncStorage.removeItem(formattedToday);
+      }
+
       await AsyncStorage.setItem(
         formattedToday,
         JSON.stringify({
@@ -233,6 +252,7 @@ export default function UploadModal({
           away: matchInfo?.[selectedStadium]?.away,
         }),
       );
+
       setIsVisible(false);
     }
   };
@@ -497,7 +517,7 @@ export default function UploadModal({
           {/* SECTION BUTTONS */}
           <View style={modalStyles.buttonWrapper}>
             <TouchableOpacity
-              onPress={async () => {
+              onPress={() => {
                 setIsVisible(false);
                 setCropperLoading(false);
               }}
