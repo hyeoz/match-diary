@@ -39,7 +39,7 @@ function Write() {
 
   useEffect(() => {
     getMyTeam();
-  });
+  }, []);
 
   const getMyTeam = async () => {
     const res = await AsyncStorage.getItem('MY_TEAM');

@@ -39,11 +39,10 @@ function History() {
     const _keys = (await AsyncStorage.getAllKeys()).filter(
       (key: string) => key !== 'MY_TEAM' && key !== 'NICKNAME',
     );
-
-    if (allImages.length === _keys.length) {
-      setLoading(false);
-      return;
-    }
+    // if (allImages.length === _keys.length) {
+    //   setLoading(false);
+    //   return;
+    // }
 
     const images: ImageOrVideo[] = [];
 
@@ -92,7 +91,7 @@ function History() {
             renderItem={item => {
               return (
                 <FastImage
-                  source={{ uri: item.item.sourceURL }}
+                  source={{ uri: item.item.path }}
                   style={{
                     margin: 2,
                     width: (width - 16 - 8) / 3,

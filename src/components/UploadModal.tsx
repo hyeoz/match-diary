@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import { PERMISSIONS, request } from 'react-native-permissions';
+import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,8 +43,7 @@ import { modalStyles } from '@style/common';
 import Loading from './Loading';
 
 /* TODO
-  - 크롭 모달 두번째 호출 로딩 확인
-*/
+ */
 
 const { width } = Dimensions.get('window');
 
@@ -73,6 +72,7 @@ export default function UploadModal({
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cropperLoading, setCropperLoading] = useState(false);
+  const [tempUri, setTempUri] = useState('');
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
@@ -96,7 +96,45 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  const openPicker = async (fileName: string, uri: string) => {
+  // const timeout = new Promise((_, reject) => {
+  //   setTimeout(() => reject(new Error('Timeout')), 10000);
+  //   return null;
+  // });
+  const checkIOSPermissions = async (type: 'CAMERA' | 'GALLARY') => {
+    if (Platform.OS === 'ios') {
+      const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
+      const photoLibraryStatus = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
+
+      if (type === 'GALLARY') {
+        if (photoLibraryStatus === RESULTS.GRANTED) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        if (cameraStatus === RESULTS.GRANTED) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+    return true; // iOS가 아닌 경우 true 반환
+  };
+
+  const openPicker = async (
+    fileName: string,
+    uri: string,
+    type: 'CAMERA' | 'GALLARY',
+  ) => {
+    const hasPermission = await checkIOSPermissions(type);
+    if (!hasPermission) {
+      Toast.show({
+        type: 'error',
+        text1: '권한 설정이 필요해요!',
+      });
+      return request(PERMISSIONS.IOS.CAMERA);
+    }
     if (!uri) {
       Toast.show({
         type: 'error',
@@ -104,10 +142,10 @@ export default function UploadModal({
       });
       return;
     }
-
     try {
       setCropperLoading(true);
       await ImageCropPicker.clean();
+
       const res = await ImageCropPicker.openCropper({
         path: uri,
         width: IMAGE_WIDTH,
@@ -152,19 +190,58 @@ export default function UploadModal({
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
-      const tempName = [...item[0].uri.split('/').reverse()][0];
-      await openPicker(item[0].fileName ?? tempName, item[0].uri);
+      // const tempName = [...item[0].uri.split('/').reverse()][0];
+      // FIXME crop 기능 제외
+      // await openPicker(item[0].fileName ?? tempName, item[0].uri, 'CAMERA');
+      try {
+        setImage({
+          path: item[0].uri,
+          size: item[0].fileSize ?? 0,
+          width: item[0].width ?? IMAGE_WIDTH,
+          height: item[0].height ?? IMAGE_HEIGHT,
+          mime: item[0].type ?? 'image/jpeg',
+        });
+      } catch (error) {
+        console.error(error);
+        Toast.show({
+          type: 'error',
+          text1: '이미지를 불러오는 데 문제가 생겼어요. 다시 시도해주세요!',
+        });
+      }
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 0.8,
+        maxWidth: IMAGE_WIDTH,
+        maxHeight: IMAGE_HEIGHT,
       });
       const item = result.assets;
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
       const tempName = [...item[0].uri.split('/').reverse()][0];
-      await openPicker(item[0].fileName ?? tempName, item[0].uri);
+      // FIXME crop 기능 제외
+      // await openPicker(item[0].fileName ?? tempName, item[0].uri, 'GALLARY');
+      const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${
+        item[0].fileName ?? tempName
+      }`;
+
+      try {
+        await RNFS.copyFile(item[0].uri, destinationPath);
+        setImage({
+          path: destinationPath,
+          size: item[0].fileSize ?? 0,
+          width: item[0].width ?? IMAGE_WIDTH,
+          height: item[0].height ?? IMAGE_HEIGHT,
+          mime: item[0].type ?? 'image/jpeg',
+        });
+      } catch (error) {
+        console.error(error);
+        Toast.show({
+          type: 'error',
+          text1: '이미지를 저장하는 데 문제가 생겼어요. 다시 시도해주세요!',
+        });
+      }
     }
   };
 
@@ -189,6 +266,11 @@ export default function UploadModal({
       Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
       return;
     } else {
+      const keys = await AsyncStorage.getAllKeys();
+      if (keys.includes(formattedToday)) {
+        await AsyncStorage.removeItem(formattedToday);
+      }
+
       await AsyncStorage.setItem(
         formattedToday,
         JSON.stringify({
@@ -200,6 +282,7 @@ export default function UploadModal({
           away: matchInfo?.[selectedStadium]?.away,
         }),
       );
+
       setIsVisible(false);
     }
   };
@@ -464,7 +547,7 @@ export default function UploadModal({
           {/* SECTION BUTTONS */}
           <View style={modalStyles.buttonWrapper}>
             <TouchableOpacity
-              onPress={async () => {
+              onPress={() => {
                 setIsVisible(false);
                 setCropperLoading(false);
               }}
