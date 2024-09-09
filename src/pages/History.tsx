@@ -48,7 +48,7 @@ function History() {
 
     for (let i = 0; i < _keys.length; i++) {
       const res = await AsyncStorage.getItem(_keys[i]);
-      console.log(res);
+
       if (!res) {
         setLoading(false);
         return;

@@ -104,13 +104,7 @@ export default function UploadModal({
     if (Platform.OS === 'ios') {
       const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
       const photoLibraryStatus = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
-      console.log(
-        photoLibraryStatus,
-        RESULTS.GRANTED,
-        photoLibraryStatus === RESULTS.GRANTED,
-        cameraStatus,
-        RESULTS.GRANTED,
-      );
+
       if (type === 'GALLARY') {
         if (photoLibraryStatus === RESULTS.GRANTED) {
           return true;
