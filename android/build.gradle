@@ -15,13 +15,12 @@ buildscript {
     dependencies {
         classpath("com.facebook.react:react-native-gradle-plugin")
         // classpath("com.android.tools.build:gradle:$androidGradlePluginVersion")
-        // classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        // classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
         classpath("com.android.tools.build:gradle")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
     }
 }
 wrapper {
     gradleVersion = '8.7' // 최신 Gradle 버전으로 업데이트
 }
-
 apply plugin: "com.facebook.react.rootproject"

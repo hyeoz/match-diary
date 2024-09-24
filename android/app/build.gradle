@@ -7,6 +7,7 @@ apply plugin: "com.facebook.react"
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
+    autolinkLibrariesWithApp()
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '..'
     // root = file("../")
@@ -89,13 +90,15 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.matchdiary.origin"
+    namespace "com.matchdiary"
+    
     defaultConfig {
-        applicationId "com.matchdiary.origin"
+        applicationId "com.matchdiary"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.2.2"
+        multiDexEnabled true
         resValue "string", "MAPS_KEY", env["REACT_APP_NAVER_MAPS_PRIMARY_KEY"] ?: ''
         resValue "string", "NAVER_CLIENT_ID", env["REACT_APP_NAVER_CLIENT_ID"] ?: ''
         resValue "string", "NAVER_CLIENT_SECRET_KEY", env["REACT_APP_NAVER_CLIENT_SECRET_KEY"] ?: ''
@@ -116,12 +119,18 @@ android {
             keyPassword MYAPP_RELEASE_KEY_PASSWORD
         }
     }
+    packagingOptions {
+        pickFirst '**/libjsc.so'
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
         jvmTarget = "17"
+    }
+    buildFeatures {
+        buildConfig = true
     }
     buildTypes {
         debug {
@@ -150,6 +159,7 @@ android {
 dependencies {
     implementation "com.facebook.react:react-native:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "androidx.multidex:multidex:2.0.1"
     if (project.ext.react.enableHermes) {
         implementation "com.facebook.react:hermes-engine:+"
     } else {
@@ -157,4 +167,4 @@ dependencies {
     }
 }
 
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+// apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
