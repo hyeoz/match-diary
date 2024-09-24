@@ -98,6 +98,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.2.2"
+        multiDexEnabled true
         resValue "string", "MAPS_KEY", env["REACT_APP_NAVER_MAPS_PRIMARY_KEY"] ?: ''
         resValue "string", "NAVER_CLIENT_ID", env["REACT_APP_NAVER_CLIENT_ID"] ?: ''
         resValue "string", "NAVER_CLIENT_SECRET_KEY", env["REACT_APP_NAVER_CLIENT_SECRET_KEY"] ?: ''
@@ -119,8 +120,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -155,6 +156,7 @@ android {
 dependencies {
     implementation "com.facebook.react:react-native:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "androidx.multidex:multidex:2.0.1"
     if (project.ext.react.enableHermes) {
         implementation "com.facebook.react:hermes-engine:+"
     } else {
