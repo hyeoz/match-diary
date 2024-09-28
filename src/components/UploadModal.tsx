@@ -295,27 +295,37 @@ export default function UploadModal({
       setStadium(['경기가 없어요!']);
     } else {
       const _stadium = res.data.data.map(att => {
+        let stadiumName = att.attributes.stadium;
+
+        if (att.attributes.memo.includes('더블헤더')) {
+          stadiumName += `-${
+            res.data.data
+              .filter(
+                data => data.attributes.stadium === att.attributes.stadium,
+              )
+              .findIndex(
+                value => value.attributes.time === att.attributes.time,
+              ) + 1
+          }`;
+        }
         setMatchInfo(prev => {
           return {
             ...prev,
-            [att.attributes.stadium]: {
+            [stadiumName]: {
               home: att.attributes.home,
               away: att.attributes.away,
             },
           };
         });
-        return att.attributes.stadium;
+        return stadiumName;
       });
 
-      const filteredStadium = _stadium.filter(
-        (sta, index) => _stadium.lastIndexOf(sta) === index,
-      ); // NOTE 두산 vs LG 의 경기인 경우 잠실이 두 번 나타날 수 있음
-      setStadium(filteredStadium);
+      setStadium(_stadium);
     }
   };
 
   // 경기장 셀렉트박스 구현
-  const getAllStadiumDistance = async () => {
+  const getAllStadiumDistance = () => {
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
     const start = { lat: Number(latitude), lon: Number(longitude) };
     const _stadiumInfo: { name: string; distance: number }[] = [];
@@ -324,28 +334,47 @@ export default function UploadModal({
       if (sta === '경기가 없어요!') {
         _stadiumInfo.push({ name: sta, distance: 0 });
       } else {
-        await getStadiumDistance(sta, _stadiumInfo, start);
+        getStadiumDistance(sta, _stadiumInfo, start);
       }
     }
     setStadiumInfo(_stadiumInfo);
     setLoading(false);
   };
 
-  const getStadiumDistance = async (
-    stadium: string,
+  const getStadiumDistance = (
+    stadiumShortName: string,
     result: { name: string; distance: number }[],
     start: CoordinateType,
   ) => {
+    let editedName = '';
+    let isDh = false;
+    let dhInfo = '';
+
+    // 더블헤더
+    if (stadiumShortName.includes('-')) {
+      editedName = stadiumShortName.split('-')[0];
+      dhInfo = stadiumShortName.split('-')[1];
+      isDh = true;
+    } else {
+      editedName = stadiumShortName;
+    }
+
     const goal = {
-      lat: STADIUM_GEO[stadium].lat,
-      lon: STADIUM_GEO[stadium].lon,
+      lat: STADIUM_GEO[editedName].lat,
+      lon: STADIUM_GEO[editedName].lon,
     };
     const res = getDistanceFromLatLonToKm(start, goal);
-
-    result.push({
-      name: STADIUM_SHORT_TO_LONG[stadium],
-      distance: res,
-    });
+    if (isDh) {
+      result.push({
+        name: `${STADIUM_SHORT_TO_LONG[editedName]} - DH ${dhInfo}`,
+        distance: res,
+      });
+    } else {
+      result.push({
+        name: STADIUM_SHORT_TO_LONG[editedName],
+        distance: res,
+      });
+    }
   };
 
   const getLocation = async () => {
