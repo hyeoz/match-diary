@@ -210,9 +210,18 @@ function Calendar() {
         )}`,
       );
 
-      const data = res.data.data.find(
-        dt => dt.attributes.home === team || dt.attributes.away === team,
-      );
+      const data = res.data.data.find((dt, index) => {
+        if (selectedStadium.includes('2')) {
+          // NOTE 더블헤더 경기 로직 추가
+          return (
+            (dt.attributes.home === team || dt.attributes.away === team) &&
+            index === 1
+          );
+        } else {
+          return dt.attributes.home === team || dt.attributes.away === team;
+        }
+      });
+      console.log(data);
 
       if (data) {
         if (!team) {
@@ -270,7 +279,7 @@ function Calendar() {
         }
       }
     }
-
+    console.log(_count);
     setMatchRecord(_count);
   };
 
