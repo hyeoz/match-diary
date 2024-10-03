@@ -170,11 +170,12 @@ function Calendar() {
     if (!res.data.data.length) {
       return setMatches([]);
     }
+    // NOTE 더블헤더 로직 추가
     if (team) {
       const filteredMatch = res.data.data.filter(
         data => data.attributes.home === team || data.attributes.away === team,
       );
-      setMatches([filteredMatch[0].attributes]);
+      setMatches(filteredMatch.map(f => f.attributes));
     } else {
       setMatches(res.data.data.map(d => d.attributes));
     }
@@ -324,13 +325,20 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
-              myTeamMatch={matches.find(match => {
+              myTeamMatch={matches.find((match, index) => {
                 const _date = match.date.split('(')[0].replaceAll('.', '/');
-
-                return (
-                  dayjs(_date).format(DATE_FORMAT) ===
-                  dayjs(selectedDate).format(DATE_FORMAT)
-                );
+                if (selectedStadium.includes('2')) {
+                  // NOTE 더블헤더 경기 로직 추가
+                  return (
+                    dayjs(_date).format(DATE_FORMAT) ===
+                      dayjs(selectedDate).format(DATE_FORMAT) && index === 1
+                  );
+                } else {
+                  return (
+                    dayjs(_date).format(DATE_FORMAT) ===
+                    dayjs(selectedDate).format(DATE_FORMAT)
+                  );
+                }
               })}
               date={selectedDate}
             />

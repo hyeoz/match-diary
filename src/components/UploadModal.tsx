@@ -65,14 +65,13 @@ export default function UploadModal({
   const [matchInfo, setMatchInfo] = useState<{
     [key: string]: { home: string; away: string };
   }>();
-  // const [selectedStadium, setSelectedStadium] = useState<string>('');
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cropperLoading, setCropperLoading] = useState(false);
-  const [tempUri, setTempUri] = useState('');
+  // const [tempUri, setTempUri] = useState('');
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
@@ -96,10 +95,6 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  // const timeout = new Promise((_, reject) => {
-  //   setTimeout(() => reject(new Error('Timeout')), 10000);
-  //   return null;
-  // });
   const checkIOSPermissions = async (type: 'CAMERA' | 'GALLARY') => {
     if (Platform.OS === 'ios') {
       const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);

@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Dimensions,
-  Image,
   Platform,
   StyleSheet,
   Text,
@@ -14,18 +13,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
+import FastImage from 'react-native-fast-image';
 
 import { DetailPropsType, MatchDataType } from '@/type/default';
 import { useMyState } from '@stores/default';
 import { hasAndroidPermission } from '@utils/helper';
-import {
-  DATE_FORMAT,
-  DATE_FORMAT_SLASH,
-  IMAGE_HEIGHT,
-  IMAGE_WIDTH,
-} from '@utils/STATIC_DATA';
+import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
-import FastImage from 'react-native-fast-image';
 
 const { width, height } = Dimensions.get('window');
 
