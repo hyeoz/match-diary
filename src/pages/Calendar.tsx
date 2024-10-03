@@ -221,7 +221,6 @@ function Calendar() {
           return dt.attributes.home === team || dt.attributes.away === team;
         }
       });
-      console.log(data);
 
       if (data) {
         if (!team) {
@@ -279,7 +278,6 @@ function Calendar() {
         }
       }
     }
-    console.log(_count);
     setMatchRecord(_count);
   };
 
