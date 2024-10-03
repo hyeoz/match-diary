@@ -266,7 +266,9 @@ export function Detail({
                   </>
                 )}
                 {' @'}
-                {selectedStadium}
+                {selectedStadium.includes('DH')
+                  ? selectedStadium.split(' - DH')[0]
+                  : selectedStadium}
               </Text>
             </View>
             <View
