@@ -241,13 +241,36 @@ export default function UploadModal({
   };
 
   const onPressOpenGallery = async () => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['취소', '카메라', '앨범'],
-        cancelButtonIndex: 0,
-      },
-      buttonIndex => getImageAction(buttonIndex),
-    );
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['취소', '카메라', '앨범'],
+          cancelButtonIndex: 0,
+        },
+        buttonIndex => getImageAction(buttonIndex),
+      );
+    } else if (Platform.OS === 'android') {
+      Alert.alert(
+        '이미지 선택',
+        '이미지를 추가할 방식을 선택해주세요!',
+        [
+          {
+            text: '취소',
+            onPress: () => getImageAction(0),
+            style: 'cancel',
+          },
+          {
+            text: '카메라',
+            onPress: () => getImageAction(1),
+          },
+          {
+            text: '앨범',
+            onPress: () => getImageAction(2),
+          },
+        ],
+        { cancelable: true, onDismiss: () => getImageAction(0) },
+      );
+    }
   };
 
   const onSave = async () => {

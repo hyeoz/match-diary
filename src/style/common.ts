@@ -36,6 +36,7 @@ export const modalStyles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     borderColor: '#888',
+    backgroundColor: '#fff',
     paddingHorizontal: 10,
     // paddingTop: 10,
     fontFamily: 'KBO-Dia-Gothic-mediumd',
