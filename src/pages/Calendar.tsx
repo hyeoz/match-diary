@@ -288,7 +288,7 @@ function Calendar() {
         <RNCalendar
           style={styles.calendar}
           theme={{
-            textDayHeaderFontFamily: 'KBO-Dia-Gothic-medium',
+            textDayHeaderFontFamily: 'KBO Dia Gothic_medium',
             arrowColor: palette.commonColor.green,
           }}
           markedDates={markedDates}
@@ -627,11 +627,25 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   headerText: {
-    fontFamily: 'KBO-Dia-Gothic-bold',
     fontSize: 18,
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
   },
   calendarText: {
-    fontFamily: 'KBO-Dia-Gothic-medium',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_medium',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-medium',
+      },
+    }),
   },
   detailWrapper: {
     width: width * 0.6,

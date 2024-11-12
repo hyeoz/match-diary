@@ -3,6 +3,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -73,7 +74,14 @@ function History() {
             textAlign: 'center',
             fontWeight: '700',
             fontSize: 18,
-            fontFamily: 'KBO-Dia-Gothic-bold',
+            ...Platform.select({
+              android: {
+                fontFamily: 'KBO Dia Gothic_bold',
+              },
+              ios: {
+                fontFamily: 'KBO-Dia-Gothic-bold',
+              },
+            }),
           }}>
           내 직관일기 모아보기
         </Text>
@@ -108,11 +116,18 @@ function History() {
           <View>
             <Text
               style={{
-                fontFamily: 'KBO-Dia-Gothic-bold',
                 textAlign: 'center',
                 color: palette.greyColor.gray8,
                 fontSize: 24,
                 marginTop: 32,
+                ...Platform.select({
+                  android: {
+                    fontFamily: 'KBO Dia Gothic_bold',
+                  },
+                  ios: {
+                    fontFamily: 'KBO-Dia-Gothic-bold',
+                  },
+                }),
               }}>
               저장된 직관 일기가 없어요.
             </Text>
@@ -132,10 +147,17 @@ function History() {
                 onPress={() => navigation.navigate('Main')}>
                 <Text
                   style={{
-                    fontFamily: 'KBO-Dia-Gothic-bold',
                     color: '#fff',
                     textAlign: 'center',
                     fontSize: 24,
+                    ...Platform.select({
+                      android: {
+                        fontFamily: 'KBO Dia Gothic_bold',
+                      },
+                      ios: {
+                        fontFamily: 'KBO-Dia-Gothic-bold',
+                      },
+                    }),
                   }}>
                   지금 기록하러 가기!
                 </Text>

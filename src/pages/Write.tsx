@@ -160,8 +160,17 @@ const styles = StyleSheet.create({
   addText: {
     textAlign: 'center',
     fontSize: 14,
-    fontFamily: 'KBO-Dia-Gothic-bold', // NOTE font 적용 시 post script 이름으로 적용 필요
     color: '#aaa',
+    // NOTE font 적용 시 post script 이름으로 적용 필요
+
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
   },
 });
 

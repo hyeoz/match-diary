@@ -387,6 +387,13 @@ const polaroidStyles = StyleSheet.create({
     marginTop: 16,
   },
   shareText: {
-    fontFamily: 'KBO-Dia-Gothic-medium',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_medium',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-medium',
+      },
+    }),
   },
 });

@@ -416,16 +416,7 @@ export default function UploadModal({
     <Modal animationType="slide" visible={isVisible}>
       <View style={modalStyles.wrapper}>
         <View style={modalStyles.header}>
-          <Text
-            style={{
-              textAlign: 'center',
-              fontWeight: '700',
-              fontSize: 18,
-              fontFamily: 'KBO-Dia-Gothic-bold',
-              color: '#000',
-            }}>
-            업로드
-          </Text>
+          <Text style={modalStyles.uploadText}>업로드</Text>
         </View>
 
         <View

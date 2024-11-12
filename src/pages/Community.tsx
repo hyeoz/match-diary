@@ -3,6 +3,7 @@ import {
   FlatList,
   ListRenderItemInfo,
   Modal,
+  Platform,
   RefreshControl,
   Text,
   TextInput,
@@ -159,7 +160,14 @@ function Community() {
             style={{
               fontWeight: '700',
               fontSize: 18,
-              fontFamily: 'KBO-Dia-Gothic-bold',
+              ...Platform.select({
+                android: {
+                  fontFamily: 'KBO Dia Gothic_bold',
+                },
+                ios: {
+                  fontFamily: 'KBO-Dia-Gothic-bold',
+                },
+              }),
             }}>
             커뮤니티
           </Text>
@@ -181,8 +189,15 @@ function Community() {
                 style={{
                   fontWeight: '600',
                   fontSize: 16,
-                  fontFamily: 'KBO-Dia-Gothic-medium',
                   color: 'white',
+                  ...Platform.select({
+                    android: {
+                      fontFamily: 'KBO Dia Gothic_medium',
+                    },
+                    ios: {
+                      fontFamily: 'KBO-Dia-Gothic-medium',
+                    },
+                  }),
                 }}>
                 글 올리기
               </Text>
@@ -238,11 +253,18 @@ function Community() {
           ) : (
             <Text
               style={{
-                fontFamily: 'KBO-Dia-Gothic-bold',
                 textAlign: 'center',
                 color: palette.greyColor.gray8,
                 fontSize: 18,
                 marginTop: 32,
+                ...Platform.select({
+                  android: {
+                    fontFamily: 'KBO Dia Gothic_bold',
+                  },
+                  ios: {
+                    fontFamily: 'KBO-Dia-Gothic-bold',
+                  },
+                }),
               }}>
               {`아직 글이 없어요TT\n지금 글을 남겨보세요!`}
             </Text>
@@ -250,11 +272,18 @@ function Community() {
         ) : (
           <Text
             style={{
-              fontFamily: 'KBO-Dia-Gothic-bold',
               textAlign: 'center',
               color: palette.greyColor.gray8,
               fontSize: 18,
               marginTop: 32,
+              ...Platform.select({
+                android: {
+                  fontFamily: 'KBO Dia Gothic_bold',
+                },
+                ios: {
+                  fontFamily: 'KBO-Dia-Gothic-bold',
+                },
+              }),
             }}>
             경기장을 먼저 선택해주세요!
           </Text>
@@ -289,8 +318,15 @@ function Community() {
                 textAlign: 'center',
                 fontWeight: '700',
                 fontSize: 18,
-                fontFamily: 'KBO-Dia-Gothic-bold',
                 color: '#000',
+                ...Platform.select({
+                  android: {
+                    fontFamily: 'KBO Dia Gothic_bold',
+                  },
+                  ios: {
+                    fontFamily: 'KBO-Dia-Gothic-bold',
+                  },
+                }),
               }}>
               업로드
             </Text>
@@ -398,13 +434,27 @@ const CommunityItems = ({
         <View>
           <Text
             style={{
-              fontFamily: 'KBO-Dia-Gothic-medium',
+              ...Platform.select({
+                android: {
+                  fontFamily: 'KBO Dia Gothic_medium',
+                },
+                ios: {
+                  fontFamily: 'KBO-Dia-Gothic-medium',
+                },
+              }),
             }}>
             {item.attributes.nickname}
           </Text>
           <Text
             style={{
-              fontFamily: 'KBO-Dia-Gothic-medium',
+              ...Platform.select({
+                android: {
+                  fontFamily: 'KBO Dia Gothic_medium',
+                },
+                ios: {
+                  fontFamily: 'KBO-Dia-Gothic-medium',
+                },
+              }),
             }}>
             {dayjs(item.attributes.createdAt).format(DATE_FORMAT)}
           </Text>
@@ -412,7 +462,14 @@ const CommunityItems = ({
       </View>
       <Text
         style={{
-          fontFamily: 'KBO-Dia-Gothic-light',
+          ...Platform.select({
+            android: {
+              fontFamily: 'KBO Dia Gothic_light',
+            },
+            ios: {
+              fontFamily: 'KBO-Dia-Gothic-light',
+            },
+          }),
         }}>
         {item.attributes.content}
         {/* {item.id} */}
