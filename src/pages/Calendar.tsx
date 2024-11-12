@@ -3,6 +3,7 @@ import {
   Dimensions,
   FlatList,
   ListRenderItemInfo,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -543,7 +544,14 @@ function DayComponent({
       onPress={() => onPress && onPress(date)}
       style={{
         width: '100%',
-        height: weeksCount > 5 ? 30 : 40,
+        height:
+          weeksCount > 5
+            ? Platform.OS === 'android'
+              ? 27
+              : 30
+            : Platform.OS === 'android'
+            ? 37
+            : 40,
         gap: 6,
         margin: 0,
         alignItems: 'center',
