@@ -7,6 +7,7 @@ import {
   Linking,
   ListRenderItemInfo,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -219,9 +220,16 @@ function More() {
         }}>
         <Text
           style={{
-            fontFamily: 'KBO-Dia-Gothic-bold',
             fontSize: 32,
             color: '#fff',
+            ...Platform.select({
+              android: {
+                fontFamily: 'KBO Dia Gothic_bold',
+              },
+              ios: {
+                fontFamily: 'KBO-Dia-Gothic-bold',
+              },
+            }),
           }}>
           SETTING
         </Text>
@@ -236,13 +244,20 @@ function More() {
           style={{
             backgroundColor: '#fff',
             width: '90%',
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 0,
-            },
-            shadowOpacity: 0.2,
-            shadowRadius: 16,
+            ...Platform.select({
+              android: {
+                elevation: 3,
+              },
+              ios: {
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 0,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 16,
+              },
+            }),
           }}>
           <FlatList
             renderItem={props => <ListItem {...props} />}
@@ -274,7 +289,14 @@ function More() {
                   textAlign: 'center',
                   fontWeight: '700',
                   fontSize: 18,
-                  fontFamily: 'KBO-Dia-Gothic-bold',
+                  ...Platform.select({
+                    android: {
+                      fontFamily: 'KBO Dia Gothic_bold',
+                    },
+                    ios: {
+                      fontFamily: 'KBO-Dia-Gothic-bold',
+                    },
+                  }),
                 }}>
                 내 정보 수정
               </Text>
@@ -290,7 +312,14 @@ function More() {
                   style={{
                     fontWeight: '700',
                     fontSize: 18,
-                    fontFamily: 'KBO-Dia-Gothic-bold',
+                    ...Platform.select({
+                      android: {
+                        fontFamily: 'KBO Dia Gothic_bold',
+                      },
+                      ios: {
+                        fontFamily: 'KBO-Dia-Gothic-bold',
+                      },
+                    }),
                   }}>
                   닉네임 설정
                 </Text>
@@ -308,7 +337,14 @@ function More() {
                   borderRadius: 4,
                   borderColor: '#888',
                   paddingHorizontal: 10,
-                  fontFamily: 'KBO-Dia-Gothic-mediumd',
+                  ...Platform.select({
+                    android: {
+                      fontFamily: 'KBO Dia Gothic_medium',
+                    },
+                    ios: {
+                      fontFamily: 'KBO-Dia-Gothic-medium',
+                    },
+                  }),
                 }}
               />
             </View>
@@ -323,7 +359,14 @@ function More() {
                   style={{
                     fontWeight: '700',
                     fontSize: 18,
-                    fontFamily: 'KBO-Dia-Gothic-bold',
+                    ...Platform.select({
+                      android: {
+                        fontFamily: 'KBO Dia Gothic_bold',
+                      },
+                      ios: {
+                        fontFamily: 'KBO-Dia-Gothic-bold',
+                      },
+                    }),
                   }}>
                   마이팀 설정
                 </Text>
@@ -361,7 +404,14 @@ function More() {
               <Text
                 style={{
                   textAlign: 'center',
-                  fontFamily: 'KBO-Dia-Gothic-bold',
+                  ...Platform.select({
+                    android: {
+                      fontFamily: 'KBO Dia Gothic_bold',
+                    },
+                    ios: {
+                      fontFamily: 'KBO-Dia-Gothic-bold',
+                    },
+                  }),
                 }}>
                 취소하기
               </Text>
@@ -377,8 +427,15 @@ function More() {
               <Text
                 style={{
                   textAlign: 'center',
-                  fontFamily: 'KBO-Dia-Gothic-bold',
                   color: '#fff',
+                  ...Platform.select({
+                    android: {
+                      fontFamily: 'KBO Dia Gothic_bold',
+                    },
+                    ios: {
+                      fontFamily: 'KBO-Dia-Gothic-bold',
+                    },
+                  }),
                 }}>
                 저장하기
               </Text>
@@ -644,8 +701,15 @@ function ListItem({ item, index }: ListRenderItemInfo<MoreListItemType>) {
         <Text
           style={{
             opacity: 1,
-            fontFamily: 'KBO-Dia-Gothic-bold',
             fontSize: 16,
+            ...Platform.select({
+              android: {
+                fontFamily: 'KBO Dia Gothic_bold',
+              },
+              ios: {
+                fontFamily: 'KBO-Dia-Gothic-bold',
+              },
+            }),
           }}>
           {item.label}
         </Text>
@@ -770,14 +834,28 @@ const styles = StyleSheet.create({
   },
   contentRow: { flexDirection: 'row', gap: 6 },
   contentText: {
-    fontFamily: 'KBO-Dia-Gothic-light',
     fontSize: 16,
     lineHeight: 21,
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_light',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-light',
+      },
+    }),
   },
   contentMainText: {
-    fontFamily: 'KBO-Dia-Gothic-medium',
     fontSize: 18,
     marginBottom: 16,
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_medium',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-medium',
+      },
+    }),
   },
 
   wrapper: {
@@ -788,13 +866,29 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 64,
-    fontFamily: 'KBO-Dia-Gothic-bold',
     color: '#fff',
+
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
   },
   defaultText: {
     fontSize: 20,
-    fontFamily: 'KBO-Dia-Gothic-bold',
     color: '#fff',
+
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
   },
   buttonBg: {
     width: '50%',
@@ -825,9 +919,15 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
   },
   tooltipText: {
-    // fontFamily: 'UhBee Seulvely',
-    fontFamily: 'KBO-Dia-Gothic-bold',
     textAlign: 'center',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
   },
 
   teamItem: {

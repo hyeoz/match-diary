@@ -1,5 +1,5 @@
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@/utils/STATIC_DATA';
-import { Dimensions, StyleSheet } from 'react-native';
+import { Dimensions, Platform, StyleSheet } from 'react-native';
 
 const { width } = Dimensions.get('screen');
 
@@ -12,12 +12,33 @@ export const modalStyles = StyleSheet.create({
     position: 'absolute',
     width: width - 48,
   },
+  uploadText: {
+    textAlign: 'center',
+    fontWeight: '700',
+    fontSize: 18,
+    color: '#000',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
+  },
   wrapper: {
     flex: 1,
     marginHorizontal: 24,
-    marginTop: 80,
     marginBottom: 60,
     backgroundColor: '#fff',
+    ...Platform.select({
+      android: {
+        marginTop: 40,
+      },
+      ios: {
+        marginTop: 80,
+      },
+    }),
   },
   contentWrapper: {
     top: 48,
@@ -29,9 +50,16 @@ export const modalStyles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     borderColor: '#888',
+    backgroundColor: '#fff',
     paddingHorizontal: 10,
-    // paddingTop: 10,
-    fontFamily: 'KBO-Dia-Gothic-mediumd',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_medium',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-medium',
+      },
+    }),
   },
   emptyImageWrapper: {
     width: width - 48,
@@ -58,12 +86,26 @@ export const modalStyles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 8,
     fontWeight: '600',
-    fontFamily: 'KBO-Dia-Gothic-bold',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
   },
   buttonText: {
     color: 'black',
     fontSize: 16,
     textAlign: 'center',
-    fontFamily: 'KBO-Dia-Gothic-bold',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
   },
 });

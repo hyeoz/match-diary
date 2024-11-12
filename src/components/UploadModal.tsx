@@ -65,14 +65,13 @@ export default function UploadModal({
   const [matchInfo, setMatchInfo] = useState<{
     [key: string]: { home: string; away: string };
   }>();
-  // const [selectedStadium, setSelectedStadium] = useState<string>('');
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cropperLoading, setCropperLoading] = useState(false);
-  const [tempUri, setTempUri] = useState('');
+  // const [tempUri, setTempUri] = useState('');
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
@@ -96,10 +95,6 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  // const timeout = new Promise((_, reject) => {
-  //   setTimeout(() => reject(new Error('Timeout')), 10000);
-  //   return null;
-  // });
   const checkIOSPermissions = async (type: 'CAMERA' | 'GALLARY') => {
     if (Platform.OS === 'ios') {
       const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
@@ -246,13 +241,36 @@ export default function UploadModal({
   };
 
   const onPressOpenGallery = async () => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['취소', '카메라', '앨범'],
-        cancelButtonIndex: 0,
-      },
-      buttonIndex => getImageAction(buttonIndex),
-    );
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['취소', '카메라', '앨범'],
+          cancelButtonIndex: 0,
+        },
+        buttonIndex => getImageAction(buttonIndex),
+      );
+    } else if (Platform.OS === 'android') {
+      Alert.alert(
+        '이미지 선택',
+        '이미지를 추가할 방식을 선택해주세요!',
+        [
+          {
+            text: '취소',
+            onPress: () => getImageAction(0),
+            style: 'cancel',
+          },
+          {
+            text: '카메라',
+            onPress: () => getImageAction(1),
+          },
+          {
+            text: '앨범',
+            onPress: () => getImageAction(2),
+          },
+        ],
+        { cancelable: true, onDismiss: () => getImageAction(0) },
+      );
+    }
   };
 
   const onSave = async () => {
@@ -398,16 +416,7 @@ export default function UploadModal({
     <Modal animationType="slide" visible={isVisible}>
       <View style={modalStyles.wrapper}>
         <View style={modalStyles.header}>
-          <Text
-            style={{
-              textAlign: 'center',
-              fontWeight: '700',
-              fontSize: 18,
-              fontFamily: 'KBO-Dia-Gothic-bold',
-              color: '#000',
-            }}>
-            업로드
-          </Text>
+          <Text style={modalStyles.uploadText}>업로드</Text>
         </View>
 
         <View

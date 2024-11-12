@@ -3,6 +3,7 @@ import {
   Dimensions,
   FlatList,
   ListRenderItemInfo,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -170,11 +171,12 @@ function Calendar() {
     if (!res.data.data.length) {
       return setMatches([]);
     }
+    // NOTE 더블헤더 로직 추가
     if (team) {
       const filteredMatch = res.data.data.filter(
         data => data.attributes.home === team || data.attributes.away === team,
       );
-      setMatches([filteredMatch[0].attributes]);
+      setMatches(filteredMatch.map(f => f.attributes));
     } else {
       setMatches(res.data.data.map(d => d.attributes));
     }
@@ -209,9 +211,17 @@ function Calendar() {
         )}`,
       );
 
-      const data = res.data.data.find(
-        dt => dt.attributes.home === team || dt.attributes.away === team,
-      );
+      const data = res.data.data.find((dt, index) => {
+        if (selectedStadium.includes('2')) {
+          // NOTE 더블헤더 경기 로직 추가
+          return (
+            (dt.attributes.home === team || dt.attributes.away === team) &&
+            index === 1
+          );
+        } else {
+          return dt.attributes.home === team || dt.attributes.away === team;
+        }
+      });
 
       if (data) {
         if (!team) {
@@ -269,7 +279,6 @@ function Calendar() {
         }
       }
     }
-
     setMatchRecord(_count);
   };
 
@@ -279,7 +288,7 @@ function Calendar() {
         <RNCalendar
           style={styles.calendar}
           theme={{
-            textDayHeaderFontFamily: 'KBO-Dia-Gothic-medium',
+            textDayHeaderFontFamily: 'KBO Dia Gothic_medium',
             arrowColor: palette.commonColor.green,
           }}
           markedDates={markedDates}
@@ -324,13 +333,20 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
-              myTeamMatch={matches.find(match => {
+              myTeamMatch={matches.find((match, index) => {
                 const _date = match.date.split('(')[0].replaceAll('.', '/');
-
-                return (
-                  dayjs(_date).format(DATE_FORMAT) ===
-                  dayjs(selectedDate).format(DATE_FORMAT)
-                );
+                if (selectedStadium.includes('2')) {
+                  // NOTE 더블헤더 경기 로직 추가
+                  return (
+                    dayjs(_date).format(DATE_FORMAT) ===
+                      dayjs(selectedDate).format(DATE_FORMAT) && index === 1
+                  );
+                } else {
+                  return (
+                    dayjs(_date).format(DATE_FORMAT) ===
+                    dayjs(selectedDate).format(DATE_FORMAT)
+                  );
+                }
               })}
               date={selectedDate}
             />
@@ -528,7 +544,14 @@ function DayComponent({
       onPress={() => onPress && onPress(date)}
       style={{
         width: '100%',
-        height: weeksCount > 5 ? 30 : 40,
+        height:
+          weeksCount > 5
+            ? Platform.OS === 'android'
+              ? 27
+              : 30
+            : Platform.OS === 'android'
+            ? 37
+            : 40,
         gap: 6,
         margin: 0,
         alignItems: 'center',
@@ -604,11 +627,25 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   headerText: {
-    fontFamily: 'KBO-Dia-Gothic-bold',
     fontSize: 18,
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
   },
   calendarText: {
-    fontFamily: 'KBO-Dia-Gothic-medium',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_medium',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-medium',
+      },
+    }),
   },
   detailWrapper: {
     width: width * 0.6,

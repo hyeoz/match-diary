@@ -70,9 +70,16 @@ export default function SelectStadiumModal({
         }}>
         <Text
           style={{
-            fontFamily: 'KBO-Dia-Gothic-bold',
             fontSize: 16,
             marginBottom: 16,
+            ...Platform.select({
+              android: {
+                fontFamily: 'KBO Dia Gothic_bold',
+              },
+              ios: {
+                fontFamily: 'KBO-Dia-Gothic-bold',
+              },
+            }),
           }}>
           경기장 선택
         </Text>
@@ -107,8 +114,15 @@ export default function SelectStadiumModal({
               <Text
                 style={{
                   textAlign: 'center',
-                  fontFamily: 'KBO-Dia-Gothic-bold',
                   color: palette.commonColor.green,
+                  ...Platform.select({
+                    android: {
+                      fontFamily: 'KBO Dia Gothic_bold',
+                    },
+                    ios: {
+                      fontFamily: 'KBO-Dia-Gothic-bold',
+                    },
+                  }),
                 }}>
                 선택하기
               </Text>
@@ -169,7 +183,14 @@ function StadiumItem({
         <Text
           style={{
             fontSize: 16,
-            fontFamily: 'KBO-Dia-Gothic-medium',
+            ...Platform.select({
+              android: {
+                fontFamily: 'KBO Dia Gothic_medium',
+              },
+              ios: {
+                fontFamily: 'KBO-Dia-Gothic-medium',
+              },
+            }),
           }}>
           {name}
         </Text>
@@ -178,7 +199,14 @@ function StadiumItem({
         <Text
           style={{
             color: '#bbb',
-            fontFamily: 'KBO-Dia-Gothic-medium',
+            ...Platform.select({
+              android: {
+                fontFamily: 'KBO Dia Gothic_medium',
+              },
+              ios: {
+                fontFamily: 'KBO-Dia-Gothic-medium',
+              },
+            }),
           }}>
           {distance.toFixed(1)}km
         </Text>
