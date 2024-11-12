@@ -1,5 +1,5 @@
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@/utils/STATIC_DATA';
-import { Dimensions, StyleSheet } from 'react-native';
+import { Dimensions, Platform, StyleSheet } from 'react-native';
 
 const { width } = Dimensions.get('screen');
 
@@ -15,9 +15,16 @@ export const modalStyles = StyleSheet.create({
   wrapper: {
     flex: 1,
     marginHorizontal: 24,
-    marginTop: 80,
     marginBottom: 60,
     backgroundColor: '#fff',
+    ...Platform.select({
+      android: {
+        marginTop: 40,
+      },
+      ios: {
+        marginTop: 80,
+      },
+    }),
   },
   contentWrapper: {
     top: 48,
