@@ -18,7 +18,12 @@ import FastImage from 'react-native-fast-image';
 import { DetailPropsType, MatchDataType } from '@/type/default';
 import { useMyState } from '@stores/default';
 import { hasAndroidPermission } from '@utils/helper';
-import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
+import {
+  DATE_FORMAT,
+  IMAGE_HEIGHT,
+  IMAGE_WIDTH,
+  STADIUM_LONG_TO_NICK,
+} from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
 
 const { width, height } = Dimensions.get('window');
@@ -124,6 +129,13 @@ export function Detail({
       text1: '오늘의 직관일기가 앨범에 저장되었어요. 공유해보세요!',
       topOffset: 60,
     });
+  };
+
+  const getStadiumName = (selectedStadium: string) => {
+    const stadium = selectedStadium.includes('DH')
+      ? selectedStadium.split(' - DH')[0]
+      : selectedStadium;
+    return STADIUM_LONG_TO_NICK[stadium];
   };
 
   return (
@@ -260,9 +272,7 @@ export function Detail({
                   </>
                 )}
                 {' @'}
-                {selectedStadium.includes('DH')
-                  ? selectedStadium.split(' - DH')[0]
-                  : selectedStadium}
+                {getStadiumName(selectedStadium)}
               </Text>
             </View>
             <View
