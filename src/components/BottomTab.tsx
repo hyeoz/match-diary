@@ -1,5 +1,11 @@
 import React, { useEffect } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -23,7 +29,6 @@ function BottomTab({ ...props }: BottomTabBarProps) {
   const { team, setTeam } = useMyState();
   const homeHeight = useSharedValue(64);
   const homeDeg = useSharedValue(0);
-
   const currentTab = state.routes[state.index];
 
   useEffect(() => {
@@ -95,7 +100,19 @@ function BottomTab({ ...props }: BottomTabBarProps) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.tabWrapper}>
+      <View
+        style={{
+          ...styles.tabWrapper,
+          ...Platform.select({
+            android:
+              currentTab.name === 'Main'
+                ? {
+                    borderColor: '#f2f2f2',
+                    borderTopWidth: 2,
+                  }
+                : {},
+          }),
+        }}>
         <TouchableOpacity
           style={[
             styles.tabItem,
@@ -192,11 +209,18 @@ function BottomTab({ ...props }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'flex-end',
-    shadowColor: '#171717',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
     position: 'relative',
+    borderColor: '#000',
+    borderWidth: 1,
+    ...Platform.select({
+      android: {},
+      ios: {
+        shadowColor: '#171717',
+        shadowOffset: { width: 0, height: -3 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+      },
+    }),
   },
   tabWrapper: {
     flexDirection: 'row',
@@ -208,7 +232,8 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     paddingHorizontal: 40,
     paddingVertical: 8,
-    borderRadius: 24,
+    borderTopRightRadius: 24,
+    borderTopLeftRadius: 24,
   },
   tabItem: {
     flex: 1,
@@ -227,12 +252,19 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 32,
     backgroundColor: palette.commonColor.green,
-    shadowColor: '#171717',
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 7,
     bottom: 0,
     overflow: 'hidden',
+    ...Platform.select({
+      android: {
+        elevation: 3,
+      },
+      ios: {
+        shadowColor: '#171717',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 7,
+      },
+    }),
   },
   floatTabWrapper: {
     position: 'absolute',

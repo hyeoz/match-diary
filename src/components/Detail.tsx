@@ -329,13 +329,18 @@ const polaroidStyles = StyleSheet.create({
     backgroundColor: 'rgb(243,243,243)',
   },
   photoWrapperShadow: {
-    shadowOffset: {
-      width: 2,
-      height: 2,
-    },
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
+    ...Platform.select({
+      android: {},
+      ios: {
+        shadowOffset: {
+          width: 2,
+          height: 2,
+        },
+        shadowColor: '#000',
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+      },
+    }),
   },
   photo: {
     shadowOffset: {

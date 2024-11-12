@@ -7,6 +7,7 @@ import {
   Linking,
   ListRenderItemInfo,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -236,13 +237,20 @@ function More() {
           style={{
             backgroundColor: '#fff',
             width: '90%',
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 0,
-            },
-            shadowOpacity: 0.2,
-            shadowRadius: 16,
+            ...Platform.select({
+              android: {
+                elevation: 3,
+              },
+              ios: {
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 0,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 16,
+              },
+            }),
           }}>
           <FlatList
             renderItem={props => <ListItem {...props} />}
