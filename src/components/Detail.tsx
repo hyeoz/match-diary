@@ -25,6 +25,7 @@ import {
   STADIUM_LONG_TO_NICK,
 } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
+import { palette } from '@/style/palette';
 
 const { width, height } = Dimensions.get('window');
 
@@ -102,6 +103,10 @@ export function Detail({
     );
   };
 
+  const onPressAddMoreMatch = () => {
+    setIsVisible(true);
+  };
+
   const getImageUrl = async () => {
     if (!shareImageRef.current?.capture) {
       return;
@@ -137,6 +142,12 @@ export function Detail({
       : selectedStadium;
     return STADIUM_LONG_TO_NICK[stadium];
   };
+
+  console.log({
+    image,
+    memo,
+    date,
+  });
 
   return (
     <View
@@ -305,11 +316,20 @@ export function Detail({
               ]
             : polaroidStyles.buttonWrapper
         }>
-        <TouchableOpacity onPress={onPressShare}>
+        <TouchableOpacity
+          onPress={onPressShare}
+          style={polaroidStyles.shareButton}>
           <Text style={polaroidStyles.shareText}>공유하기</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onPressDelete}>
+        <TouchableOpacity
+          onPress={onPressDelete}
+          style={polaroidStyles.shareButton}>
           <Text style={polaroidStyles.shareText}>삭제하기</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onPressAddMoreMatch}
+          style={polaroidStyles.shareButton}>
+          <Text style={polaroidStyles.shareText}>경기 추가하기</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -385,6 +405,12 @@ const polaroidStyles = StyleSheet.create({
     gap: 10,
     justifyContent: 'flex-end',
     marginTop: 16,
+  },
+  shareButton: {
+    borderWidth: 1,
+    borderColor: palette.greyColor.gray9,
+    borderRadius: 20,
+    padding: 6,
   },
   shareText: {
     ...Platform.select({
