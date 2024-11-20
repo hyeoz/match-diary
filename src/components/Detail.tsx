@@ -15,29 +15,38 @@ import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 import FastImage from 'react-native-fast-image';
 
-import { DetailPropsType, MatchDataType } from '@/type/default';
-import { useMyState } from '@stores/default';
+import { DetailPropsType, MatchDataType, RecordType } from '@/type/default';
+import {
+  useDuplicatedRecordState,
+  useMyState,
+  useSelectedRecordState,
+} from '@stores/default';
 import { hasAndroidPermission } from '@utils/helper';
 import {
   DATE_FORMAT,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
+  RESET_RECORD,
   STADIUM_LONG_TO_NICK,
 } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
 import { palette } from '@/style/palette';
+import TouchableWrapper from './TouchableWrapper';
+import UploadModal from './UploadModal';
 
 const { width, height } = Dimensions.get('window');
 
 export function Detail({
-  image,
-  setImage,
-  memo,
-  setMemo,
+  // image,
+  // setImage,
+  // memo,
+  // setMemo,
+  // selectedStadium,
+  // setSelectedStadium,
+  // records,
+  // setRecords,
   setIsEdit,
   setIsVisible,
-  selectedStadium,
-  setSelectedStadium,
   myTeamMatch,
   isCalendar = false,
   refetch,
@@ -53,6 +62,9 @@ export function Detail({
   const { team } = useMyState();
   const formattedToday = dayjs(date).format(DATE_FORMAT);
 
+  const { recordState, setRecordState } = useSelectedRecordState();
+  const { recordsState, setRecordsState } = useDuplicatedRecordState();
+
   useEffect(() => {
     if (!myTeamMatch) {
       return;
@@ -60,7 +72,9 @@ export function Detail({
 
     const { homeScore, awayScore, home, away } = myTeamMatch;
 
-    if (homeScore === -1 || awayScore === -1) return;
+    if (homeScore === -1 || awayScore === -1) {
+      return;
+    }
 
     if (homeScore !== undefined && awayScore !== undefined) {
       if (home === team) {
@@ -89,9 +103,26 @@ export function Detail({
           text: '삭제하기',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem(formattedToday);
-              setImage(null);
-              setMemo('');
+              await AsyncStorage.removeItem(recordState.date);
+
+              // NOTE recordState 를 삭제하고 같은 날 다른 경기가 있으면 변경, 없으면 빈 채로 두기
+              if (
+                recordsState.filter(state =>
+                  state.date.includes(formattedToday),
+                ).length
+              ) {
+                const duplRecords = recordsState.filter(
+                  record => record.id !== recordState.id,
+                );
+                setRecordsState(duplRecords);
+                setRecordState(duplRecords[0]);
+              } else {
+                setRecordsState(
+                  recordsState.filter(record => record.id !== recordState.id),
+                );
+                setRecordState(RESET_RECORD);
+              }
+
               setIsEdit(false);
               refetch && refetch();
             } catch (e) {
@@ -105,6 +136,7 @@ export function Detail({
 
   const onPressAddMoreMatch = () => {
     setIsVisible(true);
+    setIsEdit(false);
   };
 
   const getImageUrl = async () => {
@@ -143,11 +175,7 @@ export function Detail({
     return STADIUM_LONG_TO_NICK[stadium];
   };
 
-  console.log({
-    image,
-    memo,
-    date,
-  });
+  console.log(recordState);
 
   return (
     <View
@@ -207,7 +235,7 @@ export function Detail({
                 ]}
               />
               <FastImage
-                source={{ uri: image?.path }}
+                source={{ uri: recordState.image?.path }}
                 style={{
                   width: isCalendar ? width * 0.6 - 28 : width * 0.7 - 16,
                   height: isCalendar
@@ -283,7 +311,7 @@ export function Detail({
                   </>
                 )}
                 {' @'}
-                {getStadiumName(selectedStadium)}
+                {getStadiumName(recordState.selectedStadium)}
               </Text>
             </View>
             <View
@@ -296,10 +324,9 @@ export function Detail({
                   fontSize: 12,
                   fontFamily: 'UhBee Seulvely',
                   lineHeight: 14,
-                  // marginTop: 6,
                 }}
                 numberOfLines={isCalendar ? 2 : undefined}>
-                {memo}
+                {recordState.memo}
               </Text>
             </View>
           </TouchableOpacity>
@@ -312,24 +339,35 @@ export function Detail({
           isCalendar
             ? [
                 polaroidStyles.buttonWrapper,
-                { marginTop: 8, justifyContent: 'flex-start', width: '90%' },
+                {
+                  gap: 6,
+                  marginTop: 4,
+                  justifyContent: 'flex-start',
+                  width: '90%',
+                },
               ]
             : polaroidStyles.buttonWrapper
         }>
         <TouchableOpacity
           onPress={onPressShare}
           style={polaroidStyles.shareButton}>
-          <Text style={polaroidStyles.shareText}>공유하기</Text>
+          <Text style={polaroidStyles.shareText}>
+            {isCalendar ? '공유' : '공유하기'}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onPressDelete}
           style={polaroidStyles.shareButton}>
-          <Text style={polaroidStyles.shareText}>삭제하기</Text>
+          <Text style={polaroidStyles.shareText}>
+            {isCalendar ? '삭제' : '삭제하기'}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onPressAddMoreMatch}
           style={polaroidStyles.shareButton}>
-          <Text style={polaroidStyles.shareText}>경기 추가하기</Text>
+          <Text style={polaroidStyles.shareText}>
+            {isCalendar ? '추가' : '경기 추가하기'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -363,22 +401,27 @@ const polaroidStyles = StyleSheet.create({
     }),
   },
   photo: {
-    shadowOffset: {
-      width: 2,
-      height: 2,
-    },
     borderWidth: 2,
     borderColor: 'transparent',
     borderBottomWidth: 0,
     borderRightWidth: 0,
-    shadowColor: '#000',
-    shadowOpacity: 1,
     overflow: 'hidden',
     backgroundColor: 'transparent',
     position: 'absolute',
     zIndex: 9,
     left: -2,
     top: -2,
+    ...Platform.select({
+      android: {},
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 1,
+        shadowOffset: {
+          width: 2,
+          height: 2,
+        },
+      },
+    }),
   },
   effect: {
     position: 'absolute',
@@ -393,10 +436,15 @@ const polaroidStyles = StyleSheet.create({
     height: '90%',
     top: 16,
     backgroundColor: '#fff',
-    shadowColor: '#777',
-    shadowOffset: { width: 0, height: 15 },
-    shadowOpacity: 1,
     transform: [{ rotate: '3deg' }],
+    ...Platform.select({
+      android: {},
+      ios: {
+        shadowColor: '#777',
+        shadowOffset: { width: 0, height: 15 },
+        shadowOpacity: 1,
+      },
+    }),
   },
 
   buttonWrapper: {

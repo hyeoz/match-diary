@@ -1,6 +1,7 @@
+import { Dispatch, SetStateAction } from 'react';
 import { ImageOrVideo } from 'react-native-image-crop-picker';
 
-// Root Stack 타입
+// TODO Root Stack 타입
 export type RootStackListType = {
   Main: any;
   Calendar: any;
@@ -10,7 +11,7 @@ export type RootStackListType = {
   More: any;
 };
 
-// Tab 타입
+// TODO Tab 타입
 export type TabListType = {
   Calendar: any;
   Main: any;
@@ -19,14 +20,16 @@ export type TabListType = {
 
 // 기록 상세 컴포넌트 타입
 export type DetailPropsType = {
-  image: ImageOrVideo | null;
-  setImage: React.Dispatch<React.SetStateAction<ImageOrVideo | null>>;
-  memo: string;
-  setMemo: React.Dispatch<React.SetStateAction<string>>;
-  setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedStadium: string;
-  setSelectedStadium: React.Dispatch<React.SetStateAction<string>>;
+  // image: ImageOrVideo | null;
+  // setImage: React.Dispatch<React.SetStateAction<ImageOrVideo | null>>;
+  // memo: string;
+  // setMemo: React.Dispatch<React.SetStateAction<string>>;
+  // selectedStadium: string;
+  // setSelectedStadium: React.Dispatch<React.SetStateAction<string>>;
+  // records: RecordType[];
+  // setRecords: Dispatch<SetStateAction<RecordType[]>>;
+  setIsEdit: Dispatch<SetStateAction<boolean>>;
+  setIsVisible: Dispatch<SetStateAction<boolean>>;
 };
 
 // 경기 일정 API 리스폰스 타입
@@ -70,3 +73,11 @@ export type CommunityItemType = {
 };
 
 export type CoordinateType = { lat: number; lon: number };
+
+export type RecordType = {
+  id: number;
+  date: string;
+  image: ImageOrVideo | null;
+  memo: string;
+  selectedStadium: string;
+};

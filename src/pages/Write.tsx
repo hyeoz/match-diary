@@ -9,40 +9,48 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
-import { ImageOrVideo } from 'react-native-image-crop-picker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
-import { DATE_FORMAT } from '@utils/STATIC_DATA';
-import { useTabHistory } from '@/stores/default';
+import { DATE_FORMAT, RESET_RECORD } from '@utils/STATIC_DATA';
+import {
+  useDuplicatedRecordState,
+  useSelectedRecordState,
+  useTabHistory,
+} from '@/stores/default';
+import { RecordType } from '@/type/default';
 import { Add } from '@assets/svg';
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 
 function Write() {
   const navigate = useNavigation<NativeStackNavigationProp<any>>();
+
   const [isVisible, setIsVisible] = useState(false);
-  const [image, setImage] = useState<ImageOrVideo | null>(null);
-  const [memo, setMemo] = useState('');
-  const [selectedStadium, setSelectedStadium] = useState('');
+  // const [image, setImage] = useState<ImageOrVideo | null>(null);
+  // const [memo, setMemo] = useState('');
+  // const [selectedStadium, setSelectedStadium] = useState('');
+  const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
   const [isEdit, setIsEdit] = useState(false);
 
   const { history } = useTabHistory();
+  const { setRecordState } = useSelectedRecordState();
+  const { recordsState, setRecordsState } = useDuplicatedRecordState();
 
+  // useEffect(() => {
+  //   if (!isVisible) {
+  //     setImage(null);
+  //     setMemo('');
+  //   }
+  //   checkItem();
+  // }, [isVisible]);
+  console.log(recordsState);
   useEffect(() => {
-    if (!isVisible) {
-      setImage(null);
-      setMemo('');
-    }
     checkItem();
-  }, [isVisible]);
-
-  useEffect(() => {
-    checkItem();
-  }, [history]);
+  }, [history, isVisible]);
 
   useEffect(() => {
     getMyTeam();
@@ -72,31 +80,40 @@ function Write() {
   };
 
   const checkItem = async () => {
-    const res = await AsyncStorage.getItem(formattedToday);
-
-    if (res) {
-      const json = JSON.parse(res);
-      setImage(json.image);
-      setMemo(json.memo);
-      setSelectedStadium(json.selectedStadium);
-      setIsEdit(true);
+    const keys = await AsyncStorage.getAllKeys(); // 모든 키값 찾기
+    const filteredKeys = keys.filter(key => key.includes(formattedToday)); // 키에 오늘 날짜가 포함되어있으면 (오늘 날짜의 기록이 있으면)
+    if (filteredKeys.length) {
+      // 오늘자 기록들 반복
+      filteredKeys.forEach(async (key, index) => {
+        const res = await AsyncStorage.getItem(key);
+        if (!res) {
+          return;
+        } else {
+          const json = JSON.parse(res);
+          setRecordState({
+            ...json,
+            id: new Date(formattedToday).getDate() + index,
+          });
+          setRecords(prev => [
+            ...prev,
+            {
+              ...json,
+              id: new Date(formattedToday).getDate() + index,
+            },
+          ]);
+          setIsEdit(true);
+        }
+      });
+      setRecordsState(records);
     } else {
-      setImage(null);
-      setMemo('');
-      setSelectedStadium('');
+      setRecordState(RESET_RECORD);
       setIsEdit(false);
     }
   };
 
   const detailProps = {
-    image,
-    setImage,
-    memo,
-    setMemo,
     setIsEdit,
     setIsVisible,
-    selectedStadium,
-    setSelectedStadium,
   };
 
   return (
