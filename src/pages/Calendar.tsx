@@ -19,7 +19,12 @@ import { ImageOrVideo } from 'react-native-image-crop-picker';
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
-import { useMyState, useTabHistory } from '@stores/default';
+import {
+  useDuplicatedRecordState,
+  useMyState,
+  useSelectedRecordState,
+  useTabHistory,
+} from '@stores/default';
 import { API, StrapiType } from '@api/index';
 import {
   API_DATE_FORMAT,
@@ -27,10 +32,11 @@ import {
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
   MONTH_LIST,
+  RESET_RECORD,
   STADIUM_SHORT_NAME,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
-import { MatchDataType } from '@/type/default';
+import { MatchDataType, RecordType } from '@/type/default';
 import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
 import Loading from '@/components/Loading';
 
@@ -65,27 +71,30 @@ function Calendar() {
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState(dayjs().format(DATE_FORMAT));
   const [isVisible, setIsVisible] = useState(false);
-  const [image, setImage] = useState<ImageOrVideo | null>(null);
-  const [memo, setMemo] = useState('');
-  const [selectedStadium, setSelectedStadium] = useState('');
+  // const [image, setImage] = useState<ImageOrVideo | null>(null);
+  // const [memo, setMemo] = useState('');
+  // const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
   const [matches, setMatches] = useState<MatchDataType[]>([]);
   const [matchRecord, setMatchRecord] = useState(initCountData); // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
   const [loading, setLoading] = useState(false);
   const [weeksCount, setWeeksCount] = useState(0);
+  const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
 
   const { team } = useMyState();
   const { history } = useTabHistory();
+  const { recordState, setRecordState } = useSelectedRecordState();
+  const { recordsState, setRecordsState } = useDuplicatedRecordState();
 
   const detailProps = {
-    image,
-    setImage,
-    memo,
-    setMemo,
+    // image,
+    // setImage,
+    // memo,
+    // setMemo,
+    // selectedStadium,
+    // setSelectedStadium,
     setIsEdit,
     setIsVisible,
-    selectedStadium,
-    setSelectedStadium,
     matches,
   };
 
@@ -100,21 +109,34 @@ function Calendar() {
   }, [history, team, isVisible]);
 
   const getSelectedItem = async () => {
-    const res = await AsyncStorage.getItem(selectedDate);
-
-    if (res) {
-      const json: {
-        image: ImageOrVideo;
-        memo: string;
-        selectedStadium: string;
-      } = JSON.parse(res);
-      setImage(json.image);
-      setMemo(json.memo);
-      setSelectedStadium(json.selectedStadium);
+    const keys = await AsyncStorage.getAllKeys(); // 모든 키값 찾기
+    const filteredKeys = keys.filter(key => key.includes(selectedDate)); // 키에 오늘 날짜가 포함되어있으면 (오늘 날짜의 기록이 있으면)
+    if (filteredKeys.length) {
+      // 오늘자 기록들 반복
+      filteredKeys.forEach(async (key, index) => {
+        const res = await AsyncStorage.getItem(key);
+        if (!res) {
+          return;
+        } else {
+          const json = JSON.parse(res);
+          setRecordState({
+            ...json,
+            id: new Date(selectedDate).getDate() + index,
+          });
+          setRecords(prev => [
+            ...prev,
+            {
+              ...json,
+              id: new Date(selectedDate).getDate() + index,
+            },
+          ]);
+          setIsEdit(true);
+        }
+      });
+      setRecordsState(records);
     } else {
-      setImage(null);
-      setMemo('');
-      setSelectedStadium('');
+      setRecordState(RESET_RECORD);
+      setIsEdit(false);
     }
   };
 
@@ -212,7 +234,7 @@ function Calendar() {
       );
 
       const data = res.data.data.find((dt, index) => {
-        if (selectedStadium.includes('2')) {
+        if (recordState.selectedStadium.includes('2')) {
           // NOTE 더블헤더 경기 로직 추가
           return (
             (dt.attributes.home === team || dt.attributes.away === team) &&
@@ -325,7 +347,7 @@ function Calendar() {
               zIndex: 9,
             }}
           />
-          {image && memo ? (
+          {recordState.image && recordState.memo ? (
             <Detail
               {...detailProps}
               isCalendar
@@ -335,7 +357,7 @@ function Calendar() {
               }}
               myTeamMatch={matches.find((match, index) => {
                 const _date = match.date.split('(')[0].replaceAll('.', '/');
-                if (selectedStadium.includes('2')) {
+                if (recordState.selectedStadium.includes('2')) {
                   // NOTE 더블헤더 경기 로직 추가
                   return (
                     dayjs(_date).format(DATE_FORMAT) ===

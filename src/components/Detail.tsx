@@ -175,8 +175,6 @@ export function Detail({
     return STADIUM_LONG_TO_NICK[stadium];
   };
 
-  console.log(recordState);
-
   return (
     <View
       style={

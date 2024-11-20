@@ -47,7 +47,7 @@ function Write() {
   //   }
   //   checkItem();
   // }, [isVisible]);
-  console.log(recordsState);
+
   useEffect(() => {
     checkItem();
   }, [history, isVisible]);
