@@ -147,7 +147,7 @@ const INSTAGRAM_WEB_LINK = 'https://www.instagram.com/match_diary_official/';
 const EMAIL_LINK = 'mailto:match.diary24@gmail.com';
 
 const RESET_RECORD = {
-  id: 0,
+  id: '',
   date: '',
   image: null,
   memo: '',

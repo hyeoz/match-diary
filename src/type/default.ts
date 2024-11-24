@@ -75,7 +75,7 @@ export type CommunityItemType = {
 export type CoordinateType = { lat: number; lon: number };
 
 export type RecordType = {
-  id: number;
+  id: string;
   date: string;
   image: ImageOrVideo | null;
   memo: string;
