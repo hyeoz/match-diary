@@ -27,8 +27,13 @@ import {
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
   MY_TEAM_KEY,
+  RESET_RECORD,
 } from '@utils/STATIC_DATA';
-import { useMyState } from '@/stores/default';
+import {
+  useDuplicatedRecordState,
+  useMyState,
+  useSelectedRecordState,
+} from '@/stores/default';
 import { palette } from '@style/palette';
 import { MoreListItemType, TeamListItemType } from '@/type/default';
 import { Arrow, Plus } from '@assets/svg';
@@ -49,6 +54,9 @@ function More() {
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [helpSnapIndex, setHelpSnapIndex] = useState(0);
   const [contactVisible, setContactVisible] = useState(false);
+
+  const { recordState, setRecordState } = useSelectedRecordState();
+  const { recordsState, setRecordsState } = useDuplicatedRecordState();
 
   const tooltipY = useRef(new Animated.Value(0)).current;
 
@@ -96,6 +104,8 @@ function More() {
                   if (_team) {
                     await AsyncStorage.setItem(MY_TEAM_KEY, _team);
                   }
+                  setRecordState(RESET_RECORD);
+                  setRecordsState([]);
                   Toast.show({
                     type: 'success',
                     text1: '모든 데이터가 정상적으로 삭제되었어요!',
