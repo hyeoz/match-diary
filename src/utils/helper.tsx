@@ -170,10 +170,17 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
   },
 ];
 
+const filterDuplicatedArray = (array: Array<any>) => {
+  return array.filter(
+    (item, index, self) => index === self.findIndex(t => t.id === item.id),
+  );
+};
+
 export {
   getRandomElement,
   getTeamArrayWithIcon,
   renderIconSizeWithColor,
   hasAndroidPermission,
   getDistanceFromLatLonToKm,
+  filterDuplicatedArray,
 };
