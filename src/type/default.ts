@@ -28,6 +28,7 @@ export type DetailPropsType = {
   // setSelectedStadium: React.Dispatch<React.SetStateAction<string>>;
   // records: RecordType[];
   // setRecords: Dispatch<SetStateAction<RecordType[]>>;
+  isEdit: boolean;
   setIsEdit: Dispatch<SetStateAction<boolean>>;
   setIsVisible: Dispatch<SetStateAction<boolean>>;
 };

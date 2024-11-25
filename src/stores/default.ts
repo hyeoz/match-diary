@@ -38,6 +38,15 @@ const useSelectedRecordState = create<{
   setRecordState: (record: RecordType) => set(() => ({ recordState: record })),
 }));
 
+const useCarouselIndexState = create<{
+  carouselIndexState: number;
+  setCarouselIndexState: (index: number) => void;
+}>(set => ({
+  carouselIndexState: 0,
+  setCarouselIndexState: (index: number) =>
+    set(() => ({ carouselIndexState: index })),
+}));
+
 // NOTE 같은 날 중복된 경기
 const useDuplicatedRecordState = create<{
   recordsState: RecordType[];
@@ -53,5 +62,6 @@ export {
   useTabHistory,
   useMyState,
   useSelectedRecordState,
+  useCarouselIndexState,
   useDuplicatedRecordState,
 };
