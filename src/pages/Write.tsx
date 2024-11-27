@@ -1,6 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  Dispatch,
+  RefObject,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   Alert,
+  Dimensions,
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Platform,
   StyleSheet,
   Text,
@@ -11,42 +23,51 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import uuid from 'react-native-uuid';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
-import { DATE_FORMAT, RESET_RECORD } from '@utils/STATIC_DATA';
 import {
+  DATE_FORMAT,
+  IMAGE_HEIGHT,
+  IMAGE_WIDTH,
+  RESET_RECORD,
+} from '@utils/STATIC_DATA';
+import {
+  useCarouselIndexState,
   useDuplicatedRecordState,
   useSelectedRecordState,
   useTabHistory,
 } from '@/stores/default';
 import { RecordType } from '@/type/default';
-import { Add } from '@assets/svg';
+import { Add, Change } from '@assets/svg';
+import { palette } from '@/style/palette';
+import {
+  filterDuplicatedArray,
+  getStadiumName,
+  hasAndroidPermission,
+} from '@/utils/helper';
+import ViewShot from 'react-native-view-shot';
+import FastImage from 'react-native-fast-image';
+import Toast from 'react-native-toast-message';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 
 const formattedToday = dayjs().format(DATE_FORMAT);
+const { width, height } = Dimensions.get('window');
 
 function Write() {
   const navigate = useNavigation<NativeStackNavigationProp<any>>();
 
+  const shareImageRef = useRef<ViewShot>(null);
   const [isVisible, setIsVisible] = useState(false);
-  // const [image, setImage] = useState<ImageOrVideo | null>(null);
-  // const [memo, setMemo] = useState('');
-  // const [selectedStadium, setSelectedStadium] = useState('');
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
   const [isEdit, setIsEdit] = useState(false);
 
   const { history } = useTabHistory();
-  const { setRecordState } = useSelectedRecordState();
+  const { recordState, setRecordState } = useSelectedRecordState();
   const { recordsState, setRecordsState } = useDuplicatedRecordState();
-
-  // useEffect(() => {
-  //   if (!isVisible) {
-  //     setImage(null);
-  //     setMemo('');
-  //   }
-  //   checkItem();
-  // }, [isVisible]);
+  const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
 
   useEffect(() => {
     checkItem();
@@ -83,35 +104,126 @@ function Write() {
     const keys = await AsyncStorage.getAllKeys(); // 모든 키값 찾기
     const filteredKeys = keys.filter(key => key.includes(formattedToday)); // 키에 오늘 날짜가 포함되어있으면 (오늘 날짜의 기록이 있으면)
     if (filteredKeys.length) {
+      let tempRecords: RecordType[] = [];
       // 오늘자 기록들 반복
-      filteredKeys.forEach(async (key, index) => {
+      filteredKeys.forEach(async key => {
         const res = await AsyncStorage.getItem(key);
-        if (!res) {
-          return;
-        } else {
-          const json = JSON.parse(res);
+
+        if (!res) return;
+
+        const json = JSON.parse(res);
+
+        tempRecords.push({
+          ...json,
+          id: uuid.v4(),
+        });
+
+        // record state 가 비어있는 경우에만 넣기
+        if (!recordState.image) {
           setRecordState({
             ...json,
-            id: new Date(formattedToday).getDate() + index,
+            id: uuid.v4(),
           });
-          setRecords(prev => [
-            ...prev,
-            {
-              ...json,
-              id: new Date(formattedToday).getDate() + index,
-            },
-          ]);
-          setIsEdit(true);
         }
+        setRecords(tempRecords);
+        setRecordsState(tempRecords);
       });
-      setRecordsState(records);
     } else {
       setRecordState(RESET_RECORD);
       setIsEdit(false);
     }
   };
 
+  const onPressDelete = async () => {
+    Alert.alert(
+      '삭제하기',
+      '오늘의 직관 기록이 사라져요. 계속 진행하시겠어요?',
+      [
+        {
+          text: '돌아가기',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: '삭제하기',
+          onPress: async () => {
+            try {
+              // TODO 삭제 기능 (storage 삭제, recordState, recordsState 올바르게 세팅)
+              await AsyncStorage.removeItem(recordState.date);
+              // NOTE recordState 를 삭제하고 같은 날 다른 경기가 있으면 변경, 없으면 빈 채로 두기
+              if (
+                recordsState.filter(state =>
+                  state.date.includes(formattedToday),
+                ).length
+              ) {
+                const duplRecords = recordsState.filter(
+                  record => record.id !== recordState.id,
+                );
+                setRecordsState(duplRecords);
+                setRecordState(duplRecords[0]);
+              } else {
+                setRecordsState(
+                  recordsState.filter(record => record.id !== recordState.id),
+                );
+                setRecordState(RESET_RECORD);
+              }
+              setIsEdit(false);
+              checkItem();
+            } catch (e) {
+              console.error(e);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const onPressAddMoreMatch = () => {
+    setIsVisible(true);
+    setIsEdit(false);
+  };
+
+  const getImageUrl = async () => {
+    if (!shareImageRef.current?.capture) {
+      return;
+    }
+    const uri = await shareImageRef.current.capture();
+    return uri;
+  };
+
+  const onPressShare = async () => {
+    if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
+      Alert.alert('갤러리 접근 권한을 먼저 설정해주세요!');
+      return;
+    }
+
+    const uri = await getImageUrl();
+
+    if (!uri) {
+      return;
+    }
+
+    await CameraRoll.save(uri, { type: 'photo', album: '직관일기' });
+
+    Toast.show({
+      type: 'success',
+      text1: '오늘의 직관일기가 앨범에 저장되었어요. 공유해보세요!',
+      topOffset: 60,
+    });
+  };
+
+  const onScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const slideSize = event.nativeEvent.layoutMeasurement.width;
+      const index = event.nativeEvent.contentOffset.x / slideSize;
+      const roundIndex = Math.round(index);
+      setCarouselIndexState(roundIndex);
+    },
+    [],
+  );
+
   const detailProps = {
+    isEdit,
     setIsEdit,
     setIsVisible,
   };
@@ -119,7 +231,56 @@ function Write() {
   return (
     <TouchableWrapper>
       {/* SECTION 메인 버튼 / 폴라로이드 */}
-      {!isEdit ? (
+      {isEdit || (recordsState.length && recordsState[0].image) ? (
+        records.length > 1 && records[0].image ? (
+          <>
+            <View
+              style={{
+                flex: 0.9,
+              }}>
+              {/* TODO 여러경기인 경우 캐러셀 디자인 */}
+              <FlatList
+                data={records}
+                renderItem={({ item, index }) => (
+                  <CarouselPhoto
+                    record={item}
+                    index={index}
+                    shareImageRef={shareImageRef}
+                    setIsVisible={setIsVisible}
+                    setIsEdit={setIsEdit}
+                  />
+                )}
+                onScroll={onScroll}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ alignItems: 'center' }}
+              />
+              <View style={polaroidStyles.buttonWrapper}>
+                <TouchableOpacity
+                  onPress={onPressShare}
+                  style={polaroidStyles.shareButton}>
+                  <Text style={polaroidStyles.shareText}>{'공유하기'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={onPressDelete}
+                  style={polaroidStyles.shareButton}>
+                  <Text style={polaroidStyles.shareText}>{'삭제하기'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={onPressAddMoreMatch}
+                  style={polaroidStyles.shareButton}>
+                  <Text style={polaroidStyles.shareText}>
+                    {'경기 추가하기'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </>
+        ) : (
+          <Detail {...detailProps} />
+        )
+      ) : (
         <View style={styles.wrapper}>
           <TouchableOpacity
             onPress={() => setIsVisible(true)}
@@ -135,13 +296,125 @@ function Write() {
             </View>
           </TouchableOpacity>
         </View>
-      ) : (
-        <Detail {...detailProps} />
       )}
 
       {/* SECTION 업로드 모달 */}
       <UploadModal {...detailProps} isVisible={isVisible} />
     </TouchableWrapper>
+  );
+}
+
+function CarouselPhoto({
+  record,
+  index,
+  setIsVisible,
+  setIsEdit,
+  shareImageRef,
+}: {
+  record: RecordType;
+  index: number;
+  setIsVisible: Dispatch<SetStateAction<boolean>>;
+  setIsEdit: Dispatch<SetStateAction<boolean>>;
+  shareImageRef: RefObject<ViewShot>;
+}) {
+  const { recordState, setRecordState } = useSelectedRecordState();
+  const { recordsState, setRecordsState } = useDuplicatedRecordState();
+  const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
+
+  return (
+    <ViewShot
+      ref={shareImageRef}
+      options={{
+        fileName: `${formattedToday}_직관일기`,
+        format: 'jpg',
+        quality: 1,
+      }}>
+      <View
+        style={[
+          polaroidStyles.photoWrapper,
+          polaroidStyles.photoWrapperShadow,
+          index === 0
+            ? { marginLeft: 32 }
+            : index === recordsState.length - 1
+            ? { marginRight: 32 }
+            : {},
+        ]}>
+        <TouchableOpacity
+          onPress={() => {
+            // NOTE 캐러셀에서 눌렀을 때 맞는 아이템 수정으로 넘어가도록
+            setIsVisible(true);
+            setIsEdit(true);
+            setCarouselIndexState(index);
+            setRecordState(record);
+          }}
+          style={{
+            flex: 1,
+            alignItems: 'center',
+          }}
+          disabled={index !== carouselIndexState}>
+          <View
+            style={{
+              position: 'relative',
+            }}>
+            <View
+              style={[
+                polaroidStyles.photo,
+                {
+                  width: width * 0.7 - 12,
+                  height: (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
+                },
+              ]}
+            />
+            <FastImage
+              source={{ uri: record.image?.path }}
+              style={{
+                width: width * 0.7 - 16,
+                height: (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
+              }}
+            />
+
+            <Text
+              style={{
+                width: '105%',
+                fontFamily: 'UhBee Seulvely',
+                fontSize: 12,
+                marginTop: 20,
+              }}>
+              {dayjs(
+                record.date.includes('(')
+                  ? record.date.split('(')[0]
+                  : record.date,
+              ).format('YY.MM.DD')}{' '}
+              {/* TODO Write 페이지에서 myTeamMatch 정보 가져오는 방법 */}
+              {/* {myTeamMatch?.home && myTeamMatch.away && (
+                <>
+                  {myTeamMatch?.home}
+                  {' VS '}
+                  {myTeamMatch?.away}
+                </>
+              )} */}
+              {' @'}
+              {getStadiumName(record.selectedStadium)}
+            </Text>
+          </View>
+          <View
+            style={{
+              width: '100%',
+            }}>
+            <Text
+              style={{
+                width: '100%',
+                fontSize: 12,
+                fontFamily: 'UhBee Seulvely',
+                lineHeight: 14,
+              }}
+              numberOfLines={undefined}>
+              {record.memo}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </ViewShot>
   );
 }
 
@@ -188,6 +461,135 @@ const styles = StyleSheet.create({
         fontFamily: 'KBO-Dia-Gothic-bold',
       },
     }),
+  },
+  photoCarousel: {},
+  duplicatePhoto: {
+    borderWidth: 3,
+    borderColor: palette.greyColor.border,
+    position: 'absolute',
+    width: '70%',
+    height: '52%',
+    top: '27%',
+    left: '20%',
+    backgroundColor: '#fff',
+    zIndex: -1,
+  },
+  changePhotoButton: {
+    position: 'absolute',
+    top: '20%',
+    right: '10%',
+  },
+});
+
+const polaroidStyles = StyleSheet.create({
+  photoWrapper: {
+    width: width * 0.7,
+    height: height * 0.47,
+    padding: 8,
+    backgroundColor: 'rgb(243,243,243)',
+    marginRight: 16,
+  },
+  photoWrapperShadow: {
+    ...Platform.select({
+      android: {},
+      ios: {
+        shadowOffset: {
+          width: 2,
+          height: 2,
+        },
+        shadowColor: '#000',
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+      },
+    }),
+  },
+  photo: {
+    borderWidth: 2,
+    borderColor: 'transparent',
+    borderBottomWidth: 0,
+    borderRightWidth: 0,
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    zIndex: 9,
+    left: -2,
+    top: -2,
+    ...Platform.select({
+      android: {},
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 1,
+        shadowOffset: {
+          width: 2,
+          height: 2,
+        },
+      },
+    }),
+  },
+  effect: {
+    position: 'absolute',
+    height: 200,
+  },
+  shadow: {
+    zIndex: -1,
+    position: 'absolute',
+    bottom: 15,
+    left: 10,
+    width: '87%',
+    height: '90%',
+    top: 16,
+    backgroundColor: '#fff',
+    transform: [{ rotate: '3deg' }],
+    ...Platform.select({
+      android: {},
+      ios: {
+        shadowColor: '#777',
+        shadowOffset: { width: 0, height: 15 },
+        shadowOpacity: 1,
+      },
+    }),
+  },
+
+  buttonWrapper: {
+    width: '70%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 6,
+    position: 'absolute',
+    top: '82%',
+    right: '8%',
+  },
+  shareButton: {
+    borderWidth: 1,
+    borderColor: palette.greyColor.gray9,
+    borderRadius: 20,
+    padding: 6,
+  },
+  shareText: {
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_medium',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-medium',
+      },
+    }),
+  },
+  resultText: {
+    textAlign: 'center',
+    fontFamily: 'UhBee Seulvely',
+    fontSize: 14,
+    position: 'absolute',
+    top: 32,
+    left: 12,
+    transform: [
+      {
+        translateY: -10,
+      },
+      {
+        rotate: '-15deg',
+      },
+    ],
   },
 });
 

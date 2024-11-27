@@ -14,7 +14,8 @@ import { Calendar as RNCalendar, LocaleConfig } from 'react-native-calendars';
 import { DateData, MarkedDates } from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ImageOrVideo } from 'react-native-image-crop-picker';
+// import { ImageOrVideo } from 'react-native-image-crop-picker';
+import uuid from 'react-native-uuid';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
@@ -93,6 +94,7 @@ function Calendar() {
     // setMemo,
     // selectedStadium,
     // setSelectedStadium,
+    isEdit,
     setIsEdit,
     setIsVisible,
     matches,
@@ -112,28 +114,31 @@ function Calendar() {
     const keys = await AsyncStorage.getAllKeys(); // 모든 키값 찾기
     const filteredKeys = keys.filter(key => key.includes(selectedDate)); // 키에 오늘 날짜가 포함되어있으면 (오늘 날짜의 기록이 있으면)
     if (filteredKeys.length) {
+      let tempRecords: RecordType[] = [];
       // 오늘자 기록들 반복
-      filteredKeys.forEach(async (key, index) => {
+      filteredKeys.forEach(async key => {
         const res = await AsyncStorage.getItem(key);
-        if (!res) {
-          return;
-        } else {
-          const json = JSON.parse(res);
+
+        if (!res) return;
+
+        const json = JSON.parse(res);
+
+        tempRecords.push({
+          ...json,
+          id: uuid.v4(),
+        });
+
+        // record state 가 비어있는 경우에만 넣기
+        if (!recordState.image) {
           setRecordState({
             ...json,
-            id: new Date(selectedDate).getDate() + index,
+            id: uuid.v4(),
           });
-          setRecords(prev => [
-            ...prev,
-            {
-              ...json,
-              id: new Date(selectedDate).getDate() + index,
-            },
-          ]);
-          setIsEdit(true);
         }
+        setRecords(tempRecords);
+        setRecordsState(tempRecords);
       });
-      setRecordsState(records);
+      setIsEdit(true);
     } else {
       setRecordState(RESET_RECORD);
       setIsEdit(false);

@@ -21,6 +21,7 @@ import Geolocation from '@react-native-community/geolocation';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
 import dayjs from 'dayjs';
+import uuid from 'react-native-uuid';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
 
@@ -43,7 +44,11 @@ import {
   STADIUM_GEO,
   STADIUM_SHORT_TO_LONG,
 } from '@utils/STATIC_DATA';
-import { getDistanceFromLatLonToKm, hasAndroidPermission } from '@utils/helper';
+import {
+  filterDuplicatedArray,
+  getDistanceFromLatLonToKm,
+  hasAndroidPermission,
+} from '@utils/helper';
 import { Add, Arrow } from '@assets/svg';
 import { palette } from '@style/palette';
 import { modalStyles } from '@style/common';
@@ -55,14 +60,7 @@ import {
 const { width } = Dimensions.get('window');
 
 export default function UploadModal({
-  // image,
-  // setImage,
-  // memo,
-  // setMemo,
-  // selectedStadium,
-  // setSelectedStadium,
-  // records,
-  // setRecords,
+  isEdit,
   isVisible,
   setIsVisible,
   date,
@@ -85,18 +83,14 @@ export default function UploadModal({
   const [cropperLoading, setCropperLoading] = useState(false);
   const [tempRecord, setTempRecord] = useState<RecordType>(RESET_RECORD);
 
-  const { setRecordState } = useSelectedRecordState();
+  const { recordState, setRecordState } = useSelectedRecordState();
   const { recordsState, setRecordsState } = useDuplicatedRecordState();
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
 
   const initRecord: RecordType = {
-    id:
-      new Date(formattedToday).getDate() +
-      (recordsState.length === 1 && !recordsState[0].image
-        ? 0
-        : recordsState.length),
+    id: uuid.v4(),
     date: formattedToday,
     image: null,
     memo: '',
@@ -115,6 +109,15 @@ export default function UploadModal({
   }, []);
 
   useEffect(() => {
+    // NOTE 캐러셀에서 수정으로 넘어가기
+    if (isEdit) {
+      recordState.image && setTempRecord(recordState);
+    } else {
+      setTempRecord(RESET_RECORD);
+    }
+  }, [isEdit, isVisible, recordState]);
+
+  useEffect(() => {
     setLoading(true);
     if (Platform.OS === 'ios') {
       getLocation();
@@ -123,6 +126,7 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
+  /* ANCHOR DEPRECATED */
   // const checkIOSPermissions = async (type: 'CAMERA' | 'GALLARY') => {
   //   if (Platform.OS === 'ios') {
   //     const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
@@ -199,6 +203,7 @@ export default function UploadModal({
   //     setCropperLoading(false);
   //   }
   // };
+  /* */
 
   const getImageAction = async (buttonIndex: number) => {
     if (buttonIndex === 1) {
@@ -263,13 +268,6 @@ export default function UploadModal({
 
       try {
         await RNFS.copyFile(item[0].uri, destinationPath);
-        // setImage({
-        //   path: destinationPath,
-        //   size: item[0].fileSize ?? 0,
-        //   width: item[0].width ?? IMAGE_WIDTH,
-        //   height: item[0].height ?? IMAGE_HEIGHT,
-        //   mime: item[0].type ?? 'image/jpeg',
-        // });
         const uploadedImage: ImageOrVideo = {
           path: destinationPath,
           size: item[0].fileSize ?? 0,
@@ -324,6 +322,8 @@ export default function UploadModal({
     }
   };
 
+  // console.log({ tempRecord, date: recordState.date });
+
   const onSave = async () => {
     const { image, memo, selectedStadium } = tempRecord;
     if (!image || !memo || !selectedStadium) {
@@ -336,14 +336,11 @@ export default function UploadModal({
       Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
       return;
     } else {
-      const keys = await AsyncStorage.getAllKeys();
-      // TODO 하루에 여러개의 기록 저장하는 경우 생각해야 함
-      if (keys.includes(formattedToday)) {
-        const duplDate = `${formattedToday}(${
-          keys.filter(key => key === formattedToday).length
-        })`;
+      // TODO 수정인 경우
+      if (isEdit) {
+        await AsyncStorage.removeItem(recordState.date);
         await AsyncStorage.setItem(
-          duplDate,
+          recordState.date,
           JSON.stringify({
             image,
             memo,
@@ -353,44 +350,78 @@ export default function UploadModal({
             away: matchInfo?.[selectedStadium]?.away,
           }),
         );
-        setRecordsState([
-          ...recordsState,
-          {
-            id:
-              new Date(formattedToday).getDate() +
-              (recordsState.length === 1 && !recordsState[0].image
-                ? 0
-                : recordsState.length),
-            date: formattedToday,
-            image,
-            memo,
-            selectedStadium,
-          },
-        ]);
-      } else {
-        await AsyncStorage.setItem(
-          formattedToday,
-          JSON.stringify({
-            image,
-            memo,
-            selectedStadium,
-            date: formattedToday,
-            home: matchInfo?.[selectedStadium]?.home,
-            away: matchInfo?.[selectedStadium]?.away,
-          }),
-        );
-        setRecordsState([
-          {
-            id: new Date(formattedToday).getDate(),
-            date: formattedToday,
-            image,
-            memo,
-            selectedStadium,
-          },
-        ]);
-      }
 
-      setRecordState(tempRecord);
+        const index = recordsState.findIndex(
+          record => record.date === tempRecord.date,
+        );
+        console.log(index, recordsState);
+        setRecordsState([
+          ...recordsState.slice(0, index),
+          tempRecord,
+          ...recordsState.slice(index + 1),
+        ]);
+        setRecordState(tempRecord);
+      } else {
+        const keys = await AsyncStorage.getAllKeys();
+        // NOTE 하루에 여러개의 기록 저장하는 경우
+        if (keys.includes(formattedToday)) {
+          const duplDate = `${formattedToday}(${
+            keys.filter(key => key === formattedToday).length
+          })`;
+          await AsyncStorage.setItem(
+            duplDate,
+            JSON.stringify({
+              image,
+              memo,
+              selectedStadium,
+              date: formattedToday,
+              home: matchInfo?.[selectedStadium]?.home,
+              away: matchInfo?.[selectedStadium]?.away,
+            }),
+          );
+          setRecordsState(
+            filterDuplicatedArray([
+              ...recordsState,
+              {
+                id: uuid.v4(),
+                date: duplDate,
+                image,
+                memo,
+                selectedStadium,
+              },
+            ]),
+          );
+        } else {
+          await AsyncStorage.setItem(
+            formattedToday,
+            JSON.stringify({
+              image,
+              memo,
+              selectedStadium,
+              date: formattedToday,
+              home: matchInfo?.[selectedStadium]?.home,
+              away: matchInfo?.[selectedStadium]?.away,
+            }),
+          );
+          setRecordsState([
+            {
+              id: uuid.v4(),
+              date: formattedToday,
+              image,
+              memo,
+              selectedStadium,
+            },
+          ]);
+        }
+      }
+      // 업로드 한 해당 기록을 selected record 로 설정
+      setRecordState({
+        id: uuid.v4(),
+        date: formattedToday,
+        image,
+        memo,
+        selectedStadium,
+      });
       setTempRecord(RESET_RECORD);
       setIsVisible(false);
     }

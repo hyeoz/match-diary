@@ -21,14 +21,8 @@ import {
   useMyState,
   useSelectedRecordState,
 } from '@stores/default';
-import { hasAndroidPermission } from '@utils/helper';
-import {
-  DATE_FORMAT,
-  IMAGE_HEIGHT,
-  IMAGE_WIDTH,
-  RESET_RECORD,
-  STADIUM_LONG_TO_NICK,
-} from '@utils/STATIC_DATA';
+import { getStadiumName, hasAndroidPermission } from '@utils/helper';
+import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
 import { palette } from '@/style/palette';
 import TouchableWrapper from './TouchableWrapper';
@@ -69,7 +63,7 @@ export function Detail({
     if (!myTeamMatch) {
       return;
     }
-
+    // TODO
     const { homeScore, awayScore, home, away } = myTeamMatch;
 
     if (homeScore === -1 || awayScore === -1) {
@@ -103,28 +97,27 @@ export function Detail({
           text: '삭제하기',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem(recordState.date);
-
-              // NOTE recordState 를 삭제하고 같은 날 다른 경기가 있으면 변경, 없으면 빈 채로 두기
-              if (
-                recordsState.filter(state =>
-                  state.date.includes(formattedToday),
-                ).length
-              ) {
-                const duplRecords = recordsState.filter(
-                  record => record.id !== recordState.id,
-                );
-                setRecordsState(duplRecords);
-                setRecordState(duplRecords[0]);
-              } else {
-                setRecordsState(
-                  recordsState.filter(record => record.id !== recordState.id),
-                );
-                setRecordState(RESET_RECORD);
-              }
-
-              setIsEdit(false);
-              refetch && refetch();
+              // TODO 삭제 기능 (storage 삭제, recordState, recordsState 올바르게 세팅)
+              // await AsyncStorage.removeItem(recordState.date);
+              // // NOTE recordState 를 삭제하고 같은 날 다른 경기가 있으면 변경, 없으면 빈 채로 두기
+              // if (
+              //   recordsState.filter(state =>
+              //     state.date.includes(formattedToday),
+              //   ).length
+              // ) {
+              //   const duplRecords = recordsState.filter(
+              //     record => record.id !== recordState.id,
+              //   );
+              //   setRecordsState(duplRecords);
+              //   setRecordState(duplRecords[0]);
+              // } else {
+              //   setRecordsState(
+              //     recordsState.filter(record => record.id !== recordState.id),
+              //   );
+              //   setRecordState(RESET_RECORD);
+              // }
+              // setIsEdit(false);
+              // refetch && refetch();
             } catch (e) {
               console.error(e);
             }
@@ -168,13 +161,6 @@ export function Detail({
     });
   };
 
-  const getStadiumName = (selectedStadium: string) => {
-    const stadium = selectedStadium.includes('DH')
-      ? selectedStadium.split(' - DH')[0]
-      : selectedStadium;
-    return STADIUM_LONG_TO_NICK[stadium];
-  };
-
   return (
     <View
       style={
@@ -212,6 +198,7 @@ export function Detail({
               : [polaroidStyles.photoWrapper, polaroidStyles.photoWrapperShadow]
           }>
           <TouchableOpacity
+            // TODO 캐러셀에서 눌렀을 때 맞는 아이템 수정으로 넘어가도록
             onPress={() => setIsVisible(true)}
             style={{
               flex: 1,
@@ -261,28 +248,17 @@ export function Detail({
                     }}
                   />
                   <Text
-                    style={{
-                      textAlign: 'center',
-                      fontFamily: 'UhBee Seulvely',
-                      color:
-                        result === 'W'
-                          ? 'red'
-                          : result === 'L'
-                          ? 'blue'
-                          : 'gray',
-                      fontSize: 14,
-                      position: 'absolute',
-                      top: 32,
-                      left: 12,
-                      transform: [
-                        {
-                          translateY: -10,
-                        },
-                        {
-                          rotate: '-15deg',
-                        },
-                      ],
-                    }}>
+                    style={[
+                      polaroidStyles.resultText,
+                      {
+                        color:
+                          result === 'W'
+                            ? 'red'
+                            : result === 'L'
+                            ? 'blue'
+                            : 'gray',
+                      },
+                    ]}>
                     {result === 'W'
                       ? '승리!'
                       : result === 'L'
@@ -467,5 +443,21 @@ const polaroidStyles = StyleSheet.create({
         fontFamily: 'KBO-Dia-Gothic-medium',
       },
     }),
+  },
+  resultText: {
+    textAlign: 'center',
+    fontFamily: 'UhBee Seulvely',
+    fontSize: 14,
+    position: 'absolute',
+    top: 32,
+    left: 12,
+    transform: [
+      {
+        translateY: -10,
+      },
+      {
+        rotate: '-15deg',
+      },
+    ],
   },
 });
