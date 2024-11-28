@@ -11,9 +11,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import ImageCropPicker from 'react-native-image-crop-picker';
-import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import React, { SetStateAction, useEffect, useState } from 'react';
+import { ImageOrVideo } from 'react-native-image-crop-picker';
+import { PERMISSIONS, request } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,43 +21,53 @@ import Geolocation from '@react-native-community/geolocation';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
 import dayjs from 'dayjs';
+import uuid from 'react-native-uuid';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
 
 import SelectStadiumModal from './SelectStadiumModal';
+import Loading from './Loading';
 import { API, StrapiType } from '@/api';
-import { CoordinateType, DetailPropsType, MatchDataType } from '@/type/default';
+import {
+  CoordinateType,
+  DetailPropsType,
+  MatchDataType,
+  RecordType,
+} from '@/type/default';
 import {
   API_DATE_FORMAT,
   DATE_FORMAT,
   DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
+  RESET_RECORD,
   STADIUM_GEO,
   STADIUM_SHORT_TO_LONG,
 } from '@utils/STATIC_DATA';
-import { getDistanceFromLatLonToKm, hasAndroidPermission } from '@utils/helper';
+import {
+  filterDuplicatedArray,
+  getDistanceFromLatLonToKm,
+  hasAndroidPermission,
+} from '@utils/helper';
 import { Add, Arrow } from '@assets/svg';
 import { palette } from '@style/palette';
 import { modalStyles } from '@style/common';
-import Loading from './Loading';
-
-/* TODO
- */
+import {
+  useDuplicatedRecordState,
+  useSelectedRecordState,
+} from '@/stores/default';
 
 const { width } = Dimensions.get('window');
 
 export default function UploadModal({
-  image,
-  setImage,
-  memo,
-  setMemo,
-  selectedStadium,
-  setSelectedStadium,
+  isEdit,
   isVisible,
   setIsVisible,
   date,
-}: DetailPropsType & { isVisible: boolean; date?: string }) {
+}: DetailPropsType & {
+  isVisible: boolean;
+  date?: string;
+}) {
   const [stadium, setStadium] = useState<string[]>([]);
   const [stadiumInfo, setStadiumInfo] = useState<
     { name: string; distance: number }[]
@@ -71,20 +81,41 @@ export default function UploadModal({
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cropperLoading, setCropperLoading] = useState(false);
-  // const [tempUri, setTempUri] = useState('');
+  const [tempRecord, setTempRecord] = useState<RecordType>(RESET_RECORD);
+
+  const { recordState, setRecordState } = useSelectedRecordState();
+  const { recordsState, setRecordsState } = useDuplicatedRecordState();
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
 
+  const initRecord: RecordType = {
+    id: uuid.v4(),
+    date: formattedToday,
+    image: null,
+    memo: '',
+    selectedStadium: '',
+  };
+
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
     Keyboard.addListener('keyboardWillHide', () => setIsKeyboardShow(false));
+    !tempRecord && setTempRecord(initRecord);
 
     return () => {
       Keyboard.removeAllListeners('keyboardWillShow');
       Keyboard.removeAllListeners('keyboardWillHide');
     };
   }, []);
+
+  useEffect(() => {
+    // NOTE 캐러셀에서 수정으로 넘어가기
+    if (isEdit) {
+      recordState.image && setTempRecord(recordState);
+    } else {
+      setTempRecord(RESET_RECORD);
+    }
+  }, [isEdit, isVisible, recordState]);
 
   useEffect(() => {
     setLoading(true);
@@ -95,82 +126,84 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  const checkIOSPermissions = async (type: 'CAMERA' | 'GALLARY') => {
-    if (Platform.OS === 'ios') {
-      const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
-      const photoLibraryStatus = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
+  /* ANCHOR DEPRECATED */
+  // const checkIOSPermissions = async (type: 'CAMERA' | 'GALLARY') => {
+  //   if (Platform.OS === 'ios') {
+  //     const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
+  //     const photoLibraryStatus = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
 
-      if (type === 'GALLARY') {
-        if (photoLibraryStatus === RESULTS.GRANTED) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        if (cameraStatus === RESULTS.GRANTED) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-    }
-    return true; // iOS가 아닌 경우 true 반환
-  };
+  //     if (type === 'GALLARY') {
+  //       if (photoLibraryStatus === RESULTS.GRANTED) {
+  //         return true;
+  //       } else {
+  //         return false;
+  //       }
+  //     } else {
+  //       if (cameraStatus === RESULTS.GRANTED) {
+  //         return true;
+  //       } else {
+  //         return false;
+  //       }
+  //     }
+  //   }
+  //   return true; // iOS가 아닌 경우 true 반환
+  // };
 
-  const openPicker = async (
-    fileName: string,
-    uri: string,
-    type: 'CAMERA' | 'GALLARY',
-  ) => {
-    const hasPermission = await checkIOSPermissions(type);
-    if (!hasPermission) {
-      Toast.show({
-        type: 'error',
-        text1: '권한 설정이 필요해요!',
-      });
-      return request(PERMISSIONS.IOS.CAMERA);
-    }
-    if (!uri) {
-      Toast.show({
-        type: 'error',
-        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
-      });
-      return;
-    }
-    try {
-      setCropperLoading(true);
-      await ImageCropPicker.clean();
+  // const openPicker = async (
+  //   fileName: string,
+  //   uri: string,
+  //   type: 'CAMERA' | 'GALLARY',
+  // ) => {
+  //   const hasPermission = await checkIOSPermissions(type);
+  //   if (!hasPermission) {
+  //     Toast.show({
+  //       type: 'error',
+  //       text1: '권한 설정이 필요해요!',
+  //     });
+  //     return request(PERMISSIONS.IOS.CAMERA);
+  //   }
+  //   if (!uri) {
+  //     Toast.show({
+  //       type: 'error',
+  //       text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
+  //     });
+  //     return;
+  //   }
+  //   try {
+  //     setCropperLoading(true);
+  //     await ImageCropPicker.clean();
 
-      const res = await ImageCropPicker.openCropper({
-        path: uri,
-        width: IMAGE_WIDTH,
-        height: IMAGE_HEIGHT,
-        cropping: true,
-        mediaType: 'photo',
-      });
-      // NOTE 이미지 저장 후 경로 저장하기
-      const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${fileName}`;
+  //     const res = await ImageCropPicker.openCropper({
+  //       path: uri,
+  //       width: IMAGE_WIDTH,
+  //       height: IMAGE_HEIGHT,
+  //       cropping: true,
+  //       mediaType: 'photo',
+  //     });
+  //     // NOTE 이미지 저장 후 경로 저장하기
+  //     const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${fileName}`;
 
-      try {
-        await RNFS.copyFile(res.path, destinationPath);
-        setImage({ ...res, path: destinationPath });
-      } catch (error) {
-        console.error(error);
-        Toast.show({
-          type: 'error',
-          text1: '이미지를 저장하는 데 문제가 생겼어요. 다시 시도해주세요!',
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      Toast.show({
-        type: 'error',
-        text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
-      });
-    } finally {
-      setCropperLoading(false);
-    }
-  };
+  //     try {
+  //       await RNFS.copyFile(res.path, destinationPath);
+  //       setImage({ ...res, path: destinationPath });
+  //     } catch (error) {
+  //       console.error(error);
+  //       Toast.show({
+  //         type: 'error',
+  //         text1: '이미지를 저장하는 데 문제가 생겼어요. 다시 시도해주세요!',
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     Toast.show({
+  //       type: 'error',
+  //       text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
+  //     });
+  //   } finally {
+  //     setCropperLoading(false);
+  //   }
+  // };
+  /* */
 
   const getImageAction = async (buttonIndex: number) => {
     if (buttonIndex === 1) {
@@ -189,12 +222,24 @@ export default function UploadModal({
       // FIXME crop 기능 제외
       // await openPicker(item[0].fileName ?? tempName, item[0].uri, 'CAMERA');
       try {
-        setImage({
+        // setImage({
+        // path: item[0].uri,
+        // size: item[0].fileSize ?? 0,
+        // width: item[0].width ?? IMAGE_WIDTH,
+        // height: item[0].height ?? IMAGE_HEIGHT,
+        // mime: item[0].type ?? 'image/jpeg',
+        // });
+        const uploadedImage: ImageOrVideo = {
           path: item[0].uri,
           size: item[0].fileSize ?? 0,
           width: item[0].width ?? IMAGE_WIDTH,
           height: item[0].height ?? IMAGE_HEIGHT,
           mime: item[0].type ?? 'image/jpeg',
+        };
+
+        setTempRecord({
+          ...tempRecord,
+          image: uploadedImage,
         });
       } catch (error) {
         console.error(error);
@@ -223,12 +268,16 @@ export default function UploadModal({
 
       try {
         await RNFS.copyFile(item[0].uri, destinationPath);
-        setImage({
+        const uploadedImage: ImageOrVideo = {
           path: destinationPath,
           size: item[0].fileSize ?? 0,
           width: item[0].width ?? IMAGE_WIDTH,
           height: item[0].height ?? IMAGE_HEIGHT,
           mime: item[0].type ?? 'image/jpeg',
+        };
+        setTempRecord({
+          ...tempRecord,
+          image: uploadedImage,
         });
       } catch (error) {
         console.error(error);
@@ -274,35 +323,111 @@ export default function UploadModal({
   };
 
   const onSave = async () => {
+    const { image, memo, selectedStadium } = tempRecord;
     if (!image || !memo || !selectedStadium) {
       Toast.show({
         type: 'error',
         text1: '아직 입력하지 않은 항목이 있어요!',
         topOffset: 64,
       });
-    } else if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
+      return;
+    }
+
+    if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
       Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
       return;
-    } else {
-      const keys = await AsyncStorage.getAllKeys();
-      if (keys.includes(formattedToday)) {
-        await AsyncStorage.removeItem(formattedToday);
-      }
+    }
 
+    if (isEdit) {
+      await AsyncStorage.removeItem(tempRecord.date);
       await AsyncStorage.setItem(
-        formattedToday,
+        tempRecord.date,
         JSON.stringify({
           image,
           memo,
           selectedStadium,
-          date: formattedToday,
+          date: tempRecord.date,
           home: matchInfo?.[selectedStadium]?.home,
           away: matchInfo?.[selectedStadium]?.away,
         }),
       );
 
-      setIsVisible(false);
+      setRecordsState(
+        recordsState.map(record =>
+          record.date === tempRecord.date ? tempRecord : record,
+        ),
+      );
+      setRecordState(tempRecord);
+    } else {
+      const keys = await AsyncStorage.getAllKeys();
+      // NOTE 하루에 여러개의 기록 저장하는 경우
+      if (keys.includes(formattedToday)) {
+        const duplDate = `${formattedToday}(${
+          keys.filter(key => key === formattedToday).length
+        })`;
+        await AsyncStorage.setItem(
+          duplDate,
+          JSON.stringify({
+            image,
+            memo,
+            selectedStadium,
+            date: duplDate,
+            home: matchInfo?.[selectedStadium]?.home,
+            away: matchInfo?.[selectedStadium]?.away,
+          }),
+        );
+        setRecordsState(
+          filterDuplicatedArray([
+            ...recordsState,
+            {
+              id: uuid.v4(),
+              date: duplDate,
+              image,
+              memo,
+              selectedStadium,
+            },
+          ]),
+        );
+        setRecordState({
+          id: uuid.v4(),
+          date: duplDate,
+          image,
+          memo,
+          selectedStadium,
+        });
+      } else {
+        await AsyncStorage.setItem(
+          formattedToday,
+          JSON.stringify({
+            image,
+            memo,
+            selectedStadium,
+            date: formattedToday,
+            home: matchInfo?.[selectedStadium]?.home,
+            away: matchInfo?.[selectedStadium]?.away,
+          }),
+        );
+        setRecordsState([
+          {
+            id: uuid.v4(),
+            date: formattedToday,
+            image,
+            memo,
+            selectedStadium,
+          },
+        ]);
+        setRecordState({
+          id: uuid.v4(),
+          date: formattedToday,
+          image,
+          memo,
+          selectedStadium,
+        });
+      }
     }
+
+    setTempRecord(RESET_RECORD);
+    setIsVisible(false);
   };
 
   const getTodayMatch = async () => {
@@ -439,11 +564,11 @@ export default function UploadModal({
                   }}>
                   <Loading />
                 </View>
-              ) : image ? (
+              ) : tempRecord.image ? (
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
                     <FastImage
-                      source={{ uri: image.path }}
+                      source={{ uri: tempRecord.image.path }}
                       style={{
                         width: width - 48,
                         height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
@@ -493,11 +618,11 @@ export default function UploadModal({
                 <Text
                   style={{
                     fontFamily: 'UhBee Seulvely',
-                    color: selectedStadium.length ? '#222' : '#888',
+                    color: tempRecord.selectedStadium.length ? '#222' : '#888',
                   }}>
                   {' @'}
-                  {selectedStadium.length
-                    ? selectedStadium
+                  {tempRecord.selectedStadium.length
+                    ? tempRecord.selectedStadium
                     : '경기장을 선택해주세요'}
                 </Text>
                 <Arrow width={16} height={16} color={'#666'} />
@@ -534,12 +659,15 @@ export default function UploadModal({
               <TextInput
                 multiline
                 maxLength={200}
-                value={memo}
+                value={tempRecord.memo}
                 onChangeText={value => {
                   if ((value.match(/\n/g) ?? '').length > 5) {
                     Alert.alert('줄바꿈은 최대 8줄만 가능해요!');
                   } else {
-                    setMemo(value);
+                    setTempRecord({
+                      ...tempRecord,
+                      memo: value,
+                    });
                   }
                 }}
                 placeholder={`사진과 함께 기록할 내용을 적어주세요!\n두 줄에서 세 줄이 가장 적당해요 ;)`}
@@ -554,7 +682,7 @@ export default function UploadModal({
                   fontSize: 12,
                   fontFamily: 'KBO-Dia-Gothic-medium',
                 }}>
-                {memo.length} / 200
+                {tempRecord.memo.length} / 200
               </Text>
               {isKeyboardShow && (
                 <TouchableOpacity
@@ -628,8 +756,10 @@ export default function UploadModal({
         <SelectStadiumModal
           stadiumInfo={stadiumInfo}
           setIsVisible={value => setStadiumSelectVisible(value)}
-          selectStadium={selectedStadium}
-          setSelectedStadium={value => setSelectedStadium(value)}
+          selectStadium={tempRecord.selectedStadium}
+          setSelectedStadium={value =>
+            setTempRecord({ ...tempRecord, selectedStadium: value })
+          }
           isLoading={loading}
         />
       )}

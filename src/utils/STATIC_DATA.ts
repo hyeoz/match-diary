@@ -146,6 +146,14 @@ const INSTAGRAM_WEB_LINK = 'https://www.instagram.com/match_diary_official/';
 // 메일 링크
 const EMAIL_LINK = 'mailto:match.diary24@gmail.com';
 
+const RESET_RECORD = {
+  id: '',
+  date: '',
+  image: null,
+  memo: '',
+  selectedStadium: '',
+};
+
 export {
   DATE_FORMAT,
   DATE_FORMAT_SLASH,
@@ -163,4 +171,5 @@ export {
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
   EMAIL_LINK,
+  RESET_RECORD,
 };

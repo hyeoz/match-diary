@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Dimensions,
-  SafeAreaView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { useBottomTabState } from '@stores/default';
 

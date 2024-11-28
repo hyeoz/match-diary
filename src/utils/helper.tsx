@@ -16,6 +16,7 @@ import {
   Wiz,
 } from '@assets/svg';
 import { CoordinateType } from '@/type/default';
+import { STADIUM_LONG_TO_NICK } from './STATIC_DATA';
 
 const hasAndroidPermission = async () => {
   const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
@@ -170,10 +171,25 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
   },
 ];
 
+const filterDuplicatedArray = (array: Array<any>) => {
+  return array.filter(
+    (item, index, self) => index === self.findIndex(t => t.id === item.id),
+  );
+};
+
+const getStadiumName = (selectedStadium: string) => {
+  const stadium = selectedStadium.includes('DH')
+    ? selectedStadium.split(' - DH')[0]
+    : selectedStadium;
+  return STADIUM_LONG_TO_NICK[stadium] ?? '경기가 없어요!';
+};
+
 export {
   getRandomElement,
   getTeamArrayWithIcon,
   renderIconSizeWithColor,
   hasAndroidPermission,
   getDistanceFromLatLonToKm,
+  filterDuplicatedArray,
+  getStadiumName,
 };

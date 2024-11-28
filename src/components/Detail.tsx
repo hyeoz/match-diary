@@ -15,28 +15,29 @@ import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 import FastImage from 'react-native-fast-image';
 
-import { DetailPropsType, MatchDataType } from '@/type/default';
-import { useMyState } from '@stores/default';
-import { hasAndroidPermission } from '@utils/helper';
+import { DetailPropsType, MatchDataType, RecordType } from '@/type/default';
+import {
+  useDuplicatedRecordState,
+  useMyState,
+  useSelectedRecordState,
+} from '@stores/default';
+import { getStadiumName, hasAndroidPermission } from '@utils/helper';
 import {
   DATE_FORMAT,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
-  STADIUM_LONG_TO_NICK,
+  RESET_RECORD,
 } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
+import { palette } from '@/style/palette';
+import TouchableWrapper from './TouchableWrapper';
+import UploadModal from './UploadModal';
 
 const { width, height } = Dimensions.get('window');
 
 export function Detail({
-  image,
-  setImage,
-  memo,
-  setMemo,
   setIsEdit,
   setIsVisible,
-  selectedStadium,
-  setSelectedStadium,
   myTeamMatch,
   isCalendar = false,
   refetch,
@@ -52,14 +53,19 @@ export function Detail({
   const { team } = useMyState();
   const formattedToday = dayjs(date).format(DATE_FORMAT);
 
+  const { recordState, setRecordState } = useSelectedRecordState();
+  const { recordsState, setRecordsState } = useDuplicatedRecordState();
+
   useEffect(() => {
     if (!myTeamMatch) {
       return;
     }
-
+    // TODO
     const { homeScore, awayScore, home, away } = myTeamMatch;
 
-    if (homeScore === -1 || awayScore === -1) return;
+    if (homeScore === -1 || awayScore === -1) {
+      return;
+    }
 
     if (homeScore !== undefined && awayScore !== undefined) {
       if (home === team) {
@@ -88,9 +94,9 @@ export function Detail({
           text: '삭제하기',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem(formattedToday);
-              setImage(null);
-              setMemo('');
+              await AsyncStorage.removeItem(recordState.date);
+              setRecordState(RESET_RECORD);
+              setRecordsState([]);
               setIsEdit(false);
               refetch && refetch();
             } catch (e) {
@@ -100,6 +106,11 @@ export function Detail({
         },
       ],
     );
+  };
+
+  const onPressAddMoreMatch = () => {
+    setIsVisible(true);
+    setIsEdit(false);
   };
 
   const getImageUrl = async () => {
@@ -129,13 +140,6 @@ export function Detail({
       text1: '오늘의 직관일기가 앨범에 저장되었어요. 공유해보세요!',
       topOffset: 60,
     });
-  };
-
-  const getStadiumName = (selectedStadium: string) => {
-    const stadium = selectedStadium.includes('DH')
-      ? selectedStadium.split(' - DH')[0]
-      : selectedStadium;
-    return STADIUM_LONG_TO_NICK[stadium];
   };
 
   return (
@@ -196,7 +200,7 @@ export function Detail({
                 ]}
               />
               <FastImage
-                source={{ uri: image?.path }}
+                source={{ uri: recordState.image?.path }}
                 style={{
                   width: isCalendar ? width * 0.6 - 28 : width * 0.7 - 16,
                   height: isCalendar
@@ -224,28 +228,17 @@ export function Detail({
                     }}
                   />
                   <Text
-                    style={{
-                      textAlign: 'center',
-                      fontFamily: 'UhBee Seulvely',
-                      color:
-                        result === 'W'
-                          ? 'red'
-                          : result === 'L'
-                          ? 'blue'
-                          : 'gray',
-                      fontSize: 14,
-                      position: 'absolute',
-                      top: 32,
-                      left: 12,
-                      transform: [
-                        {
-                          translateY: -10,
-                        },
-                        {
-                          rotate: '-15deg',
-                        },
-                      ],
-                    }}>
+                    style={[
+                      polaroidStyles.resultText,
+                      {
+                        color:
+                          result === 'W'
+                            ? 'red'
+                            : result === 'L'
+                            ? 'blue'
+                            : 'gray',
+                      },
+                    ]}>
                     {result === 'W'
                       ? '승리!'
                       : result === 'L'
@@ -272,7 +265,7 @@ export function Detail({
                   </>
                 )}
                 {' @'}
-                {getStadiumName(selectedStadium)}
+                {getStadiumName(recordState.selectedStadium)}
               </Text>
             </View>
             <View
@@ -285,10 +278,9 @@ export function Detail({
                   fontSize: 12,
                   fontFamily: 'UhBee Seulvely',
                   lineHeight: 14,
-                  // marginTop: 6,
                 }}
                 numberOfLines={isCalendar ? 2 : undefined}>
-                {memo}
+                {recordState.memo}
               </Text>
             </View>
           </TouchableOpacity>
@@ -301,15 +293,35 @@ export function Detail({
           isCalendar
             ? [
                 polaroidStyles.buttonWrapper,
-                { marginTop: 8, justifyContent: 'flex-start', width: '90%' },
+                {
+                  gap: 6,
+                  marginTop: 4,
+                  justifyContent: 'flex-start',
+                  width: '90%',
+                },
               ]
             : polaroidStyles.buttonWrapper
         }>
-        <TouchableOpacity onPress={onPressShare}>
-          <Text style={polaroidStyles.shareText}>공유하기</Text>
+        <TouchableOpacity
+          onPress={onPressShare}
+          style={polaroidStyles.shareButton}>
+          <Text style={polaroidStyles.shareText}>
+            {isCalendar ? '공유' : '공유하기'}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onPressDelete}>
-          <Text style={polaroidStyles.shareText}>삭제하기</Text>
+        <TouchableOpacity
+          onPress={onPressDelete}
+          style={polaroidStyles.shareButton}>
+          <Text style={polaroidStyles.shareText}>
+            {isCalendar ? '삭제' : '삭제하기'}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onPressAddMoreMatch}
+          style={polaroidStyles.shareButton}>
+          <Text style={polaroidStyles.shareText}>
+            {isCalendar ? '추가' : '경기 추가하기'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -343,22 +355,27 @@ const polaroidStyles = StyleSheet.create({
     }),
   },
   photo: {
-    shadowOffset: {
-      width: 2,
-      height: 2,
-    },
     borderWidth: 2,
     borderColor: 'transparent',
     borderBottomWidth: 0,
     borderRightWidth: 0,
-    shadowColor: '#000',
-    shadowOpacity: 1,
     overflow: 'hidden',
     backgroundColor: 'transparent',
     position: 'absolute',
     zIndex: 9,
     left: -2,
     top: -2,
+    ...Platform.select({
+      android: {},
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 1,
+        shadowOffset: {
+          width: 2,
+          height: 2,
+        },
+      },
+    }),
   },
   effect: {
     position: 'absolute',
@@ -373,10 +390,15 @@ const polaroidStyles = StyleSheet.create({
     height: '90%',
     top: 16,
     backgroundColor: '#fff',
-    shadowColor: '#777',
-    shadowOffset: { width: 0, height: 15 },
-    shadowOpacity: 1,
     transform: [{ rotate: '3deg' }],
+    ...Platform.select({
+      android: {},
+      ios: {
+        shadowColor: '#777',
+        shadowOffset: { width: 0, height: 15 },
+        shadowOpacity: 1,
+      },
+    }),
   },
 
   buttonWrapper: {
@@ -385,6 +407,12 @@ const polaroidStyles = StyleSheet.create({
     gap: 10,
     justifyContent: 'flex-end',
     marginTop: 16,
+  },
+  shareButton: {
+    borderWidth: 1,
+    borderColor: palette.greyColor.gray9,
+    borderRadius: 20,
+    padding: 6,
   },
   shareText: {
     ...Platform.select({
@@ -395,5 +423,21 @@ const polaroidStyles = StyleSheet.create({
         fontFamily: 'KBO-Dia-Gothic-medium',
       },
     }),
+  },
+  resultText: {
+    textAlign: 'center',
+    fontFamily: 'UhBee Seulvely',
+    fontSize: 14,
+    position: 'absolute',
+    top: 32,
+    left: 12,
+    transform: [
+      {
+        translateY: -10,
+      },
+      {
+        rotate: '-15deg',
+      },
+    ],
   },
 });
