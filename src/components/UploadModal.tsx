@@ -322,8 +322,6 @@ export default function UploadModal({
     }
   };
 
-  // console.log({ tempRecord, date: recordState.date });
-
   const onSave = async () => {
     const { image, memo, selectedStadium } = tempRecord;
     if (!image || !memo || !selectedStadium) {
@@ -332,15 +330,74 @@ export default function UploadModal({
         text1: '아직 입력하지 않은 항목이 있어요!',
         topOffset: 64,
       });
-    } else if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
+      return;
+    }
+
+    if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
       Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
       return;
+    }
+
+    if (isEdit) {
+      await AsyncStorage.removeItem(tempRecord.date);
+      await AsyncStorage.setItem(
+        tempRecord.date,
+        JSON.stringify({
+          image,
+          memo,
+          selectedStadium,
+          date: tempRecord.date,
+          home: matchInfo?.[selectedStadium]?.home,
+          away: matchInfo?.[selectedStadium]?.away,
+        }),
+      );
+
+      setRecordsState(
+        recordsState.map(record =>
+          record.date === tempRecord.date ? tempRecord : record,
+        ),
+      );
+      setRecordState(tempRecord);
     } else {
-      // TODO 수정인 경우
-      if (isEdit) {
-        await AsyncStorage.removeItem(recordState.date);
+      const keys = await AsyncStorage.getAllKeys();
+      // NOTE 하루에 여러개의 기록 저장하는 경우
+      if (keys.includes(formattedToday)) {
+        const duplDate = `${formattedToday}(${
+          keys.filter(key => key === formattedToday).length
+        })`;
         await AsyncStorage.setItem(
-          recordState.date,
+          duplDate,
+          JSON.stringify({
+            image,
+            memo,
+            selectedStadium,
+            date: duplDate,
+            home: matchInfo?.[selectedStadium]?.home,
+            away: matchInfo?.[selectedStadium]?.away,
+          }),
+        );
+        setRecordsState(
+          filterDuplicatedArray([
+            ...recordsState,
+            {
+              id: uuid.v4(),
+              date: duplDate,
+              image,
+              memo,
+              selectedStadium,
+            },
+          ]),
+        );
+        setRecordState({
+          id: uuid.v4(),
+          date: duplDate,
+          image,
+          memo,
+          selectedStadium,
+        });
+      } else {
+        await AsyncStorage.setItem(
+          formattedToday,
           JSON.stringify({
             image,
             memo,
@@ -350,81 +407,27 @@ export default function UploadModal({
             away: matchInfo?.[selectedStadium]?.away,
           }),
         );
-
-        const index = recordsState.findIndex(
-          record => record.date === tempRecord.date,
-        );
-        console.log(index, recordsState);
         setRecordsState([
-          ...recordsState.slice(0, index),
-          tempRecord,
-          ...recordsState.slice(index + 1),
+          {
+            id: uuid.v4(),
+            date: formattedToday,
+            image,
+            memo,
+            selectedStadium,
+          },
         ]);
-        setRecordState(tempRecord);
-      } else {
-        const keys = await AsyncStorage.getAllKeys();
-        // NOTE 하루에 여러개의 기록 저장하는 경우
-        if (keys.includes(formattedToday)) {
-          const duplDate = `${formattedToday}(${
-            keys.filter(key => key === formattedToday).length
-          })`;
-          await AsyncStorage.setItem(
-            duplDate,
-            JSON.stringify({
-              image,
-              memo,
-              selectedStadium,
-              date: formattedToday,
-              home: matchInfo?.[selectedStadium]?.home,
-              away: matchInfo?.[selectedStadium]?.away,
-            }),
-          );
-          setRecordsState(
-            filterDuplicatedArray([
-              ...recordsState,
-              {
-                id: uuid.v4(),
-                date: duplDate,
-                image,
-                memo,
-                selectedStadium,
-              },
-            ]),
-          );
-        } else {
-          await AsyncStorage.setItem(
-            formattedToday,
-            JSON.stringify({
-              image,
-              memo,
-              selectedStadium,
-              date: formattedToday,
-              home: matchInfo?.[selectedStadium]?.home,
-              away: matchInfo?.[selectedStadium]?.away,
-            }),
-          );
-          setRecordsState([
-            {
-              id: uuid.v4(),
-              date: formattedToday,
-              image,
-              memo,
-              selectedStadium,
-            },
-          ]);
-        }
+        setRecordState({
+          id: uuid.v4(),
+          date: formattedToday,
+          image,
+          memo,
+          selectedStadium,
+        });
       }
-      // 업로드 한 해당 기록을 selected record 로 설정
-      setRecordState({
-        id: uuid.v4(),
-        date: formattedToday,
-        image,
-        memo,
-        selectedStadium,
-      });
-      setTempRecord(RESET_RECORD);
-      setIsVisible(false);
     }
+
+    setTempRecord(RESET_RECORD);
+    setIsVisible(false);
   };
 
   const getTodayMatch = async () => {

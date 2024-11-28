@@ -22,7 +22,12 @@ import {
   useSelectedRecordState,
 } from '@stores/default';
 import { getStadiumName, hasAndroidPermission } from '@utils/helper';
-import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
+import {
+  DATE_FORMAT,
+  IMAGE_HEIGHT,
+  IMAGE_WIDTH,
+  RESET_RECORD,
+} from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
 import { palette } from '@/style/palette';
 import TouchableWrapper from './TouchableWrapper';
@@ -31,14 +36,6 @@ import UploadModal from './UploadModal';
 const { width, height } = Dimensions.get('window');
 
 export function Detail({
-  // image,
-  // setImage,
-  // memo,
-  // setMemo,
-  // selectedStadium,
-  // setSelectedStadium,
-  // records,
-  // setRecords,
   setIsEdit,
   setIsVisible,
   myTeamMatch,
@@ -97,27 +94,11 @@ export function Detail({
           text: '삭제하기',
           onPress: async () => {
             try {
-              // TODO 삭제 기능 (storage 삭제, recordState, recordsState 올바르게 세팅)
-              // await AsyncStorage.removeItem(recordState.date);
-              // // NOTE recordState 를 삭제하고 같은 날 다른 경기가 있으면 변경, 없으면 빈 채로 두기
-              // if (
-              //   recordsState.filter(state =>
-              //     state.date.includes(formattedToday),
-              //   ).length
-              // ) {
-              //   const duplRecords = recordsState.filter(
-              //     record => record.id !== recordState.id,
-              //   );
-              //   setRecordsState(duplRecords);
-              //   setRecordState(duplRecords[0]);
-              // } else {
-              //   setRecordsState(
-              //     recordsState.filter(record => record.id !== recordState.id),
-              //   );
-              //   setRecordState(RESET_RECORD);
-              // }
-              // setIsEdit(false);
-              // refetch && refetch();
+              await AsyncStorage.removeItem(recordState.date);
+              setRecordState(RESET_RECORD);
+              setRecordsState([]);
+              setIsEdit(false);
+              refetch && refetch();
             } catch (e) {
               console.error(e);
             }
@@ -198,7 +179,6 @@ export function Detail({
               : [polaroidStyles.photoWrapper, polaroidStyles.photoWrapperShadow]
           }>
           <TouchableOpacity
-            // TODO 캐러셀에서 눌렀을 때 맞는 아이템 수정으로 넘어가도록
             onPress={() => setIsVisible(true)}
             style={{
               flex: 1,

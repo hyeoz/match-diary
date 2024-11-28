@@ -60,6 +60,7 @@ function Write() {
   const navigate = useNavigation<NativeStackNavigationProp<any>>();
 
   const shareImageRef = useRef<ViewShot>(null);
+  const flatListRef = useRef<FlatList>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
   const [isEdit, setIsEdit] = useState(false);
@@ -148,23 +149,24 @@ function Write() {
           text: '삭제하기',
           onPress: async () => {
             try {
+              const deleteRecord = recordsState[carouselIndexState];
               // TODO 삭제 기능 (storage 삭제, recordState, recordsState 올바르게 세팅)
-              await AsyncStorage.removeItem(recordState.date);
+              await AsyncStorage.removeItem(deleteRecord.date);
+              setRecordsState(
+                recordsState.filter(
+                  record => record.date !== deleteRecord.date,
+                ),
+              );
               // NOTE recordState 를 삭제하고 같은 날 다른 경기가 있으면 변경, 없으면 빈 채로 두기
               if (
-                recordsState.filter(state =>
-                  state.date.includes(formattedToday),
-                ).length
+                recordsState.filter(record => record.date !== deleteRecord.date)
+                  .length
               ) {
                 const duplRecords = recordsState.filter(
-                  record => record.id !== recordState.id,
+                  record => record.date !== deleteRecord.date,
                 );
-                setRecordsState(duplRecords);
                 setRecordState(duplRecords[0]);
               } else {
-                setRecordsState(
-                  recordsState.filter(record => record.id !== recordState.id),
-                );
                 setRecordState(RESET_RECORD);
               }
               setIsEdit(false);
@@ -232,7 +234,7 @@ function Write() {
     <TouchableWrapper>
       {/* SECTION 메인 버튼 / 폴라로이드 */}
       {isEdit || (recordsState.length && recordsState[0].image) ? (
-        records.length > 1 && records[0].image ? (
+        recordsState.length > 1 && recordsState[0].image ? (
           <>
             <View
               style={{
@@ -240,7 +242,7 @@ function Write() {
               }}>
               {/* TODO 여러경기인 경우 캐러셀 디자인 */}
               <FlatList
-                data={records}
+                data={recordsState}
                 renderItem={({ item, index }) => (
                   <CarouselPhoto
                     record={item}
@@ -344,7 +346,6 @@ function CarouselPhoto({
             // NOTE 캐러셀에서 눌렀을 때 맞는 아이템 수정으로 넘어가도록
             setIsVisible(true);
             setIsEdit(true);
-            setCarouselIndexState(index);
             setRecordState(record);
           }}
           style={{
