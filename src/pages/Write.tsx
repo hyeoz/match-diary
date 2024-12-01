@@ -43,11 +43,7 @@ import {
 import { RecordType } from '@/type/default';
 import { Add, Change } from '@assets/svg';
 import { palette } from '@/style/palette';
-import {
-  filterDuplicatedArray,
-  getStadiumName,
-  hasAndroidPermission,
-} from '@/utils/helper';
+import { getStadiumName, hasAndroidPermission } from '@/utils/helper';
 import ViewShot from 'react-native-view-shot';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
@@ -76,6 +72,7 @@ function Write() {
 
   useEffect(() => {
     getMyTeam();
+    checkItem();
   }, []);
 
   const getMyTeam = async () => {
@@ -150,7 +147,7 @@ function Write() {
           onPress: async () => {
             try {
               const deleteRecord = recordsState[carouselIndexState];
-              // TODO 삭제 기능 (storage 삭제, recordState, recordsState 올바르게 세팅)
+              // 삭제 기능 (storage 삭제, recordState, recordsState 올바르게 세팅)
               await AsyncStorage.removeItem(deleteRecord.date);
               setRecordsState(
                 recordsState.filter(

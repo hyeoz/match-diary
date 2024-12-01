@@ -17,6 +17,7 @@ import FastImage from 'react-native-fast-image';
 
 import { DetailPropsType, MatchDataType, RecordType } from '@/type/default';
 import {
+  useCarouselIndexState,
   useDuplicatedRecordState,
   useMyState,
   useSelectedRecordState,
@@ -55,12 +56,13 @@ export function Detail({
 
   const { recordState, setRecordState } = useSelectedRecordState();
   const { recordsState, setRecordsState } = useDuplicatedRecordState();
+  const { carouselIndexState } = useCarouselIndexState();
 
   useEffect(() => {
     if (!myTeamMatch) {
       return;
     }
-    // TODO
+    // TODO 더미데이터 db 에 넣어서 테스트
     const { homeScore, awayScore, home, away } = myTeamMatch;
 
     if (homeScore === -1 || awayScore === -1) {
@@ -94,9 +96,26 @@ export function Detail({
           text: '삭제하기',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem(recordState.date);
-              setRecordState(RESET_RECORD);
-              setRecordsState([]);
+              const deleteRecord = recordsState[carouselIndexState];
+              // 삭제 기능 (storage 삭제, recordState, recordsState 올바르게 세팅)
+              await AsyncStorage.removeItem(deleteRecord.date);
+              setRecordsState(
+                recordsState.filter(
+                  record => record.date !== deleteRecord.date,
+                ),
+              );
+              // NOTE recordState 를 삭제하고 같은 날 다른 경기가 있으면 변경, 없으면 빈 채로 두기
+              if (
+                recordsState.filter(record => record.date !== deleteRecord.date)
+                  .length
+              ) {
+                const duplRecords = recordsState.filter(
+                  record => record.date !== deleteRecord.date,
+                );
+                setRecordState(duplRecords[0]);
+              } else {
+                setRecordState(RESET_RECORD);
+              }
               setIsEdit(false);
               refetch && refetch();
             } catch (e) {
@@ -162,7 +181,7 @@ export function Detail({
       <ViewShot
         ref={shareImageRef}
         options={{
-          fileName: `${formattedToday}_직관일기`,
+          fileName: `${recordState.date}_직관일기`,
           format: 'jpg',
           quality: 1,
         }}>
