@@ -67,6 +67,14 @@ function Write() {
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
 
   useEffect(() => {
+    // 오늘 날짜가 아닌데 더블헤더 레코드가 있는 경우 리셋
+    if (dayjs().format(DATE_FORMAT) !== recordState.date) {
+      setRecordsState([]);
+      setRecordState(RESET_RECORD);
+    }
+  }, []);
+
+  useEffect(() => {
     checkItem();
   }, [history, isVisible]);
 

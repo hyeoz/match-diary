@@ -1,7 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Dimensions,
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Platform,
   StyleSheet,
   Text,
@@ -19,20 +22,19 @@ import { DetailPropsType, MatchDataType, RecordType } from '@/type/default';
 import {
   useCarouselIndexState,
   useDuplicatedRecordState,
+  useMatchesState,
   useMyState,
   useSelectedRecordState,
 } from '@stores/default';
 import { getStadiumName, hasAndroidPermission } from '@utils/helper';
 import {
-  DATE_FORMAT,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
   RESET_RECORD,
+  STADIUM_LONG_TO_SHORT,
 } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
 import { palette } from '@/style/palette';
-import TouchableWrapper from './TouchableWrapper';
-import UploadModal from './UploadModal';
 
 const { width, height } = Dimensions.get('window');
 
@@ -51,18 +53,27 @@ export function Detail({
 }) {
   const shareImageRef = useRef<ViewShot>(null);
   const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
-  const { team } = useMyState();
-  const formattedToday = dayjs(date).format(DATE_FORMAT);
+  const [selectedMatch, setSelectedMatch] = useState<
+    MatchDataType | undefined
+  >();
 
+  const { team } = useMyState();
   const { recordState, setRecordState } = useSelectedRecordState();
   const { recordsState, setRecordsState } = useDuplicatedRecordState();
   const { carouselIndexState } = useCarouselIndexState();
+  const { matchesState, setMatchesState } = useMatchesState();
 
   useEffect(() => {
     if (!myTeamMatch) {
       return;
     }
-    // TODO 더미데이터 db 에 넣어서 테스트
+
+    const tempStadium =
+      STADIUM_LONG_TO_SHORT[recordState.selectedStadium.split(' - ')[0]];
+    if (myTeamMatch.stadium !== tempStadium) {
+      return;
+    }
+
     const { homeScore, awayScore, home, away } = myTeamMatch;
 
     if (homeScore === -1 || awayScore === -1) {
@@ -81,6 +92,38 @@ export function Detail({
       }
     }
   }, [myTeamMatch]);
+
+  useEffect(() => {
+    const tempStadium =
+      STADIUM_LONG_TO_SHORT[recordState.selectedStadium.split(' - ')[0]];
+    const matches = matchesState.filter(match => match.stadium === tempStadium);
+    // 더블헤더 분기처리
+    if (matches.length > 1) {
+      let tempMatch: MatchDataType;
+      if (recordState.selectedStadium.includes('1')) {
+        // 1경기
+        matches.forEach(match => {
+          tempMatch =
+            new Date(tempMatch?.time) > new Date(match.time)
+              ? tempMatch
+              : match;
+        });
+      } else {
+        // 2경기
+        matches.forEach(match => {
+          tempMatch =
+            new Date(tempMatch?.time) < new Date(match.time)
+              ? tempMatch
+              : match;
+        });
+      }
+      setSelectedMatch(tempMatch!);
+    } else {
+      setSelectedMatch(
+        matchesState.find(match => match.stadium === tempStadium),
+      );
+    }
+  }, [matchesState, recordState.selectedStadium]);
 
   const onPressDelete = async () => {
     Alert.alert(
@@ -161,6 +204,16 @@ export function Detail({
     });
   };
 
+  const onScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const slideSize = event.nativeEvent.layoutMeasurement.width;
+      const index = event.nativeEvent.contentOffset.x / slideSize;
+      const roundIndex = Math.round(index);
+      setRecordState(recordsState[roundIndex]);
+    },
+    [],
+  );
+
   return (
     <View
       style={
@@ -178,135 +231,176 @@ export function Detail({
             ]
           : polaroidStyles.wrapper
       }>
-      <ViewShot
-        ref={shareImageRef}
-        options={{
-          fileName: `${recordState.date}_직관일기`,
-          format: 'jpg',
-          quality: 1,
-        }}>
-        <View
-          style={
-            isCalendar
-              ? [
-                  polaroidStyles.photoWrapper,
-                  {
-                    width: width * 0.6 - 12,
-                    height: height * 0.35,
-                  },
-                ]
-              : [polaroidStyles.photoWrapper, polaroidStyles.photoWrapperShadow]
-          }>
-          <TouchableOpacity
-            onPress={() => setIsVisible(true)}
-            style={{
-              flex: 1,
-              alignItems: 'center',
+      <FlatList
+        data={recordsState}
+        renderItem={({ item, index }) => (
+          <ViewShot
+            ref={shareImageRef}
+            options={{
+              fileName: `${item.date}_직관일기`,
+              format: 'jpg',
+              quality: 1,
             }}>
             <View
-              style={{
-                position: 'relative',
-              }}>
-              <View
-                style={[
-                  polaroidStyles.photo,
-                  {
-                    width: isCalendar ? width * 0.6 - 12 : width * 0.7 - 12,
-                    height: isCalendar
-                      ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 12
-                      : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
-                  },
-                ]}
-              />
-              <FastImage
-                source={{ uri: recordState.image?.path }}
+              style={
+                isCalendar
+                  ? [
+                      polaroidStyles.photoWrapper,
+                      {
+                        width: width * 0.6 - 12,
+                        height: height * 0.35,
+                        marginRight: 16,
+                      },
+                    ]
+                  : [
+                      polaroidStyles.photoWrapper,
+                      polaroidStyles.photoWrapperShadow,
+                    ]
+              }>
+              <TouchableOpacity
+                onPress={() => setIsVisible(true)}
                 style={{
-                  width: isCalendar ? width * 0.6 - 28 : width * 0.7 - 16,
-                  height: isCalendar
-                    ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 16
-                    : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
-                }}
-              />
-              {!!result && myTeamMatch && (
+                  flex: 1,
+                  alignItems: 'center',
+                }}>
                 <View
                   style={{
-                    position: 'absolute',
-                    bottom: isCalendar ? 60 : 30,
-                    left: isCalendar
-                      ? width * 0.6 - 16 - 60
-                      : width * 0.7 - 16 - 60,
+                    position: 'relative',
                   }}>
-                  <Stamp
-                    width={60}
-                    height={60}
-                    color={
-                      result === 'W' ? 'red' : result === 'L' ? 'blue' : 'gray'
-                    }
+                  <View
+                    style={[
+                      polaroidStyles.photo,
+                      {
+                        width: isCalendar ? width * 0.6 - 12 : width * 0.7 - 12,
+                        height: isCalendar
+                          ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 12
+                          : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
+                      },
+                    ]}
+                  />
+                  <FastImage
+                    source={{ uri: item.image?.path }}
                     style={{
-                      position: 'absolute',
+                      width: isCalendar ? width * 0.6 - 28 : width * 0.7 - 16,
+                      height: isCalendar
+                        ? (IMAGE_HEIGHT * (width * 0.6)) / IMAGE_WIDTH - 16
+                        : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
                     }}
                   />
-                  <Text
-                    style={[
-                      polaroidStyles.resultText,
-                      {
-                        color:
+                  {!!result && myTeamMatch && (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        bottom: isCalendar ? 60 : 30,
+                        left: isCalendar
+                          ? width * 0.6 - 16 - 60
+                          : width * 0.7 - 16 - 60,
+                      }}>
+                      <Stamp
+                        width={60}
+                        height={60}
+                        color={
                           result === 'W'
                             ? 'red'
                             : result === 'L'
                             ? 'blue'
-                            : 'gray',
-                      },
-                    ]}>
-                    {result === 'W'
-                      ? '승리!'
-                      : result === 'L'
-                      ? '패배'
-                      : '무승부'}
+                            : 'gray'
+                        }
+                        style={{
+                          position: 'absolute',
+                        }}
+                      />
+                      <Text
+                        style={[
+                          polaroidStyles.resultText,
+                          {
+                            color:
+                              result === 'W'
+                                ? 'red'
+                                : result === 'L'
+                                ? 'blue'
+                                : 'gray',
+                          },
+                        ]}>
+                        {result === 'W'
+                          ? '승리!'
+                          : result === 'L'
+                          ? '패배'
+                          : '무승부'}
+                      </Text>
+                    </View>
+                  )}
+                  <Text
+                    style={{
+                      width: '105%',
+                      fontFamily: 'UhBee Seulvely',
+                      fontSize: isCalendar ? 10 : 12,
+                      marginTop: isCalendar ? 10 : 20,
+                    }}>
+                    {dayjs(
+                      recordState.date.includes('(')
+                        ? recordState.date.split('(')[0]
+                        : recordState.date,
+                    ).format('YY.MM.DD')}{' '}
+                    {selectedMatch?.home && selectedMatch.away && (
+                      <>
+                        {selectedMatch?.home}
+                        {' VS '}
+                        {selectedMatch?.away}
+                      </>
+                    )}
+                    {' @'}
+                    {getStadiumName(item.selectedStadium)}
                   </Text>
                 </View>
-              )}
-              <Text
-                style={{
-                  width: '105%',
-                  fontFamily: 'UhBee Seulvely',
-                  fontSize: isCalendar ? 10 : 12,
-                  marginTop: isCalendar ? 10 : 20,
-                }}>
-                {dayjs(
-                  myTeamMatch?.date.split('(')[0].replaceAll('.', '/'),
-                ).format('YY.MM.DD')}{' '}
-                {myTeamMatch?.home && myTeamMatch.away && (
-                  <>
-                    {myTeamMatch?.home}
-                    {' VS '}
-                    {myTeamMatch?.away}
-                  </>
-                )}
-                {' @'}
-                {getStadiumName(recordState.selectedStadium)}
-              </Text>
+                <View
+                  style={{
+                    width: '100%',
+                  }}>
+                  <Text
+                    style={{
+                      width: '100%',
+                      fontSize: 12,
+                      fontFamily: 'UhBee Seulvely',
+                      lineHeight: 14,
+                    }}
+                    numberOfLines={isCalendar ? 2 : undefined}>
+                    {item.memo}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
-            <View
-              style={{
-                width: '100%',
-              }}>
-              <Text
-                style={{
-                  width: '100%',
-                  fontSize: 12,
-                  fontFamily: 'UhBee Seulvely',
-                  lineHeight: 14,
-                }}
-                numberOfLines={isCalendar ? 2 : undefined}>
-                {recordState.memo}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-        {isCalendar && <View style={[polaroidStyles.shadow]} />}
-        {isCalendar && <View style={polaroidStyles.effect} />}
-      </ViewShot>
+            {isCalendar && <View style={[polaroidStyles.shadow]} />}
+            {isCalendar && <View style={polaroidStyles.effect} />}
+          </ViewShot>
+        )}
+        onScroll={onScroll}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ alignItems: 'center' }}
+      />
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 4,
+          position: 'absolute',
+          bottom: '20%',
+        }}>
+        {recordsState.map(record => (
+          <View
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 100,
+              backgroundColor:
+                record.id === recordState.id
+                  ? palette.teamColor[team]
+                  : palette.greyColor.gray9,
+            }}
+          />
+        ))}
+      </View>
       <View
         style={
           isCalendar

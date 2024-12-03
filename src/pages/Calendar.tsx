@@ -22,6 +22,7 @@ import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
 import {
   useDuplicatedRecordState,
+  useMatchesState,
   useMyState,
   useSelectedRecordState,
   useTabHistory,
@@ -85,15 +86,10 @@ function Calendar() {
   const { team } = useMyState();
   const { history } = useTabHistory();
   const { recordState, setRecordState } = useSelectedRecordState();
-  const { recordsState, setRecordsState } = useDuplicatedRecordState();
+  const { setRecordsState } = useDuplicatedRecordState();
+  const { setMatchesState } = useMatchesState();
 
   const detailProps = {
-    // image,
-    // setImage,
-    // memo,
-    // setMemo,
-    // selectedStadium,
-    // setSelectedStadium,
     isEdit,
     setIsEdit,
     setIsVisible,
@@ -196,9 +192,14 @@ function Calendar() {
     );
 
     if (!res.data.data.length) {
-      return setMatches([]);
+      setMatchesState([]);
+      setMatches([]);
+      return;
     }
-    // NOTE 더블헤더 로직 추가
+
+    setMatchesState(res.data.data.map(data => data.attributes));
+
+    // 응원팀 분기처리
     if (team) {
       const filteredMatch = res.data.data.filter(
         data => data.attributes.home === team || data.attributes.away === team,
@@ -207,6 +208,7 @@ function Calendar() {
     } else {
       setMatches(res.data.data.map(d => d.attributes));
     }
+
     setLoading(false);
   };
 

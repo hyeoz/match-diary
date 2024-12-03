@@ -1,4 +1,4 @@
-import { RecordType } from '@/type/default';
+import { MatchDataType, RecordType } from '@/type/default';
 import { RESET_RECORD } from '@/utils/STATIC_DATA';
 import { create } from 'zustand';
 
@@ -57,6 +57,16 @@ const useDuplicatedRecordState = create<{
     set(() => ({ recordsState: records })),
 }));
 
+// 경기 데이터 관리
+const useMatchesState = create<{
+  matchesState: MatchDataType[];
+  setMatchesState: (matches: MatchDataType[]) => void;
+}>(set => ({
+  matchesState: [],
+  setMatchesState: (matches: MatchDataType[]) =>
+    set(() => ({ matchesState: matches })),
+}));
+
 export {
   useBottomTabState,
   useTabHistory,
@@ -64,4 +74,5 @@ export {
   useSelectedRecordState,
   useCarouselIndexState,
   useDuplicatedRecordState,
+  useMatchesState,
 };
