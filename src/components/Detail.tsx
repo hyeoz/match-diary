@@ -64,10 +64,12 @@ export function Detail({
   const { matchesState, setMatchesState } = useMatchesState();
 
   useEffect(() => {
+    // 마이팀 없는 경우
     if (!myTeamMatch) {
       return;
     }
 
+    // 마이팀과 기록한 팀의 경기가 다른 경우
     const tempStadium =
       STADIUM_LONG_TO_SHORT[recordState.selectedStadium.split(' - ')[0]];
     if (myTeamMatch.stadium !== tempStadium) {
