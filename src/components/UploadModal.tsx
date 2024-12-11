@@ -222,13 +222,6 @@ export default function UploadModal({
       // FIXME crop 기능 제외
       // await openPicker(item[0].fileName ?? tempName, item[0].uri, 'CAMERA');
       try {
-        // setImage({
-        // path: item[0].uri,
-        // size: item[0].fileSize ?? 0,
-        // width: item[0].width ?? IMAGE_WIDTH,
-        // height: item[0].height ?? IMAGE_HEIGHT,
-        // mime: item[0].type ?? 'image/jpeg',
-        // });
         const uploadedImage: ImageOrVideo = {
           path: item[0].uri,
           size: item[0].fileSize ?? 0,

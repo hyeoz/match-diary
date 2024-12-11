@@ -326,6 +326,24 @@ function Calendar() {
     setMatchRecord(_count);
   };
 
+  const findMyTeamMatch = () => {
+    return matches.find((match, index) => {
+      const _date = match.date.split('(')[0].replaceAll('.', '/');
+      if (recordState.selectedStadium.includes('2')) {
+        // NOTE 더블헤더 경기 로직 추가
+        return (
+          dayjs(_date).format(DATE_FORMAT) ===
+            dayjs(selectedDate).format(DATE_FORMAT) && index === 1
+        );
+      } else {
+        return (
+          dayjs(_date).format(DATE_FORMAT) ===
+          dayjs(selectedDate).format(DATE_FORMAT)
+        );
+      }
+    });
+  };
+
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
@@ -378,21 +396,7 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
-              myTeamMatch={matches.find((match, index) => {
-                const _date = match.date.split('(')[0].replaceAll('.', '/');
-                if (recordState.selectedStadium.includes('2')) {
-                  // NOTE 더블헤더 경기 로직 추가
-                  return (
-                    dayjs(_date).format(DATE_FORMAT) ===
-                      dayjs(selectedDate).format(DATE_FORMAT) && index === 1
-                  );
-                } else {
-                  return (
-                    dayjs(_date).format(DATE_FORMAT) ===
-                    dayjs(selectedDate).format(DATE_FORMAT)
-                  );
-                }
-              })}
+              myTeamMatch={findMyTeamMatch()}
               date={selectedDate}
             />
           ) : (
