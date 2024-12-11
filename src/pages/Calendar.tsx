@@ -22,6 +22,7 @@ import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
 import {
   useDuplicatedRecordState,
+  useMatchesState,
   useMyState,
   useSelectedRecordState,
   useTabHistory,
@@ -86,19 +87,29 @@ function Calendar() {
   const { history } = useTabHistory();
   const { recordState, setRecordState } = useSelectedRecordState();
   const { recordsState, setRecordsState } = useDuplicatedRecordState();
+  const { setMatchesState } = useMatchesState();
 
   const detailProps = {
-    // image,
-    // setImage,
-    // memo,
-    // setMemo,
-    // selectedStadium,
-    // setSelectedStadium,
     isEdit,
     setIsEdit,
     setIsVisible,
     matches,
   };
+
+  useEffect(() => {
+    if (!recordState || !recordsState.length) return;
+
+    setRecordsState(
+      recordsState.sort((a, b) => {
+        if (a.date === recordState.date) return -1;
+        if (b.date === recordState.date) return 1;
+        return (
+          recordsState.findIndex(value => value.id === a.id) -
+          recordsState.findIndex(value => value.id === b.id)
+        );
+      }),
+    );
+  }, []);
 
   useEffect(() => {
     getSelectedItem();
@@ -196,9 +207,14 @@ function Calendar() {
     );
 
     if (!res.data.data.length) {
-      return setMatches([]);
+      setMatchesState([]);
+      setMatches([]);
+      return;
     }
-    // NOTE 더블헤더 로직 추가
+
+    setMatchesState(res.data.data.map(data => data.attributes));
+
+    // 응원팀 분기처리
     if (team) {
       const filteredMatch = res.data.data.filter(
         data => data.attributes.home === team || data.attributes.away === team,
@@ -207,6 +223,7 @@ function Calendar() {
     } else {
       setMatches(res.data.data.map(d => d.attributes));
     }
+
     setLoading(false);
   };
 
@@ -309,6 +326,24 @@ function Calendar() {
     setMatchRecord(_count);
   };
 
+  const findMyTeamMatch = () => {
+    return matches.find((match, index) => {
+      const _date = match.date.split('(')[0].replaceAll('.', '/');
+      if (recordState.selectedStadium.includes('2')) {
+        // NOTE 더블헤더 경기 로직 추가
+        return (
+          dayjs(_date).format(DATE_FORMAT) ===
+            dayjs(selectedDate).format(DATE_FORMAT) && index === 1
+        );
+      } else {
+        return (
+          dayjs(_date).format(DATE_FORMAT) ===
+          dayjs(selectedDate).format(DATE_FORMAT)
+        );
+      }
+    });
+  };
+
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
@@ -350,9 +385,10 @@ function Calendar() {
             style={{
               position: 'absolute',
               zIndex: 9,
+              top: -12,
             }}
           />
-          {recordState.image && recordState.memo ? (
+          {recordState?.image && recordState?.memo ? (
             <Detail
               {...detailProps}
               isCalendar
@@ -360,21 +396,7 @@ function Calendar() {
                 getAllItems();
                 getAllRecord();
               }}
-              myTeamMatch={matches.find((match, index) => {
-                const _date = match.date.split('(')[0].replaceAll('.', '/');
-                if (recordState.selectedStadium.includes('2')) {
-                  // NOTE 더블헤더 경기 로직 추가
-                  return (
-                    dayjs(_date).format(DATE_FORMAT) ===
-                      dayjs(selectedDate).format(DATE_FORMAT) && index === 1
-                  );
-                } else {
-                  return (
-                    dayjs(_date).format(DATE_FORMAT) ===
-                    dayjs(selectedDate).format(DATE_FORMAT)
-                  );
-                }
-              })}
+              myTeamMatch={findMyTeamMatch()}
               date={selectedDate}
             />
           ) : (
@@ -382,6 +404,7 @@ function Calendar() {
               onPress={() => setIsVisible(true)}
               style={{
                 padding: 16,
+                marginTop: -16,
               }}>
               <View
                 style={{

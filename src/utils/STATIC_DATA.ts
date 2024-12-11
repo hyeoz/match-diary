@@ -66,6 +66,22 @@ const STADIUM_SHORT_TO_LONG: { [key: string]: string } = {
   청주: '청주종합운동장야구장',
 };
 
+const STADIUM_LONG_TO_SHORT: { [key: string]: string } = {
+  잠실야구장: '잠실',
+  인천SSG랜더스필드: '문학',
+  수원KT위즈파크: '수원',
+  한화생명이글스파크: '대전',
+  대구삼성라이온즈파크: '대구',
+  사직야구장: '사직',
+  광주기아챔피언스필드: '광주',
+  창원NC파크: '창원',
+  고척스카이돔: '고척',
+  // 제2구장추가
+  포항야구장: '포항',
+  울산문수야구장: '울산',
+  청주종합운동장야구장: '청주',
+};
+
 const STADIUM_LONG_TO_NICK: { [key: string]: string } = {
   잠실야구장: '잠실야구장',
   인천SSG랜더스필드: '랜더스필스',
@@ -167,6 +183,7 @@ export {
   STADIUM_GEO,
   STADIUM_SHORT_NAME,
   STADIUM_SHORT_TO_LONG,
+  STADIUM_LONG_TO_SHORT,
   STADIUM_LONG_TO_NICK,
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
