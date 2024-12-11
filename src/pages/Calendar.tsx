@@ -404,6 +404,7 @@ function Calendar() {
               onPress={() => setIsVisible(true)}
               style={{
                 padding: 16,
+                marginTop: -16,
               }}>
               <View
                 style={{
