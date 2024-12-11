@@ -86,7 +86,7 @@ function Calendar() {
   const { team } = useMyState();
   const { history } = useTabHistory();
   const { recordState, setRecordState } = useSelectedRecordState();
-  const { setRecordsState } = useDuplicatedRecordState();
+  const { recordsState, setRecordsState } = useDuplicatedRecordState();
   const { setMatchesState } = useMatchesState();
 
   const detailProps = {
@@ -95,6 +95,21 @@ function Calendar() {
     setIsVisible,
     matches,
   };
+
+  useEffect(() => {
+    if (!recordState || !recordsState.length) return;
+
+    setRecordsState(
+      recordsState.sort((a, b) => {
+        if (a.date === recordState.date) return -1;
+        if (b.date === recordState.date) return 1;
+        return (
+          recordsState.findIndex(value => value.id === a.id) -
+          recordsState.findIndex(value => value.id === b.id)
+        );
+      }),
+    );
+  }, []);
 
   useEffect(() => {
     getSelectedItem();
@@ -352,9 +367,10 @@ function Calendar() {
             style={{
               position: 'absolute',
               zIndex: 9,
+              top: -12,
             }}
           />
-          {recordState.image && recordState.memo ? (
+          {recordState?.image && recordState?.memo ? (
             <Detail
               {...detailProps}
               isCalendar

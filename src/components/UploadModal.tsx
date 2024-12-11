@@ -111,7 +111,7 @@ export default function UploadModal({
   useEffect(() => {
     // NOTE 캐러셀에서 수정으로 넘어가기
     if (isEdit) {
-      recordState.image && setTempRecord(recordState);
+      recordState?.image && setTempRecord(recordState);
     } else {
       setTempRecord(RESET_RECORD);
     }

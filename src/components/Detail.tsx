@@ -250,6 +250,7 @@ export function Detail({
                         width: width * 0.6 - 12,
                         height: height * 0.35,
                         marginRight: 16,
+                        marginTop: -56,
                       },
                     ]
                   : [
@@ -385,21 +386,23 @@ export function Detail({
           flexDirection: 'row',
           gap: 4,
           position: 'absolute',
-          bottom: '20%',
+          bottom: 96,
         }}>
-        {recordsState.map(record => (
-          <View
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 100,
-              backgroundColor:
-                record.id === recordState.id
-                  ? palette.teamColor[team]
-                  : palette.greyColor.gray9,
-            }}
-          />
-        ))}
+        {recordsState.map(record => {
+          return (
+            <View
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 100,
+                backgroundColor:
+                  record.date === recordState.date
+                    ? palette.teamColor[team]
+                    : palette.greyColor.gray9,
+              }}
+            />
+          );
+        })}
       </View>
       <View
         style={
@@ -408,9 +411,10 @@ export function Detail({
                 polaroidStyles.buttonWrapper,
                 {
                   gap: 6,
-                  marginTop: 4,
                   justifyContent: 'flex-start',
                   width: '90%',
+                  position: 'absolute',
+                  bottom: 48,
                 },
               ]
             : polaroidStyles.buttonWrapper
@@ -446,6 +450,7 @@ const polaroidStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: -32,
   },
   photoWrapper: {
     width: width * 0.7,
@@ -519,7 +524,6 @@ const polaroidStyles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     justifyContent: 'flex-end',
-    marginTop: 16,
   },
   shareButton: {
     borderWidth: 1,
