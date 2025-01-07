@@ -89,6 +89,8 @@ function Calendar() {
   const { recordsState, setRecordsState } = useDuplicatedRecordState();
   const { setMatchesState } = useMatchesState();
 
+  const year = dayjs(selectedDate).year();
+
   const detailProps = {
     isEdit,
     setIsEdit,
@@ -200,11 +202,13 @@ function Calendar() {
 
   const getMatchData = async () => {
     setLoading(true);
+    console.log(year, 'YEAR');
     const res = await API.get<StrapiType<MatchDataType>>(
-      `/schedule-2024s?filters[date]=${dayjs(selectedDate).format(
+      `/schedule-${year}s?filters[date]=${dayjs(selectedDate).format(
         API_DATE_FORMAT,
       )}`,
     );
+    console.log(res);
 
     if (!res.data.data.length) {
       setMatchesState([]);
@@ -250,10 +254,11 @@ function Calendar() {
     );
     for (let i = 0; i < keys.length; i++) {
       const res = await API.get<StrapiType<MatchDataType>>(
-        `/schedule-2024s?filters[date]=${dayjs(keys[i]).format(
+        `/schedule-${year}s?filters[date]=${dayjs(keys[i]).format(
           API_DATE_FORMAT,
         )}`,
       );
+      console.log(res, year);
 
       const data = res.data.data.find((dt, index) => {
         if (recordState.selectedStadium.includes('2')) {
