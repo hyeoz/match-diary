@@ -88,6 +88,7 @@ export default function UploadModal({
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
+  const year = dayjs(date).year();
 
   const initRecord: RecordType = {
     id: uuid.v4(),
@@ -425,7 +426,7 @@ export default function UploadModal({
 
   const getTodayMatch = async () => {
     const res = await API.get<StrapiType<MatchDataType>>(
-      `/schedule-2024s?filters[date]=${apiFormattedToday}`,
+      `/schedule-${year}s?filters[date]=${apiFormattedToday}`,
     );
     if (!res.data.data.length) {
       setStadium(['경기가 없어요!']);
