@@ -970,7 +970,7 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - react-native-image-picker (7.2.2):
+  - react-native-image-picker (7.2.3):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1147,7 +1147,7 @@ PODS:
     - React-perflogger (= 0.73.6)
   - RNCAsyncStorage (1.24.0):
     - React-Core
-  - RNCClipboard (1.15.0):
+  - RNCClipboard (1.16.1):
     - React-Core
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
@@ -1157,7 +1157,7 @@ PODS:
     - SDWebImageWebPCoder (~> 0.8.4)
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.21.2):
+  - RNGestureHandler (2.23.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1172,25 +1172,25 @@ PODS:
     - TOCropViewController (~> 2.7.4)
   - RNPermissions (4.1.5):
     - React-Core
-  - RNReanimated (3.16.3):
+  - RNReanimated (3.16.7):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.16.3)
-    - RNReanimated/worklets (= 3.16.3)
-  - RNReanimated/reanimated (3.16.3):
+    - RNReanimated/reanimated (= 3.16.7)
+    - RNReanimated/worklets (= 3.16.7)
+  - RNReanimated/reanimated (3.16.7):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated/apple (= 3.16.3)
-  - RNReanimated/reanimated/apple (3.16.3):
+    - RNReanimated/reanimated/apple (= 3.16.7)
+  - RNReanimated/reanimated/apple (3.16.7):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - ReactCommon/turbomodule/core
-  - RNReanimated/worklets (3.16.3):
+  - RNReanimated/worklets (3.16.7):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1200,7 +1200,7 @@ PODS:
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
     - React-RCTImage
-  - RNSVG (15.10.1):
+  - RNSVG (15.11.1):
     - React-Core
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
@@ -1504,7 +1504,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 84ea43c6c6232049135b1550b8c60b2faac19fab
   react-native-cameraroll: 521900f7b6ef2615c061fb30baa6d1f86e185090
   react-native-geolocation: 167798574694849024cb093222bd158e84ac8d21
-  react-native-image-picker: d725b2c58c92160c43598a761b6ada1f3ce0b1e3
+  react-native-image-picker: 3e4ad7a308e087f49f8aa1443c9ead2e8ce8f060
   react-native-safe-area-context: 141eca0fd4e4191288dfc8b96a7c7e1c2983447a
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
   React-nativeconfig: b4d4e9901d4cabb57be63053fd2aa6086eb3c85f
@@ -1528,16 +1528,16 @@ SPEC CHECKSUMS:
   React-utils: d16c1d2251c088ad817996621947d0ac8167b46c
   ReactCommon: 2aa35648354bd4c4665b9a5084a7d37097b89c10
   RNCAsyncStorage: ec53e44dc3e75b44aa2a9f37618a49c3bc080a7a
-  RNCClipboard: 69ab8e51324d5b351f6ba72bbdb72478087a2c64
+  RNCClipboard: d7a8903d32692b0a1e71738c3825465a9acae10e
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 57144b74a3402b21180df3ec7b3a0266ddf89548
+  RNGestureHandler: c2cf75d72758f62fba10b3bcc917b11b292c3b2f
   RNImageCropPicker: 8e39c01f205e00d739c31e682f068aac315587bf
   RNPermissions: bb696030f8cca10f1d5a97d34699c97a33a76b45
-  RNReanimated: f63550d06c920d174d5adafc9c27d22cae3c37f6
+  RNReanimated: c076386897b52fb541afa8fffe08ded731d50211
   RNScreens: 69850d4519d95b9359cec15a67bb5f9d0bd75262
-  RNSVG: 7ff26379b2d1871b8571e6f9bc9630de6baf9bdf
+  RNSVG: d23fa135b1fa2d61aed871ce0774fc5da707d4a1
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
@@ -1546,4 +1546,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 33316919187162249b0a5e4554e0508d878966a2
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.13.0
