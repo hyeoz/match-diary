@@ -3,8 +3,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Splash from './pages/Splash';
 import Main from './pages/Main';
-import BackgroundGeolocation from 'react-native-background-geolocation';
-import { STADIUM_GEO } from './utils/STATIC_DATA';
+import SignIn from './pages/SignIn';
+// TODO 위치 기반 기능
+// import BackgroundGeolocation from 'react-native-background-geolocation';
+// import { STADIUM_GEO } from './utils/STATIC_DATA';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +22,11 @@ const Router = () => {
       <Stack.Screen
         name="Splash"
         component={Splash}
+        options={{ animation: 'fade_from_bottom' }}
+      />
+      <Stack.Screen
+        name="SignIn"
+        component={SignIn}
         options={{ animation: 'fade_from_bottom' }}
       />
       <Stack.Screen

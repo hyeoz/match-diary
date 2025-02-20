@@ -9,6 +9,7 @@ export type RootStackListType = {
   Write: any;
   History: any;
   More: any;
+  SignIn: any;
 };
 
 // TODO Tab 타입

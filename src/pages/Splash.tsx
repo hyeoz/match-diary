@@ -1,53 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import FastImage from 'react-native-fast-image';
+import { getUniqueId } from 'react-native-device-info';
 
+import { API } from '@/api';
 import { RootStackListType } from '@/type/default';
+import { useUserState } from '@/stores/user';
 import { palette } from '@style/palette';
-import { useMyState } from '@stores/default';
 import splash_text from '@assets/splash_text.png';
-import { getRandomElement } from '@/utils/helper';
-import {
-  NICKNAME_ADJECTIVE,
-  NICKNAME_NOUN,
-} from '@/utils/NICKNAME_STATIC_DATA';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
-  const { team } = useMyState();
-  const [defaultTeam, setDefaultTeam] = useState(team);
+  const { teamId } = useUserState();
+  const [defaultTeam, setDefaultTeam] = useState(teamId);
 
   useEffect(() => {
-    const setReplace = async () =>
-      new Promise(() =>
-        setTimeout(() => {
-          navigation.replace('Main');
-        }, 3000),
-      );
     const getAll = async () => {
-      await getMyTeam();
-      await getMyNickname();
+      const deviceId = await getUniqueId();
+      await getUserData(deviceId);
       await setReplace();
     };
     getAll();
   });
 
-  const getMyTeam = async () => {
-    const res = await AsyncStorage.getItem('MY_TEAM');
-    if (!res) {
-      return;
-    }
-    setDefaultTeam(res);
-  };
+  // 스플래시 화면 종료 후 이동
+  const setReplace = async (hasAccount: boolean = false) =>
+    new Promise(() =>
+      setTimeout(() => {
+        hasAccount ? navigation.replace('Main') : navigation.replace('SignIn');
+      }, 3000),
+    );
 
-  const getMyNickname = async () => {
-    const res = await AsyncStorage.getItem('NICKNAME');
-
-    if (!res) {
-      const randomAdj = getRandomElement(NICKNAME_ADJECTIVE);
-      const randomNoun = getRandomElement(NICKNAME_NOUN);
-      await AsyncStorage.setItem('NICKNAME', `${randomAdj} ${randomNoun}`);
+  // 기기정보로 서버에서 유저 데이터 불러오기
+  const getUserData = async (deviceId: string) => {
+    const res = await API.post('/user', { userId: deviceId });
+    if (!res.data) {
+      // 유저 정보가 없는 경우 가입 화면으로 넘기기
+      setReplace(false);
+    } else {
+      setDefaultTeam(res.data.teamId);
     }
   };
 
