@@ -17,6 +17,7 @@ import {
 } from '@assets/svg';
 import { CoordinateType } from '@/type/default';
 import { STADIUM_LONG_TO_NICK } from './STATIC_DATA';
+import { NICKNAME_ADJECTIVE, NICKNAME_NOUN } from './NICKNAME_STATIC_DATA';
 
 const hasAndroidPermission = async () => {
   const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
@@ -182,6 +183,12 @@ const getStadiumName = (selectedStadium: string) => {
     ? selectedStadium.split(' - DH')[0]
     : selectedStadium;
   return STADIUM_LONG_TO_NICK[stadium] ?? '경기가 없어요!';
+};
+
+const getRandomNickname = () => {
+  const randomAdj = getRandomElement(NICKNAME_ADJECTIVE);
+  const randomNoun = getRandomElement(NICKNAME_NOUN);
+  return `${randomAdj} ${randomNoun}`;
 };
 
 export {

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
   Dimensions,
   FlatList,
   ListRenderItemInfo,
@@ -23,11 +24,10 @@ import UploadModal from '@components/UploadModal';
 import {
   useDuplicatedRecordState,
   useMatchesState,
-  useMyState,
   useSelectedRecordState,
   useTabHistory,
 } from '@stores/default';
-import { API, StrapiType } from '@api/index';
+import { API } from '@api/index';
 import {
   API_DATE_FORMAT,
   DATE_FORMAT,
@@ -41,6 +41,8 @@ import { palette } from '@style/palette';
 import { MatchDataType, RecordType } from '@/type/default';
 import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
 import Loading from '@/components/Loading';
+import { getMatchByDate } from '@/api/match';
+import { useUserState, useViewedMatchState } from '@/stores/user';
 
 const { width } = Dimensions.get('window');
 
@@ -83,11 +85,15 @@ function Calendar() {
   const [weeksCount, setWeeksCount] = useState(0);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
 
-  const { team } = useMyState();
+  const { teamId } = useUserState();
+  const { viewedMatch } = useViewedMatchState();
+
   const { history } = useTabHistory();
   const { recordState, setRecordState } = useSelectedRecordState();
   const { recordsState, setRecordsState } = useDuplicatedRecordState();
   const { setMatchesState } = useMatchesState();
+
+  const year = dayjs(selectedDate).year();
 
   const detailProps = {
     isEdit,
@@ -200,29 +206,27 @@ function Calendar() {
 
   const getMatchData = async () => {
     setLoading(true);
-    const res = await API.get<StrapiType<MatchDataType>>(
-      `/schedule-2024s?filters[date]=${dayjs(selectedDate).format(
-        API_DATE_FORMAT,
-      )}`,
-    );
 
-    if (!res.data.data.length) {
+    const res = await getMatchByDate(selectedDate);
+    console.log(res.data);
+
+    if (!res.data.length) {
       setMatchesState([]);
       setMatches([]);
       return;
     }
 
-    setMatchesState(res.data.data.map(data => data.attributes));
-
     // 응원팀 분기처리
-    if (team) {
-      const filteredMatch = res.data.data.filter(
-        data => data.attributes.home === team || data.attributes.away === team,
+    if (teamId) {
+      const filteredMatch = res.data.filter(
+        data => data.home === teamId || data.away === teamId,
       );
-      setMatches(filteredMatch.map(f => f.attributes));
+      setMatches(filteredMatch);
     } else {
-      setMatches(res.data.data.map(d => d.attributes));
+      setMatches(res.data);
     }
+
+    setMatchesState(res.data);
 
     setLoading(false);
   };
@@ -250,7 +254,7 @@ function Calendar() {
     );
     for (let i = 0; i < keys.length; i++) {
       const res = await API.get<StrapiType<MatchDataType>>(
-        `/schedule-2024s?filters[date]=${dayjs(keys[i]).format(
+        `/schedule-${year}s?filters[date]=${dayjs(keys[i]).format(
           API_DATE_FORMAT,
         )}`,
       );
