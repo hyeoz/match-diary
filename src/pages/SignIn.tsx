@@ -16,6 +16,8 @@ import SignInGif from '@assets/logo_moving_loop_stop.gif';
 import { EMAIL_LINK } from '@/utils/STATIC_DATA';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
+import { API } from '@/api';
+import { getUniqueId } from 'react-native-device-info';
 
 const Tab = createBottomTabNavigator();
 
@@ -41,9 +43,7 @@ export default function SignIn() {
 
 function SignInPreview({ ...props }) {
   const onPressEmail = async () => {
-    // NOTE 시뮬레이터에서는 메일이 열리지 않을 수 있음
     Linking.openURL(EMAIL_LINK).catch(error => {
-      // 열리지 않았을 시 클립보드에 복사 후 토스트 메세지
       Clipboard.setString(EMAIL_LINK.split(':')[1]);
       Toast.show({
         type: 'success',
@@ -82,26 +82,94 @@ function SignInPreview({ ...props }) {
 }
 
 function Form({ ...props }) {
-  const [teamId, setTeamId] = useState(1);
+  const [teamId, setTeamId] = useState<number | undefined>();
   const [nickname, setNickname] = useState('');
   const handleSubmit = async () => {
-    // TODO createUser 요청 보내기
-    // 혹시모를 분기처리 필요 (이미 기기 정보가 있는 경우)
-    // Navigate to the main screen
-    props.navigation.navigate('Main');
+    const deviceId = await getUniqueId();
+
+    if (!nickname || !teamId || !deviceId) {
+      return Toast.show({
+        type: 'error',
+        text1: '모든 항목을 입력해주세요!',
+      });
+    }
+    // NOTE createUser 요청 보내기
+    try {
+      await API.post('/user', { userId: deviceId, teamId, nickname });
+      props.navigation.navigate('Main');
+    } catch (error) {
+      // 혹시모를 분기처리 필요 (이미 기기 정보가 있는 경우)
+      Toast.show({
+        type: 'error',
+        text1: '오류가 발생했어요! 잠시 후 다시 시도해주세요.',
+      });
+    }
   };
 
   return (
     <View style={SignInStyle.container}>
-      <Text>응원하는 팀과 닉네임을 입력해주세요!</Text>
-      {/* TODO 팀 아이디로 select box 만들기 */}
-      <TextInput
-        value={nickname}
-        onChangeText={text => setNickname(text)}
-        placeholder="닉네임"
-      />
-      <Button title="제출" onPress={handleSubmit} />
+      <Text style={FormStyle.mainText}>
+        응원하는 팀과 닉네임을 입력해주세요!
+      </Text>
+      <View style={FormStyle.formContent}>
+        {/* TODO 팀 아이디로 select box 만들기 */}
+        <TeamSelector teamId={teamId} setTeamId={setTeamId} />
+        {/* TODO 닉네임 입력창 */}
+        <TextInput
+          placeholder="닉네임"
+          value={nickname}
+          onChangeText={setNickname}
+          style={[SignInStyle.button, SignInStyle.buttonShadow]}
+        />
+      </View>
+      <TouchableOpacity
+        onPress={handleSubmit}
+        style={[SignInStyle.button, SignInStyle.buttonShadow]}>
+        <Text style={SignInStyle.buttonText}>시작하기</Text>
+      </TouchableOpacity>
     </View>
+  );
+}
+
+function TeamSelector({
+  teamId,
+  setTeamId,
+}: {
+  teamId?: number;
+  setTeamId: (id: number) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <TouchableOpacity
+        onPress={() => setIsOpen(prev => !prev)}
+        style={[SignInStyle.button, SignInStyle.buttonShadow]}>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+          }}>
+          <Text>팀 선택</Text>
+
+          {teamId && <Text>{teamId}</Text>}
+        </View>
+      </TouchableOpacity>
+      {isOpen && (
+        <View
+          style={{
+            position: 'absolute',
+            backgroundColor: '#fff',
+            width: '100%',
+            maxWidth: 320,
+            zIndex: 10,
+          }}>
+          <Text>Team List</Text>
+        </View>
+      )}
+    </>
   );
 }
 
@@ -172,5 +240,27 @@ const SignInStyle = StyleSheet.create({
         shadowRadius: 16,
       },
     }),
+  },
+});
+
+const FormStyle = StyleSheet.create({
+  mainText: {
+    textAlign: 'center',
+    fontSize: 20,
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
+  },
+  formContent: {
+    height: '45%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    gap: 16,
   },
 });
