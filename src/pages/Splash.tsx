@@ -15,6 +15,7 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   const [defaultTeam, setDefaultTeam] = useState(teamId);
 
   useEffect(() => {
+    // TODO 스플래시 화면 / 유저 정보 확인 순서 정리하기
     getAll();
   });
 
