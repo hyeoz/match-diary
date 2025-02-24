@@ -49,7 +49,7 @@ export type MatchDataType = {
 
 // 더보기 페이지 타입
 export type DefaultListItemType = {
-  key: string;
+  key: number;
   label: string;
 };
 

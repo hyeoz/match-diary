@@ -42,6 +42,7 @@ import help2_animated from '@assets/help2_animated.gif';
 import help3_animated from '@assets/help3_animated.gif';
 import contact_cat from '@assets/contact_cat_img.webp';
 import { getTeamArrayWithIcon } from '@/utils/helper';
+import TeamListItem from '@/components/TeamListItem';
 
 const { width, height } = Dimensions.get('window');
 const images = [help1_animated, help2_animated, help3_animated];
@@ -728,35 +729,6 @@ function ListItem({ item, index }: ListRenderItemInfo<MoreListItemType>) {
     </View>
   );
 }
-// 팀 선택 모달 아이템
-function TeamListItem({
-  isSelected,
-  setSelectedTeam,
-  ...props
-}: ListRenderItemInfo<TeamListItemType> & {
-  isSelected: boolean;
-  setSelectedTeam: React.Dispatch<React.SetStateAction<string>>;
-}) {
-  const { item } = props;
-
-  return (
-    <TouchableOpacity
-      style={[
-        styles.teamItem,
-        isSelected ? { backgroundColor: palette.commonColor.greenBg } : {},
-      ]}
-      onPress={() => setSelectedTeam(item.key)}>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        {item.icon}
-      </View>
-    </TouchableOpacity>
-  );
-}
 // 도움말 리스트 아이템
 function HelpContentItem({ index }: { index: number }) {
   switch (index) {
@@ -938,17 +910,6 @@ const styles = StyleSheet.create({
         fontFamily: 'KBO-Dia-Gothic-bold',
       },
     }),
-  },
-
-  teamItem: {
-    width: (width - 60 - 24) / 4,
-    aspectRatio: 1 / 1,
-    borderWidth: 1,
-    borderColor: palette.greyColor.border,
-    borderRadius: 6,
-    marginBottom: 12,
-    marginRight: 12,
-    padding: 8,
   },
 
   contactChevron: {

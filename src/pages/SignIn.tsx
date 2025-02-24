@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
-  Button,
+  Dimensions,
+  FlatList,
   Linking,
   Platform,
   StyleSheet,
@@ -18,8 +19,12 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
 import { API } from '@/api';
 import { getUniqueId } from 'react-native-device-info';
+import { palette } from '@/style/palette';
+import { getTeamArrayWithIcon } from '@/utils/helper';
+import TeamListItem from '@/components/TeamListItem';
 
 const Tab = createBottomTabNavigator();
+const { width } = Dimensions.get('window');
 
 export default function SignIn() {
   return (
@@ -84,6 +89,7 @@ function SignInPreview({ ...props }) {
 function Form({ ...props }) {
   const [teamId, setTeamId] = useState<number | undefined>();
   const [nickname, setNickname] = useState('');
+
   const handleSubmit = async () => {
     const deviceId = await getUniqueId();
 
@@ -108,68 +114,117 @@ function Form({ ...props }) {
 
   return (
     <View style={SignInStyle.container}>
-      <Text style={FormStyle.mainText}>
-        응원하는 팀과 닉네임을 입력해주세요!
-      </Text>
-      <View style={FormStyle.formContent}>
-        {/* TODO 팀 아이디로 select box 만들기 */}
-        <TeamSelector teamId={teamId} setTeamId={setTeamId} />
-        {/* TODO 닉네임 입력창 */}
-        <TextInput
-          placeholder="닉네임"
-          value={nickname}
-          onChangeText={setNickname}
-          style={[SignInStyle.button, SignInStyle.buttonShadow]}
-        />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'space-between',
+          marginTop: 80,
+          paddingHorizontal: 24,
+        }}>
+        <View style={{ gap: 16 }}>
+          <View
+            style={{
+              borderBottomWidth: 1,
+              paddingVertical: 10,
+              marginBottom: 8,
+            }}>
+            <Text style={FormStyle.mainText}>
+              응원하는 팀과 닉네임을 입력해주세요!
+            </Text>
+          </View>
+
+          <View style={{ width: '100%' }}>
+            <View
+              style={{
+                paddingVertical: 10,
+                marginBottom: 8,
+              }}>
+              <Text
+                style={{
+                  fontWeight: '700',
+                  fontSize: 18,
+                  ...Platform.select({
+                    android: {
+                      fontFamily: 'KBO Dia Gothic_bold',
+                    },
+                    ios: {
+                      fontFamily: 'KBO-Dia-Gothic-bold',
+                    },
+                  }),
+                }}>
+                닉네임 설정
+              </Text>
+            </View>
+            <TextInput
+              value={nickname}
+              maxLength={8}
+              onChangeText={value => {
+                setNickname(value);
+              }}
+              style={{
+                width: width - 48,
+                height: 40,
+                backgroundColor: '#fff',
+                borderRadius: 4,
+                paddingHorizontal: 10,
+                ...Platform.select({
+                  android: {
+                    fontFamily: 'KBO Dia Gothic_medium',
+                  },
+                  ios: {
+                    fontFamily: 'KBO-Dia-Gothic-medium',
+                  },
+                }),
+              }}
+            />
+          </View>
+
+          <View style={{ width: '100%' }}>
+            <View
+              style={{
+                paddingVertical: 10,
+                marginBottom: 8,
+              }}>
+              <Text
+                style={{
+                  fontWeight: '700',
+                  fontSize: 18,
+                  ...Platform.select({
+                    android: {
+                      fontFamily: 'KBO Dia Gothic_bold',
+                    },
+                    ios: {
+                      fontFamily: 'KBO-Dia-Gothic-bold',
+                    },
+                  }),
+                }}>
+                마이팀 설정
+              </Text>
+            </View>
+            <FlatList
+              data={getTeamArrayWithIcon(48)}
+              renderItem={props => (
+                <TeamListItem
+                  {...props}
+                  isSelected={teamId === Number(props.item.key)}
+                  setSelectedTeam={setTeamId}
+                  isBgWhite
+                />
+              )}
+              numColumns={4}
+              keyExtractor={item => item.key.toString()}
+            />
+          </View>
+        </View>
       </View>
+
       <TouchableOpacity
         onPress={handleSubmit}
-        style={[SignInStyle.button, SignInStyle.buttonShadow]}>
-        <Text style={SignInStyle.buttonText}>시작하기</Text>
+        style={SignInStyle.button}
+        disabled={!nickname || !teamId}>
+        <Text style={SignInStyle.buttonText}>저장하기</Text>
       </TouchableOpacity>
     </View>
-  );
-}
-
-function TeamSelector({
-  teamId,
-  setTeamId,
-}: {
-  teamId?: number;
-  setTeamId: (id: number) => void;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <>
-      <TouchableOpacity
-        onPress={() => setIsOpen(prev => !prev)}
-        style={[SignInStyle.button, SignInStyle.buttonShadow]}>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingHorizontal: 16,
-          }}>
-          <Text>팀 선택</Text>
-
-          {teamId && <Text>{teamId}</Text>}
-        </View>
-      </TouchableOpacity>
-      {isOpen && (
-        <View
-          style={{
-            position: 'absolute',
-            backgroundColor: '#fff',
-            width: '100%',
-            maxWidth: 320,
-            zIndex: 10,
-          }}>
-          <Text>Team List</Text>
-        </View>
-      )}
-    </>
   );
 }
 
@@ -181,13 +236,27 @@ const SignInStyle = StyleSheet.create({
     backgroundColor: '#D5E2AB',
   },
   button: {
-    borderRadius: 28,
-    width: 320,
+    borderRadius: 8,
+    width: width - 48,
     height: 56,
-    backgroundColor: '#fff',
+    backgroundColor: palette.commonColor.green,
     display: 'flex',
     justifyContent: 'center',
     alignContent: 'center',
+    marginBottom: 80,
+  },
+  buttonText: {
+    textAlign: 'center',
+    fontSize: 20,
+    color: '#fff',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
   },
   mainText: {
     textAlign: 'center',
@@ -212,18 +281,6 @@ const SignInStyle = StyleSheet.create({
       },
       ios: {
         fontFamily: 'KBO-Dia-Gothic-medium',
-      },
-    }),
-  },
-  buttonText: {
-    textAlign: 'center',
-    fontSize: 20,
-    ...Platform.select({
-      android: {
-        fontFamily: 'KBO Dia Gothic_bold',
-      },
-      ios: {
-        fontFamily: 'KBO-Dia-Gothic-bold',
       },
     }),
   },
@@ -255,12 +312,5 @@ const FormStyle = StyleSheet.create({
         fontFamily: 'KBO-Dia-Gothic-bold',
       },
     }),
-  },
-  formContent: {
-    height: '45%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    gap: 16,
   },
 });
