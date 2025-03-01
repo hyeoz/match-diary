@@ -193,6 +193,7 @@ const getRandomNickname = () => {
 
 export {
   getRandomElement,
+  getRandomNickname,
   getTeamArrayWithIcon,
   renderIconSizeWithColor,
   hasAndroidPermission,

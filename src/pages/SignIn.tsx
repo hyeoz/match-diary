@@ -20,8 +20,13 @@ import Toast from 'react-native-toast-message';
 import { API } from '@/api';
 import { getUniqueId } from 'react-native-device-info';
 import { palette } from '@/style/palette';
-import { getTeamArrayWithIcon } from '@/utils/helper';
+import {
+  getRandomNickname,
+  getTeamArrayWithIcon,
+  renderIconSizeWithColor,
+} from '@/utils/helper';
 import TeamListItem from '@/components/TeamListItem';
+import { Change } from '@/assets/svg';
 
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
@@ -112,6 +117,11 @@ function Form({ ...props }) {
     }
   };
 
+  const onClickRandomNickname = () => {
+    const random = getRandomNickname();
+    setNickname(random);
+  };
+
   return (
     <View style={SignInStyle.container}>
       <View
@@ -138,6 +148,9 @@ function Form({ ...props }) {
               style={{
                 paddingVertical: 10,
                 marginBottom: 8,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexDirection: 'row',
               }}>
               <Text
                 style={{
@@ -154,6 +167,36 @@ function Form({ ...props }) {
                 }}>
                 닉네임 설정
               </Text>
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  gap: 6,
+                  alignItems: 'center',
+                }}
+                onPress={onClickRandomNickname}>
+                {renderIconSizeWithColor(
+                  Change,
+                  16,
+                  16,
+                  palette.greyColor.gray3,
+                )}
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: palette.greyColor.gray3,
+
+                    ...Platform.select({
+                      android: {
+                        fontFamily: 'KBO Dia Gothic_medium',
+                      },
+                      ios: {
+                        fontFamily: 'KBO-Dia-Gothic-medium',
+                      },
+                    }),
+                  }}>
+                  랜덤 닉네임 생성하기
+                </Text>
+              </TouchableOpacity>
             </View>
             <TextInput
               value={nickname}
