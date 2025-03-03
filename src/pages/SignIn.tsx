@@ -97,6 +97,7 @@ function Form({ ...props }) {
 
   const handleSubmit = async () => {
     const deviceId = await getUniqueId();
+    const users = await API.get('/users');
 
     if (!nickname || !teamId || !deviceId) {
       return Toast.show({
@@ -106,7 +107,11 @@ function Form({ ...props }) {
     }
     // NOTE createUser 요청 보내기
     try {
-      await API.post('/user', { userId: deviceId, teamId, nickname });
+      const res = await API.post('/create-user', {
+        userId: deviceId,
+        teamId,
+        nickname,
+      });
       props.navigation.navigate('Main');
     } catch (error) {
       // 혹시모를 분기처리 필요 (이미 기기 정보가 있는 경우)
@@ -261,10 +266,7 @@ function Form({ ...props }) {
         </View>
       </View>
 
-      <TouchableOpacity
-        onPress={handleSubmit}
-        style={SignInStyle.button}
-        disabled={!nickname || !teamId}>
+      <TouchableOpacity onPress={handleSubmit} style={SignInStyle.button}>
         <Text style={SignInStyle.buttonText}>저장하기</Text>
       </TouchableOpacity>
     </View>
