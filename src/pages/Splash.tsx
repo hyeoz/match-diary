@@ -13,12 +13,11 @@ import { useTeamsState } from '@/stores/teams';
 import splash_text from '@assets/splash_text.png';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
-  const { teamId } = useUserState();
+  const { setTeamId } = useUserState();
   const { setTeams } = useTeamsState();
   const [defaultTeam, setDefaultTeam] = useState(1);
 
   useEffect(() => {
-    // TODO 스플래시 화면 / 유저 정보 확인 순서 정리하기
     getAllData();
   }, []);
 
@@ -43,8 +42,9 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
       // 유저 정보가 없는 경우 가입 화면으로 넘기기
       await setReplace(false);
     } else {
-      setDefaultTeam(res.data.teamId);
-      await setReplace();
+      setDefaultTeam(res.data[0].team_id);
+      setTeamId(res.data[0].team_id);
+      await setReplace(true);
     }
   };
 
