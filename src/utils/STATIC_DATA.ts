@@ -170,6 +170,8 @@ const RESET_RECORD = {
   selectedStadium: '',
 };
 
+const SERVER_ERROR_MSG = '오류가 발생했어요! 잠시 후 다시 시도해주세요.';
+
 export {
   DATE_FORMAT,
   DATE_FORMAT_SLASH,
@@ -189,4 +191,5 @@ export {
   INSTAGRAM_WEB_LINK,
   EMAIL_LINK,
   RESET_RECORD,
+  SERVER_ERROR_MSG,
 };

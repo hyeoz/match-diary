@@ -52,12 +52,16 @@ export type DefaultListItemType = {
   key: number;
   label: string;
 };
+export type StringListItemType = {
+  key: string;
+  label: string;
+};
 
 export type TeamListItemType = DefaultListItemType & {
   icon: React.JSX.Element;
 };
 
-export type MoreListItemType = DefaultListItemType & {
+export type MoreListItemType = StringListItemType & {
   onPressAction?: () => void;
 };
 

@@ -21,7 +21,7 @@ export default function TeamListItem({
   ...props
 }: ListRenderItemInfo<TeamListItemType> & {
   isSelected: boolean;
-  setSelectedTeam: React.Dispatch<React.SetStateAction<number | undefined>>;
+  setSelectedTeam: React.Dispatch<React.SetStateAction<number>>;
   isBgWhite?: boolean;
 }) {
   const { item } = props;

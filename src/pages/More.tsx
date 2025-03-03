@@ -22,35 +22,40 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import 'react-native-gesture-handler';
 
 import TouchableWrapper from '@components/TouchableWrapper';
+import TeamListItem from '@/components/TeamListItem';
+import { useUserState } from '@/stores/user';
+import { MoreListItemType } from '@/type/default';
+import {
+  useDuplicatedRecordState,
+  useSelectedRecordState,
+} from '@/stores/default';
 import {
   EMAIL_LINK,
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
   MY_TEAM_KEY,
   RESET_RECORD,
+  SERVER_ERROR_MSG,
 } from '@utils/STATIC_DATA';
-import {
-  useDuplicatedRecordState,
-  useMyState,
-  useSelectedRecordState,
-} from '@/stores/default';
+import { getTeamArrayWithIcon } from '@/utils/helper';
 import { palette } from '@style/palette';
-import { MoreListItemType, TeamListItemType } from '@/type/default';
 import { Arrow, Plus } from '@assets/svg';
+
 import help1_animated from '@assets/help1_animated.gif';
 import help2_animated from '@assets/help2_animated.gif';
 import help3_animated from '@assets/help3_animated.gif';
 import contact_cat from '@assets/contact_cat_img.webp';
-import { getTeamArrayWithIcon } from '@/utils/helper';
-import TeamListItem from '@/components/TeamListItem';
+import { getUniqueId } from 'react-native-device-info';
+import { API } from '@/api';
 
 const { width, height } = Dimensions.get('window');
 const images = [help1_animated, help2_animated, help3_animated];
 
 function More() {
-  const { team, setTeam, setNickname } = useMyState();
+  const { teamId, setTeamId, userName, setUserName } = useUserState();
+
   const [teamModalVisible, setTeamModalVisible] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState('');
+  const [selectedTeam, setSelectedTeam] = useState(1);
   const [currentNickname, setCurrentNickname] = useState('');
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [helpSnapIndex, setHelpSnapIndex] = useState(0);
@@ -66,9 +71,12 @@ function More() {
   }, []);
 
   useEffect(() => {
-    if (!teamModalVisible) {
-      setSelectedTeam('');
-    } else {
+    setSelectedTeam(teamId);
+    setCurrentNickname(userName);
+  }, [teamId, userName]);
+
+  useEffect(() => {
+    if (teamModalVisible) {
       getMyInfo();
     }
   }, [teamModalVisible]);
@@ -76,6 +84,20 @@ function More() {
   useEffect(() => {
     setHelpSnapIndex(0);
   }, [helpModalVisible]);
+
+  const onPressDeleteAll = async () => {
+    try {
+      // TODO record 데이터 서버에서 삭제
+      setRecordState(RESET_RECORD);
+      setRecordsState([]);
+      Toast.show({
+        type: 'success',
+        text1: '모든 데이터가 정상적으로 삭제되었어요!',
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const moreItems: MoreListItemType[] = [
     {
@@ -98,23 +120,7 @@ function More() {
             },
             {
               text: '삭제하기',
-              onPress: async () => {
-                try {
-                  const _team = await AsyncStorage.getItem(MY_TEAM_KEY);
-                  await AsyncStorage.clear();
-                  if (_team) {
-                    await AsyncStorage.setItem(MY_TEAM_KEY, _team);
-                  }
-                  setRecordState(RESET_RECORD);
-                  setRecordsState([]);
-                  Toast.show({
-                    type: 'success',
-                    text1: '모든 데이터가 정상적으로 삭제되었어요!',
-                  });
-                } catch (e) {
-                  console.error(e);
-                }
-              },
+              onPress: onPressDeleteAll,
             },
           ],
         );
@@ -138,21 +144,10 @@ function More() {
   ];
 
   const getMyInfo = async () => {
-    // NOTE 닉네임 불러오기
-    const _nickname = await AsyncStorage.getItem('NICKNAME');
-
-    if (_nickname) {
-      setNickname(_nickname);
-      setCurrentNickname(_nickname);
-    }
-
-    // NOTE 마이팀 불러오기
-    const _team = await AsyncStorage.getItem(MY_TEAM_KEY);
-
-    if (_team) {
-      setSelectedTeam(_team);
-      setTeam(_team);
-    }
+    const deviceId = await getUniqueId();
+    const res = await API.post('/user', { userId: deviceId });
+    setTeamId(res.data[0].team_id);
+    setUserName(res.data[0].nickname);
   };
 
   const onPressSave = async () => {
@@ -163,17 +158,28 @@ function More() {
         topOffset: 64,
       });
     } else {
-      await Promise.all([
-        AsyncStorage.setItem(MY_TEAM_KEY, selectedTeam),
-        AsyncStorage.setItem('NICKNAME', currentNickname),
-      ]);
-      setTeam(selectedTeam);
-      setNickname(currentNickname);
-      Toast.show({
-        text1: '내 정보 수정이 완료되었어요!',
-        topOffset: 80,
-      });
-      setTeamModalVisible(false);
+      const deviceId = await getUniqueId();
+      try {
+        await API.patch('/user/update', {
+          userId: deviceId,
+          nickname: currentNickname,
+          teamId: selectedTeam,
+        });
+        setTeamId(selectedTeam);
+        setUserName(currentNickname);
+        Toast.show({
+          text1: '내 정보 수정이 완료되었어요!',
+          type: 'success',
+          topOffset: 80,
+        });
+        setTeamModalVisible(false);
+      } catch (error) {
+        Toast.show({
+          text1: SERVER_ERROR_MSG,
+          type: 'error',
+          topOffset: 80,
+        });
+      }
     }
   };
 
@@ -225,25 +231,11 @@ function More() {
       <View
         style={{
           height: '45%',
-          backgroundColor: palette.teamColor[team],
+          backgroundColor: palette.teamColor[teamId],
           justifyContent: 'center',
           padding: 32,
         }}>
-        <Text
-          style={{
-            fontSize: 32,
-            color: '#fff',
-            ...Platform.select({
-              android: {
-                fontFamily: 'KBO Dia Gothic_bold',
-              },
-              ios: {
-                fontFamily: 'KBO-Dia-Gothic-bold',
-              },
-            }),
-          }}>
-          SETTING
-        </Text>
+        <Text style={styles.tabTitle}>SETTING</Text>
       </View>
       <View
         style={{
@@ -251,29 +243,11 @@ function More() {
           justifyContent: 'center',
           flexDirection: 'row',
         }}>
-        <View
-          style={{
-            backgroundColor: '#fff',
-            width: '90%',
-            ...Platform.select({
-              android: {
-                elevation: 3,
-              },
-              ios: {
-                shadowColor: '#000',
-                shadowOffset: {
-                  width: 0,
-                  height: 0,
-                },
-                shadowOpacity: 0.2,
-                shadowRadius: 16,
-              },
-            }),
-          }}>
+        <View style={styles.listWrapper}>
           <FlatList
             renderItem={props => <ListItem {...props} />}
             data={moreItems}
-            keyExtractor={item => item.key}
+            keyExtractor={item => `${item.key}`}
           />
         </View>
       </View>
@@ -295,22 +269,7 @@ function More() {
                 paddingVertical: 10,
                 marginBottom: 8,
               }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontWeight: '700',
-                  fontSize: 18,
-                  ...Platform.select({
-                    android: {
-                      fontFamily: 'KBO Dia Gothic_bold',
-                    },
-                    ios: {
-                      fontFamily: 'KBO-Dia-Gothic-bold',
-                    },
-                  }),
-                }}>
-                내 정보 수정
-              </Text>
+              <Text style={styles.modalLabel}>내 정보 수정</Text>
             </View>
 
             <View style={{ width: '100%' }}>
@@ -319,21 +278,7 @@ function More() {
                   paddingVertical: 10,
                   marginBottom: 8,
                 }}>
-                <Text
-                  style={{
-                    fontWeight: '700',
-                    fontSize: 18,
-                    ...Platform.select({
-                      android: {
-                        fontFamily: 'KBO Dia Gothic_bold',
-                      },
-                      ios: {
-                        fontFamily: 'KBO-Dia-Gothic-bold',
-                      },
-                    }),
-                  }}>
-                  닉네임 설정
-                </Text>
+                <Text style={styles.modalLabel}>닉네임 설정</Text>
               </View>
               <TextInput
                 value={currentNickname}
@@ -341,22 +286,7 @@ function More() {
                 onChangeText={value => {
                   setCurrentNickname(value);
                 }}
-                style={{
-                  width: width - 48,
-                  height: 40,
-                  borderWidth: 1,
-                  borderRadius: 4,
-                  borderColor: '#888',
-                  paddingHorizontal: 10,
-                  ...Platform.select({
-                    android: {
-                      fontFamily: 'KBO Dia Gothic_medium',
-                    },
-                    ios: {
-                      fontFamily: 'KBO-Dia-Gothic-medium',
-                    },
-                  }),
-                }}
+                style={styles.modalInput}
               />
             </View>
 
@@ -392,7 +322,7 @@ function More() {
                   />
                 )}
                 numColumns={4}
-                keyExtractor={item => item.key}
+                keyExtractor={item => `${item.key}`}
               />
             </View>
           </View>
@@ -809,6 +739,36 @@ function HelpContentItem({ index }: { index: number }) {
 }
 
 const styles = StyleSheet.create({
+  tabTitle: {
+    fontSize: 32,
+    color: '#fff',
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
+  },
+  listWrapper: {
+    backgroundColor: '#fff',
+    width: '90%',
+    ...Platform.select({
+      android: {
+        elevation: 3,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 0,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 16,
+      },
+    }),
+  },
   contentWrapper: {
     padding: 24,
     gap: 8,
@@ -830,6 +790,36 @@ const styles = StyleSheet.create({
   contentMainText: {
     fontSize: 18,
     marginBottom: 16,
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_medium',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-medium',
+      },
+    }),
+  },
+
+  modalLabel: {
+    textAlign: 'center',
+    fontWeight: '700',
+    fontSize: 18,
+    ...Platform.select({
+      android: {
+        fontFamily: 'KBO Dia Gothic_bold',
+      },
+      ios: {
+        fontFamily: 'KBO-Dia-Gothic-bold',
+      },
+    }),
+  },
+  modalInput: {
+    width: width - 48,
+    height: 40,
+    borderWidth: 1,
+    borderRadius: 4,
+    borderColor: '#888',
+    paddingHorizontal: 10,
     ...Platform.select({
       android: {
         fontFamily: 'KBO Dia Gothic_medium',
