@@ -12,21 +12,21 @@ import {
 } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FastImage from 'react-native-fast-image';
-
-import SignInGif from '@assets/logo_moving_loop_stop.gif';
-import { EMAIL_LINK } from '@/utils/STATIC_DATA';
 import Clipboard from '@react-native-clipboard/clipboard';
-import Toast from 'react-native-toast-message';
-import { API } from '@/api';
 import { getUniqueId } from 'react-native-device-info';
-import { palette } from '@/style/palette';
+import Toast from 'react-native-toast-message';
+
+import TeamListItem from '@/components/TeamListItem';
+import { API } from '@/api';
 import {
   getRandomNickname,
   getTeamArrayWithIcon,
   renderIconSizeWithColor,
 } from '@/utils/helper';
-import TeamListItem from '@/components/TeamListItem';
+import { EMAIL_LINK, SERVER_ERROR_MSG } from '@/utils/STATIC_DATA';
+import { palette } from '@/style/palette';
 import { Change } from '@/assets/svg';
+import SignInGif from '@assets/logo_moving_loop_stop.gif';
 
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
@@ -92,12 +92,11 @@ function SignInPreview({ ...props }) {
 }
 
 function Form({ ...props }) {
-  const [teamId, setTeamId] = useState<number | undefined>();
+  const [teamId, setTeamId] = useState<number>(1);
   const [nickname, setNickname] = useState('');
 
   const handleSubmit = async () => {
     const deviceId = await getUniqueId();
-    const users = await API.get('/users');
 
     if (!nickname || !teamId || !deviceId) {
       return Toast.show({
@@ -107,7 +106,7 @@ function Form({ ...props }) {
     }
     // NOTE createUser 요청 보내기
     try {
-      const res = await API.post('/create-user', {
+      await API.post('/create-user', {
         userId: deviceId,
         teamId,
         nickname,
@@ -117,7 +116,7 @@ function Form({ ...props }) {
       // 혹시모를 분기처리 필요 (이미 기기 정보가 있는 경우)
       Toast.show({
         type: 'error',
-        text1: '오류가 발생했어요! 잠시 후 다시 시도해주세요.',
+        text1: SERVER_ERROR_MSG,
       });
     }
   };

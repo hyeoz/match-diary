@@ -13,7 +13,7 @@ import { useTeamsState } from '@/stores/teams';
 import splash_text from '@assets/splash_text.png';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
-  const { setTeamId } = useUserState();
+  const { setTeamId, setUserName, teamId, userName } = useUserState();
   const { setTeams } = useTeamsState();
   const [defaultTeam, setDefaultTeam] = useState(1);
 
@@ -38,14 +38,18 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   // 기기정보로 서버에서 유저 데이터 불러오기
   const getUserData = async (deviceId: string) => {
     const res = await API.post('/user', { userId: deviceId });
+
     if (!res.data.length) {
       // 유저 정보가 없는 경우 가입 화면으로 넘기기
       await setReplace(false);
-    } else {
-      setDefaultTeam(res.data[0].team_id);
-      setTeamId(res.data[0].team_id);
-      await setReplace(true);
+      return;
     }
+
+    setDefaultTeam(res.data[0].team_id);
+    setTeamId(res.data[0].team_id);
+    setUserName(res.data[0].nickname);
+
+    await setReplace(true);
   };
 
   const getTeamsData = async () => {
