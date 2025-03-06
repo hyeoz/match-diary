@@ -1,5 +1,6 @@
 type UserStoreType = {
   uniqueId: string; // 기기 고유 ID 로 로그인 대체
+  setUniqueId: (uniqueId: string) => void;
   teamId: number;
   setTeamId: (id: number) => void;
   userName: string;

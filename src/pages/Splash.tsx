@@ -8,13 +8,14 @@ import { API } from '@/api';
 import { RootStackListType } from '@/type/default';
 import { useUserState } from '@/stores/user';
 import { palette } from '@style/palette';
-import { useTeamsState } from '@/stores/teams';
+import { useStadiumsState, useTeamsState } from '@/stores/teams';
 
 import splash_text from '@assets/splash_text.png';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
-  const { setTeamId, setUserName, teamId, userName } = useUserState();
+  const { setTeamId, setUserName, setUniqueId } = useUserState();
   const { setTeams } = useTeamsState();
+  const { setStadiums } = useStadiumsState();
   const [defaultTeam, setDefaultTeam] = useState(1);
 
   useEffect(() => {
@@ -23,7 +24,9 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
 
   const getAllData = async () => {
     const deviceId = await getUniqueId();
+    setUniqueId(deviceId);
     await getTeamsData();
+    await getStadiumsData();
     await getUserData(deviceId);
   };
 
@@ -56,6 +59,12 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
     const res = await API.get('/teams');
     if (res.data) {
       setTeams(res.data);
+    }
+  };
+  const getStadiumsData = async () => {
+    const res = await API.get('/stadiums');
+    if (res.data) {
+      setStadiums(res.data);
     }
   };
 

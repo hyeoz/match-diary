@@ -27,12 +27,12 @@ dayjs.locale('ko');
 
 import SelectStadiumModal from './SelectStadiumModal';
 import Loading from './Loading';
-import { API, StrapiType } from '@/api';
+import { API } from '@/api';
 import {
   CoordinateType,
   DetailPropsType,
-  MatchDataType,
   RecordType,
+  TempRecordType,
 } from '@/type/default';
 import {
   API_DATE_FORMAT,
@@ -56,6 +56,9 @@ import {
   useDuplicatedRecordState,
   useSelectedRecordState,
 } from '@/stores/default';
+import { useUserState } from '@/stores/user';
+import { useStadiumsState, useTeamsState } from '@/stores/teams';
+import { MatchDataType } from '@/type/match';
 
 const { width } = Dimensions.get('window');
 
@@ -73,7 +76,7 @@ export default function UploadModal({
     { name: string; distance: number }[]
   >([]);
   const [matchInfo, setMatchInfo] = useState<{
-    [key: string]: { home: string; away: string };
+    [key: string]: { home: number; away: number };
   }>();
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [latitude, setLatitude] = useState('');
@@ -81,21 +84,24 @@ export default function UploadModal({
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cropperLoading, setCropperLoading] = useState(false);
-  const [tempRecord, setTempRecord] = useState<RecordType>(RESET_RECORD);
+  const [tempRecord, setTempRecord] = useState<TempRecordType>(RESET_RECORD);
 
-  const { recordState, setRecordState } = useSelectedRecordState();
-  const { recordsState, setRecordsState } = useDuplicatedRecordState();
+  const { uniqueId } = useUserState();
+  const { teams } = useTeamsState();
+  const { stadiums } = useStadiumsState();
+  const { recordState, setRecordState } = useSelectedRecordState(); // focus 된 기록
+  const { recordsState, setRecordsState } = useDuplicatedRecordState(); // 같은 날 여러 기록
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
   const year = dayjs(date).year();
 
   const initRecord: RecordType = {
-    id: uuid.v4(),
+    user_id: '',
     date: formattedToday,
     image: null,
-    memo: '',
-    selectedStadium: '',
+    user_note: '',
+    stadium_id: 1,
   };
 
   useEffect(() => {
@@ -210,30 +216,22 @@ export default function UploadModal({
     if (buttonIndex === 1) {
       const result = await launchCamera({
         mediaType: 'photo',
-        maxWidth: IMAGE_WIDTH,
-        maxHeight: IMAGE_HEIGHT,
-        quality: 0.8,
         saveToPhotos: true,
+        quality: 1,
       });
       const item = result.assets;
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
         return;
       }
-      // const tempName = [...item[0].uri.split('/').reverse()][0];
       // FIXME crop 기능 제외
-      // await openPicker(item[0].fileName ?? tempName, item[0].uri, 'CAMERA');
       try {
-        const uploadedImage: ImageOrVideo = {
-          path: item[0].uri,
-          size: item[0].fileSize ?? 0,
-          width: item[0].width ?? IMAGE_WIDTH,
-          height: item[0].height ?? IMAGE_HEIGHT,
-          mime: item[0].type ?? 'image/jpeg',
-        };
-
         setTempRecord({
           ...tempRecord,
-          image: uploadedImage,
+          image: {
+            uri: item[0].uri,
+            type: item[0].type,
+            name: item[0].fileName || 'image.jpg', // 파일 이름을 기본 값으로 설정
+          },
         });
       } catch (error) {
         console.error(error);
@@ -245,9 +243,7 @@ export default function UploadModal({
     } else if (buttonIndex === 2) {
       const result = await launchImageLibrary({
         mediaType: 'photo',
-        quality: 0.8,
-        maxWidth: IMAGE_WIDTH,
-        maxHeight: IMAGE_HEIGHT,
+        quality: 1,
       });
       const item = result.assets;
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
@@ -255,23 +251,20 @@ export default function UploadModal({
       }
       const tempName = [...item[0].uri.split('/').reverse()][0];
       // FIXME crop 기능 제외
-      // await openPicker(item[0].fileName ?? tempName, item[0].uri, 'GALLARY');
       const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${
         item[0].fileName ?? tempName
       }`;
 
       try {
         await RNFS.copyFile(item[0].uri, destinationPath);
-        const uploadedImage: ImageOrVideo = {
-          path: destinationPath,
-          size: item[0].fileSize ?? 0,
-          width: item[0].width ?? IMAGE_WIDTH,
-          height: item[0].height ?? IMAGE_HEIGHT,
-          mime: item[0].type ?? 'image/jpeg',
-        };
+
         setTempRecord({
           ...tempRecord,
-          image: uploadedImage,
+          image: {
+            uri: destinationPath,
+            type: item[0].type,
+            name: item[0].fileName || 'image.jpg', // 파일 이름을 기본 값으로 설정
+          },
         });
       } catch (error) {
         console.error(error);
@@ -317,8 +310,23 @@ export default function UploadModal({
   };
 
   const onSave = async () => {
-    const { image, memo, selectedStadium } = tempRecord;
-    if (!image || !memo || !selectedStadium) {
+    const {
+      user_id,
+      image,
+      user_note,
+      stadium_id,
+      date: tempDate,
+    } = tempRecord;
+    const formData = new FormData();
+
+    // 이미지 파일을 FormData에 추가
+    formData.append('file', image);
+    formData.append('userId', user_id);
+    formData.append('stadiumId', stadium_id);
+    formData.append('date', tempDate);
+    formData.append('userNote', user_note);
+
+    if (!image || !user_note || !stadium_id) {
       Toast.show({
         type: 'error',
         text1: '아직 입력하지 않은 항목이 있어요!',
@@ -332,91 +340,81 @@ export default function UploadModal({
       return;
     }
 
-    if (isEdit) {
-      await AsyncStorage.removeItem(tempRecord.date);
-      await AsyncStorage.setItem(
-        tempRecord.date,
-        JSON.stringify({
-          image,
-          memo,
-          selectedStadium,
-          date: tempRecord.date,
-          home: matchInfo?.[selectedStadium]?.home,
-          away: matchInfo?.[selectedStadium]?.away,
-        }),
-      );
-
-      setRecordsState(
-        recordsState.map(record =>
-          record.date === tempRecord.date ? tempRecord : record,
-        ),
-      );
-      setRecordState(tempRecord);
+    if (isEdit && tempRecord.records_id) {
+      // TODO 기록 수정
+      // patch 요청 후 데이터 다시 호출하여 store 에 넣기
+      // setRecordsState(
+      //   recordsState.map(record =>
+      //     record.date === tempRecord.date ? tempRecord : record,
+      //   ),
+      // );
+      // setRecordState(tempRecord);
     } else {
+      // TODO async storage api 호출로 대체
       const keys = await AsyncStorage.getAllKeys();
-      // NOTE 하루에 여러개의 기록 저장하는 경우
+      // // NOTE 하루에 여러개의 기록 저장하는 경우
       if (keys.includes(formattedToday)) {
-        const duplDate = `${formattedToday}(${
-          keys.filter(key => key === formattedToday).length
-        })`;
-        await AsyncStorage.setItem(
-          duplDate,
-          JSON.stringify({
-            image,
-            memo,
-            selectedStadium,
-            date: duplDate,
-            home: matchInfo?.[selectedStadium]?.home,
-            away: matchInfo?.[selectedStadium]?.away,
-          }),
-        );
-        setRecordsState(
-          filterDuplicatedArray([
-            ...recordsState,
-            {
-              id: uuid.v4(),
-              date: duplDate,
-              image,
-              memo,
-              selectedStadium,
-            },
-          ]),
-        );
-        setRecordState({
-          id: uuid.v4(),
-          date: duplDate,
-          image,
-          memo,
-          selectedStadium,
-        });
+        //   const duplDate = `${formattedToday}(${
+        //     keys.filter(key => key === formattedToday).length
+        //   })`;
+        //   await AsyncStorage.setItem(
+        //     duplDate,
+        //     JSON.stringify({
+        //       image,
+        //       memo,
+        //       selectedStadium,
+        //       date: duplDate,
+        //       home: matchInfo?.[selectedStadium]?.home,
+        //       away: matchInfo?.[selectedStadium]?.away,
+        //     }),
+        //   );
+        //   setRecordsState(
+        //     filterDuplicatedArray([
+        //       ...recordsState,
+        //       {
+        //         id: uuid.v4(),
+        //         date: duplDate,
+        //         image,
+        //         memo,
+        //         selectedStadium,
+        //       },
+        //     ]),
+        //   );
+        //   setRecordState({
+        //     id: uuid.v4(),
+        //     date: duplDate,
+        //     image,
+        //     memo,
+        //     selectedStadium,
+        //   });
       } else {
-        await AsyncStorage.setItem(
-          formattedToday,
-          JSON.stringify({
-            image,
-            memo,
-            selectedStadium,
-            date: formattedToday,
-            home: matchInfo?.[selectedStadium]?.home,
-            away: matchInfo?.[selectedStadium]?.away,
-          }),
-        );
-        setRecordsState([
-          {
-            id: uuid.v4(),
-            date: formattedToday,
-            image,
-            memo,
-            selectedStadium,
-          },
-        ]);
-        setRecordState({
-          id: uuid.v4(),
-          date: formattedToday,
-          image,
-          memo,
-          selectedStadium,
-        });
+        // await AsyncStorage.setItem(
+        //   formattedToday,
+        //   JSON.stringify({
+        //     image,
+        //     memo,
+        //     selectedStadium,
+        //     date: formattedToday,
+        //     home: matchInfo?.[selectedStadium]?.home,
+        //     away: matchInfo?.[selectedStadium]?.away,
+        //   }),
+        // );
+        // setRecordsState([
+        //   {
+        //     id: uuid.v4(),
+        //     date: formattedToday,
+        //     image,
+        //     memo,
+        //     selectedStadium,
+        //   },
+        // ]);
+        // setRecordState({
+        //   id: uuid.v4(),
+        //   date: formattedToday,
+        //   image,
+        //   memo,
+        //   selectedStadium,
+        // });
       }
     }
 
@@ -425,39 +423,37 @@ export default function UploadModal({
   };
 
   const getTodayMatch = async () => {
-    const res = await API.get<StrapiType<MatchDataType>>(
-      `/schedule-${year}s?filters[date]=${apiFormattedToday}`,
-    );
-    if (!res.data.data.length) {
+    const res = await API.get<MatchDataType[]>(`/match?date=${formattedToday}`);
+
+    if (!res.data.length) {
       setStadium(['경기가 없어요!']);
     } else {
-      const _stadium = res.data.data.map(att => {
-        let stadiumName = att.attributes.stadium;
+      const tempStadiums = res.data.map(match => {
+        const stadiumId = match.stadium;
+        let stadiumName =
+          stadiums.find(sta => sta.stadium_id === stadiumId)?.stadium_name ??
+          '';
 
-        if (att.attributes.memo.includes('더블헤더')) {
+        if (match.memo?.includes('더블헤더')) {
           stadiumName += `-${
-            res.data.data
-              .filter(
-                data => data.attributes.stadium === att.attributes.stadium,
-              )
-              .findIndex(
-                value => value.attributes.time === att.attributes.time,
-              ) + 1
+            res.data
+              .filter(data => data.stadium === match.stadium)
+              .findIndex(value => value.time === match.time) + 1
           }`;
         }
         setMatchInfo(prev => {
           return {
             ...prev,
             [stadiumName]: {
-              home: att.attributes.home,
-              away: att.attributes.away,
+              home: match.home,
+              away: match.away,
             },
           };
         });
         return stadiumName;
       });
 
-      setStadium(_stadium);
+      setStadium(tempStadiums);
     }
   };
 

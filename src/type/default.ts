@@ -34,19 +34,6 @@ export type DetailPropsType = {
   setIsVisible: Dispatch<SetStateAction<boolean>>;
 };
 
-// 경기 일정 API 리스폰스 타입
-export type MatchDataType = {
-  id: number;
-  date: string; // 2025-03-22T00:00:00.000Z
-  time: string; // 14:00:00
-  home: number; // 홈팀 ID
-  away: number; // 원정 팀 ID
-  stadium: number; // 경기장 ID
-  home_score: number; // 홈 팀 점수
-  away_score: number; // 원정 팀 점수
-  memo: string | null;
-};
-
 // 더보기 페이지 타입
 export type DefaultListItemType = {
   key: number;
@@ -79,9 +66,18 @@ export type CommunityItemType = {
 export type CoordinateType = { lat: number; lon: number };
 
 export type RecordType = {
-  id: string;
+  records_id?: number;
+  user_id: string;
   date: string;
-  image: ImageOrVideo | null;
-  memo: string;
-  selectedStadium: string;
+  image: string | null;
+  user_note: string;
+  stadium_id: number;
+};
+export type TempRecordType = {
+  records_id?: number;
+  user_id: string;
+  date: string;
+  image: { uri: string; type?: string; name: string } | string | null;
+  user_note: string;
+  stadium_id: number;
 };

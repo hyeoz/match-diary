@@ -1,4 +1,4 @@
-import { TeamType } from '@/type/team';
+import { StadiumType, TeamType } from '@/type/team';
 import { create } from 'zustand';
 
 const useTeamsState = create<{
@@ -9,4 +9,12 @@ const useTeamsState = create<{
   setTeams: (teams: TeamType[]) => set(() => ({ teams: teams })),
 }));
 
-export { useTeamsState };
+const useStadiumsState = create<{
+  stadiums: StadiumType[];
+  setStadiums: (stadiums: StadiumType[]) => void;
+}>(set => ({
+  stadiums: [],
+  setStadiums: (stadiums: StadiumType[]) => set(() => ({ stadiums: stadiums })),
+}));
+
+export { useTeamsState, useStadiumsState };

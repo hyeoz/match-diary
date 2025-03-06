@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 
-import { MatchDataType, RecordType } from '@/type/default';
+import { RecordType } from '@/type/default';
 import { RESET_RECORD } from '@/utils/STATIC_DATA';
+import { MatchDataType } from '@/type/match';
 
 const useBottomTabState = create<{ isOpen: boolean; update: () => void }>(
   set => ({

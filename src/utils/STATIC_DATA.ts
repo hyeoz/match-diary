@@ -163,11 +163,11 @@ const INSTAGRAM_WEB_LINK = 'https://www.instagram.com/match_diary_official/';
 const EMAIL_LINK = 'mailto:match.diary24@gmail.com';
 
 const RESET_RECORD = {
-  id: '',
+  user_id: '',
   date: '',
   image: null,
-  memo: '',
-  selectedStadium: '',
+  user_note: '',
+  stadium_id: 1,
 };
 
 const SERVER_ERROR_MSG = '오류가 발생했어요! 잠시 후 다시 시도해주세요.';

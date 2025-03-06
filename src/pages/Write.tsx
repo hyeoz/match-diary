@@ -24,6 +24,10 @@ import dayjs from 'dayjs';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import uuid from 'react-native-uuid';
+import ViewShot from 'react-native-view-shot';
+import FastImage from 'react-native-fast-image';
+import Toast from 'react-native-toast-message';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
@@ -44,10 +48,9 @@ import { RecordType } from '@/type/default';
 import { Add, Change } from '@assets/svg';
 import { palette } from '@/style/palette';
 import { getStadiumName, hasAndroidPermission } from '@/utils/helper';
-import ViewShot from 'react-native-view-shot';
-import FastImage from 'react-native-fast-image';
-import Toast from 'react-native-toast-message';
-import { CameraRoll } from '@react-native-camera-roll/camera-roll';
+import { API } from '@/api';
+
+// 메인페이지
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 const { width, height } = Dimensions.get('window');
@@ -67,77 +70,15 @@ function Write() {
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
 
   useEffect(() => {
-    // 오늘 날짜가 아닌데 더블헤더 레코드가 있는 경우 리셋
-    if (dayjs().format(DATE_FORMAT) !== recordState?.date) {
-      setRecordsState([]);
-      setRecordState(RESET_RECORD);
-    }
+    getTodayRecord();
   }, []);
 
-  useEffect(() => {
-    checkItem();
-  }, [history, isVisible]);
-
-  useEffect(() => {
-    getMyTeam();
-    checkItem();
-  }, []);
-
-  const getMyTeam = async () => {
-    const res = await AsyncStorage.getItem('MY_TEAM');
-    if (!res) {
-      Alert.alert(
-        '아직 마이팀 설정을 하지 않았어요!',
-        '지금 설정 페이지로 이동할까요?',
-        [
-          {
-            text: '취소',
-            onPress: () => {},
-            style: 'cancel',
-          },
-          {
-            text: '이동하기',
-            onPress: () => {
-              navigate.navigate('MoreTab');
-            },
-          },
-        ],
-      );
-    }
-  };
-
-  const checkItem = async () => {
-    const keys = await AsyncStorage.getAllKeys(); // 모든 키값 찾기
-    const filteredKeys = keys.filter(key => key.includes(formattedToday)); // 키에 오늘 날짜가 포함되어있으면 (오늘 날짜의 기록이 있으면)
-    if (filteredKeys.length) {
-      let tempRecords: RecordType[] = [];
-      // 오늘자 기록들 반복
-      filteredKeys.forEach(async key => {
-        const res = await AsyncStorage.getItem(key);
-
-        if (!res) return;
-
-        const json = JSON.parse(res);
-
-        tempRecords.push({
-          ...json,
-          id: uuid.v4(),
-        });
-
-        // record state 가 비어있는 경우에만 넣기
-        if (!recordState.image) {
-          setRecordState({
-            ...json,
-            id: uuid.v4(),
-          });
-        }
-        setRecords(tempRecords);
-        setRecordsState(tempRecords);
-      });
-    } else {
-      setRecordState(RESET_RECORD);
-      setIsEdit(false);
-    }
+  const getTodayRecord = async () => {
+    // 페이지 진입 시 오늘 날짜 데이터가 있는지 확인
+    const res = await API.get(
+      `/match?date=${dayjs('2025-03-22').format(DATE_FORMAT)}`,
+    );
+    console.log({ res: res.data });
   };
 
   const onPressDelete = async () => {
@@ -175,7 +116,6 @@ function Write() {
                 setRecordState(RESET_RECORD);
               }
               setIsEdit(false);
-              checkItem();
             } catch (e) {
               console.error(e);
             }

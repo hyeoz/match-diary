@@ -9,6 +9,7 @@ import {
 // 현재 유저 정보
 const useUserState = create<UserStoreType>(set => ({
   uniqueId: '',
+  setUniqueId: (uniqueId: string) => set(() => ({ uniqueId })),
   teamId: 1,
   setTeamId: (id: number) => set(() => ({ teamId: id })),
   userName: '',
