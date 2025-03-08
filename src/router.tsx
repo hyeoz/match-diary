@@ -30,7 +30,7 @@ const Router = () => {
         options={{ animation: 'fade_from_bottom' }}
       />
       <Stack.Screen
-        name="Main"
+        name="Write"
         component={Main}
         // options={{
         //   animation: 'fade',

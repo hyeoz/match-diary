@@ -37,20 +37,18 @@ import {
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
   RESET_RECORD,
+  STADIUM_LONG_TO_NICK,
 } from '@utils/STATIC_DATA';
-import {
-  useCarouselIndexState,
-  useDuplicatedRecordState,
-  useSelectedRecordState,
-  useTabHistory,
-} from '@/stores/default';
+import { useCarouselIndexState, useTabHistory } from '@/stores/default';
 import { RecordType } from '@/type/default';
 import { Add, Change } from '@assets/svg';
 import { palette } from '@/style/palette';
 import { getStadiumName, hasAndroidPermission } from '@/utils/helper';
 import { API } from '@/api';
+import { useUserState } from '@/stores/user';
+import { useStadiumsState } from '@/stores/teams';
 
-// 메인페이지
+// NOTE 메인페이지
 
 const formattedToday = dayjs().format(DATE_FORMAT);
 const { width, height } = Dimensions.get('window');
@@ -60,13 +58,13 @@ function Write() {
 
   const shareImageRef = useRef<ViewShot>(null);
   const flatListRef = useRef<FlatList>(null);
+
   const [isVisible, setIsVisible] = useState(false);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
   const [isEdit, setIsEdit] = useState(false);
 
+  const { uniqueId } = useUserState();
   const { history } = useTabHistory();
-  const { recordState, setRecordState } = useSelectedRecordState();
-  const { recordsState, setRecordsState } = useDuplicatedRecordState();
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
 
   useEffect(() => {
@@ -74,11 +72,19 @@ function Write() {
   }, []);
 
   const getTodayRecord = async () => {
-    // 페이지 진입 시 오늘 날짜 데이터가 있는지 확인
-    const res = await API.get(
-      `/match?date=${dayjs('2025-03-22').format(DATE_FORMAT)}`,
-    );
-    console.log({ res: res.data });
+    try {
+      // 페이지 진입 시 오늘 날짜 데이터가 있는지 확인
+      const res = await API.post('/user-record/date', {
+        date: dayjs().format(DATE_FORMAT),
+        userId: uniqueId,
+      });
+
+      if (res.data) {
+        setRecords(res.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const onPressDelete = async () => {
@@ -95,26 +101,9 @@ function Write() {
           text: '삭제하기',
           onPress: async () => {
             try {
-              const deleteRecord = recordsState[carouselIndexState];
-              // 삭제 기능 (storage 삭제, recordState, recordsState 올바르게 세팅)
-              await AsyncStorage.removeItem(deleteRecord.date);
-              setRecordsState(
-                recordsState.filter(
-                  record => record.date !== deleteRecord.date,
-                ),
-              );
-              // NOTE recordState 를 삭제하고 같은 날 다른 경기가 있으면 변경, 없으면 빈 채로 두기
-              if (
-                recordsState.filter(record => record.date !== deleteRecord.date)
-                  .length
-              ) {
-                const duplRecords = recordsState.filter(
-                  record => record.date !== deleteRecord.date,
-                );
-                setRecordState(duplRecords[0]);
-              } else {
-                setRecordState(RESET_RECORD);
-              }
+              const deleteRecord = records[carouselIndexState];
+              await API.delete(`/user-records/${deleteRecord.records_id}`);
+              await getTodayRecord(); // 삭제 후 새 데이터 가져오기
               setIsEdit(false);
             } catch (e) {
               console.error(e);
@@ -173,13 +162,15 @@ function Write() {
     isEdit,
     setIsEdit,
     setIsVisible,
+    records,
+    setRecords,
   };
 
   return (
     <TouchableWrapper>
       {/* SECTION 메인 버튼 / 폴라로이드 */}
-      {isEdit || (recordsState.length && recordsState[0].image) ? (
-        recordsState.length > 1 && recordsState[0].image ? (
+      {isEdit || (records.length && records[0].image) ? (
+        records.length > 1 && records[0].image ? (
           <>
             <View
               style={{
@@ -187,9 +178,10 @@ function Write() {
               }}>
               {/* TODO 여러경기인 경우 캐러셀 디자인 */}
               <FlatList
-                data={recordsState}
+                data={records}
                 renderItem={({ item, index }) => (
                   <CarouselPhoto
+                    records={records}
                     record={item}
                     index={index}
                     shareImageRef={shareImageRef}
@@ -251,22 +243,25 @@ function Write() {
   );
 }
 
-function CarouselPhoto({
-  record,
-  index,
-  setIsVisible,
-  setIsEdit,
-  shareImageRef,
-}: {
+type CarouselPhotoProps = {
+  records: RecordType[];
   record: RecordType;
   index: number;
   setIsVisible: Dispatch<SetStateAction<boolean>>;
   setIsEdit: Dispatch<SetStateAction<boolean>>;
   shareImageRef: RefObject<ViewShot>;
-}) {
-  const { recordState, setRecordState } = useSelectedRecordState();
-  const { recordsState, setRecordsState } = useDuplicatedRecordState();
+};
+
+function CarouselPhoto({
+  records,
+  record,
+  index,
+  setIsVisible,
+  setIsEdit,
+  shareImageRef,
+}: CarouselPhotoProps) {
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
+  const { stadiums } = useStadiumsState();
 
   return (
     <ViewShot
@@ -282,7 +277,7 @@ function CarouselPhoto({
           polaroidStyles.photoWrapperShadow,
           index === 0
             ? { marginLeft: 32 }
-            : index === recordsState.length - 1
+            : index === records.length - 1
             ? { marginRight: 32 }
             : {},
         ]}>
@@ -291,7 +286,7 @@ function CarouselPhoto({
             // NOTE 캐러셀에서 눌렀을 때 맞는 아이템 수정으로 넘어가도록
             setIsVisible(true);
             setIsEdit(true);
-            setRecordState(record);
+            // setRecordState(record); // index 로 따지기
           }}
           style={{
             flex: 1,
@@ -312,7 +307,7 @@ function CarouselPhoto({
               ]}
             />
             <FastImage
-              source={{ uri: record.image?.path }}
+              source={{ uri: record.image || '' }}
               style={{
                 width: width * 0.7 - 16,
                 height: (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
@@ -340,7 +335,12 @@ function CarouselPhoto({
                 </>
               )} */}
               {' @'}
-              {getStadiumName(record.selectedStadium)}
+              {
+                STADIUM_LONG_TO_NICK[
+                  stadiums.find(sta => sta.stadium_id === record.stadium_id)
+                    ?.stadium_name || ''
+                ]
+              }
             </Text>
           </View>
           <View
@@ -355,7 +355,7 @@ function CarouselPhoto({
                 lineHeight: 14,
               }}
               numberOfLines={undefined}>
-              {record.memo}
+              {record.user_note}
             </Text>
           </View>
         </TouchableOpacity>

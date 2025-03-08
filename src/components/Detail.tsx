@@ -18,23 +18,22 @@ import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 import FastImage from 'react-native-fast-image';
 
-import { DetailPropsType, MatchDataType, RecordType } from '@/type/default';
-import {
-  useCarouselIndexState,
-  useDuplicatedRecordState,
-  useMatchesState,
-  useMyState,
-  useSelectedRecordState,
-} from '@stores/default';
+import { DetailPropsType, RecordType } from '@/type/default';
+import { useCarouselIndexState } from '@stores/default';
 import { getStadiumName, hasAndroidPermission } from '@utils/helper';
 import {
+  DATE_FORMAT,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
   RESET_RECORD,
-  STADIUM_LONG_TO_SHORT,
+  STADIUM_LONG_TO_NICK,
 } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
 import { palette } from '@/style/palette';
+import { useUserState } from '@/stores/user';
+import { MatchDataType } from '@/type/match';
+import { API } from '@/api';
+import { useStadiumsState } from '@/stores/teams';
 
 const { width, height } = Dimensions.get('window');
 
@@ -42,6 +41,8 @@ export function Detail({
   setIsEdit,
   setIsVisible,
   myTeamMatch,
+  records,
+  setRecords,
   isCalendar = false,
   refetch,
   date,
@@ -56,12 +57,15 @@ export function Detail({
   const [selectedMatch, setSelectedMatch] = useState<
     MatchDataType | undefined
   >();
+  const [matches, setMatches] = useState<MatchDataType[]>([]);
 
-  const { team } = useMyState();
-  const { recordState, setRecordState } = useSelectedRecordState();
-  const { recordsState, setRecordsState } = useDuplicatedRecordState();
-  const { carouselIndexState } = useCarouselIndexState();
-  const { matchesState, setMatchesState } = useMatchesState();
+  const { teamId, uniqueId } = useUserState();
+  const { stadiums } = useStadiumsState();
+  const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
+
+  useEffect(() => {
+    getTodayMatch();
+  }, []);
 
   useEffect(() => {
     // 마이팀 없는 경우
@@ -70,62 +74,77 @@ export function Detail({
     }
 
     // 마이팀과 기록한 팀의 경기가 다른 경우
-    const tempStadium =
-      STADIUM_LONG_TO_SHORT[recordState.selectedStadium.split(' - ')[0]];
+    const tempStadium = records[carouselIndexState].stadium_id;
     if (myTeamMatch.stadium !== tempStadium) {
       return;
     }
 
-    const { homeScore, awayScore, home, away } = myTeamMatch;
+    const { home_score, away_score, home, away } = myTeamMatch;
 
-    if (homeScore === -1 || awayScore === -1) {
+    if (home_score === -1 || away_score === -1) {
       return;
     }
 
-    if (homeScore !== undefined && awayScore !== undefined) {
-      if (home === team) {
+    if (home_score !== undefined && away_score !== undefined) {
+      if (home === teamId) {
         setResult(
-          homeScore > awayScore ? 'W' : homeScore < awayScore ? 'L' : 'D',
+          home_score > away_score ? 'W' : home_score < away_score ? 'L' : 'D',
         );
       } else {
         setResult(
-          homeScore > awayScore ? 'L' : homeScore < awayScore ? 'W' : 'D',
+          home_score > away_score ? 'L' : home_score < away_score ? 'W' : 'D',
         );
       }
     }
   }, [myTeamMatch]);
 
   useEffect(() => {
-    const tempStadium =
-      STADIUM_LONG_TO_SHORT[recordState.selectedStadium.split(' - ')[0]];
-    const matches = matchesState.filter(match => match.stadium === tempStadium);
-    // 더블헤더 분기처리
+    const tempMatchId = records[carouselIndexState].match_id;
+    const match = matches.filter(mat => mat.id === tempMatchId)[0];
+    // TODO 더블헤더 분기처리
     if (matches.length > 1) {
       let tempMatch: MatchDataType;
-      if (recordState.selectedStadium.includes('1')) {
+      if (match.memo?.includes('더블헤더')) {
         // 1경기
-        matches.forEach(match => {
+        matches.forEach(mat => {
           tempMatch =
-            new Date(tempMatch?.time) > new Date(match.time)
-              ? tempMatch
-              : match;
+            new Date(tempMatch?.time) > new Date(mat.time) ? tempMatch : mat;
         });
       } else {
         // 2경기
-        matches.forEach(match => {
+        matches.forEach(mat => {
           tempMatch =
-            new Date(tempMatch?.time) < new Date(match.time)
-              ? tempMatch
-              : match;
+            new Date(tempMatch?.time) < new Date(mat.time) ? tempMatch : mat;
         });
       }
       setSelectedMatch(tempMatch!);
     } else {
-      setSelectedMatch(
-        matchesState.find(match => match.stadium === tempStadium),
-      );
+      setSelectedMatch(matches.find(mat => mat.id === tempMatchId));
     }
-  }, [matchesState, recordState.selectedStadium]);
+  }, [records, matches]);
+
+  const getTodayMatch = async () => {
+    const res = await API.get<MatchDataType[]>(`/match?date=${date}`);
+    if (res.data) {
+      setMatches(res.data);
+    }
+  };
+
+  const getTodayRecord = async () => {
+    try {
+      // 페이지 진입 시 오늘 날짜 데이터가 있는지 확인
+      const res = await API.post('/user-record/date', {
+        date: dayjs(date).format(DATE_FORMAT),
+        userId: uniqueId,
+      });
+
+      if (res.data) {
+        setRecords(res.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const onPressDelete = async () => {
     Alert.alert(
@@ -141,28 +160,10 @@ export function Detail({
           text: '삭제하기',
           onPress: async () => {
             try {
-              const deleteRecord = recordsState[carouselIndexState];
-              // 삭제 기능 (storage 삭제, recordState, recordsState 올바르게 세팅)
-              await AsyncStorage.removeItem(deleteRecord.date);
-              setRecordsState(
-                recordsState.filter(
-                  record => record.date !== deleteRecord.date,
-                ),
-              );
-              // NOTE recordState 를 삭제하고 같은 날 다른 경기가 있으면 변경, 없으면 빈 채로 두기
-              if (
-                recordsState.filter(record => record.date !== deleteRecord.date)
-                  .length
-              ) {
-                const duplRecords = recordsState.filter(
-                  record => record.date !== deleteRecord.date,
-                );
-                setRecordState(duplRecords[0]);
-              } else {
-                setRecordState(RESET_RECORD);
-              }
+              const deleteRecord = records[carouselIndexState];
+              await API.delete(`/user-records/${deleteRecord.records_id}`);
+              await getTodayRecord(); // 삭제 후 새 데이터 가져오기
               setIsEdit(false);
-              refetch && refetch();
             } catch (e) {
               console.error(e);
             }
@@ -211,7 +212,7 @@ export function Detail({
       const slideSize = event.nativeEvent.layoutMeasurement.width;
       const index = event.nativeEvent.contentOffset.x / slideSize;
       const roundIndex = Math.round(index);
-      setRecordState(recordsState[roundIndex]);
+      setCarouselIndexState(roundIndex);
     },
     [],
   );
@@ -234,7 +235,7 @@ export function Detail({
           : polaroidStyles.wrapper
       }>
       <FlatList
-        data={recordsState}
+        data={records}
         renderItem={({ item, index }) => (
           <ViewShot
             ref={shareImageRef}
@@ -282,7 +283,7 @@ export function Detail({
                     ]}
                   />
                   <FastImage
-                    source={{ uri: item.image?.path }}
+                    source={{ uri: item.image || '' }}
                     style={{
                       width: isCalendar ? width * 0.6 - 28 : width * 0.7 - 16,
                       height: isCalendar
@@ -341,9 +342,9 @@ export function Detail({
                       marginTop: isCalendar ? 10 : 20,
                     }}>
                     {dayjs(
-                      recordState.date.includes('(')
-                        ? recordState.date.split('(')[0]
-                        : recordState.date,
+                      records[carouselIndexState].date.includes('(')
+                        ? records[carouselIndexState].date.split('(')[0]
+                        : records[carouselIndexState].date,
                     ).format('YY.MM.DD')}{' '}
                     {selectedMatch?.home && selectedMatch.away && (
                       <>
@@ -353,7 +354,12 @@ export function Detail({
                       </>
                     )}
                     {' @'}
-                    {getStadiumName(item.selectedStadium)}
+                    {
+                      STADIUM_LONG_TO_NICK[
+                        stadiums.find(sta => sta.stadium_id === item.stadium_id)
+                          ?.stadium_name || ''
+                      ]
+                    }
                   </Text>
                 </View>
                 <View
@@ -368,7 +374,7 @@ export function Detail({
                       lineHeight: 14,
                     }}
                     numberOfLines={isCalendar ? 2 : undefined}>
-                    {item.memo}
+                    {item.user_note}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -390,7 +396,7 @@ export function Detail({
           position: 'absolute',
           bottom: 96,
         }}>
-        {recordsState.map(record => {
+        {records.map(record => {
           return (
             <View
               style={{
@@ -398,8 +404,8 @@ export function Detail({
                 height: 8,
                 borderRadius: 100,
                 backgroundColor:
-                  record.date === recordState.date
-                    ? palette.teamColor[team]
+                  record.date === records[carouselIndexState].date
+                    ? palette.teamColor[teamId]
                     : palette.greyColor.gray9,
               }}
             />

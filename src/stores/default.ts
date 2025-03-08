@@ -19,15 +19,6 @@ const useTabHistory = create<{
   accumulate: key => set(prev => ({ history: [...prev.history, key] })),
 }));
 
-// NOTE 가장 최근 선택된 경기
-const useSelectedRecordState = create<{
-  recordState: RecordType;
-  setRecordState: (record: RecordType) => void;
-}>(set => ({
-  recordState: RESET_RECORD,
-  setRecordState: (record: RecordType) => set(() => ({ recordState: record })),
-}));
-
 const useCarouselIndexState = create<{
   carouselIndexState: number;
   setCarouselIndexState: (index: number) => void;
@@ -37,31 +28,6 @@ const useCarouselIndexState = create<{
     set(() => ({ carouselIndexState: index })),
 }));
 
-// NOTE 같은 날 중복된 경기
-const useDuplicatedRecordState = create<{
-  recordsState: RecordType[];
-  setRecordsState: (record: RecordType[]) => void;
-}>(set => ({
-  recordsState: [RESET_RECORD],
-  setRecordsState: (records: RecordType[]) =>
-    set(() => ({ recordsState: records })),
-}));
+// TODO 기록 및 경기에 대한 정보는 api 호출로 대체하고, 필요한 경우 추가
 
-// 경기 데이터 관리
-const useMatchesState = create<{
-  matchesState: MatchDataType[];
-  setMatchesState: (matches: MatchDataType[]) => void;
-}>(set => ({
-  matchesState: [],
-  setMatchesState: (matches: MatchDataType[]) =>
-    set(() => ({ matchesState: matches })),
-}));
-
-export {
-  useBottomTabState,
-  useTabHistory,
-  useSelectedRecordState,
-  useCarouselIndexState,
-  useDuplicatedRecordState,
-  useMatchesState,
-};
+export { useBottomTabState, useTabHistory, useCarouselIndexState };

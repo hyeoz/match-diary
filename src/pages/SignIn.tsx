@@ -111,7 +111,7 @@ function Form({ ...props }) {
         teamId,
         nickname,
       });
-      props.navigation.navigate('Main');
+      props.navigation.navigate('Write');
     } catch (error) {
       // 혹시모를 분기처리 필요 (이미 기기 정보가 있는 경우)
       Toast.show({

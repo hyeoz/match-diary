@@ -27,8 +27,8 @@ export type DetailPropsType = {
   // setMemo: React.Dispatch<React.SetStateAction<string>>;
   // selectedStadium: string;
   // setSelectedStadium: React.Dispatch<React.SetStateAction<string>>;
-  // records: RecordType[];
-  // setRecords: Dispatch<SetStateAction<RecordType[]>>;
+  records: RecordType[];
+  setRecords: Dispatch<SetStateAction<RecordType[]>>;
   isEdit: boolean;
   setIsEdit: Dispatch<SetStateAction<boolean>>;
   setIsVisible: Dispatch<SetStateAction<boolean>>;
@@ -68,16 +68,19 @@ export type CoordinateType = { lat: number; lon: number };
 export type RecordType = {
   records_id?: number;
   user_id: string;
+  match_id: number;
+  stadium_id: number;
   date: string;
   image: string | null;
   user_note: string;
-  stadium_id: number;
 };
+
+export type TempRecordImageType = { uri: string; type?: string; name: string };
 export type TempRecordType = {
   records_id?: number;
   user_id: string;
   date: string;
-  image: { uri: string; type?: string; name: string } | string | null;
+  image: TempRecordImageType | string | null;
   user_note: string;
-  stadium_id: number;
+  stadium_id?: number;
 };

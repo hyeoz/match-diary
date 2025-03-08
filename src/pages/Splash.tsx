@@ -34,7 +34,7 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   const setReplace = async (hasAccount: boolean = false) =>
     new Promise(() =>
       setTimeout(() => {
-        hasAccount ? navigation.replace('Main') : navigation.replace('SignIn');
+        hasAccount ? navigation.replace('Write') : navigation.replace('SignIn');
       }, 3000),
     );
 

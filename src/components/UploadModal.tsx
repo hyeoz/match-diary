@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -32,6 +33,7 @@ import {
   CoordinateType,
   DetailPropsType,
   RecordType,
+  TempRecordImageType,
   TempRecordType,
 } from '@/type/default';
 import {
@@ -41,8 +43,6 @@ import {
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
   RESET_RECORD,
-  STADIUM_GEO,
-  STADIUM_SHORT_TO_LONG,
 } from '@utils/STATIC_DATA';
 import {
   filterDuplicatedArray,
@@ -52,13 +52,10 @@ import {
 import { Add, Arrow } from '@assets/svg';
 import { palette } from '@style/palette';
 import { modalStyles } from '@style/common';
-import {
-  useDuplicatedRecordState,
-  useSelectedRecordState,
-} from '@/stores/default';
 import { useUserState } from '@/stores/user';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { MatchDataType } from '@/type/match';
+import { useCarouselIndexState } from '@/stores/default';
 
 const { width } = Dimensions.get('window');
 
@@ -66,12 +63,13 @@ export default function UploadModal({
   isEdit,
   isVisible,
   setIsVisible,
+  records,
   date,
 }: DetailPropsType & {
   isVisible: boolean;
   date?: string;
 }) {
-  const [stadium, setStadium] = useState<string[]>([]);
+  const [todayStadiums, setTodayStadiums] = useState<string[]>([]);
   const [stadiumInfo, setStadiumInfo] = useState<
     { name: string; distance: number }[]
   >([]);
@@ -79,8 +77,8 @@ export default function UploadModal({
     [key: string]: { home: number; away: number };
   }>();
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  const [latitude, setLatitude] = useState(''); // 현재 유저의 위도
+  const [longitude, setLongitude] = useState(''); // 현재 유저의 경도
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cropperLoading, setCropperLoading] = useState(false);
@@ -89,8 +87,7 @@ export default function UploadModal({
   const { uniqueId } = useUserState();
   const { teams } = useTeamsState();
   const { stadiums } = useStadiumsState();
-  const { recordState, setRecordState } = useSelectedRecordState(); // focus 된 기록
-  const { recordsState, setRecordsState } = useDuplicatedRecordState(); // 같은 날 여러 기록
+  const { carouselIndexState } = useCarouselIndexState();
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
   const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
@@ -118,11 +115,12 @@ export default function UploadModal({
   useEffect(() => {
     // NOTE 캐러셀에서 수정으로 넘어가기
     if (isEdit) {
-      recordState?.image && setTempRecord(recordState);
+      // recordState?.image && setTempRecord(recordState);
+      setTempRecord(records[carouselIndexState]);
     } else {
       setTempRecord(RESET_RECORD);
     }
-  }, [isEdit, isVisible, recordState]);
+  }, [isEdit, isVisible]);
 
   useEffect(() => {
     setLoading(true);
@@ -132,85 +130,6 @@ export default function UploadModal({
     getTodayMatch();
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
-
-  /* ANCHOR DEPRECATED */
-  // const checkIOSPermissions = async (type: 'CAMERA' | 'GALLARY') => {
-  //   if (Platform.OS === 'ios') {
-  //     const cameraStatus = await check(PERMISSIONS.IOS.CAMERA);
-  //     const photoLibraryStatus = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
-
-  //     if (type === 'GALLARY') {
-  //       if (photoLibraryStatus === RESULTS.GRANTED) {
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     } else {
-  //       if (cameraStatus === RESULTS.GRANTED) {
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     }
-  //   }
-  //   return true; // iOS가 아닌 경우 true 반환
-  // };
-
-  // const openPicker = async (
-  //   fileName: string,
-  //   uri: string,
-  //   type: 'CAMERA' | 'GALLARY',
-  // ) => {
-  //   const hasPermission = await checkIOSPermissions(type);
-  //   if (!hasPermission) {
-  //     Toast.show({
-  //       type: 'error',
-  //       text1: '권한 설정이 필요해요!',
-  //     });
-  //     return request(PERMISSIONS.IOS.CAMERA);
-  //   }
-  //   if (!uri) {
-  //     Toast.show({
-  //       type: 'error',
-  //       text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
-  //     });
-  //     return;
-  //   }
-  //   try {
-  //     setCropperLoading(true);
-  //     await ImageCropPicker.clean();
-
-  //     const res = await ImageCropPicker.openCropper({
-  //       path: uri,
-  //       width: IMAGE_WIDTH,
-  //       height: IMAGE_HEIGHT,
-  //       cropping: true,
-  //       mediaType: 'photo',
-  //     });
-  //     // NOTE 이미지 저장 후 경로 저장하기
-  //     const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${fileName}`;
-
-  //     try {
-  //       await RNFS.copyFile(res.path, destinationPath);
-  //       setImage({ ...res, path: destinationPath });
-  //     } catch (error) {
-  //       console.error(error);
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: '이미지를 저장하는 데 문제가 생겼어요. 다시 시도해주세요!',
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     Toast.show({
-  //       type: 'error',
-  //       text1: '이미지를 불러오는 데 실패했어요. 다시 시도해주세요!',
-  //     });
-  //   } finally {
-  //     setCropperLoading(false);
-  //   }
-  // };
-  /* */
 
   const getImageAction = async (buttonIndex: number) => {
     if (buttonIndex === 1) {
@@ -426,7 +345,7 @@ export default function UploadModal({
     const res = await API.get<MatchDataType[]>(`/match?date=${formattedToday}`);
 
     if (!res.data.length) {
-      setStadium(['경기가 없어요!']);
+      setTodayStadiums(['경기가 없어요!']);
     } else {
       const tempStadiums = res.data.map(match => {
         const stadiumId = match.stadium;
@@ -453,7 +372,7 @@ export default function UploadModal({
         return stadiumName;
       });
 
-      setStadium(tempStadiums);
+      setTodayStadiums(tempStadiums);
     }
   };
 
@@ -461,16 +380,16 @@ export default function UploadModal({
   const getAllStadiumDistance = () => {
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
     const start = { lat: Number(latitude), lon: Number(longitude) };
-    const _stadiumInfo: { name: string; distance: number }[] = [];
+    const stadiumInfoList: { name: string; distance: number }[] = [];
 
-    for (let sta of stadium) {
+    for (let sta of todayStadiums) {
       if (sta === '경기가 없어요!') {
-        _stadiumInfo.push({ name: sta, distance: 0 });
+        stadiumInfoList.push({ name: sta, distance: 0 });
       } else {
-        getStadiumDistance(sta, _stadiumInfo, start);
+        getStadiumDistance(sta, stadiumInfoList, start);
       }
     }
-    setStadiumInfo(_stadiumInfo);
+    setStadiumInfo(stadiumInfoList);
     setLoading(false);
   };
 
@@ -492,24 +411,29 @@ export default function UploadModal({
       editedName = stadiumShortName;
     }
 
+    const targetStadium = stadiums.find(sta => sta.stadium_name === editedName);
+
     const goal = {
-      lat: STADIUM_GEO[editedName].lat,
-      lon: STADIUM_GEO[editedName].lon,
+      lat: targetStadium?.latitude || 0,
+      lon: targetStadium?.longitude || 0,
     };
+
     const res = getDistanceFromLatLonToKm(start, goal);
+
     if (isDh) {
       result.push({
-        name: `${STADIUM_SHORT_TO_LONG[editedName]} - DH ${dhInfo}`,
+        name: `${targetStadium?.stadium_name} - DH ${dhInfo}`,
         distance: res,
       });
     } else {
       result.push({
-        name: STADIUM_SHORT_TO_LONG[editedName],
+        name: targetStadium?.stadium_name || '',
         distance: res,
       });
     }
   };
 
+  // 현재 유저의 위치
   const getLocation = async () => {
     Geolocation.getCurrentPosition(
       position => {
@@ -558,7 +482,11 @@ export default function UploadModal({
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
                     <FastImage
-                      source={{ uri: tempRecord.image.path }}
+                      source={{
+                        uri:
+                          (tempRecord.image as string) ||
+                          (tempRecord.image as TempRecordImageType).uri,
+                      }}
                       style={{
                         width: width - 48,
                         height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
@@ -608,11 +536,13 @@ export default function UploadModal({
                 <Text
                   style={{
                     fontFamily: 'UhBee Seulvely',
-                    color: tempRecord.selectedStadium.length ? '#222' : '#888',
+                    color: tempRecord.stadium_id ? '#222' : '#888',
                   }}>
                   {' @'}
-                  {tempRecord.selectedStadium.length
-                    ? tempRecord.selectedStadium
+                  {tempRecord.stadium_id
+                    ? stadiums.find(
+                        sta => sta.stadium_id === tempRecord.stadium_id,
+                      )?.stadium_name
                     : '경기장을 선택해주세요'}
                 </Text>
                 <Arrow width={16} height={16} color={'#666'} />
@@ -633,34 +563,25 @@ export default function UploadModal({
             keyboardVerticalOffset={80}
             behavior="position">
             {/* 텍스트 */}
-            <View
-              style={
-                isKeyboardShow
-                  ? {
-                      bottom: 0,
-                      position: 'absolute',
-                      paddingHorizontal: 24,
-                      paddingVertical: 12,
-                      backgroundColor: '#fff',
-                    }
-                  : {}
-              }>
+            <View style={isKeyboardShow ? styles.keyboardShowTextStyle : {}}>
               <Text style={modalStyles.labelText}>내용</Text>
               <TextInput
                 multiline
                 maxLength={200}
-                value={tempRecord.memo}
+                value={tempRecord.user_note}
                 onChangeText={value => {
                   if ((value.match(/\n/g) ?? '').length > 5) {
                     Alert.alert('줄바꿈은 최대 8줄만 가능해요!');
                   } else {
                     setTempRecord({
                       ...tempRecord,
-                      memo: value,
+                      user_note: value,
                     });
                   }
                 }}
-                placeholder={`사진과 함께 기록할 내용을 적어주세요!\n두 줄에서 세 줄이 가장 적당해요 ;)`}
+                placeholder={
+                  '사진과 함께 기록할 내용을 적어주세요!\n두 줄에서 세 줄이 가장 적당해요 ;)'
+                }
                 style={modalStyles.input}
                 numberOfLines={8}
               />
@@ -672,7 +593,7 @@ export default function UploadModal({
                   fontSize: 12,
                   fontFamily: 'KBO-Dia-Gothic-medium',
                 }}>
-                {tempRecord.memo.length} / 200
+                {tempRecord.user_note.length} / 200
               </Text>
               {isKeyboardShow && (
                 <TouchableOpacity
@@ -746,9 +667,9 @@ export default function UploadModal({
         <SelectStadiumModal
           stadiumInfo={stadiumInfo}
           setIsVisible={value => setStadiumSelectVisible(value)}
-          selectStadium={tempRecord.selectedStadium}
-          setSelectedStadium={value =>
-            setTempRecord({ ...tempRecord, selectedStadium: value })
+          selectStadiumId={tempRecord.stadium_id}
+          setSelectedStadiumId={value =>
+            setTempRecord({ ...tempRecord, stadium_id: value })
           }
           isLoading={loading}
         />
@@ -759,3 +680,13 @@ export default function UploadModal({
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  keyboardShowTextStyle: {
+    bottom: 0,
+    position: 'absolute',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+  },
+});
