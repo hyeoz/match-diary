@@ -14,7 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import Carousel from 'react-native-reanimated-carousel';
 import FastImage from 'react-native-fast-image';
@@ -26,33 +25,31 @@ import TeamListItem from '@/components/TeamListItem';
 import { useUserState } from '@/stores/user';
 import { MoreListItemType } from '@/type/default';
 import {
-  useDuplicatedRecordState,
-  useSelectedRecordState,
-} from '@/stores/default';
-import {
   EMAIL_LINK,
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
-  MY_TEAM_KEY,
   RESET_RECORD,
   SERVER_ERROR_MSG,
 } from '@utils/STATIC_DATA';
 import { getTeamArrayWithIcon } from '@/utils/helper';
 import { palette } from '@style/palette';
 import { Arrow, Plus } from '@assets/svg';
+import { getUniqueId } from 'react-native-device-info';
 
 import help1_animated from '@assets/help1_animated.gif';
 import help2_animated from '@assets/help2_animated.gif';
 import help3_animated from '@assets/help3_animated.gif';
 import contact_cat from '@assets/contact_cat_img.webp';
-import { getUniqueId } from 'react-native-device-info';
 import { API } from '@/api';
+import { getAllUserRecords } from '@/api/record';
+import { useFontStyle } from '@/style/hooks';
 
 const { width, height } = Dimensions.get('window');
 const images = [help1_animated, help2_animated, help3_animated];
 
 function More() {
   const { teamId, setTeamId, userName, setUserName } = useUserState();
+  const fontStyle = useFontStyle;
 
   const [teamModalVisible, setTeamModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState(1);
@@ -60,9 +57,6 @@ function More() {
   const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [helpSnapIndex, setHelpSnapIndex] = useState(0);
   const [contactVisible, setContactVisible] = useState(false);
-
-  const { recordState, setRecordState } = useSelectedRecordState();
-  const { recordsState, setRecordsState } = useDuplicatedRecordState();
 
   const tooltipY = useRef(new Animated.Value(0)).current;
 
@@ -87,15 +81,20 @@ function More() {
 
   const onPressDeleteAll = async () => {
     try {
-      // TODO record 데이터 서버에서 삭제
-      setRecordState(RESET_RECORD);
-      setRecordsState([]);
+      const allRecords = await getAllUserRecords();
+      allRecords.data.forEach(async rec => {
+        await API.delete(`/user-records/${rec.records_id}`);
+      });
       Toast.show({
         type: 'success',
         text1: '모든 데이터가 정상적으로 삭제되었어요!',
       });
     } catch (e) {
       console.error(e);
+      Toast.show({
+        type: 'error',
+        text1: SERVER_ERROR_MSG,
+      });
     }
   };
 
@@ -297,18 +296,13 @@ function More() {
                   marginBottom: 8,
                 }}>
                 <Text
-                  style={{
-                    fontWeight: '700',
-                    fontSize: 18,
-                    ...Platform.select({
-                      android: {
-                        fontFamily: 'KBO Dia Gothic_bold',
-                      },
-                      ios: {
-                        fontFamily: 'KBO-Dia-Gothic-bold',
-                      },
-                    }),
-                  }}>
+                  style={fontStyle(
+                    {
+                      fontWeight: '700',
+                      fontSize: 18,
+                    },
+                    'bold',
+                  )}>
                   마이팀 설정
                 </Text>
               </View>
@@ -342,18 +336,7 @@ function More() {
                 borderRadius: 8,
                 padding: 16,
               }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  ...Platform.select({
-                    android: {
-                      fontFamily: 'KBO Dia Gothic_bold',
-                    },
-                    ios: {
-                      fontFamily: 'KBO-Dia-Gothic-bold',
-                    },
-                  }),
-                }}>
+              <Text style={fontStyle({ textAlign: 'center' }, 'bold')}>
                 취소하기
               </Text>
             </TouchableOpacity>
@@ -366,18 +349,13 @@ function More() {
                 padding: 16,
               }}>
               <Text
-                style={{
-                  textAlign: 'center',
-                  color: '#fff',
-                  ...Platform.select({
-                    android: {
-                      fontFamily: 'KBO Dia Gothic_bold',
-                    },
-                    ios: {
-                      fontFamily: 'KBO-Dia-Gothic-bold',
-                    },
-                  }),
-                }}>
+                style={fontStyle(
+                  {
+                    textAlign: 'center',
+                    color: palette.greyColor.white,
+                  },
+                  'bold',
+                )}>
                 저장하기
               </Text>
             </TouchableOpacity>
@@ -450,7 +428,8 @@ function More() {
                   width: 10,
                   height: 10,
                   borderRadius: 99,
-                  backgroundColor: helpSnapIndex === index ? '#222' : '#ddd',
+                  backgroundColor:
+                    helpSnapIndex === index ? palette.greyColor.gray2 : '#ddd',
                 }}
                 key={index}
               />
@@ -467,7 +446,7 @@ function More() {
                 borderRadius: 24,
                 width: '100%',
                 height: '70%',
-                backgroundColor: '#fff',
+                backgroundColor: palette.greyColor.white,
               }}>
               <HelpContentItem index={helpSnapIndex} />
             </View>
@@ -534,7 +513,7 @@ function More() {
             <View style={styles.contactChevron} />
             <View
               style={{
-                backgroundColor: '#fff',
+                backgroundColor: palette.greyColor.white,
                 padding: 12,
                 borderRadius: 8,
               }}>
@@ -594,7 +573,7 @@ function More() {
                 position: 'absolute',
                 top: '0%',
                 left: '50%',
-                backgroundColor: '#fff',
+                backgroundColor: palette.greyColor.white,
                 width: Math.sqrt(193),
                 height: Math.sqrt(193),
                 transform: [
@@ -606,7 +585,7 @@ function More() {
             />
             <View
               style={{
-                backgroundColor: '#fff',
+                backgroundColor: palette.greyColor.white,
                 padding: 12,
                 borderRadius: 8,
               }}>
@@ -622,6 +601,7 @@ function More() {
 }
 
 function ListItem({ item, index }: ListRenderItemInfo<MoreListItemType>) {
+  const fontStyle = useFontStyle;
   return (
     <View
       style={{
@@ -640,21 +620,16 @@ function ListItem({ item, index }: ListRenderItemInfo<MoreListItemType>) {
           marginBottom: 20,
         }}>
         <Text
-          style={{
-            opacity: 1,
-            fontSize: 16,
-            ...Platform.select({
-              android: {
-                fontFamily: 'KBO Dia Gothic_bold',
-              },
-              ios: {
-                fontFamily: 'KBO-Dia-Gothic-bold',
-              },
-            }),
-          }}>
+          style={fontStyle(
+            {
+              opacity: 1,
+              fontSize: 16,
+            },
+            'bold',
+          )}>
           {item.label}
         </Text>
-        <Arrow color={'#222'} />
+        <Arrow color={palette.greyColor.gray2} />
       </TouchableOpacity>
     </View>
   );
@@ -741,7 +716,7 @@ function HelpContentItem({ index }: { index: number }) {
 const styles = StyleSheet.create({
   tabTitle: {
     fontSize: 32,
-    color: '#fff',
+    color: palette.greyColor.white,
     ...Platform.select({
       android: {
         fontFamily: 'KBO Dia Gothic_bold',
@@ -752,7 +727,7 @@ const styles = StyleSheet.create({
     }),
   },
   listWrapper: {
-    backgroundColor: '#fff',
+    backgroundColor: palette.greyColor.white,
     width: '90%',
     ...Platform.select({
       android: {
@@ -838,7 +813,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 64,
-    color: '#fff',
+    color: palette.greyColor.white,
 
     ...Platform.select({
       android: {
@@ -851,7 +826,7 @@ const styles = StyleSheet.create({
   },
   defaultText: {
     fontSize: 20,
-    color: '#fff',
+    color: palette.greyColor.white,
 
     ...Platform.select({
       android: {
@@ -880,7 +855,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 52,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: palette.greyColor.white,
     opacity: 1,
     shadowColor: '#000',
     shadowOffset: {
@@ -906,7 +881,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '80%',
     left: '50%',
-    backgroundColor: '#fff',
+    backgroundColor: palette.greyColor.white,
     width: Math.sqrt(193),
     height: Math.sqrt(193),
     transform: [{ rotate: '45deg' }, { translateY: 0 }, { translateX: -4 }],

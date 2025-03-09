@@ -21,28 +21,24 @@ import uuid from 'react-native-uuid';
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
-import {
-  useDuplicatedRecordState,
-  useMatchesState,
-  useSelectedRecordState,
-  useTabHistory,
-} from '@stores/default';
+import { useCarouselIndexState, useTabHistory } from '@stores/default';
 import { API } from '@api/index';
 import {
-  API_DATE_FORMAT,
   DATE_FORMAT,
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
   MONTH_LIST,
   RESET_RECORD,
-  STADIUM_SHORT_NAME,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
-import { MatchDataType, RecordType } from '@/type/default';
+import { RecordType } from '@/type/default';
 import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
 import Loading from '@/components/Loading';
-import { getMatchByDate } from '@/api/match';
+import { getMatchByDate, getMatchById } from '@/api/match';
 import { useUserState, useViewedMatchState } from '@/stores/user';
+import { getAllUserRecords, getRecordByDate } from '@/api/record';
+import { MatchDataType } from '@/type/match';
+import { useTeamsState } from '@/stores/teams';
 
 const { width } = Dimensions.get('window');
 
@@ -85,13 +81,11 @@ function Calendar() {
   const [weeksCount, setWeeksCount] = useState(0);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
 
-  const { teamId } = useUserState();
-  const { viewedMatch } = useViewedMatchState();
-
   const { history } = useTabHistory();
-  const { recordState, setRecordState } = useSelectedRecordState();
-  const { recordsState, setRecordsState } = useDuplicatedRecordState();
-  const { setMatchesState } = useMatchesState();
+  const { teamId, uniqueId } = useUserState();
+  const { teams } = useTeamsState();
+  const { carouselIndexState } = useCarouselIndexState();
+  const { viewedMatch } = useViewedMatchState();
 
   const year = dayjs(selectedDate).year();
 
@@ -100,85 +94,66 @@ function Calendar() {
     setIsEdit,
     setIsVisible,
     matches,
+    records,
+    setRecords,
   };
 
   useEffect(() => {
-    if (!recordState || !recordsState.length) return;
+    if (!records.length) return;
 
-    setRecordsState(
-      recordsState.sort((a, b) => {
-        if (a.date === recordState.date) return -1;
-        if (b.date === recordState.date) return 1;
+    setRecords(
+      records.sort((a, b) => {
+        if (a.date === records[carouselIndexState].date) return -1;
+        if (b.date === records[carouselIndexState].date) return 1;
         return (
-          recordsState.findIndex(value => value.id === a.id) -
-          recordsState.findIndex(value => value.id === b.id)
+          records.findIndex(value => value.records_id === a.records_id) -
+          records.findIndex(value => value.records_id === b.records_id)
         );
       }),
     );
   }, []);
 
   useEffect(() => {
-    getSelectedItem();
+    getRecordsBySelectedDate();
     getMatchData();
-  }, [history, team, selectedDate]);
+  }, [history, teamId, selectedDate]);
 
   useEffect(() => {
-    getAllItems();
-    getAllRecord();
-  }, [history, team, isVisible]);
+    getAllRecords();
+    handleRecordsCount();
+  }, [history, teamId, isVisible]);
 
-  const getSelectedItem = async () => {
-    const keys = await AsyncStorage.getAllKeys(); // 모든 키값 찾기
-    const filteredKeys = keys.filter(key => key.includes(selectedDate)); // 키에 오늘 날짜가 포함되어있으면 (오늘 날짜의 기록이 있으면)
-    if (filteredKeys.length) {
-      let tempRecords: RecordType[] = [];
-      // 오늘자 기록들 반복
-      filteredKeys.forEach(async key => {
-        const res = await AsyncStorage.getItem(key);
+  const getRecordsBySelectedDate = async () => {
+    const res = await getRecordByDate(selectedDate);
 
-        if (!res) return;
-
-        const json = JSON.parse(res);
-
-        tempRecords.push({
-          ...json,
-          id: uuid.v4(),
-        });
-
-        // record state 가 비어있는 경우에만 넣기
-        if (!recordState.image) {
-          setRecordState({
-            ...json,
-            id: uuid.v4(),
-          });
-        }
-        setRecords(tempRecords);
-        setRecordsState(tempRecords);
-      });
+    if (res.data.length) {
+      setRecords(res.data);
       setIsEdit(true);
     } else {
-      setRecordState(RESET_RECORD);
+      setRecords([]);
       setIsEdit(false);
     }
   };
 
-  const getAllItems = async () => {
-    const keys = await AsyncStorage.getAllKeys();
+  const getAllRecords = async () => {
+    const allRecords = await getAllUserRecords();
 
     const _marked: MarkedDates = {};
 
     // NOTE storage 에 데이터가 있는 경우 dot
-    keys.forEach((key: string) => {
-      _marked[key] = { marked: true };
+    allRecords.data.forEach(key => {
+      const newDate = dayjs(key.date).format(DATE_FORMAT);
+      _marked[newDate] = { marked: true };
 
-      if (key === selectedDate) {
-        _marked[key] = {
-          ..._marked[key],
+      if (newDate === selectedDate) {
+        _marked[newDate] = {
+          ..._marked[newDate],
           selected: true,
           selectedColor: palette.commonColor.green,
         };
       }
     });
+
     setMarkedDates(_marked);
   };
 
@@ -208,32 +183,18 @@ function Calendar() {
     setLoading(true);
 
     const res = await getMatchByDate(selectedDate);
-    console.log(res.data);
 
     if (!res.data.length) {
-      setMatchesState([]);
       setMatches([]);
       return;
     }
-
-    // 응원팀 분기처리
-    if (teamId) {
-      const filteredMatch = res.data.filter(
-        data => data.home === teamId || data.away === teamId,
-      );
-      setMatches(filteredMatch);
-    } else {
-      setMatches(res.data);
-    }
-
-    setMatchesState(res.data);
-
+    setMatches(res.data);
     setLoading(false);
   };
 
-  // NOTE 직관 기록 계산
-  const getAllRecord = async () => {
-    let _count = {
+  // NOTE 직관 승패 기록 계산
+  const handleRecordsCount = async () => {
+    let recordsCnt = {
       byMonth: {
         home: 0,
         away: 0,
@@ -249,103 +210,50 @@ function Calendar() {
       },
     };
 
-    const keys = (await AsyncStorage.getAllKeys()).filter(
-      (key: string) => key !== 'MY_TEAM' && key !== 'NICKNAME',
-    );
-    for (let i = 0; i < keys.length; i++) {
-      const res = await API.get<StrapiType<MatchDataType>>(
-        `/schedule-${year}s?filters[date]=${dayjs(keys[i]).format(
-          API_DATE_FORMAT,
-        )}`,
-      );
-
-      const data = res.data.data.find((dt, index) => {
-        if (recordState.selectedStadium.includes('2')) {
-          // NOTE 더블헤더 경기 로직 추가
-          return (
-            (dt.attributes.home === team || dt.attributes.away === team) &&
-            index === 1
-          );
-        } else {
-          return dt.attributes.home === team || dt.attributes.away === team;
-        }
-      });
-
-      if (data) {
-        if (!team) {
-          // 이번 시즌 직관 기록
-          _count.bySeason.home += 1;
-          // 이번 달 직관 기록
-          if (dayjs(keys[i]).month() === dayjs().month()) {
-            _count.byMonth.home += 1;
-          }
-          return;
-        } else if (team === data.attributes.home) {
-          // NOTE 홈경기
-          // 이번 시즌 직관 기록
-          _count.bySeason.home += 1;
-          // 이번 달 직관 기록
-          if (dayjs(keys[i]).month() === dayjs().month()) {
-            _count.byMonth.home += 1;
-          }
-          // 직관 승률
-          if (
-            (data.attributes.homeScore as number) >
-            (data.attributes.awayScore as number)
-          ) {
-            _count.rate.win += 1;
-          } else if (
-            (data.attributes.homeScore as number) <
-            (data.attributes.awayScore as number)
-          ) {
-            _count.rate.lose += 1;
-          } else {
-            _count.rate.draw += 1;
-          }
-        } else {
-          // NOTE 원정경기
-          // 이번 시즌 직관 기록
-          _count.bySeason.away += 1;
-          // 이번 달 직관 기록
-          if (dayjs(keys[i]).month() === dayjs().month()) {
-            _count.byMonth.away += 1;
-          }
-          // 직관 승률
-          if (
-            (data.attributes.homeScore as number) <
-            (data.attributes.awayScore as number)
-          ) {
-            _count.rate.win += 1;
-          } else if (
-            (data.attributes.homeScore as number) >
-            (data.attributes.awayScore as number)
-          ) {
-            _count.rate.lose += 1;
-          } else {
-            _count.rate.draw += 1;
-          }
-        }
-      }
-    }
-    setMatchRecord(_count);
-  };
-
-  const findMyTeamMatch = () => {
-    return matches.find((match, index) => {
-      const _date = match.date.split('(')[0].replaceAll('.', '/');
-      if (recordState.selectedStadium.includes('2')) {
-        // NOTE 더블헤더 경기 로직 추가
-        return (
-          dayjs(_date).format(DATE_FORMAT) ===
-            dayjs(selectedDate).format(DATE_FORMAT) && index === 1
-        );
-      } else {
-        return (
-          dayjs(_date).format(DATE_FORMAT) ===
-          dayjs(selectedDate).format(DATE_FORMAT)
-        );
-      }
+    const allUserRecords = await API.post<RecordType[]>('/user-records', {
+      userId: uniqueId,
     });
+
+    allUserRecords.data.forEach(async record => {
+      const matchInfo = await getMatchById(record.match_id);
+      const data = matchInfo?.data as MatchDataType;
+
+      // ANCHOR 내 팀 경기 기록
+      // 홈경기
+      if (teamId === data.home) {
+        if (dayjs(data.date).year === dayjs().year) {
+          recordsCnt.bySeason.home += 1;
+        }
+        if (dayjs(data.date).month === dayjs().month) {
+          recordsCnt.byMonth.home += 1;
+        }
+        if (data.home_score > data.away_score) {
+          recordsCnt.rate.win += 1;
+        } else if (data.home_score < data.away_score) {
+          recordsCnt.rate.lose += 1;
+        } else {
+          recordsCnt.rate.draw += 1;
+        }
+      } else if (teamId === data.away) {
+        // 원정경기
+        if (dayjs(data.date).year === dayjs().year) {
+          recordsCnt.bySeason.away += 1;
+        }
+        if (dayjs(data.date).month === dayjs().month) {
+          recordsCnt.byMonth.away += 1;
+        }
+        if (data.home_score > data.away_score) {
+          recordsCnt.rate.lose += 1;
+        } else if (data.home_score < data.away_score) {
+          recordsCnt.rate.win += 1;
+        } else {
+          recordsCnt.rate.draw += 1;
+        }
+      }
+      // 내 팀 경기가 아닌 경우 승률은 계산하지 않음
+    });
+
+    setMatchRecord(recordsCnt);
   };
 
   return (
@@ -392,15 +300,15 @@ function Calendar() {
               top: -12,
             }}
           />
-          {recordState?.image && recordState?.memo ? (
+          {records[carouselIndexState]?.image &&
+          records[carouselIndexState]?.user_note ? (
             <Detail
               {...detailProps}
               isCalendar
               refetch={() => {
-                getAllItems();
-                getAllRecord();
+                getAllRecords();
+                handleRecordsCount();
               }}
-              myTeamMatch={findMyTeamMatch()}
               date={selectedDate}
             />
           ) : (
@@ -459,7 +367,13 @@ function Calendar() {
                               styles.stickyNoteText,
                               { fontSize: 18, textAlign: 'center' },
                             ]}>
-                            ({STADIUM_SHORT_NAME[matches[0].home]})
+                            (
+                            {
+                              teams.find(
+                                team => team.team_id === matches[0].home,
+                              )?.team_short_name
+                            }
+                            )
                           </Text>
                         </View>
                       )}
@@ -522,7 +436,7 @@ function Calendar() {
                   textAlign: 'right',
                 },
               ]}>
-              {!!team
+              {teamId
                 ? `홈 ${matchRecord.byMonth.home}번 / 원정 ${matchRecord.byMonth.away}번`
                 : `${matchRecord.byMonth.home}번`}
             </Text>
@@ -534,12 +448,12 @@ function Calendar() {
                   textAlign: 'right',
                 },
               ]}>
-              {!!team
+              {teamId
                 ? `홈 ${matchRecord.bySeason.home}번 / 원정 ${matchRecord.bySeason.away}번`
                 : `${matchRecord.bySeason.home}번`}
             </Text>
           </View>
-          {!!team && (
+          {teamId && (
             <View
               style={[
                 styles.stickyNoteWrapper,
@@ -634,12 +548,12 @@ function DayComponent({
             {
               color:
                 state === 'disabled'
-                  ? '#888'
+                  ? palette.greyColor.gray8
                   : dayjs(date?.dateString).day() === 6
-                  ? '#0392cf'
+                  ? palette.commonColor.saturday
                   : dayjs(date?.dateString).day() === 0
-                  ? '#ee4035'
-                  : '#000',
+                  ? palette.commonColor.sunday
+                  : palette.greyColor.black,
               textAlign: 'center',
               position: 'relative',
             },

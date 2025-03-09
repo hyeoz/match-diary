@@ -23,7 +23,7 @@ import { getTeamArrayWithIcon } from '@/utils/helper';
 import { DATE_FORMAT, STADIUM_SHORT_TO_LONG } from '@/utils/STATIC_DATA';
 import { useMyState } from '@/stores/default';
 import { palette } from '@/style/palette';
-import { modalStyles } from '@/style/common';
+import { modalStyles } from '@/style/modal';
 import { Arrow } from '@assets/svg';
 
 function Community() {

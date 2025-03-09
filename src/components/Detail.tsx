@@ -34,13 +34,13 @@ import { useUserState } from '@/stores/user';
 import { MatchDataType } from '@/type/match';
 import { API } from '@/api';
 import { useStadiumsState } from '@/stores/teams';
+import { getMatchByDate } from '@/api/match';
 
 const { width, height } = Dimensions.get('window');
 
 export function Detail({
   setIsEdit,
   setIsVisible,
-  myTeamMatch,
   records,
   setRecords,
   isCalendar = false,
@@ -48,7 +48,6 @@ export function Detail({
   date,
 }: DetailPropsType & {
   date?: string;
-  myTeamMatch?: MatchDataType;
   isCalendar?: boolean;
   refetch?: () => void;
 }) {
@@ -69,62 +68,65 @@ export function Detail({
 
   useEffect(() => {
     // 마이팀 없는 경우
-    if (!myTeamMatch) {
-      return;
+    if (!teamId) {
+      return setResult(null);
     }
+
+    const tempRecord = records[carouselIndexState];
+    const tempMatch = matches.find(mat => mat.id === tempRecord.match_id);
 
     // 마이팀과 기록한 팀의 경기가 다른 경우
-    const tempStadium = records[carouselIndexState].stadium_id;
-    if (myTeamMatch.stadium !== tempStadium) {
-      return;
+    if (teamId !== tempMatch?.home && teamId !== tempMatch?.away) {
+      return setResult(null);
     }
 
-    const { home_score, away_score, home, away } = myTeamMatch;
+    const { home_score, away_score, home, away } = tempMatch;
 
+    // 아직 열리지 않은 경기
     if (home_score === -1 || away_score === -1) {
-      return;
+      return setResult(null);
     }
 
-    if (home_score !== undefined && away_score !== undefined) {
-      if (home === teamId) {
-        setResult(
-          home_score > away_score ? 'W' : home_score < away_score ? 'L' : 'D',
-        );
-      } else {
-        setResult(
-          home_score > away_score ? 'L' : home_score < away_score ? 'W' : 'D',
-        );
-      }
-    }
-  }, [myTeamMatch]);
-
-  useEffect(() => {
-    const tempMatchId = records[carouselIndexState].match_id;
-    const match = matches.filter(mat => mat.id === tempMatchId)[0];
-    // TODO 더블헤더 분기처리
-    if (matches.length > 1) {
-      let tempMatch: MatchDataType;
-      if (match.memo?.includes('더블헤더')) {
-        // 1경기
-        matches.forEach(mat => {
-          tempMatch =
-            new Date(tempMatch?.time) > new Date(mat.time) ? tempMatch : mat;
-        });
-      } else {
-        // 2경기
-        matches.forEach(mat => {
-          tempMatch =
-            new Date(tempMatch?.time) < new Date(mat.time) ? tempMatch : mat;
-        });
-      }
-      setSelectedMatch(tempMatch!);
+    if (home === teamId) {
+      setResult(
+        home_score > away_score ? 'W' : home_score < away_score ? 'L' : 'D',
+      );
     } else {
-      setSelectedMatch(matches.find(mat => mat.id === tempMatchId));
+      setResult(
+        home_score > away_score ? 'L' : home_score < away_score ? 'W' : 'D',
+      );
     }
-  }, [records, matches]);
+  }, [teamId, records, matches, carouselIndexState]);
+
+  // useEffect(() => {
+  //   const tempRecord = records[carouselIndexState];
+  //   const tempMatch = matches.find(mat => mat.id === tempRecord.match_id);
+
+  //   // TODO 더블헤더 분기처리
+  //   if (matches.length > 1) {
+  //     let newReocrd: MatchDataType;
+  //     if (tempMatch?.memo?.includes('더블헤더')) {
+  //       // 1경기
+  //       matches.forEach(mat => {
+  //         newReocrd =
+  //           new Date(tempMatch?.time) > new Date(mat.time) ? tempMatch : mat;
+  //       });
+  //     } else {
+  //       // 2경기
+  //       matches.forEach(mat => {
+  //         newReocrd =
+  //           new Date(tempMatch?.time) < new Date(mat.time) ? tempMatch : mat;
+  //       });
+  //     }
+  //     setSelectedMatch(tempMatch!);
+  //   } else {
+  //     setSelectedMatch(matches.find(mat => mat.id === tempMatch?.id));
+  //   }
+  // }, [records, matches]);
 
   const getTodayMatch = async () => {
-    const res = await API.get<MatchDataType[]>(`/match?date=${date}`);
+    const res = await getMatchByDate(date || '');
+
     if (res.data) {
       setMatches(res.data);
     }
@@ -291,7 +293,7 @@ export function Detail({
                         : (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
                     }}
                   />
-                  {!!result && myTeamMatch && (
+                  {!!result && (
                     <View
                       style={{
                         position: 'absolute',

@@ -15,6 +15,8 @@ const commonColor = {
   green: '#7bc158',
   greenBg: '#a7d690',
   yellow: '#feff9c',
+  saturday: '#0392cf',
+  sunday: '#ee4035',
 };
 
 const greyColor = {
@@ -28,6 +30,8 @@ const greyColor = {
   gray8: '#888',
   gray9: '#999',
   border: '#c8c8c8',
+  black: '#000',
+  white: '#fff',
 };
 
 export const palette = { teamColor, commonColor, greyColor };

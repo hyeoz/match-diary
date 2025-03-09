@@ -51,11 +51,12 @@ import {
 } from '@utils/helper';
 import { Add, Arrow } from '@assets/svg';
 import { palette } from '@style/palette';
-import { modalStyles } from '@style/common';
+import { modalStyles } from '@/style/modal';
 import { useUserState } from '@/stores/user';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { MatchDataType } from '@/type/match';
 import { useCarouselIndexState } from '@/stores/default';
+import { getMatchByDate } from '@/api/match';
 
 const { width } = Dimensions.get('window');
 
@@ -64,12 +65,15 @@ export default function UploadModal({
   isVisible,
   setIsVisible,
   records,
+  setRecords,
   date,
 }: DetailPropsType & {
   isVisible: boolean;
   date?: string;
 }) {
-  const [todayStadiums, setTodayStadiums] = useState<string[]>([]);
+  const [todayStadiums, setTodayStadiums] = useState<
+    { name: string; id?: number }[]
+  >([]);
   const [stadiumInfo, setStadiumInfo] = useState<
     { name: string; distance: number }[]
   >([]);
@@ -94,11 +98,12 @@ export default function UploadModal({
   const year = dayjs(date).year();
 
   const initRecord: RecordType = {
+    match_id: undefined,
     user_id: '',
     date: formattedToday,
     image: null,
     user_note: '',
-    stadium_id: 1,
+    stadium_id: undefined,
   };
 
   useEffect(() => {
@@ -342,10 +347,10 @@ export default function UploadModal({
   };
 
   const getTodayMatch = async () => {
-    const res = await API.get<MatchDataType[]>(`/match?date=${formattedToday}`);
+    const res = await getMatchByDate(formattedToday);
 
     if (!res.data.length) {
-      setTodayStadiums(['경기가 없어요!']);
+      setTodayStadiums([{ name: '경기가 없어요!' }]);
     } else {
       const tempStadiums = res.data.map(match => {
         const stadiumId = match.stadium;
@@ -369,7 +374,7 @@ export default function UploadModal({
             },
           };
         });
-        return stadiumName;
+        return { name: stadiumName, id: stadiumId };
       });
 
       setTodayStadiums(tempStadiums);
@@ -380,11 +385,12 @@ export default function UploadModal({
   const getAllStadiumDistance = () => {
     // NOTE 위도 - 경도 순서가 아니라 경도 - 위도 순서임
     const start = { lat: Number(latitude), lon: Number(longitude) };
-    const stadiumInfoList: { name: string; distance: number }[] = [];
+    const stadiumInfoList: { name: string; id?: number; distance: number }[] =
+      [];
 
     for (let sta of todayStadiums) {
-      if (sta === '경기가 없어요!') {
-        stadiumInfoList.push({ name: sta, distance: 0 });
+      if (sta.id === undefined) {
+        stadiumInfoList.push({ name: sta.name, distance: 0 });
       } else {
         getStadiumDistance(sta, stadiumInfoList, start);
       }
@@ -394,8 +400,8 @@ export default function UploadModal({
   };
 
   const getStadiumDistance = (
-    stadiumShortName: string,
-    result: { name: string; distance: number }[],
+    stadiumObj: { name: string; id?: number },
+    result: { name: string; id?: number; distance: number }[],
     start: CoordinateType,
   ) => {
     let editedName = '';
@@ -403,12 +409,12 @@ export default function UploadModal({
     let dhInfo = '';
 
     // 더블헤더
-    if (stadiumShortName.includes('-')) {
-      editedName = stadiumShortName.split('-')[0];
-      dhInfo = stadiumShortName.split('-')[1];
+    if (stadiumObj.name.includes('-')) {
+      editedName = stadiumObj.name.split('-')[0];
+      dhInfo = stadiumObj.name.split('-')[1];
       isDh = true;
     } else {
-      editedName = stadiumShortName;
+      editedName = stadiumObj.name;
     }
 
     const targetStadium = stadiums.find(sta => sta.stadium_name === editedName);
@@ -423,11 +429,13 @@ export default function UploadModal({
     if (isDh) {
       result.push({
         name: `${targetStadium?.stadium_name} - DH ${dhInfo}`,
+        id: stadiumObj.id,
         distance: res,
       });
     } else {
       result.push({
         name: targetStadium?.stadium_name || '',
+        id: stadiumObj.id,
         distance: res,
       });
     }

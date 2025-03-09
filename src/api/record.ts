@@ -1,9 +1,15 @@
 import { API } from '.';
-import { MatchDataType } from '@/type/match';
+import { useUserState } from '@/stores/user';
+import { RecordType } from '@/type/default';
 
-export const getMatchByDate = async (date: string) => {
+const uniqueId = useUserState.getState();
+
+export const getRecordByDate = async (date: string) => {
   try {
-    const res = await API.get<MatchDataType[]>(`/match/filter?date=${date}`);
+    const res = await API.post<RecordType[]>('/user-record/date', {
+      date,
+      userId: uniqueId,
+    });
     return {
       data: res.data,
       status: res.status,
@@ -18,12 +24,11 @@ export const getMatchByDate = async (date: string) => {
   }
 };
 
-export const getMatchById = async (id?: number) => {
-  if (!id) {
-    return;
-  }
+export const getAllUserRecords = async () => {
   try {
-    const res = await API.get<MatchDataType>(`/match/${id}`);
+    const res = await API.post<RecordType[]>('/user-records', {
+      userId: uniqueId,
+    });
     return {
       data: res.data,
       status: res.status,

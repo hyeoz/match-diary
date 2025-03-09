@@ -68,8 +68,8 @@ export type CoordinateType = { lat: number; lon: number };
 export type RecordType = {
   records_id?: number;
   user_id: string;
-  match_id: number;
-  stadium_id: number;
+  match_id?: number;
+  stadium_id?: number;
   date: string;
   image: string | null;
   user_note: string;

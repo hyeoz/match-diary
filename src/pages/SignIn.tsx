@@ -27,6 +27,7 @@ import { EMAIL_LINK, SERVER_ERROR_MSG } from '@/utils/STATIC_DATA';
 import { palette } from '@/style/palette';
 import { Change } from '@/assets/svg';
 import SignInGif from '@assets/logo_moving_loop_stop.gif';
+import { useFontStyle } from '@/style/hooks';
 
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
@@ -94,6 +95,7 @@ function SignInPreview({ ...props }) {
 function Form({ ...props }) {
   const [teamId, setTeamId] = useState<number>(1);
   const [nickname, setNickname] = useState('');
+  const fontStyle = useFontStyle;
 
   const handleSubmit = async () => {
     const deviceId = await getUniqueId();
@@ -157,18 +159,13 @@ function Form({ ...props }) {
                 flexDirection: 'row',
               }}>
               <Text
-                style={{
-                  fontWeight: '700',
-                  fontSize: 18,
-                  ...Platform.select({
-                    android: {
-                      fontFamily: 'KBO Dia Gothic_bold',
-                    },
-                    ios: {
-                      fontFamily: 'KBO-Dia-Gothic-bold',
-                    },
-                  }),
-                }}>
+                style={fontStyle(
+                  {
+                    fontWeight: '700',
+                    fontSize: 18,
+                  },
+                  'bold',
+                )}>
                 닉네임 설정
               </Text>
               <TouchableOpacity
@@ -185,19 +182,13 @@ function Form({ ...props }) {
                   palette.greyColor.gray3,
                 )}
                 <Text
-                  style={{
-                    fontSize: 14,
-                    color: palette.greyColor.gray3,
-
-                    ...Platform.select({
-                      android: {
-                        fontFamily: 'KBO Dia Gothic_medium',
-                      },
-                      ios: {
-                        fontFamily: 'KBO-Dia-Gothic-medium',
-                      },
-                    }),
-                  }}>
+                  style={fontStyle(
+                    {
+                      fontSize: 14,
+                      color: palette.greyColor.gray3,
+                    },
+                    'bold',
+                  )}>
                   랜덤 닉네임 생성하기
                 </Text>
               </TouchableOpacity>
@@ -208,21 +199,16 @@ function Form({ ...props }) {
               onChangeText={value => {
                 setNickname(value);
               }}
-              style={{
-                width: width - 48,
-                height: 40,
-                backgroundColor: '#fff',
-                borderRadius: 4,
-                paddingHorizontal: 10,
-                ...Platform.select({
-                  android: {
-                    fontFamily: 'KBO Dia Gothic_medium',
-                  },
-                  ios: {
-                    fontFamily: 'KBO-Dia-Gothic-medium',
-                  },
-                }),
-              }}
+              style={fontStyle(
+                {
+                  width: width - 48,
+                  height: 40,
+                  backgroundColor: palette.greyColor.white,
+                  borderRadius: 4,
+                  paddingHorizontal: 10,
+                },
+                'medium',
+              )}
             />
           </View>
 
@@ -233,18 +219,13 @@ function Form({ ...props }) {
                 marginBottom: 8,
               }}>
               <Text
-                style={{
-                  fontWeight: '700',
-                  fontSize: 18,
-                  ...Platform.select({
-                    android: {
-                      fontFamily: 'KBO Dia Gothic_bold',
-                    },
-                    ios: {
-                      fontFamily: 'KBO-Dia-Gothic-bold',
-                    },
-                  }),
-                }}>
+                style={fontStyle(
+                  {
+                    fontWeight: '700',
+                    fontSize: 18,
+                  },
+                  'bold',
+                )}>
                 마이팀 설정
               </Text>
             </View>
