@@ -387,7 +387,11 @@ export function Detail({
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ alignItems: 'center' }}
+        contentContainerStyle={{
+          alignItems: 'center',
+          width,
+          justifyContent: 'center',
+        }}
       />
       <View
         style={{
