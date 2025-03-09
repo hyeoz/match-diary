@@ -66,8 +66,6 @@ function Write() {
     getTodayRecord();
   }, []);
 
-  console.log(records);
-
   const getTodayRecord = async () => {
     try {
       // 페이지 진입 시 오늘 날짜 데이터가 있는지 확인
@@ -259,8 +257,6 @@ function CarouselPhoto({
 }: CarouselPhotoProps) {
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
   const { stadiums } = useStadiumsState();
-
-  console.log({ records, carouselIndexState, record });
 
   return (
     <ViewShot

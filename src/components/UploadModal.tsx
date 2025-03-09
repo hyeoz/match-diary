@@ -241,7 +241,6 @@ export default function UploadModal({
     formData.append('stadiumId', stadium_id);
     formData.append('date', tempDate);
     formData.append('userNote', user_note);
-    formData.append('file', image);
     formData.append(
       'matchId',
       (tempRecord.match_id
@@ -265,20 +264,27 @@ export default function UploadModal({
 
     // 기록 수정
     if (isEdit && tempRecord.records_id) {
+      formData.append('recordsId', tempRecord.records_id);
+      if (typeof tempRecord.image === 'string') {
+        formData.append('imageUrl', tempRecord.image); // 수정인 경우 분기처리
+      } else {
+        formData.append('file', tempRecord.image); // 수정인 경우 분기처리
+      }
       try {
-        formData.append('recordsId', tempRecord.records_id);
         await API.patch('/record/update', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
       } catch (error) {
+        console.error(error);
         Toast.show({
           type: 'error',
           text1: SERVER_ERROR_MSG,
         });
       }
     } else {
+      formData.append('file', image);
       // 기록 생성
       try {
         await API.post('/create-record', formData, {
@@ -305,6 +311,8 @@ export default function UploadModal({
     setTempRecord(RESET_RECORD);
     setIsVisible(false);
   };
+
+  console.log('수정 시 records', records);
 
   const getTodayMatch = async () => {
     const res = await getMatchByDate(formattedToday);

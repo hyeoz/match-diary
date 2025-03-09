@@ -36,8 +36,6 @@ export default function SelectStadiumModal({
   const sortedInfo = stadiumInfo.sort((a, b) => a.distance - b.distance);
   const fontStyle = useFontStyle;
 
-  console.log(sortedInfo);
-
   useEffect(() => {
     if (selectStadiumId) {
       setCurrentStadiumId(selectStadiumId);

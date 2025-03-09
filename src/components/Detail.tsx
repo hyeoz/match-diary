@@ -60,8 +60,6 @@ export function Detail({
   const { stadiums } = useStadiumsState();
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
 
-  console.log({ records, carouselIndexState });
-
   useEffect(() => {
     getTodayMatch();
   }, []);
@@ -226,6 +224,7 @@ export function Detail({
           ? [
               polaroidStyles.wrapper,
               {
+                width: width * 0.55,
                 justifyContent: 'flex-start',
                 transform: [
                   {
