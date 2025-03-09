@@ -13,12 +13,13 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUniqueId } from 'react-native-device-info';
 
-import { useBottomTabState, useMyState, useTabHistory } from '@stores/default';
-import { MY_TEAM_KEY } from '@/utils/STATIC_DATA';
+import { useBottomTabState, useTabHistory } from '@stores/default';
 import { palette } from '@style/palette.ts';
 import { Home, Calendar, More, Send, Photos, Write } from '@assets/svg';
+import { useUserState } from '@/stores/user';
+import { API } from '@/api';
 
 const { width } = Dimensions.get('window');
 
@@ -26,7 +27,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
   const { state, navigation } = props;
   const { isOpen, update } = useBottomTabState();
   const { accumulate } = useTabHistory();
-  const { team, setTeam } = useMyState();
+  const { teamId, setTeamId } = useUserState();
   const homeHeight = useSharedValue(64);
   const homeDeg = useSharedValue(0);
   const currentTab = state.routes[state.index];
@@ -77,18 +78,19 @@ function BottomTab({ ...props }: BottomTabBarProps) {
     defaultColor?: string,
   ) => {
     if (currentTab.name === routeName) {
-      return palette.teamColor[team] ?? matchColor;
+      return palette.teamColor[teamId] ?? matchColor;
     } else {
       return defaultColor ?? '#333';
     }
   };
 
   const getMyTeam = async () => {
-    const _team = await AsyncStorage.getItem(MY_TEAM_KEY);
+    const deviceId = await getUniqueId();
+    if (!deviceId) return;
 
-    if (!_team) return;
-
-    setTeam(_team);
+    const res = await API.post('/user', { userId: deviceId });
+    if (res.data.teamId) return;
+    setTeamId(res.data.teamId);
   };
 
   const animatedHeightStyle = useAnimatedStyle(() => ({

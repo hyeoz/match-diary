@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Dimensions,
   FlatList,
-  Image,
   Platform,
-  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -20,15 +18,19 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
 import { useTabHistory } from '@stores/default';
 import Loading from '@components/Loading';
+import { getAllUserRecords } from '@/api/record';
+import { useFontStyle } from '@/style/hooks';
 
 const { width } = Dimensions.get('window');
 
 function History() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
-  const [allImages, setAllImages] = useState<ImageOrVideo[]>([]);
+
+  const [allImages, setAllImages] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const { history } = useTabHistory();
+  const fontStyle = useFontStyle;
 
   useEffect(() => {
     getAllItem();
@@ -36,26 +38,9 @@ function History() {
 
   const getAllItem = async () => {
     setLoading(true);
+    const res = await getAllUserRecords();
 
-    const _keys = (await AsyncStorage.getAllKeys()).filter(
-      (key: string) => key !== 'MY_TEAM' && key !== 'NICKNAME',
-    );
-    // if (allImages.length === _keys.length) {
-    //   setLoading(false);
-    //   return;
-    // }
-
-    const images: ImageOrVideo[] = [];
-
-    for (let i = 0; i < _keys.length; i++) {
-      const res = await AsyncStorage.getItem(_keys[i]);
-
-      if (!res) {
-        setLoading(false);
-        return;
-      }
-      images.push(JSON.parse(res).image);
-    }
+    const images = res.data.map(dt => dt.image).filter(data => data !== null);
 
     setLoading(false);
     setAllImages(images);
@@ -70,19 +55,14 @@ function History() {
           marginBottom: 24,
         }}>
         <Text
-          style={{
-            textAlign: 'center',
-            fontWeight: '700',
-            fontSize: 18,
-            ...Platform.select({
-              android: {
-                fontFamily: 'KBO Dia Gothic_bold',
-              },
-              ios: {
-                fontFamily: 'KBO-Dia-Gothic-bold',
-              },
-            }),
-          }}>
+          style={fontStyle(
+            {
+              textAlign: 'center',
+              fontWeight: '700',
+              fontSize: 18,
+            },
+            'bold',
+          )}>
           내 직관일기 모아보기
         </Text>
       </View>
@@ -96,10 +76,10 @@ function History() {
         ) : allImages.length ? (
           <FlatList
             data={allImages}
-            renderItem={item => {
+            renderItem={({ item }) => {
               return (
                 <FastImage
-                  source={{ uri: item.item.path }}
+                  source={{ uri: item }}
                   style={{
                     margin: 2,
                     width: (width - 16 - 8) / 3,
@@ -115,20 +95,15 @@ function History() {
         ) : (
           <View>
             <Text
-              style={{
-                textAlign: 'center',
-                color: palette.greyColor.gray8,
-                fontSize: 24,
-                marginTop: 32,
-                ...Platform.select({
-                  android: {
-                    fontFamily: 'KBO Dia Gothic_bold',
-                  },
-                  ios: {
-                    fontFamily: 'KBO-Dia-Gothic-bold',
-                  },
-                }),
-              }}>
+              style={fontStyle(
+                {
+                  textAlign: 'center',
+                  color: palette.greyColor.gray8,
+                  fontSize: 24,
+                  marginTop: 32,
+                },
+                'bold',
+              )}>
               저장된 직관 일기가 없어요.
             </Text>
             <View
@@ -146,19 +121,14 @@ function History() {
                 }}
                 onPress={() => navigation.navigate('Main')}>
                 <Text
-                  style={{
-                    color: '#fff',
-                    textAlign: 'center',
-                    fontSize: 24,
-                    ...Platform.select({
-                      android: {
-                        fontFamily: 'KBO Dia Gothic_bold',
-                      },
-                      ios: {
-                        fontFamily: 'KBO-Dia-Gothic-bold',
-                      },
-                    }),
-                  }}>
+                  style={fontStyle(
+                    {
+                      color: palette.greyColor.white,
+                      textAlign: 'center',
+                      fontSize: 24,
+                    },
+                    'bold',
+                  )}>
                   지금 기록하러 가기!
                 </Text>
               </TouchableOpacity>

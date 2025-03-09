@@ -27,28 +27,19 @@ export type DetailPropsType = {
   // setMemo: React.Dispatch<React.SetStateAction<string>>;
   // selectedStadium: string;
   // setSelectedStadium: React.Dispatch<React.SetStateAction<string>>;
-  // records: RecordType[];
-  // setRecords: Dispatch<SetStateAction<RecordType[]>>;
+  records: RecordType[];
+  setRecords: Dispatch<SetStateAction<RecordType[]>>;
   isEdit: boolean;
   setIsEdit: Dispatch<SetStateAction<boolean>>;
   setIsVisible: Dispatch<SetStateAction<boolean>>;
 };
 
-// 경기 일정 API 리스폰스 타입
-export type MatchDataType = {
-  id: number;
-  date: string; // 2025-03-22T00:00:00.000Z
-  time: string; // 14:00:00
-  home: number; // 홈팀 ID
-  away: number; // 원정 팀 ID
-  stadium: number; // 경기장 ID
-  home_score: number; // 홈 팀 점수
-  away_score: number; // 원정 팀 점수
-  memo: string | null;
-};
-
 // 더보기 페이지 타입
 export type DefaultListItemType = {
+  key: number;
+  label: string;
+};
+export type StringListItemType = {
   key: string;
   label: string;
 };
@@ -57,7 +48,7 @@ export type TeamListItemType = DefaultListItemType & {
   icon: React.JSX.Element;
 };
 
-export type MoreListItemType = DefaultListItemType & {
+export type MoreListItemType = StringListItemType & {
   onPressAction?: () => void;
 };
 
@@ -75,9 +66,21 @@ export type CommunityItemType = {
 export type CoordinateType = { lat: number; lon: number };
 
 export type RecordType = {
-  id: string;
+  records_id?: number;
+  user_id: string;
+  match_id?: number;
+  stadium_id?: number;
   date: string;
-  image: ImageOrVideo | null;
-  memo: string;
-  selectedStadium: string;
+  image: string | null;
+  user_note: string;
+};
+
+export type TempRecordImageType = { uri: string; type?: string; name: string };
+export type TempRecordType = {
+  records_id?: number;
+  user_id: string;
+  date: string;
+  image: TempRecordImageType | string | null;
+  user_note: string;
+  stadium_id?: number;
 };

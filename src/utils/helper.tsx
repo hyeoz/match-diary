@@ -71,7 +71,7 @@ const getDistanceFromLatLonToKm = (
 
 const getTeamArrayWithIcon = (iconSize?: number) => [
   {
-    key: 'SSG',
+    key: 1,
     label: 'SSG 랜더스',
     icon: renderIconSizeWithColor(
       Landers,
@@ -81,7 +81,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
   {
-    key: 'LG',
+    key: 2,
     label: 'LG 트윈스',
     icon: renderIconSizeWithColor(
       Twins,
@@ -91,7 +91,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
   {
-    key: 'KT',
+    key: 4,
     label: 'KT 위즈',
     icon: renderIconSizeWithColor(
       Wiz,
@@ -101,7 +101,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
   {
-    key: '한화',
+    key: 10,
     label: '한화 이글스',
     icon: renderIconSizeWithColor(
       Eagles,
@@ -111,7 +111,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
   {
-    key: '롯데',
+    key: 8,
     label: '롯데 자이언츠',
     icon: renderIconSizeWithColor(
       Seagull,
@@ -121,7 +121,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
   {
-    key: '키움',
+    key: 3,
     label: '키움 히어로즈',
     icon: renderIconSizeWithColor(
       Heros,
@@ -131,7 +131,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
   {
-    key: 'NC',
+    key: 6,
     label: 'NC 다이노스',
     icon: renderIconSizeWithColor(
       Dinos,
@@ -141,7 +141,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
   {
-    key: 'KIA',
+    key: 5,
     label: '기아 타이거즈',
     icon: renderIconSizeWithColor(
       Tigers,
@@ -151,7 +151,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
   {
-    key: '삼성',
+    key: 7,
     label: '삼성 라이온즈',
     icon: renderIconSizeWithColor(
       Lions,
@@ -161,7 +161,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
     ),
   },
   {
-    key: '두산',
+    key: 9,
     label: '두산 베어스',
     icon: renderIconSizeWithColor(
       Bears,
@@ -193,6 +193,7 @@ const getRandomNickname = () => {
 
 export {
   getRandomElement,
+  getRandomNickname,
   getTeamArrayWithIcon,
   renderIconSizeWithColor,
   hasAndroidPermission,

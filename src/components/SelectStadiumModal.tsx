@@ -4,6 +4,7 @@ import {
   FlatList,
   ListRenderItemInfo,
   Platform,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -11,32 +12,34 @@ import {
 
 import { palette } from '@/style/palette';
 import Loading from './Loading';
+import { useFontStyle } from '@/style/hooks';
 
 const { width, height } = Dimensions.get('window');
 
 export default function SelectStadiumModal({
   stadiumInfo,
   setIsVisible,
-  selectStadium,
-  setSelectedStadium,
+  selectStadiumId,
+  setSelectedStadiumId,
   isLoading,
   isCommunity = false,
 }: {
-  stadiumInfo: { name: string; distance: number }[];
+  stadiumInfo: { name: string; id?: number; distance: number }[];
   setIsVisible: (value: boolean) => void;
-  selectStadium?: string;
-  setSelectedStadium: (value: string) => void;
+  selectStadiumId?: number;
+  setSelectedStadiumId: (value: number) => void;
   isLoading: boolean;
   isCommunity?: boolean;
 }) {
-  const [select, setSelect] = useState('');
+  const [currentStadiumId, setCurrentStadiumId] = useState<number>();
   const sortedInfo = stadiumInfo.sort((a, b) => a.distance - b.distance);
+  const fontStyle = useFontStyle;
 
   useEffect(() => {
-    if (selectStadium) {
-      setSelect(selectStadium);
+    if (selectStadiumId) {
+      setCurrentStadiumId(selectStadiumId);
     } else if (sortedInfo[0]) {
-      setSelect(sortedInfo[0].name);
+      setCurrentStadiumId(sortedInfo[0].id);
     }
   }, [sortedInfo]);
 
@@ -45,42 +48,13 @@ export default function SelectStadiumModal({
       onPress={() => {
         setIsVisible(false);
       }}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: width,
-        height: height,
-        backgroundColor: '#00000077',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 3,
-      }}>
-      <View
-        style={{
-          backgroundColor: '#fff',
-          width: width - 48,
-
-          minHeight: 100,
-          display: true ? 'flex' : 'none',
-          borderWidth: 1,
-          borderRadius: 24,
-          padding: 16,
-          justifyContent: 'space-between',
-        }}>
+      style={styles.modalWrapper}>
+      <View style={styles.modalView}>
         <Text
-          style={{
+          style={fontStyle({
             fontSize: 16,
             marginBottom: 16,
-            ...Platform.select({
-              android: {
-                fontFamily: 'KBO Dia Gothic_bold',
-              },
-              ios: {
-                fontFamily: 'KBO-Dia-Gothic-bold',
-              },
-            }),
-          }}>
+          })}>
           경기장 선택
         </Text>
         {isLoading ? (
@@ -90,40 +64,30 @@ export default function SelectStadiumModal({
             <FlatList
               data={sortedInfo.map(info => ({
                 ...info,
-                isSelected: info.name === select,
+                isSelected: info.id === selectStadiumId,
                 isCommunity,
               }))}
               renderItem={item => (
-                <StadiumItem setSelect={value => setSelect(value)} {...item} />
+                <StadiumItem
+                  setSelect={value => setSelectedStadiumId(value)}
+                  {...item}
+                />
               )}
             />
 
             <TouchableOpacity
               onPress={() => {
-                setSelectedStadium(select);
-                setIsVisible(false);
+                if (currentStadiumId) {
+                  setSelectedStadiumId(currentStadiumId);
+                  setIsVisible(false);
+                }
               }}
-              style={{
-                width: '100%',
-                borderWidth: 2,
-                padding: 8,
-                marginTop: 16,
-                borderRadius: 99,
-                borderColor: palette.commonColor.green,
-              }}>
+              style={styles.modalSelectButton}>
               <Text
-                style={{
+                style={fontStyle({
                   textAlign: 'center',
                   color: palette.commonColor.green,
-                  ...Platform.select({
-                    android: {
-                      fontFamily: 'KBO Dia Gothic_bold',
-                    },
-                    ios: {
-                      fontFamily: 'KBO-Dia-Gothic-bold',
-                    },
-                  }),
-                }}>
+                })}>
                 선택하기
               </Text>
             </TouchableOpacity>
@@ -139,11 +103,13 @@ function StadiumItem({
   ...props
 }: ListRenderItemInfo<{
   name: string;
+  id?: number;
   distance: number;
   isSelected: boolean;
   isCommunity: boolean;
-}> & { setSelect: (value: string) => void }) {
-  const { name, distance, isSelected, isCommunity } = props.item;
+}> & { setSelect: (value: number) => void }) {
+  const { name, id, distance, isSelected, isCommunity } = props.item;
+  const fontStyle = useFontStyle;
 
   return (
     <TouchableOpacity
@@ -152,7 +118,11 @@ function StadiumItem({
         justifyContent: 'space-between',
         paddingVertical: 8,
       }}
-      onPress={() => setSelect(name)}>
+      onPress={() => {
+        if (id) {
+          setSelect(id);
+        }
+      }}>
       <View
         style={{
           flexDirection: 'row',
@@ -160,57 +130,62 @@ function StadiumItem({
         }}>
         {!isSelected ? (
           <View
-            style={{
-              width: 16,
-              height: 16,
-              borderWidth: 1,
-              borderRadius: 99,
-              marginRight: 8,
-              borderColor: '#666',
-            }}
+            style={[
+              styles.itemTextWrapper,
+              {
+                borderWidth: 1,
+              },
+            ]}
           />
         ) : (
-          <View
-            style={{
-              width: 16,
-              height: 16,
-              borderRadius: 99,
-              marginRight: 8,
-              backgroundColor: palette.commonColor.green,
-            }}
-          />
+          <View style={styles.itemTextWrapper} />
         )}
-        <Text
-          style={{
-            fontSize: 16,
-            ...Platform.select({
-              android: {
-                fontFamily: 'KBO Dia Gothic_medium',
-              },
-              ios: {
-                fontFamily: 'KBO-Dia-Gothic-medium',
-              },
-            }),
-          }}>
-          {name}
-        </Text>
+        <Text style={fontStyle({ fontSize: 16 })}>{name}</Text>
       </View>
       {!isCommunity && (
-        <Text
-          style={{
-            color: '#bbb',
-            ...Platform.select({
-              android: {
-                fontFamily: 'KBO Dia Gothic_medium',
-              },
-              ios: {
-                fontFamily: 'KBO-Dia-Gothic-medium',
-              },
-            }),
-          }}>
+        <Text style={fontStyle({ color: '#bbb' })}>
           {distance.toFixed(1)}km
         </Text>
       )}
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  modalWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: width,
+    height: height,
+    backgroundColor: '#00000077',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 3,
+  },
+  modalView: {
+    backgroundColor: '#fff',
+    width: width - 48,
+    minHeight: 100,
+    display: true ? 'flex' : 'none',
+    borderWidth: 1,
+    borderRadius: 24,
+    padding: 16,
+    justifyContent: 'space-between',
+  },
+  modalSelectButton: {
+    width: '100%',
+    borderWidth: 2,
+    padding: 8,
+    marginTop: 16,
+    borderRadius: 99,
+    borderColor: palette.commonColor.green,
+  },
+  itemTextWrapper: {
+    width: 16,
+    height: 16,
+    borderRadius: 99,
+    marginRight: 8,
+    backgroundColor: palette.commonColor.green,
+  },
+});
