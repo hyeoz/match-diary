@@ -67,6 +67,8 @@ const RESET_RECORD = {
 
 const SERVER_ERROR_MSG = '오류가 발생했어요! 잠시 후 다시 시도해주세요.';
 
+const NO_MATCH_STADIUM_KEY = 13;
+
 export {
   DATE_FORMAT,
   DATE_FORMAT_SLASH,
@@ -83,4 +85,5 @@ export {
   EMAIL_LINK,
   RESET_RECORD,
   SERVER_ERROR_MSG,
+  NO_MATCH_STADIUM_KEY,
 };

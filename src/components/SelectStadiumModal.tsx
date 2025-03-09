@@ -13,6 +13,7 @@ import {
 import { palette } from '@/style/palette';
 import Loading from './Loading';
 import { useFontStyle } from '@/style/hooks';
+import { NO_MATCH_STADIUM_KEY } from '@/utils/STATIC_DATA';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,7 +25,7 @@ export default function SelectStadiumModal({
   isLoading,
   isCommunity = false,
 }: {
-  stadiumInfo: { name: string; id?: number; distance: number }[];
+  stadiumInfo: { name: string; id: number; distance: number }[];
   setIsVisible: (value: boolean) => void;
   selectStadiumId?: number;
   setSelectedStadiumId: (value: number) => void;
@@ -34,6 +35,8 @@ export default function SelectStadiumModal({
   const [currentStadiumId, setCurrentStadiumId] = useState<number>();
   const sortedInfo = stadiumInfo.sort((a, b) => a.distance - b.distance);
   const fontStyle = useFontStyle;
+
+  console.log(sortedInfo);
 
   useEffect(() => {
     if (selectStadiumId) {
@@ -79,8 +82,10 @@ export default function SelectStadiumModal({
               onPress={() => {
                 if (currentStadiumId) {
                   setSelectedStadiumId(currentStadiumId);
-                  setIsVisible(false);
+                } else {
+                  setSelectedStadiumId(NO_MATCH_STADIUM_KEY);
                 }
+                setIsVisible(false);
               }}
               style={styles.modalSelectButton}>
               <Text
@@ -103,7 +108,7 @@ function StadiumItem({
   ...props
 }: ListRenderItemInfo<{
   name: string;
-  id?: number;
+  id: number;
   distance: number;
   isSelected: boolean;
   isCommunity: boolean;
