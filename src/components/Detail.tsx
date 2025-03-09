@@ -20,14 +20,12 @@ import FastImage from 'react-native-fast-image';
 
 import { DetailPropsType } from '@/type/default';
 import { useCarouselIndexState } from '@stores/default';
-import { getStadiumName, hasAndroidPermission } from '@utils/helper';
 import {
-  DATE_FORMAT,
-  IMAGE_HEIGHT,
-  IMAGE_WIDTH,
-  RESET_RECORD,
-  STADIUM_LONG_TO_NICK,
-} from '@utils/STATIC_DATA';
+  changeStadiumLongNameToNickname,
+  getStadiumName,
+  hasAndroidPermission,
+} from '@utils/helper';
+import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
 import { palette } from '@/style/palette';
 import { useUserState } from '@/stores/user';
@@ -61,6 +59,8 @@ export function Detail({
   const { teamId, uniqueId } = useUserState();
   const { stadiums } = useStadiumsState();
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
+
+  console.log({ records, carouselIndexState });
 
   useEffect(() => {
     getTodayMatch();
@@ -285,7 +285,7 @@ export function Detail({
                     ]}
                   />
                   <FastImage
-                    source={{ uri: item.image || '' }}
+                    source={{ uri: (item.image as string) || '' }}
                     style={{
                       width: isCalendar ? width * 0.6 - 28 : width * 0.7 - 16,
                       height: isCalendar
@@ -356,12 +356,10 @@ export function Detail({
                       </>
                     )}
                     {' @'}
-                    {
-                      STADIUM_LONG_TO_NICK[
-                        stadiums.find(sta => sta.stadium_id === item.stadium_id)
-                          ?.stadium_name || ''
-                      ]
-                    }
+                    {changeStadiumLongNameToNickname(
+                      stadiums.find(sta => sta.stadium_id === item.stadium_id)
+                        ?.stadium_name,
+                    )}
                   </Text>
                 </View>
                 <View
@@ -534,6 +532,8 @@ const polaroidStyles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     justifyContent: 'flex-end',
+    position: 'absolute',
+    top: '80%',
   },
   shareButton: {
     borderWidth: 1,

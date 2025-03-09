@@ -267,7 +267,11 @@ export default function UploadModal({
     if (isEdit && tempRecord.records_id) {
       try {
         formData.append('recordsId', tempRecord.records_id);
-        await API.patch('/record/update', formData);
+        await API.patch('/record/update', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
       } catch (error) {
         Toast.show({
           type: 'error',

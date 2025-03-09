@@ -16,7 +16,6 @@ import {
   Wiz,
 } from '@assets/svg';
 import { CoordinateType } from '@/type/default';
-import { STADIUM_LONG_TO_NICK } from './STATIC_DATA';
 import { NICKNAME_ADJECTIVE, NICKNAME_NOUN } from './NICKNAME_STATIC_DATA';
 
 const hasAndroidPermission = async () => {
@@ -182,13 +181,45 @@ const getStadiumName = (selectedStadium: string) => {
   const stadium = selectedStadium.includes('DH')
     ? selectedStadium.split(' - DH')[0]
     : selectedStadium;
-  return STADIUM_LONG_TO_NICK[stadium] ?? '경기가 없어요!';
+  return changeStadiumLongNameToNickname(stadium);
 };
 
 const getRandomNickname = () => {
   const randomAdj = getRandomElement(NICKNAME_ADJECTIVE);
   const randomNoun = getRandomElement(NICKNAME_NOUN);
   return `${randomAdj} ${randomNoun}`;
+};
+
+const changeStadiumLongNameToNickname = (name?: string) => {
+  switch (name) {
+    case '잠실야구장':
+      return '잠실야구장';
+    case '인천SSG랜더스필드':
+      return '랜더스필스';
+    case '수원KT위즈파크':
+      return '위즈파크';
+    case '대전한화생명볼파크':
+      return '이글스파크';
+    case '대구삼성라이온즈파크':
+      return '라이온즈파크';
+    case '사직야구장':
+      return '사직야구장';
+    case '광주기아챔피언스필드':
+      return '챔피언스필드';
+    case '창원NC파크':
+      return 'NC파크';
+    case '고척스카이돔':
+      return '고척스카이돔';
+    // 제2구장추가
+    case '포항야구장':
+      return '포항야구장';
+    case '울산문수야구장':
+      return '문수야구장';
+    case '청주종합운동장야구장':
+      return '청주야구장';
+    default:
+      return '경기가 없어요!';
+  }
 };
 
 export {
@@ -200,4 +231,5 @@ export {
   getDistanceFromLatLonToKm,
   filterDuplicatedArray,
   getStadiumName,
+  changeStadiumLongNameToNickname,
 };
