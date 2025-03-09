@@ -19,11 +19,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import uuid from 'react-native-uuid';
 import ViewShot from 'react-native-view-shot';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
@@ -36,14 +34,13 @@ import {
   DATE_FORMAT,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
-  RESET_RECORD,
   STADIUM_LONG_TO_NICK,
 } from '@utils/STATIC_DATA';
 import { useCarouselIndexState, useTabHistory } from '@/stores/default';
-import { RecordType } from '@/type/default';
-import { Add, Change } from '@assets/svg';
+import { RecordType } from '@/type/record';
+import { Add } from '@assets/svg';
 import { palette } from '@/style/palette';
-import { getStadiumName, hasAndroidPermission } from '@/utils/helper';
+import { hasAndroidPermission } from '@/utils/helper';
 import { API } from '@/api';
 import { useUserState } from '@/stores/user';
 import { useStadiumsState } from '@/stores/teams';

@@ -1,6 +1,6 @@
 import { API } from '.';
 import { useUserState } from '@/stores/user';
-import { RecordType } from '@/type/default';
+import { RecordType } from '@/type/record';
 
 const uniqueId = useUserState.getState();
 

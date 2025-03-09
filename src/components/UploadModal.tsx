@@ -28,14 +28,8 @@ dayjs.locale('ko');
 
 import SelectStadiumModal from './SelectStadiumModal';
 import Loading from './Loading';
-import { API } from '@/api';
-import {
-  CoordinateType,
-  DetailPropsType,
-  RecordType,
-  TempRecordImageType,
-  TempRecordType,
-} from '@/type/default';
+import { CoordinateType, DetailPropsType } from '@/type/default';
+import { RecordType, TempRecordImageType, TempRecordType } from '@/type/record';
 import {
   API_DATE_FORMAT,
   DATE_FORMAT,
@@ -44,17 +38,12 @@ import {
   IMAGE_WIDTH,
   RESET_RECORD,
 } from '@utils/STATIC_DATA';
-import {
-  filterDuplicatedArray,
-  getDistanceFromLatLonToKm,
-  hasAndroidPermission,
-} from '@utils/helper';
+import { getDistanceFromLatLonToKm, hasAndroidPermission } from '@utils/helper';
 import { Add, Arrow } from '@assets/svg';
 import { palette } from '@style/palette';
 import { modalStyles } from '@/style/modal';
 import { useUserState } from '@/stores/user';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
-import { MatchDataType } from '@/type/match';
 import { useCarouselIndexState } from '@/stores/default';
 import { getMatchByDate } from '@/api/match';
 

@@ -43,12 +43,13 @@ import contact_cat from '@assets/contact_cat_img.webp';
 import { API } from '@/api';
 import { getAllUserRecords } from '@/api/record';
 import { useFontStyle } from '@/style/hooks';
+import { UserType } from '@/type/user';
 
 const { width, height } = Dimensions.get('window');
 const images = [help1_animated, help2_animated, help3_animated];
 
 function More() {
-  const { teamId, setTeamId, userName, setUserName } = useUserState();
+  const { teamId, setTeamId, userName, setUserName, uniqueId } = useUserState();
   const fontStyle = useFontStyle;
 
   const [teamModalVisible, setTeamModalVisible] = useState(false);
@@ -157,10 +158,22 @@ function More() {
         topOffset: 64,
       });
     } else {
-      const deviceId = await getUniqueId();
       try {
+        // 닉네임 중복확인
+        const allUsers = await API.get<UserType[]>('/users');
+        if (
+          allUsers.data.findIndex(user => user.nickname === currentNickname) !==
+          -1
+        ) {
+          Toast.show({
+            text1: '중복 닉네임이에요! 다른 닉네임을 사용해주세요.',
+            type: 'error',
+            topOffset: 80,
+          });
+          return;
+        }
         await API.patch('/user/update', {
-          userId: deviceId,
+          userId: uniqueId,
           nickname: currentNickname,
           teamId: selectedTeam,
         });
@@ -281,7 +294,7 @@ function More() {
               </View>
               <TextInput
                 value={currentNickname}
-                maxLength={8}
+                maxLength={12}
                 onChangeText={value => {
                   setCurrentNickname(value);
                 }}

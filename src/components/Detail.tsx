@@ -18,7 +18,7 @@ import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 import FastImage from 'react-native-fast-image';
 
-import { DetailPropsType, RecordType } from '@/type/default';
+import { DetailPropsType } from '@/type/default';
 import { useCarouselIndexState } from '@stores/default';
 import { getStadiumName, hasAndroidPermission } from '@utils/helper';
 import {
