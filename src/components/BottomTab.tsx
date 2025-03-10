@@ -89,8 +89,9 @@ function BottomTab({ ...props }: BottomTabBarProps) {
     if (!deviceId) return;
 
     const res = await API.post('/user', { userId: deviceId });
-    if (res.data.teamId) return;
-    setTeamId(res.data.teamId);
+
+    if (res.data[0].team_id) return;
+    setTeamId(res.data[0].team_id);
   };
 
   const animatedHeightStyle = useAnimatedStyle(() => ({

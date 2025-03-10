@@ -22,7 +22,6 @@ import { DetailPropsType } from '@/type/default';
 import { useCarouselIndexState } from '@stores/default';
 import {
   changeStadiumLongNameToNickname,
-  getStadiumName,
   hasAndroidPermission,
 } from '@utils/helper';
 import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
@@ -224,7 +223,7 @@ export function Detail({
           ? [
               polaroidStyles.wrapper,
               {
-                width: width * 0.55,
+                width: width * 0.6,
                 justifyContent: 'flex-start',
                 transform: [
                   {
@@ -244,7 +243,8 @@ export function Detail({
               fileName: `${item.date}_직관일기`,
               format: 'jpg',
               quality: 1,
-            }}>
+            }}
+            key={item.records_id}>
             <View
               style={
                 isCalendar
@@ -252,7 +252,7 @@ export function Detail({
                       polaroidStyles.photoWrapper,
                       {
                         width: width * 0.6 - 12,
-                        height: height * 0.35,
+                        height: 300,
                         marginRight: 16,
                         marginTop: -56,
                       },
@@ -388,7 +388,6 @@ export function Detail({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           alignItems: 'center',
-          width,
           justifyContent: 'center',
         }}
       />
@@ -407,7 +406,7 @@ export function Detail({
                 height: 8,
                 borderRadius: 100,
                 backgroundColor:
-                  record.date === records[carouselIndexState].date
+                  record.records_id === records[carouselIndexState].records_id
                     ? palette.teamColor[teamId]
                     : palette.greyColor.gray9,
               }}
@@ -425,7 +424,7 @@ export function Detail({
                   justifyContent: 'flex-start',
                   width: '90%',
                   position: 'absolute',
-                  bottom: 48,
+                  bottom: 54,
                 },
               ]
             : polaroidStyles.buttonWrapper

@@ -211,6 +211,8 @@ function Calendar() {
     });
 
     allUserRecords.data.forEach(async record => {
+      if (!record.match_id) return;
+
       const matchInfo = await getMatchById(record.match_id);
       const data = matchInfo?.data as MatchDataType;
 

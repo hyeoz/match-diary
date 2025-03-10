@@ -855,7 +855,7 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: 'rgba(195,195,195,0.5)',
     borderRadius: 40,
-    shadowColor: '#222',
+    shadowColor: palette.greyColor.gray8,
     shadowOffset: {
       width: 2,
       height: 2,
@@ -870,7 +870,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: palette.greyColor.white,
     opacity: 1,
-    shadowColor: '#000',
+    shadowColor: palette.greyColor.gray9,
     shadowOffset: {
       width: 0,
       height: 0,

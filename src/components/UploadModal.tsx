@@ -81,7 +81,7 @@ export default function UploadModal({
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cropperLoading, setCropperLoading] = useState(false);
-  const [tempRecord, setTempRecord] = useState<RecordType>(RESET_RECORD);
+  const [tempRecord, setTempRecord] = useState<RecordType | null>(RESET_RECORD);
   const [matches, setMatches] = useState<MatchDataType[]>([]);
 
   const { uniqueId } = useUserState();
@@ -143,14 +143,16 @@ export default function UploadModal({
         return;
       }
       try {
-        setTempRecord({
-          ...tempRecord,
-          image: {
-            uri: item[0].uri,
-            type: item[0].type,
-            name: item[0].fileName || 'image.jpg', // 파일 이름을 기본 값으로 설정
-          },
-        });
+        if (tempRecord) {
+          setTempRecord({
+            ...tempRecord,
+            image: {
+              uri: item[0].uri,
+              type: item[0].type,
+              name: item[0].fileName || 'image.jpg', // 파일 이름을 기본 값으로 설정
+            },
+          });
+        }
       } catch (error) {
         console.error(error);
         Toast.show({
@@ -175,14 +177,16 @@ export default function UploadModal({
       try {
         await RNFS.copyFile(item[0].uri, destinationPath);
 
-        setTempRecord({
-          ...tempRecord,
-          image: {
-            uri: destinationPath,
-            type: item[0].type,
-            name: item[0].fileName || 'image.jpg', // 파일 이름을 기본 값으로 설정
-          },
-        });
+        if (tempRecord) {
+          setTempRecord({
+            ...tempRecord,
+            image: {
+              uri: destinationPath,
+              type: item[0].type,
+              name: item[0].fileName || 'image.jpg', // 파일 이름을 기본 값으로 설정
+            },
+          });
+        }
       } catch (error) {
         console.error(error);
         Toast.show({
@@ -227,6 +231,8 @@ export default function UploadModal({
   };
 
   const onSave = async () => {
+    if (!tempRecord) return;
+
     const {
       user_id,
       image,
@@ -243,8 +249,8 @@ export default function UploadModal({
     formData.append('userNote', user_note);
     formData.append(
       'matchId',
-      (tempRecord.match_id
-        ? tempRecord.match_id
+      (tempRecord?.match_id
+        ? tempRecord?.match_id
         : matches.find(mat => mat.stadium === stadium_id)?.id) || null,
     );
 
@@ -263,12 +269,12 @@ export default function UploadModal({
     }
 
     // 기록 수정
-    if (isEdit && tempRecord.records_id) {
-      formData.append('recordsId', tempRecord.records_id);
-      if (typeof tempRecord.image === 'string') {
-        formData.append('imageUrl', tempRecord.image); // 수정인 경우 분기처리
+    if (isEdit && tempRecord?.records_id) {
+      formData.append('recordsId', tempRecord?.records_id);
+      if (typeof tempRecord?.image === 'string') {
+        formData.append('imageUrl', tempRecord?.image); // 수정인 경우 분기처리
       } else {
-        formData.append('file', tempRecord.image); // 수정인 경우 분기처리
+        formData.append('file', tempRecord?.image); // 수정인 경우 분기처리
       }
       try {
         await API.patch('/record/update', formData, {
@@ -311,8 +317,6 @@ export default function UploadModal({
     setTempRecord(RESET_RECORD);
     setIsVisible(false);
   };
-
-  console.log('수정 시 records', records);
 
   const getTodayMatch = async () => {
     const res = await getMatchByDate(formattedToday);
@@ -459,15 +463,15 @@ export default function UploadModal({
                   }}>
                   <Loading />
                 </View>
-              ) : tempRecord.image ? (
+              ) : tempRecord?.image ? (
                 <TouchableOpacity onPress={onPressOpenGallery}>
                   <View>
                     <FastImage
                       source={{
                         uri:
-                          typeof tempRecord.image === 'string'
-                            ? tempRecord.image
-                            : (tempRecord.image as TempRecordImageType).uri,
+                          typeof tempRecord?.image === 'string'
+                            ? tempRecord?.image
+                            : (tempRecord?.image as TempRecordImageType).uri,
                       }}
                       style={{
                         width: width - 48,
@@ -518,16 +522,16 @@ export default function UploadModal({
                 <Text
                   style={{
                     fontFamily: 'UhBee Seulvely',
-                    color: tempRecord.stadium_id
+                    color: tempRecord?.stadium_id
                       ? palette.greyColor.gray2
                       : palette.greyColor.gray8,
                   }}>
                   {' @'}
-                  {tempRecord.stadium_id
-                    ? tempRecord.stadium_id === NO_MATCH_STADIUM_KEY
+                  {tempRecord?.stadium_id
+                    ? tempRecord?.stadium_id === NO_MATCH_STADIUM_KEY
                       ? '경기가 없어요!'
                       : stadiums.find(
-                          sta => sta.stadium_id === tempRecord.stadium_id,
+                          sta => sta.stadium_id === tempRecord?.stadium_id,
                         )?.stadium_name
                     : '경기장을 선택해주세요'}
                 </Text>
@@ -554,11 +558,11 @@ export default function UploadModal({
               <TextInput
                 multiline
                 maxLength={200}
-                value={tempRecord.user_note}
+                value={tempRecord?.user_note}
                 onChangeText={value => {
                   if ((value.match(/\n/g) ?? '').length > 5) {
                     Alert.alert('줄바꿈은 최대 8줄만 가능해요!');
-                  } else {
+                  } else if (tempRecord) {
                     setTempRecord({
                       ...tempRecord,
                       user_note: value,
@@ -578,7 +582,7 @@ export default function UploadModal({
                   marginTop: 4,
                   fontSize: 12,
                 })}>
-                {tempRecord.user_note.length} / 200
+                {tempRecord?.user_note.length} / 200
               </Text>
               {isKeyboardShow && (
                 <TouchableOpacity
@@ -652,10 +656,12 @@ export default function UploadModal({
         <SelectStadiumModal
           stadiumInfo={stadiumInfo}
           setIsVisible={value => setStadiumSelectVisible(value)}
-          selectStadiumId={tempRecord.stadium_id}
-          setSelectedStadiumId={value =>
-            setTempRecord({ ...tempRecord, stadium_id: value })
-          }
+          selectStadiumId={tempRecord?.stadium_id}
+          setSelectedStadiumId={value => {
+            if (tempRecord) {
+              setTempRecord({ ...tempRecord, stadium_id: value });
+            }
+          }}
           isLoading={loading}
         />
       )}

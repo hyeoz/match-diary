@@ -1,4 +1,4 @@
-const teamColor: { [key: string]: string } = {
+const teamColor: { [key: number]: string } = {
   1: '#BF282C',
   2: '#b32653',
   3: '#781527',
