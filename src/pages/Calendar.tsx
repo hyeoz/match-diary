@@ -175,6 +175,21 @@ function Calendar() {
     [onDayPress, selectedDate, weeksCount],
   );
 
+  const headerComponent = useCallback((date: string) => {
+    setWeeksCount(0);
+
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 8,
+        }}>
+        <Text style={styles.headerText}>{dayjs(date).format('YYYY')}년</Text>
+        <Text style={styles.headerText}>{dayjs(date).format('M')}월</Text>
+      </View>
+    );
+  }, []);
+
   const getMatchData = async () => {
     setLoading(true);
 
@@ -265,24 +280,7 @@ function Calendar() {
           }}
           markedDates={markedDates}
           firstDay={1}
-          renderHeader={(date: string) => {
-            setWeeksCount(0);
-
-            return (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  gap: 8,
-                }}>
-                <Text style={styles.headerText}>
-                  {dayjs(date).format('YYYY')}년
-                </Text>
-                <Text style={styles.headerText}>
-                  {dayjs(date).format('M')}월
-                </Text>
-              </View>
-            );
-          }}
+          renderHeader={headerComponent}
           dayComponent={dayComponent}
         />
       </View>
