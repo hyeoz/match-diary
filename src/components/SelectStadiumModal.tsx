@@ -13,9 +13,14 @@ import {
 import { palette } from '@/style/palette';
 import Loading from './Loading';
 import { useFontStyle } from '@/style/hooks';
-import { NO_MATCH_STADIUM_KEY } from '@/utils/STATIC_DATA';
+import { DATE_FORMAT, NO_MATCH_STADIUM_KEY } from '@/utils/STATIC_DATA';
+import { MatchDataType } from '@/type/match';
+import { getMatchByDate } from '@/api/match';
+import dayjs from 'dayjs';
 
 const { width, height } = Dimensions.get('window');
+
+type StadiumModalInfoType = { name: string; id: number; distance: number };
 
 export default function SelectStadiumModal({
   stadiumInfo,
@@ -25,16 +30,22 @@ export default function SelectStadiumModal({
   isLoading,
   isCommunity = false,
 }: {
-  stadiumInfo: { name: string; id: number; distance: number }[];
+  stadiumInfo: StadiumModalInfoType[];
   setIsVisible: (value: boolean) => void;
   selectStadiumId?: number;
   setSelectedStadiumId: (value: number) => void;
   isLoading: boolean;
   isCommunity?: boolean;
 }) {
+  const [todayStadiums, setTodayStadiums] = useState<number[]>([]);
   const [currentStadiumId, setCurrentStadiumId] = useState<number>();
-  const sortedInfo = stadiumInfo.sort((a, b) => a.distance - b.distance);
+  const [sortedInfo, setSortedInfo] = useState<StadiumModalInfoType[]>([]);
+
   const fontStyle = useFontStyle;
+
+  useEffect(() => {
+    getTodayStadiums();
+  }, []);
 
   useEffect(() => {
     if (selectStadiumId) {
@@ -43,6 +54,23 @@ export default function SelectStadiumModal({
       setCurrentStadiumId(sortedInfo[0].id);
     }
   }, [sortedInfo]);
+
+  useEffect(() => {
+    setSortedInfo(
+      stadiumInfo
+        .filter(sta => todayStadiums.includes(sta.id))
+        .sort((a, b) => a.distance - b.distance),
+    );
+  }, [todayStadiums]);
+
+  const getTodayStadiums = async () => {
+    const res = await getMatchByDate(dayjs().format(DATE_FORMAT));
+    if (res.data.length) {
+      setTodayStadiums(res.data.map(dt => dt.stadium));
+    } else {
+      setTodayStadiums([NO_MATCH_STADIUM_KEY]);
+    }
+  };
 
   return (
     <TouchableOpacity
@@ -141,7 +169,14 @@ function StadiumItem({
             ]}
           />
         ) : (
-          <View style={styles.itemTextWrapper} />
+          <View
+            style={[
+              styles.itemTextWrapper,
+              {
+                backgroundColor: palette.commonColor.green,
+              },
+            ]}
+          />
         )}
         <Text style={fontStyle({ fontSize: 16 })}>{name}</Text>
       </View>
@@ -189,6 +224,5 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 99,
     marginRight: 8,
-    backgroundColor: palette.commonColor.green,
   },
 });

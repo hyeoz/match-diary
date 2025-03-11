@@ -3,7 +3,6 @@ import {
   FlatList,
   ListRenderItemInfo,
   Modal,
-  Platform,
   RefreshControl,
   Text,
   TextInput,
@@ -11,27 +10,27 @@ import {
   View,
 } from 'react-native';
 import dayjs from 'dayjs';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 
+import { API } from '@/api';
 import TouchableWrapper from '@components/TouchableWrapper';
 import SelectStadiumModal from '@/components/SelectStadiumModal';
 import Loading from '@/components/Loading';
-import { API, StrapiDataType, StrapiType } from '@/api';
-import { CommunityItemType } from '@/type/default';
 import { getTeamArrayWithIcon } from '@/utils/helper';
-import { DATE_FORMAT, STADIUM_SHORT_TO_LONG } from '@/utils/STATIC_DATA';
-import { useMyState } from '@/stores/default';
-import { palette } from '@/style/palette';
+import { DATE_FORMAT } from '@/utils/STATIC_DATA';
+import { useUserState } from '@/stores/user';
+import { useStadiumsState } from '@/stores/teams';
+import { CommunityLogType } from '@/type/community';
+import { UserType } from '@/type/user';
 import { modalStyles } from '@/style/modal';
+import { palette } from '@/style/palette';
+import { useFontStyle } from '@/style/hooks';
 import { Arrow } from '@assets/svg';
 
 function Community() {
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
-  const [selectedStadium, setSelectedStadium] = useState('');
-  const [allItems, setAllItems] = useState<StrapiDataType<CommunityItemType>[]>(
-    [],
-  );
+  const [selectedStadium, setSelectedStadium] = useState<number>();
+  const [allItems, setAllItems] = useState<CommunityLogType[]>([]);
   const [page, setPage] = useState(1);
   const [isReached, setIsReached] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
@@ -39,7 +38,9 @@ function Community() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { team } = useMyState();
+  const { teamId, userName, uniqueId } = useUserState();
+  const { stadiums } = useStadiumsState();
+  const fontStyle = useFontStyle;
 
   useEffect(() => {
     setPage(1);
@@ -56,27 +57,21 @@ function Community() {
     ) => {
       setLoading(true);
 
-      if (reached) {
+      if (reached || !stadium) {
         setLoading(false);
         return;
       }
 
-      const _stadium = Object.keys(STADIUM_SHORT_TO_LONG).find(
-        sta => STADIUM_SHORT_TO_LONG[sta] === stadium,
-      );
-
       try {
-        const res = await API.get<StrapiType<CommunityItemType>>(
-          `/communities?filters[stadium]=${_stadium}&pagination[page]=${pageToLoad}&pagination[pageSize]=10&sort[createdAt]=desc`,
-        );
+        const res = await API.get(`/community-log?stadiumId=${stadium}`);
 
-        if (!res.data.data.length) {
+        if (!res.data) {
           setIsReached(true);
         } else if (pageToLoad === 1) {
-          setAllItems([...res.data.data]);
+          setAllItems(res.data);
           setPage(prev => prev + 1);
         } else {
-          const tempData = [...allItems, ...res.data.data];
+          const tempData = [...allItems, ...res.data];
           setAllItems(
             tempData.filter(
               (item, index) =>
@@ -106,22 +101,13 @@ function Community() {
       return;
     }
 
-    const _nick = await AsyncStorage.getItem('NICKNAME');
-
     try {
-      await API.post(
-        '/communities',
-        JSON.stringify({
-          data: {
-            nickname: _nick,
-            team,
-            content: memo,
-            stadium: Object.keys(STADIUM_SHORT_TO_LONG).find(
-              sta => STADIUM_SHORT_TO_LONG[sta] === selectedStadium,
-            ),
-          },
-        }),
-      );
+      await API.post('/community-log', {
+        userId: uniqueId,
+        stadiumId: selectedStadium,
+        date: dayjs().format(DATE_FORMAT),
+        userPost: memo,
+      });
 
       setMemo('');
       setContentVisible(false);
@@ -157,22 +143,17 @@ function Community() {
             alignItems: 'center',
           }}>
           <Text
-            style={{
-              fontWeight: '700',
-              fontSize: 18,
-              ...Platform.select({
-                android: {
-                  fontFamily: 'KBO Dia Gothic_bold',
-                },
-                ios: {
-                  fontFamily: 'KBO-Dia-Gothic-bold',
-                },
-              }),
-            }}>
+            style={fontStyle(
+              {
+                fontWeight: '700',
+                fontSize: 18,
+              },
+              'bold',
+            )}>
             커뮤니티
           </Text>
 
-          {selectedStadium.length ? (
+          {selectedStadium ? (
             <TouchableOpacity
               style={{
                 backgroundColor: palette.commonColor.greenBg,
@@ -180,25 +161,14 @@ function Community() {
                 borderRadius: 8,
               }}
               onPress={() => {
-                if (!selectedStadium.length) {
-                  return;
-                }
                 setContentVisible(true);
               }}>
               <Text
-                style={{
+                style={fontStyle({
                   fontWeight: '600',
                   fontSize: 16,
                   color: 'white',
-                  ...Platform.select({
-                    android: {
-                      fontFamily: 'KBO Dia Gothic_medium',
-                    },
-                    ios: {
-                      fontFamily: 'KBO-Dia-Gothic-medium',
-                    },
-                  }),
-                }}>
+                })}>
                 글 올리기
               </Text>
             </TouchableOpacity>
@@ -221,23 +191,28 @@ function Community() {
           <Text
             style={{
               fontFamily: 'UhBee Seulvely',
-              color: selectedStadium.length ? '#222' : '#888',
+              color: selectedStadium
+                ? palette.greyColor.gray2
+                : palette.greyColor.gray8,
             }}>
             {' @'}
-            {selectedStadium.length ? selectedStadium : '경기장을 선택해주세요'}
+            {selectedStadium
+              ? stadiums.find(sta => sta.stadium_id === selectedStadium)
+                  ?.stadium_name
+              : '경기장을 선택해주세요'}
           </Text>
-          <Arrow width={16} height={16} color={'#666'} />
+          <Arrow width={16} height={16} color={palette.greyColor.gray6} />
         </TouchableOpacity>
 
         {loading && allItems.length === 0 ? (
           <Loading />
-        ) : selectedStadium.length ? (
+        ) : selectedStadium ? (
           allItems.length ? (
             <FlatList
               showsVerticalScrollIndicator={false}
               data={allItems}
               renderItem={item => <CommunityItems {...item} />}
-              keyExtractor={item => item.id.toString()}
+              keyExtractor={item => item.log_id.toString()}
               onEndReached={() => {
                 if (isReached) return;
                 getCommunityAllItems();
@@ -252,39 +227,29 @@ function Community() {
             />
           ) : (
             <Text
-              style={{
-                textAlign: 'center',
-                color: palette.greyColor.gray8,
-                fontSize: 18,
-                marginTop: 32,
-                ...Platform.select({
-                  android: {
-                    fontFamily: 'KBO Dia Gothic_bold',
-                  },
-                  ios: {
-                    fontFamily: 'KBO-Dia-Gothic-bold',
-                  },
-                }),
-              }}>
+              style={fontStyle(
+                {
+                  textAlign: 'center',
+                  color: palette.greyColor.gray8,
+                  fontSize: 18,
+                  marginTop: 32,
+                },
+                'bold',
+              )}>
               {`아직 글이 없어요TT\n지금 글을 남겨보세요!`}
             </Text>
           )
         ) : (
           <Text
-            style={{
-              textAlign: 'center',
-              color: palette.greyColor.gray8,
-              fontSize: 18,
-              marginTop: 32,
-              ...Platform.select({
-                android: {
-                  fontFamily: 'KBO Dia Gothic_bold',
-                },
-                ios: {
-                  fontFamily: 'KBO-Dia-Gothic-bold',
-                },
-              }),
-            }}>
+            style={fontStyle(
+              {
+                textAlign: 'center',
+                color: palette.greyColor.gray8,
+                fontSize: 18,
+                marginTop: 32,
+              },
+              'bold',
+            )}>
             경기장을 먼저 선택해주세요!
           </Text>
         )}
@@ -292,13 +257,14 @@ function Community() {
 
       {stadiumSelectVisible ? (
         <SelectStadiumModal
-          stadiumInfo={Object.values(STADIUM_SHORT_TO_LONG).map(stadium => ({
-            name: stadium,
+          stadiumInfo={stadiums.map(stadium => ({
+            id: stadium.stadium_id,
+            name: stadium.stadium_name,
             distance: 0,
           }))}
           setIsVisible={value => setStadiumSelectVisible(value)}
-          selectStadium={selectedStadium}
-          setSelectedStadium={value => setSelectedStadium(value)}
+          selectStadiumId={selectedStadium}
+          setSelectedStadiumId={value => setSelectedStadium(value)}
           isLoading={false}
           isCommunity={true}
         />
@@ -314,20 +280,15 @@ function Community() {
               paddingBottom: 10,
             }}>
             <Text
-              style={{
-                textAlign: 'center',
-                fontWeight: '700',
-                fontSize: 18,
-                color: '#000',
-                ...Platform.select({
-                  android: {
-                    fontFamily: 'KBO Dia Gothic_bold',
-                  },
-                  ios: {
-                    fontFamily: 'KBO-Dia-Gothic-bold',
-                  },
-                }),
-              }}>
+              style={fontStyle(
+                {
+                  textAlign: 'center',
+                  fontWeight: '700',
+                  fontSize: 18,
+                  color: '#000',
+                },
+                'bold',
+              )}>
               업로드
             </Text>
           </View>
@@ -373,7 +334,7 @@ function Community() {
                   style={[
                     modalStyles.buttonText,
                     {
-                      color: '#fff',
+                      color: palette.greyColor.white,
                     },
                   ]}>
                   게시하기
@@ -389,9 +350,19 @@ function Community() {
   );
 }
 
-const CommunityItems = ({
-  item,
-}: ListRenderItemInfo<StrapiDataType<CommunityItemType>>) => {
+const CommunityItems = ({ item }: ListRenderItemInfo<CommunityLogType>) => {
+  const fontStyle = useFontStyle;
+  const [writer, setWriter] = useState<UserType>();
+
+  useEffect(() => {
+    getUserInfo(item.user_id);
+  }, [item]);
+
+  const getUserInfo = async (id: string) => {
+    const res = await API.post('/user', { userId: id });
+    setWriter(res.data[0]);
+  };
+
   return (
     <View
       style={{
@@ -418,10 +389,9 @@ const CommunityItems = ({
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          {item.attributes.team ? (
-            getTeamArrayWithIcon(24).find(
-              team => team.key === item.attributes.team,
-            )?.icon
+          {item.stadium_id ? (
+            getTeamArrayWithIcon(24).find(team => team.key === writer?.team_id)
+              ?.icon
           ) : (
             <Text
               style={{
@@ -432,48 +402,13 @@ const CommunityItems = ({
           )}
         </View>
         <View>
-          <Text
-            style={{
-              ...Platform.select({
-                android: {
-                  fontFamily: 'KBO Dia Gothic_medium',
-                },
-                ios: {
-                  fontFamily: 'KBO-Dia-Gothic-medium',
-                },
-              }),
-            }}>
-            {item.attributes.nickname}
-          </Text>
-          <Text
-            style={{
-              ...Platform.select({
-                android: {
-                  fontFamily: 'KBO Dia Gothic_medium',
-                },
-                ios: {
-                  fontFamily: 'KBO-Dia-Gothic-medium',
-                },
-              }),
-            }}>
-            {dayjs(item.attributes.createdAt).format(DATE_FORMAT)}
+          <Text style={fontStyle()}>{writer?.nickname}</Text>
+          <Text style={fontStyle()}>
+            {dayjs(item.date).format(DATE_FORMAT)}
           </Text>
         </View>
       </View>
-      <Text
-        style={{
-          ...Platform.select({
-            android: {
-              fontFamily: 'KBO Dia Gothic_light',
-            },
-            ios: {
-              fontFamily: 'KBO-Dia-Gothic-light',
-            },
-          }),
-        }}>
-        {item.attributes.content}
-        {/* {item.id} */}
-      </Text>
+      <Text style={fontStyle({}, 'light')}>{item.user_post}</Text>
     </View>
   );
 };

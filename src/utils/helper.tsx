@@ -76,7 +76,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Landers,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.SSG,
+      palette.teamColor[1],
     ),
   },
   {
@@ -86,7 +86,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Twins,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.LG,
+      palette.teamColor[2],
     ),
   },
   {
@@ -96,7 +96,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Wiz,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.KT,
+      palette.teamColor[4],
     ),
   },
   {
@@ -106,7 +106,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Eagles,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.한화,
+      palette.teamColor[10],
     ),
   },
   {
@@ -116,7 +116,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Seagull,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.롯데,
+      palette.teamColor[8],
     ),
   },
   {
@@ -126,7 +126,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Heros,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.키움,
+      palette.teamColor[3],
     ),
   },
   {
@@ -136,7 +136,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Dinos,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.NC,
+      palette.teamColor[6],
     ),
   },
   {
@@ -146,7 +146,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Tigers,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.KIA,
+      palette.teamColor[5],
     ),
   },
   {
@@ -156,7 +156,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Lions,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.삼성,
+      palette.teamColor[7],
     ),
   },
   {
@@ -166,7 +166,7 @@ const getTeamArrayWithIcon = (iconSize?: number) => [
       Bears,
       iconSize ?? 48,
       undefined,
-      palette.teamColor.두산,
+      palette.teamColor[9],
     ),
   },
 ];
