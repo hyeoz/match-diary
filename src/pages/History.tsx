@@ -2,13 +2,10 @@ import React, { useEffect, useState } from 'react';
 import {
   Dimensions,
   FlatList,
-  Platform,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ImageOrVideo } from 'react-native-image-crop-picker';
 import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -40,7 +37,9 @@ function History() {
     setLoading(true);
     const res = await getAllUserRecords();
 
-    const images = res.data.map(dt => dt.image).filter(data => data !== null);
+    const images = res.data
+      .map(dt => dt.image)
+      .filter(data => data !== null) as string[];
 
     setLoading(false);
     setAllImages(images);

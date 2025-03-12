@@ -14,9 +14,6 @@ import dayjs from 'dayjs';
 import { Calendar as RNCalendar, LocaleConfig } from 'react-native-calendars';
 import { DateData, MarkedDates } from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { ImageOrVideo } from 'react-native-image-crop-picker';
-import uuid from 'react-native-uuid';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
@@ -28,10 +25,9 @@ import {
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
   MONTH_LIST,
-  RESET_RECORD,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
-import { RecordType } from '@/type/default';
+import { RecordType } from '@/type/record';
 import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
 import Loading from '@/components/Loading';
 import { getMatchByDate, getMatchById } from '@/api/match';
@@ -179,6 +175,21 @@ function Calendar() {
     [onDayPress, selectedDate, weeksCount],
   );
 
+  const headerComponent = useCallback((date: string) => {
+    setWeeksCount(0);
+
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 8,
+        }}>
+        <Text style={styles.headerText}>{dayjs(date).format('YYYY')}년</Text>
+        <Text style={styles.headerText}>{dayjs(date).format('M')}월</Text>
+      </View>
+    );
+  }, []);
+
   const getMatchData = async () => {
     setLoading(true);
 
@@ -215,6 +226,8 @@ function Calendar() {
     });
 
     allUserRecords.data.forEach(async record => {
+      if (!record.match_id) return;
+
       const matchInfo = await getMatchById(record.match_id);
       const data = matchInfo?.data as MatchDataType;
 
@@ -267,24 +280,7 @@ function Calendar() {
           }}
           markedDates={markedDates}
           firstDay={1}
-          renderHeader={(date: string) => {
-            setWeeksCount(0);
-
-            return (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  gap: 8,
-                }}>
-                <Text style={styles.headerText}>
-                  {dayjs(date).format('YYYY')}년
-                </Text>
-                <Text style={styles.headerText}>
-                  {dayjs(date).format('M')}월
-                </Text>
-              </View>
-            );
-          }}
+          renderHeader={headerComponent}
           dayComponent={dayComponent}
         />
       </View>

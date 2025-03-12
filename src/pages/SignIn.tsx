@@ -28,6 +28,7 @@ import { palette } from '@/style/palette';
 import { Change } from '@/assets/svg';
 import SignInGif from '@assets/logo_moving_loop_stop.gif';
 import { useFontStyle } from '@/style/hooks';
+import { UserType } from '@/type/user';
 
 const Tab = createBottomTabNavigator();
 const { width } = Dimensions.get('window');
@@ -108,6 +109,16 @@ function Form({ ...props }) {
     }
     // NOTE createUser 요청 보내기
     try {
+      // 닉네임 중복확인
+      const allUsers = await API.get<UserType[]>('/users');
+      if (allUsers.data.findIndex(user => user.nickname === nickname) !== -1) {
+        Toast.show({
+          text1: '중복 닉네임이에요! 다른 닉네임을 사용해주세요.',
+          type: 'error',
+          topOffset: 80,
+        });
+        return;
+      }
       await API.post('/create-user', {
         userId: deviceId,
         teamId,
@@ -195,7 +206,7 @@ function Form({ ...props }) {
             </View>
             <TextInput
               value={nickname}
-              maxLength={8}
+              maxLength={12}
               onChangeText={value => {
                 setNickname(value);
               }}

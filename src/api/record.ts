@@ -1,8 +1,8 @@
-import { API } from '.';
+import { API } from '@/api';
 import { useUserState } from '@/stores/user';
-import { RecordType } from '@/type/default';
+import { RecordType } from '@/type/record';
 
-const uniqueId = useUserState.getState();
+const { uniqueId } = useUserState.getState();
 
 export const getRecordByDate = async (date: string) => {
   try {
@@ -16,6 +16,7 @@ export const getRecordByDate = async (date: string) => {
       statusText: res.statusText,
     };
   } catch (error) {
+    console.error(error);
     return {
       data: [],
       status: error,

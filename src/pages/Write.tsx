@@ -19,11 +19,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import uuid from 'react-native-uuid';
 import ViewShot from 'react-native-view-shot';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
@@ -32,18 +30,15 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
-import {
-  DATE_FORMAT,
-  IMAGE_HEIGHT,
-  IMAGE_WIDTH,
-  RESET_RECORD,
-  STADIUM_LONG_TO_NICK,
-} from '@utils/STATIC_DATA';
+import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { useCarouselIndexState, useTabHistory } from '@/stores/default';
-import { RecordType } from '@/type/default';
-import { Add, Change } from '@assets/svg';
+import { RecordType } from '@/type/record';
+import { Add } from '@assets/svg';
 import { palette } from '@/style/palette';
-import { getStadiumName, hasAndroidPermission } from '@/utils/helper';
+import {
+  changeStadiumLongNameToNickname,
+  hasAndroidPermission,
+} from '@/utils/helper';
 import { API } from '@/api';
 import { useUserState } from '@/stores/user';
 import { useStadiumsState } from '@/stores/teams';
@@ -286,7 +281,6 @@ function CarouselPhoto({
             // NOTE 캐러셀에서 눌렀을 때 맞는 아이템 수정으로 넘어가도록
             setIsVisible(true);
             setIsEdit(true);
-            // setRecordState(record); // index 로 따지기
           }}
           style={{
             flex: 1,
@@ -307,7 +301,7 @@ function CarouselPhoto({
               ]}
             />
             <FastImage
-              source={{ uri: record.image || '' }}
+              source={{ uri: (record.image as string) || '' }}
               style={{
                 width: width * 0.7 - 16,
                 height: (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
@@ -335,12 +329,10 @@ function CarouselPhoto({
                 </>
               )} */}
               {' @'}
-              {
-                STADIUM_LONG_TO_NICK[
-                  stadiums.find(sta => sta.stadium_id === record.stadium_id)
-                    ?.stadium_name || ''
-                ]
-              }
+              {changeStadiumLongNameToNickname(
+                stadiums.find(sta => sta.stadium_id === record.stadium_id)
+                  ?.stadium_name,
+              )}
             </Text>
           </View>
           <View

@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { ImageOrVideo } from 'react-native-image-crop-picker';
+import { RecordType } from './record';
 
 // TODO Root Stack 타입
 export type RootStackListType = {
@@ -52,35 +52,4 @@ export type MoreListItemType = StringListItemType & {
   onPressAction?: () => void;
 };
 
-// 커뮤니티 글 타입
-export type CommunityItemType = {
-  createdAt: string;
-  nickname: string;
-  content: string;
-  stadium: string;
-  team: string;
-  publishedAt: string;
-  updatedAt: string;
-};
-
 export type CoordinateType = { lat: number; lon: number };
-
-export type RecordType = {
-  records_id?: number;
-  user_id: string;
-  match_id?: number;
-  stadium_id?: number;
-  date: string;
-  image: string | null;
-  user_note: string;
-};
-
-export type TempRecordImageType = { uri: string; type?: string; name: string };
-export type TempRecordType = {
-  records_id?: number;
-  user_id: string;
-  date: string;
-  image: TempRecordImageType | string | null;
-  user_note: string;
-  stadium_id?: number;
-};
