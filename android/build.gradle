@@ -9,8 +9,12 @@ buildscript {
         androidGradlePluginVersion = "8.1.1" // 업데이트된 버전으로 설정
     }
     repositories {
+        maven {
+            url "https://maven.transistorsoft.com"
+        }
         google()
         mavenCentral()
+        maven { url "https://jitpack.io" }
     }
     dependencies {
         classpath("com.facebook.react:react-native-gradle-plugin")

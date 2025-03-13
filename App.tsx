@@ -1,22 +1,17 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, useColorScheme } from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import React from 'react';
+import { useColorScheme } from 'react-native';
 import {
   NavigationContainer,
   useNavigationContainerRef,
 } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 
-import Router from './src/router';
-// import GeoNotification from '@/components/GeoNotification';
+import GeoNotification from '@/components/GeoNotification';
+import Router from '@/router';
 
 function App(): React.JSX.Element {
   const navigationRef = useNavigationContainerRef();
   const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
 
   return (
     <>
@@ -24,7 +19,7 @@ function App(): React.JSX.Element {
         <Router />
       </NavigationContainer>
       <Toast />
-      {/* <GeoNotification /> */}
+      <GeoNotification />
     </>
   );
 }
