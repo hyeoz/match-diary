@@ -24,6 +24,13 @@ buildscript {
         classpath("com.android.tools.build:gradle")
     }
 }
+allprojects {
+    repositories {
+        maven {
+            url("$rootDir/../node_modules/react-native-background-fetch/android/libs")
+        }
+    }
+}
 wrapper {
     gradleVersion = '8.7' // 최신 Gradle 버전으로 업데이트
 }
