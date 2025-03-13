@@ -46,7 +46,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = matchdiary/main.m; sourceTree = "<group>"; };
 		1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_medium.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_medium.ttf"; sourceTree = "<group>"; };
 		3921698A27D1D88FD9F6D26F /* Pods-matchdiary.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.debug.xcconfig"; sourceTree = "<group>"; };
-		46C68FAE896734F4D5AE9A2A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = matchdiary/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		46C68FAE896734F4D5AE9A2A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = matchdiary/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "UhBee Seulvely.ttf"; path = "../src/assets/fonts/UhBee Seulvely.ttf"; sourceTree = "<group>"; };
 		524D59A1356B0F6D481FE393 /* libPods-matchdiary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B512CF6B465BDAF94074939 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -653,10 +653,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				PRODUCT_NAME = "직관일기";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
@@ -732,10 +729,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				PRODUCT_NAME = "직관일기";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
