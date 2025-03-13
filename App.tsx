@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 
-import GeoNotification from '@/components/GeoNotification';
+// import GeoNotification from '@/components/GeoNotification';
 import Router from '@/router';
 
 function App(): React.JSX.Element {
@@ -19,7 +19,7 @@ function App(): React.JSX.Element {
         <Router />
       </NavigationContainer>
       <Toast />
-      <GeoNotification />
+      {/* <GeoNotification /> */}
     </>
   );
 }
