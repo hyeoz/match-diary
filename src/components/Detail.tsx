@@ -12,7 +12,6 @@ import {
   View,
 } from 'react-native';
 import ViewShot from 'react-native-view-shot';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
