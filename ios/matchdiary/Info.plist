@@ -42,7 +42,7 @@
 	<key>NSAllowsLocalNetworking</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
-	<string></string>
+	<string/>
 	<key>NSCameraUsageDescription</key>
 	<string>지금 바로 기록을 남길 수 있게 카메라를 허용해주세요!</string>
 	<key>NSExceptionAllowsInsecureHTTPLoads</key>
@@ -65,6 +65,7 @@
 		<string>KBO Dia Gothic_light.ttf</string>
 		<string>KBO Dia Gothic_medium.ttf</string>
 		<string>UhBee Seulvely.ttf</string>
+		<string>NanumMiNiSonGeurSsi.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
@@ -73,7 +74,7 @@
 		<string>fetch</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
-	<string></string>
+	<string/>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

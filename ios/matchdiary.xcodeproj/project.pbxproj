@@ -21,6 +21,7 @@
 		82E0F6FD2C0410EA00CF8481 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 82E0F6FC2C0410EA00CF8481 /* main.jsbundle */; };
 		A9763E5ADFB030027C254B7C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 46C68FAE896734F4D5AE9A2A /* PrivacyInfo.xcprivacy */; };
 		DCD04D0FC21345F59D991345 /* UhBee Seulvely.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */; };
+		2A6132902E3C4B6FB03B747A /* NanumMiNiSonGeurSsi.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A376C421FF444AE8E0E841A /* NanumMiNiSonGeurSsi.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		EE2038FEF3C38A3132208D40 /* Pods-matchdiary-matchdiaryTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.release.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.release.xcconfig"; sourceTree = "<group>"; };
 		FE04BDC05BC0CE0F930134C3 /* libPods-matchdiary-matchdiaryTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary-matchdiaryTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A376C421FF444AE8E0E841A /* NanumMiNiSonGeurSsi.ttf */ = {isa = PBXFileReference; name = "NanumMiNiSonGeurSsi.ttf"; path = "../src/assets/fonts/NanumMiNiSonGeurSsi.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,6 +123,7 @@
 				A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */,
 				1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */,
 				47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */,
+				4A376C421FF444AE8E0E841A /* NanumMiNiSonGeurSsi.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -284,6 +287,7 @@
 				52301F1075AD4E1A8F7F45B3 /* KBO Dia Gothic_medium.ttf in Resources */,
 				DCD04D0FC21345F59D991345 /* UhBee Seulvely.ttf in Resources */,
 				A9763E5ADFB030027C254B7C /* PrivacyInfo.xcprivacy in Resources */,
+				2A6132902E3C4B6FB03B747A /* NanumMiNiSonGeurSsi.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

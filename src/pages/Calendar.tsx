@@ -67,9 +67,6 @@ function Calendar() {
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState(dayjs().format(DATE_FORMAT));
   const [isVisible, setIsVisible] = useState(false);
-  // const [image, setImage] = useState<ImageOrVideo | null>(null);
-  // const [memo, setMemo] = useState('');
-  // const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
   const [matches, setMatches] = useState<MatchDataType[]>([]);
   const [matchRecord, setMatchRecord] = useState(initCountData); // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
@@ -81,9 +78,6 @@ function Calendar() {
   const { teamId, uniqueId } = useUserState();
   const { teams } = useTeamsState();
   const { carouselIndexState } = useCarouselIndexState();
-  const { viewedMatch } = useViewedMatchState();
-
-  const year = dayjs(selectedDate).year();
 
   const detailProps = {
     isEdit,

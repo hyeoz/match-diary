@@ -12,13 +12,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import Geolocation from '@react-native-community/geolocation';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
+import ViewShot, { captureRef } from 'react-native-view-shot';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -50,7 +51,10 @@ import { getRecordByDate } from '@/api/record';
 import { useFontStyle } from '@/style/hooks';
 import { MatchDataType } from '@/type/match';
 
-const { width } = Dimensions.get('window');
+import bubble from '@/assets/bubble.png';
+import { getWeatherIcon } from '@/api/weather';
+
+const { width, height } = Dimensions.get('window');
 
 // FIXME crop 기능 제외
 
@@ -65,6 +69,8 @@ export default function UploadModal({
   isVisible: boolean;
   date?: string;
 }) {
+  const viewShotRef = useRef(null);
+
   const [todayStadiums, setTodayStadiums] = useState<
     { name: string; id: number }[]
   >([]);
@@ -72,7 +78,8 @@ export default function UploadModal({
     { name: string; id: number; distance: number }[]
   >([]);
   const [matchInfo, setMatchInfo] = useState<{
-    [key: string]: { home: number; away: number };
+    home: string;
+    away: string;
   }>();
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
   const [latitude, setLatitude] = useState(''); // 현재 유저의 위도
@@ -82,9 +89,12 @@ export default function UploadModal({
   const [cropperLoading, setCropperLoading] = useState(false);
   const [tempRecord, setTempRecord] = useState<RecordType | null>(RESET_RECORD);
   const [matches, setMatches] = useState<MatchDataType[]>([]);
+  const [visibleFakeCamera, setVisibleFakeCamera] = useState(false);
+  const [currentWeather, setCurrentWeather] = useState('');
 
   const { uniqueId } = useUserState();
   const { stadiums } = useStadiumsState();
+  const { teams } = useTeamsState();
   const { carouselIndexState } = useCarouselIndexState();
   const fontStyle = useFontStyle;
 
@@ -130,36 +140,53 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
+  const captureFilteredImage = async () => {
+    // 📌 ViewShot을 이용해 화면 캡처
+    const uri = await captureRef(viewShotRef, {
+      format: 'jpg',
+      quality: 1,
+    });
+
+    try {
+      if (tempRecord) {
+        setTempRecord({
+          ...tempRecord,
+          image: {
+            uri: uri,
+            type: 'image/jpeg',
+            name: `${new Date()}_image.jpg`, // 파일 이름을 기본 값으로 설정
+          },
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      Toast.show({
+        type: 'error',
+        text1: '이미지를 불러오는 데 문제가 생겼어요. 다시 시도해주세요!',
+      });
+    }
+  };
+
   const getImageAction = async (buttonIndex: number) => {
+    // 카메라 선택
     if (buttonIndex === 1) {
+      setVisibleFakeCamera(true);
+
       const result = await launchCamera({
         mediaType: 'photo',
         saveToPhotos: true,
         quality: 1,
       });
-      const item = result.assets;
-      if (!item || !item[0].uri || !item[0].width || !item[0].height) {
-        return;
-      }
-      try {
-        if (tempRecord) {
-          setTempRecord({
-            ...tempRecord,
-            image: {
-              uri: item[0].uri,
-              type: item[0].type,
-              name: item[0].fileName || 'image.jpg', // 파일 이름을 기본 값으로 설정
-            },
-          });
-        }
-      } catch (error) {
-        console.error(error);
-        Toast.show({
-          type: 'error',
-          text1: '이미지를 불러오는 데 문제가 생겼어요. 다시 시도해주세요!',
-        });
-      }
+      // TODO 카메라를 어떻게 끌건지?
+      // const item = result.assets;
+
+      // if (!item || !item[0].uri || !item[0].width || !item[0].height) {
+      //   return;
+      // }
+
+      await captureFilteredImage();
     } else if (buttonIndex === 2) {
+      // 앨범 선택
       const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 1,
@@ -196,6 +223,7 @@ export default function UploadModal({
     }
   };
 
+  // 사진 선택 버튼 클릭
   const onPressOpenGallery = async () => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
@@ -337,14 +365,11 @@ export default function UploadModal({
               .findIndex(value => value.time === match.time) + 1
           }`;
         }
-        setMatchInfo(prev => {
-          return {
-            ...prev,
-            [stadiumName]: {
-              home: match.home,
-              away: match.away,
-            },
-          };
+        setMatchInfo({
+          home:
+            teams.find(team => team.team_id === match.home)?.team_name ?? '',
+          away:
+            teams.find(team => team.team_id === match.home)?.team_name ?? '',
         });
         return { name: stadiumName, id: stadiumId };
       });
@@ -433,6 +458,13 @@ export default function UploadModal({
       },
       { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 },
     );
+
+    const weather = await getWeatherIcon(
+      Number(latitude),
+      Number(longitude),
+      formattedToday,
+    );
+    setCurrentWeather(weather);
   };
 
   return (
@@ -665,6 +697,103 @@ export default function UploadModal({
         />
       )}
 
+      {/* SECTION 가상카메라 */}
+      {/* ViewShot을 감싸서 캡처 가능하게 설정 */}
+      <>
+        {visibleFakeCamera && (
+          <View
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height,
+              backgroundColor: 'black',
+            }}>
+            <ViewShot
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height,
+              }}
+              ref={viewShotRef}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                }}>
+                {/* 여기에 실제 카메라 뷰를 넣을 수 있음 */}
+                <View
+                  style={{
+                    width,
+                    height: '80%',
+                    backgroundColor: 'gray',
+                  }}
+                />
+
+                {/* 화면 위 텍스트 오버레이 */}
+                <FastImage
+                  source={bubble}
+                  style={{
+                    width: 160,
+                    aspectRatio: 230 / 204,
+                    position: 'absolute',
+                    top: 80,
+                    left: 20,
+                  }}
+                />
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 80,
+                    right: 20,
+                    padding: 8,
+                    // backgroundColor: 'rgba(0,0,0,0.4)',
+                  }}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontFamily: 'NanumMiNiSonGeurSsi',
+                      textAlign: 'right',
+                    }}>
+                    {dayjs(date).format('YYYY년 MM월 DD일 HH:mm:ss')}
+                  </Text>
+                  {matchInfo && (
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontFamily: 'NanumMiNiSonGeurSsi',
+                        textAlign: 'right',
+                      }}>
+                      {matchInfo?.home} VS {matchInfo?.away}
+                    </Text>
+                  )}
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontFamily: 'NanumMiNiSonGeurSsi',
+                      textAlign: 'right',
+                    }}>
+                    오늘의 날씨: {currentWeather}
+                  </Text>
+                </View>
+              </View>
+            </ViewShot>
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                bottom: 100,
+                left: '50%',
+                transform: [{ translateX: -50 }],
+              }}
+              onPress={() => {}}>
+              <Text style={{ color: 'white' }}>📸 사진 찍기</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* 촬영 버튼 */}
+      </>
+
       {/* NOTE root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
       <Toast />
     </Modal>
@@ -680,3 +809,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
+
+const CameraWithFilter = () => {};
