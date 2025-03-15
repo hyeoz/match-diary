@@ -1,3 +1,4 @@
+import { RecordType } from '@/type/record';
 import { StadiumType } from '@/type/team';
 
 const DATE_FORMAT = 'YYYY-MM-DD';

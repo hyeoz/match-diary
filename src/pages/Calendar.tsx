@@ -35,7 +35,8 @@ import { getMatchByDate, getMatchById } from '@/api/match';
 import { useUserState, useViewedMatchState } from '@/stores/user';
 import { getAllUserRecords, getRecordByDate } from '@/api/record';
 import { MatchDataType } from '@/type/match';
-import { useTeamsState } from '@/stores/teams';
+import { useStadiumsState, useTeamsState } from '@/stores/teams';
+import { StadiumType, TeamType } from '@/type/team';
 
 const { width } = Dimensions.get('window');
 
@@ -61,6 +62,7 @@ function Calendar() {
   const { history } = useTabHistory();
   const { teamId, uniqueId } = useUserState();
   const { teams } = useTeamsState();
+  const { stadiums } = useStadiumsState();
   const { carouselIndexState } = useCarouselIndexState();
 
   const detailProps = {
@@ -151,7 +153,7 @@ function Calendar() {
     [onDayPress, selectedDate],
   );
 
-  const headerComponent = useCallback((date: string) => {
+  const headerComponent = (date: string) => {
     return (
       <View
         style={{
@@ -162,7 +164,7 @@ function Calendar() {
         <Text style={styles.headerText}>{dayjs(date).format('M')}월</Text>
       </View>
     );
-  }, []);
+  };
 
   const getMatchData = async () => {
     setLoading(true);
@@ -314,7 +316,15 @@ function Calendar() {
                             fontSize: 20,
                           },
                         ]}>
-                        {matches[0].home} VS {matches[0].away}
+                        {
+                          teams.find(team => team.team_id === matches[0].home)
+                            ?.team_short_name
+                        }{' '}
+                        VS{' '}
+                        {
+                          teams.find(team => team.team_id === matches[0].away)
+                            ?.team_short_name
+                        }
                       </Text>
                       {!!matches[0].home && (
                         <View>
@@ -339,9 +349,10 @@ function Calendar() {
                             ]}>
                             (
                             {
-                              teams.find(
-                                team => team.team_id === matches[0].home,
-                              )?.team_short_name
+                              stadiums.find(
+                                stadium =>
+                                  stadium.stadium_id === matches[0].stadium,
+                              )?.stadium_short_name
                             }
                             )
                           </Text>
@@ -354,7 +365,12 @@ function Calendar() {
                     <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
                       오늘의 경기
                     </Text>
-                    <FlatList data={matches} renderItem={MatchesItem} />
+                    <FlatList
+                      data={matches}
+                      renderItem={props =>
+                        MatchesItem({ teams, stadiums, ...props })
+                      }
+                    />
                   </View>
                 ) : (
                   <View>
@@ -534,17 +550,30 @@ function DayComponent({
   );
 }
 
-function MatchesItem({ ...props }: ListRenderItemInfo<MatchDataType>) {
+function MatchesItem({
+  teams,
+  stadiums,
+  ...props
+}: ListRenderItemInfo<MatchDataType> & {
+  teams: TeamType[];
+  stadiums: StadiumType[];
+}) {
   const { home, away, stadium } = props.item;
 
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       <View style={{ flexDirection: 'row', gap: 4 }}>
-        <Text style={styles.stickyNoteText}>{away}</Text>
+        <Text style={styles.stickyNoteText}>
+          {teams.find(team => team.team_id === away)?.team_short_name}
+        </Text>
         <Text style={styles.stickyNoteText}>VS</Text>
-        <Text style={styles.stickyNoteText}>{home}</Text>
+        <Text style={styles.stickyNoteText}>
+          {teams.find(team => team.team_id === home)?.team_short_name}
+        </Text>
       </View>
-      <Text style={styles.stickyNoteText}>@{stadium}</Text>
+      <Text style={styles.stickyNoteText}>
+        @{stadiums.find(s => s.stadium_id === stadium)?.stadium_short_name}
+      </Text>
     </View>
   );
 }

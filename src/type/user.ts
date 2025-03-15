@@ -1,5 +1,5 @@
 export type UserType = {
-  user_id: number;
+  user_id: string;
   nickname: string;
   team_id: number;
 };

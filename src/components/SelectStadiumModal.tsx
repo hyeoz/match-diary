@@ -9,37 +9,38 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import dayjs from 'dayjs';
 
 import { palette } from '@/style/palette';
 import Loading from './Loading';
 import { useFontStyle } from '@/style/hooks';
 import { DATE_FORMAT, NO_MATCH_STADIUM_KEY } from '@/utils/STATIC_DATA';
-import { MatchDataType } from '@/type/match';
 import { getMatchByDate } from '@/api/match';
-import dayjs from 'dayjs';
+import { StadiumInfoType } from '@/type/team';
+import { RecordType } from '@/type/record';
 
 const { width, height } = Dimensions.get('window');
-
-type StadiumModalInfoType = { name: string; id: number; distance: number };
 
 export default function SelectStadiumModal({
   stadiumInfo,
   setIsVisible,
-  selectStadiumId,
-  setSelectedStadiumId,
+  tempRecord,
+  setTempRecord,
   isLoading,
+  selectedDate,
   isCommunity = false,
 }: {
-  stadiumInfo: StadiumModalInfoType[];
+  stadiumInfo: StadiumInfoType[];
   setIsVisible: (value: boolean) => void;
-  selectStadiumId?: number;
-  setSelectedStadiumId: (value: number) => void;
+  tempRecord: RecordType | null;
+  setTempRecord: (value: RecordType) => void;
   isLoading: boolean;
+  selectedDate?: string;
   isCommunity?: boolean;
 }) {
   const [todayStadiums, setTodayStadiums] = useState<number[]>([]);
-  const [currentStadiumId, setCurrentStadiumId] = useState<number>();
-  const [sortedInfo, setSortedInfo] = useState<StadiumModalInfoType[]>([]);
+  const [currentRecord, setCurrentRecord] = useState<RecordType>();
+  const [sortedInfo, setSortedInfo] = useState<StadiumInfoType[]>([]);
 
   const fontStyle = useFontStyle;
 
@@ -48,23 +49,28 @@ export default function SelectStadiumModal({
   }, []);
 
   useEffect(() => {
-    if (selectStadiumId) {
-      setCurrentStadiumId(selectStadiumId);
+    if (!tempRecord) return;
+
+    if (tempRecord.stadium_id) {
+      setCurrentRecord(tempRecord);
     } else if (sortedInfo[0]) {
-      setCurrentStadiumId(sortedInfo[0].id);
+      setCurrentRecord({
+        ...tempRecord,
+        stadium_id: sortedInfo[0].stadium_id,
+      });
     }
   }, [sortedInfo]);
 
   useEffect(() => {
     setSortedInfo(
       stadiumInfo
-        .filter(sta => todayStadiums.includes(sta.id))
+        .filter(sta => todayStadiums.includes(sta.stadium_id))
         .sort((a, b) => a.distance - b.distance),
     );
   }, [todayStadiums]);
 
   const getTodayStadiums = async () => {
-    const res = await getMatchByDate(dayjs().format(DATE_FORMAT));
+    const res = await getMatchByDate(dayjs(selectedDate).format(DATE_FORMAT));
     if (res.data.length) {
       setTodayStadiums(res.data.map(dt => dt.stadium));
     } else {
@@ -74,9 +80,7 @@ export default function SelectStadiumModal({
 
   return (
     <TouchableOpacity
-      onPress={() => {
-        setIsVisible(false);
-      }}
+      onPress={() => setIsVisible(false)}
       style={styles.modalWrapper}>
       <View style={styles.modalView}>
         <Text
@@ -93,12 +97,21 @@ export default function SelectStadiumModal({
             <FlatList
               data={sortedInfo.map(info => ({
                 ...info,
-                isSelected: info.id === selectStadiumId,
+                isSelected:
+                  info.stadium_id === tempRecord?.stadium_id &&
+                  info.match_id === tempRecord?.match_id,
                 isCommunity,
               }))}
               renderItem={item => (
                 <StadiumItem
-                  setSelect={value => setSelectedStadiumId(value)}
+                  setSelect={value =>
+                    tempRecord &&
+                    setTempRecord({
+                      ...tempRecord,
+                      ...value,
+                    })
+                  }
+                  sortedInfo={sortedInfo}
                   {...item}
                 />
               )}
@@ -106,10 +119,17 @@ export default function SelectStadiumModal({
 
             <TouchableOpacity
               onPress={() => {
-                if (currentStadiumId) {
-                  setSelectedStadiumId(currentStadiumId);
+                if (!tempRecord) return;
+                if (currentRecord) {
+                  setTempRecord({
+                    ...tempRecord,
+                    ...currentRecord,
+                  });
                 } else {
-                  setSelectedStadiumId(NO_MATCH_STADIUM_KEY);
+                  setTempRecord({
+                    ...tempRecord,
+                    stadium_id: NO_MATCH_STADIUM_KEY,
+                  });
                 }
                 setIsVisible(false);
               }}
@@ -131,17 +151,19 @@ export default function SelectStadiumModal({
 
 function StadiumItem({
   setSelect,
+  sortedInfo,
   ...props
-}: ListRenderItemInfo<{
-  name: string;
-  id: number;
-  distance: number;
-  isSelected: boolean;
-  isCommunity: boolean;
-}> & { setSelect: (value: number) => void }) {
-  const { name, id, distance, isSelected, isCommunity } = props.item;
+}: ListRenderItemInfo<
+  StadiumInfoType & {
+    isSelected: boolean;
+    isCommunity: boolean;
+  }
+> & {
+  setSelect: (value: Pick<StadiumInfoType, 'match_id' | 'stadium_id'>) => void;
+  sortedInfo: StadiumInfoType[];
+}) {
+  const { name, stadium_id, distance, isSelected, isCommunity } = props.item;
   const fontStyle = useFontStyle;
-
   return (
     <TouchableOpacity
       style={{
@@ -150,9 +172,10 @@ function StadiumItem({
         paddingVertical: 8,
       }}
       onPress={() => {
-        if (id) {
-          setSelect(id);
-        }
+        setSelect({
+          match_id: props.item.match_id,
+          stadium_id: props.item.stadium_id,
+        });
       }}>
       <View
         style={{

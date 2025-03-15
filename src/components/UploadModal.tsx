@@ -50,9 +50,10 @@ import { API } from '@/api';
 import { getRecordByDate } from '@/api/record';
 import { useFontStyle } from '@/style/hooks';
 import { MatchDataType } from '@/type/match';
+import { getWeatherIcon } from '@/api/weather';
+import { StadiumInfoType } from '@/type/team';
 
 import bubble from '@/assets/bubble.png';
-import { getWeatherIcon } from '@/api/weather';
 
 const { width, height } = Dimensions.get('window');
 
@@ -72,11 +73,9 @@ export default function UploadModal({
   const viewShotRef = useRef(null);
 
   const [todayStadiums, setTodayStadiums] = useState<
-    { name: string; id: number }[]
+    { name: string; stadium_id: number; match_id: number }[]
   >([]);
-  const [stadiumInfo, setStadiumInfo] = useState<
-    { name: string; id: number; distance: number }[]
-  >([]);
+  const [stadiumInfo, setStadiumInfo] = useState<StadiumInfoType[]>([]);
   const [matchInfo, setMatchInfo] = useState<{
     home: string;
     away: string;
@@ -166,7 +165,7 @@ export default function UploadModal({
       });
     }
   };
-
+  console.log(tempRecord, '???', uniqueId);
   const getImageAction = async (buttonIndex: number) => {
     // 카메라 선택
     if (buttonIndex === 1) {
@@ -348,7 +347,13 @@ export default function UploadModal({
     setMatches(res.data);
 
     if (!res.data.length) {
-      setTodayStadiums([{ name: '경기가 없어요!', id: NO_MATCH_STADIUM_KEY }]);
+      setTodayStadiums([
+        {
+          name: '경기가 없어요!',
+          stadium_id: NO_MATCH_STADIUM_KEY,
+          match_id: 0,
+        },
+      ]);
     } else {
       const tempStadiums = res.data.map(match => {
         const stadiumId = match.stadium;
@@ -369,7 +374,7 @@ export default function UploadModal({
           away:
             teams.find(team => team.team_id === match.home)?.team_name ?? '',
         });
-        return { name: stadiumName, id: stadiumId };
+        return { name: stadiumName, stadium_id: stadiumId, match_id: match.id };
       });
 
       setTodayStadiums(tempStadiums);
@@ -379,14 +384,14 @@ export default function UploadModal({
   // 경기장 셀렉트박스 구현
   const getAllStadiumDistance = () => {
     const start = { lat: Number(latitude), lon: Number(longitude) };
-    const stadiumInfoList: { name: string; id: number; distance: number }[] =
-      [];
+    const stadiumInfoList: StadiumInfoType[] = [];
 
     for (let sta of todayStadiums) {
-      if (sta.id === NO_MATCH_STADIUM_KEY) {
+      if (sta.stadium_id === NO_MATCH_STADIUM_KEY) {
         stadiumInfoList.push({
           name: sta.name,
-          id: NO_MATCH_STADIUM_KEY,
+          stadium_id: NO_MATCH_STADIUM_KEY,
+          match_id: 0,
           distance: 0,
         });
       } else {
@@ -399,8 +404,8 @@ export default function UploadModal({
 
   // 경기장 거리 계산
   const getStadiumDistance = (
-    stadiumObj: { name: string; id: number },
-    result: { name: string; id: number; distance: number }[],
+    stadiumObj: Omit<StadiumInfoType, 'distance'>,
+    result: StadiumInfoType[],
     start: CoordinateType,
   ) => {
     let editedName = '';
@@ -428,13 +433,15 @@ export default function UploadModal({
     if (isDh) {
       result.push({
         name: `${targetStadium?.stadium_name} - DH ${dhInfo}`,
-        id: stadiumObj.id,
+        stadium_id: stadiumObj.stadium_id,
+        match_id: stadiumObj?.match_id || 0,
         distance: res,
       });
     } else {
       result.push({
         name: targetStadium?.stadium_name || '',
-        id: stadiumObj.id,
+        stadium_id: stadiumObj.stadium_id,
+        match_id: stadiumObj?.match_id || 0,
         distance: res,
       });
     }
@@ -685,13 +692,10 @@ export default function UploadModal({
         <SelectStadiumModal
           stadiumInfo={stadiumInfo}
           setIsVisible={value => setStadiumSelectVisible(value)}
-          selectStadiumId={tempRecord?.stadium_id}
-          setSelectedStadiumId={value => {
-            if (tempRecord) {
-              setTempRecord({ ...tempRecord, stadium_id: value });
-            }
-          }}
+          tempRecord={tempRecord}
+          setTempRecord={setTempRecord}
           isLoading={loading}
+          selectedDate={date}
         />
       )}
 

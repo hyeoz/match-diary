@@ -29,7 +29,7 @@ import { palette } from '@/style/palette';
 import { useUserState } from '@/stores/user';
 import { MatchDataType } from '@/type/match';
 import { API } from '@/api';
-import { useStadiumsState } from '@/stores/teams';
+import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { getMatchByDate } from '@/api/match';
 
 const { width, height } = Dimensions.get('window');
@@ -55,6 +55,7 @@ export function Detail({
   const [matches, setMatches] = useState<MatchDataType[]>([]);
 
   const { teamId, uniqueId } = useUserState();
+  const { teams } = useTeamsState();
   const { stadiums } = useStadiumsState();
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
 
@@ -347,11 +348,19 @@ export function Detail({
                         : records[carouselIndexState].date,
                     ).format('YY.MM.DD')}{' '}
                     {selectedMatch?.home && selectedMatch.away && (
-                      <>
-                        {selectedMatch?.home}
+                      <Text>
+                        {
+                          teams.find(
+                            team => team.team_id === selectedMatch?.home,
+                          )?.team_short_name
+                        }
                         {' VS '}
-                        {selectedMatch?.away}
-                      </>
+                        {
+                          teams.find(
+                            team => team.team_id === selectedMatch?.away,
+                          )?.team_short_name
+                        }
+                      </Text>
                     )}
                     {' @'}
                     {changeStadiumLongNameToNickname(
