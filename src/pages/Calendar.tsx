@@ -92,11 +92,11 @@ function Calendar() {
   useEffect(() => {
     getRecordsBySelectedDate();
     getMatchData();
+    handleRecordsCount();
   }, [history, teamId, selectedDate]);
 
   useEffect(() => {
     getAllRecords();
-    handleRecordsCount();
   }, [history, teamId, isVisible]);
 
   const getRecordsBySelectedDate = async () => {
@@ -210,10 +210,10 @@ function Calendar() {
       // ANCHOR 내 팀 경기 기록
       // 홈경기
       if (teamId === data.home) {
-        if (dayjs(data.date).year === dayjs().year) {
+        if (dayjs(data.date).year() === dayjs().year()) {
           recordsCnt.bySeason.home += 1;
         }
-        if (dayjs(data.date).month === dayjs().month) {
+        if (dayjs(data.date).month() === dayjs().month()) {
           recordsCnt.byMonth.home += 1;
         }
         if (data.home_score > data.away_score) {
@@ -225,10 +225,10 @@ function Calendar() {
         }
       } else if (teamId === data.away) {
         // 원정경기
-        if (dayjs(data.date).year === dayjs().year) {
+        if (dayjs(data.date).year() === dayjs().year()) {
           recordsCnt.bySeason.away += 1;
         }
-        if (dayjs(data.date).month === dayjs().month) {
+        if (dayjs(data.date).month() === dayjs().month()) {
           recordsCnt.byMonth.away += 1;
         }
         if (data.home_score > data.away_score) {

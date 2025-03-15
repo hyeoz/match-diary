@@ -165,7 +165,7 @@ export default function UploadModal({
       });
     }
   };
-  console.log(tempRecord, '???', uniqueId);
+
   const getImageAction = async (buttonIndex: number) => {
     // 카메라 선택
     if (buttonIndex === 1) {
@@ -458,7 +458,7 @@ export default function UploadModal({
         setLongitude(_longitude);
       },
       async error => {
-        console.log(error.code, error.message);
+        console.error(error.code, error.message);
         return await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
       },
       { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 },
