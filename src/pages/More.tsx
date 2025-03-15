@@ -71,9 +71,7 @@ function More() {
   }, [teamId, userName]);
 
   useEffect(() => {
-    if (teamModalVisible) {
-      getMyInfo();
-    }
+    getMyInfo();
   }, [teamModalVisible]);
 
   useEffect(() => {
@@ -148,6 +146,8 @@ function More() {
     const res = await API.post('/user', { userId: deviceId });
     setTeamId(res.data[0].team_id);
     setUserName(res.data[0].nickname);
+    setCurrentNickname(res.data[0].nickname);
+    setSelectedTeam(res.data[0].team_id);
   };
 
   const onPressSave = async () => {
