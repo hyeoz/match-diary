@@ -5,6 +5,7 @@ import {
   ViewedMatchStoreType,
   ViewedMatchType,
 } from '@/type/store';
+import { INIT_COUNT_DATA } from '@/utils/STATIC_DATA';
 
 // 현재 유저 정보
 const useUserState = create<UserStoreType>(set => ({
@@ -18,21 +19,7 @@ const useUserState = create<UserStoreType>(set => ({
 
 // 총 직관 기록 정보
 const useViewedMatchState = create<ViewedMatchStoreType>(set => ({
-  viewedMatch: {
-    byMonth: {
-      home: 0,
-      away: 0,
-    },
-    bySeason: {
-      home: 0,
-      away: 0,
-    },
-    rate: {
-      win: 0,
-      lose: 0,
-      draw: 0,
-    },
-  },
+  viewedMatch: INIT_COUNT_DATA,
   setViewedMatch: (match: ViewedMatchType) => ({ viewedMatch: match }),
 }));
 

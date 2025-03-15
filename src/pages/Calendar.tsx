@@ -24,6 +24,7 @@ import {
   DATE_FORMAT,
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
+  INIT_COUNT_DATA,
   MONTH_LIST,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
@@ -47,31 +48,14 @@ LocaleConfig.locales.kr = {
 };
 LocaleConfig.defaultLocale = 'kr';
 
-const initCountData = {
-  byMonth: {
-    home: 0,
-    away: 0,
-  },
-  bySeason: {
-    home: 0,
-    away: 0,
-  },
-  rate: {
-    win: 0,
-    lose: 0,
-    draw: 0,
-  },
-};
-
 function Calendar() {
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState(dayjs().format(DATE_FORMAT));
   const [isVisible, setIsVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [matches, setMatches] = useState<MatchDataType[]>([]);
-  const [matchRecord, setMatchRecord] = useState(initCountData); // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
+  const [matchRecord, setMatchRecord] = useState(INIT_COUNT_DATA); // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
   const [loading, setLoading] = useState(false);
-  const [weeksCount, setWeeksCount] = useState(0);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
 
   const { history } = useTabHistory();
@@ -160,18 +144,14 @@ function Calendar() {
       <DayComponent
         key={props.date?.dateString}
         selectedDate={selectedDate}
-        weeksCount={weeksCount}
-        setWeeksCount={setWeeksCount}
         {...props}
         onPress={onDayPress}
       />
     ),
-    [onDayPress, selectedDate, weeksCount],
+    [onDayPress, selectedDate],
   );
 
   const headerComponent = useCallback((date: string) => {
-    setWeeksCount(0);
-
     return (
       <View
         style={{
@@ -475,38 +455,35 @@ function Calendar() {
   );
 }
 
+const getWeeksInMonth = (date: string) => {
+  const firstDayOfMonth = dayjs(date).startOf('month');
+  const totalDays = firstDayOfMonth.daysInMonth();
+  const startDayOfWeek = (firstDayOfMonth.day() + 1) % 7; // 0 (일) ~ 6 (토)
+
+  return Math.ceil((startDayOfWeek + totalDays) / 7);
+};
+
 function DayComponent({
   date,
   state,
   marking,
   onPress,
   selectedDate,
-  weeksCount,
-  setWeeksCount,
   ...props
 }: DayProps & {
   date?: DateData;
   selectedDate: string;
-  weeksCount: number;
-  setWeeksCount: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  setWeeksCount(prev => {
-    if (props.accessibilityLabel?.includes('월요일')) {
-      return prev + 1;
-    }
-    return prev;
-  });
-
   return (
     <TouchableOpacity
       onPress={() => onPress && onPress(date)}
       style={{
         width: '100%',
         height:
-          weeksCount > 5
+          getWeeksInMonth(date?.dateString || '') > 4
             ? Platform.OS === 'android'
-              ? 27
-              : 30
+              ? 26
+              : 29
             : Platform.OS === 'android'
             ? 37
             : 40,

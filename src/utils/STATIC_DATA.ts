@@ -149,6 +149,22 @@ const STATIC_STADIUMS: StadiumType[] = [
   },
 ];
 
+const INIT_COUNT_DATA = {
+  byMonth: {
+    home: 0,
+    away: 0,
+  },
+  bySeason: {
+    home: 0,
+    away: 0,
+  },
+  rate: {
+    win: 0,
+    lose: 0,
+    draw: 0,
+  },
+};
+
 export {
   DATE_FORMAT,
   DATE_FORMAT_SLASH,
@@ -166,4 +182,5 @@ export {
   SERVER_ERROR_MSG,
   NO_MATCH_STADIUM_KEY,
   STATIC_STADIUMS,
+  INIT_COUNT_DATA,
 };
