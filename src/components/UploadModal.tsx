@@ -146,7 +146,7 @@ export default function UploadModal({
       format: 'jpg',
       quality: 1,
     });
-
+    console.log(uri);
     try {
       if (tempRecord) {
         setTempRecord({
@@ -172,19 +172,17 @@ export default function UploadModal({
     if (buttonIndex === 1) {
       setVisibleFakeCamera(true);
 
-      const result = await launchCamera({
-        mediaType: 'photo',
-        saveToPhotos: true,
-        quality: 1,
-      });
-      // TODO 카메라를 어떻게 끌건지?
+      // TODO 가상카메라로 대체
+      // const result = await launchCamera({
+      //   mediaType: 'photo',
+      //   saveToPhotos: true,
+      //   quality: 1,
+      // });
       // const item = result.assets;
 
       // if (!item || !item[0].uri || !item[0].width || !item[0].height) {
       //   return;
       // }
-
-      await captureFilteredImage();
     } else if (buttonIndex === 2) {
       // 앨범 선택
       const result = await launchImageLibrary({
@@ -780,16 +778,38 @@ export default function UploadModal({
                 </View>
               </View>
             </ViewShot>
-            <TouchableOpacity
+            <View
               style={{
                 position: 'absolute',
                 bottom: 100,
-                left: '50%',
-                transform: [{ translateX: -50 }],
-              }}
-              onPress={() => {}}>
-              <Text style={{ color: 'white' }}>📸</Text>
-            </TouchableOpacity>
+                width,
+                flexDirection: 'row',
+              }}>
+              <TouchableOpacity
+                style={{
+                  position: 'absolute',
+                  left: 10,
+                }}
+                onPress={() => setVisibleFakeCamera(false)}>
+                <Text
+                  style={{
+                    color: 'white',
+                  }}>
+                  CANCEL
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={async () => {
+                  await captureFilteredImage();
+                }}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  transform: [{ translateX: -10 }],
+                }}>
+                <Text>📸</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
@@ -811,5 +831,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
-
-const CameraWithFilter = () => {};
