@@ -747,31 +747,33 @@ export default function UploadModal({
                     top: 80,
                     right: 20,
                     padding: 8,
-                    // backgroundColor: 'rgba(0,0,0,0.4)',
                   }}>
                   <Text
                     style={{
                       color: 'white',
-                      fontFamily: 'NanumMiNiSonGeurSsi',
+                      fontFamily: 'UhBee Seulvely',
                       textAlign: 'right',
+                      fontSize: 14,
                     }}>
-                    {dayjs(date).format('YYYY년 MM월 DD일 HH:mm:ss')}
+                    {dayjs(date).format('YYYY년 MM월 DD일 HH:mm')}
                   </Text>
                   {matchInfo && (
                     <Text
                       style={{
                         color: 'white',
-                        fontFamily: 'NanumMiNiSonGeurSsi',
+                        fontFamily: 'UhBee Seulvely',
                         textAlign: 'right',
+                        fontSize: 16,
                       }}>
-                      {matchInfo?.home} VS {matchInfo?.away}
+                      {matchInfo?.home} 대 {matchInfo?.away}
                     </Text>
                   )}
                   <Text
                     style={{
                       color: 'white',
-                      fontFamily: 'NanumMiNiSonGeurSsi',
+                      fontFamily: 'UhBee Seulvely',
                       textAlign: 'right',
+                      fontSize: 16,
                     }}>
                     오늘의 날씨: {currentWeather}
                   </Text>
@@ -786,7 +788,7 @@ export default function UploadModal({
                 transform: [{ translateX: -50 }],
               }}
               onPress={() => {}}>
-              <Text style={{ color: 'white' }}>📸 사진 찍기</Text>
+              <Text style={{ color: 'white' }}>📸</Text>
             </TouchableOpacity>
           </View>
         )}
