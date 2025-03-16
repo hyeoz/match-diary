@@ -97,7 +97,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 3
-        versionName "1.6.1"
+        versionName "2.0"
         multiDexEnabled true
         resValue "string", "MAPS_KEY", env["REACT_APP_NAVER_MAPS_PRIMARY_KEY"] ?: ''
         resValue "string", "NAVER_CLIENT_ID", env["REACT_APP_NAVER_CLIENT_ID"] ?: ''

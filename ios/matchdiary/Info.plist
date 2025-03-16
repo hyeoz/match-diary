@@ -6,6 +6,11 @@
 	<array>
 		<string>matchdiary-background-location</string>
 	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<true/>
+	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -41,8 +46,6 @@
 	<false/>
 	<key>NSAllowsLocalNetworking</key>
 	<true/>
-	<key>NSAppTransportSecurity</key>
-	<string/>
 	<key>NSCameraUsageDescription</key>
 	<string>지금 바로 기록을 남길 수 있게 카메라를 허용해주세요!</string>
 	<key>NSExceptionAllowsInsecureHTTPLoads</key>
