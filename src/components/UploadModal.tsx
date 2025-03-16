@@ -54,6 +54,7 @@ import { getWeatherIcon } from '@/api/weather';
 import { StadiumInfoType } from '@/type/team';
 
 import bubble from '@/assets/bubble.png';
+import { RNCamera } from 'react-native-camera';
 
 const { width, height } = Dimensions.get('window');
 
@@ -722,16 +723,36 @@ export default function UploadModal({
                   flex: 1,
                   justifyContent: 'flex-start',
                   alignItems: 'center',
+                  backgroundColor: 'gray',
                 }}>
                 {/* 여기에 실제 카메라 뷰를 넣을 수 있음 */}
-                <View
+                {/* <View
                   style={{
                     width,
                     height: '80%',
-                    backgroundColor: 'gray',
+                  }}
+                /> */}
+
+                <RNCamera
+                  style={{
+                    width,
+                    height: '60%',
+                  }}
+                  type={RNCamera.Constants.Type.back}
+                  flashMode={RNCamera.Constants.FlashMode.on}
+                  androidCameraPermissionOptions={{
+                    title: '카메라 권한',
+                    message: '카메라 사용을 허용해 주세요',
+                    buttonPositive: '허용',
+                    buttonNegative: '거부',
+                  }}
+                  androidRecordAudioPermissionOptions={{
+                    title: '오디오 권한',
+                    message: '오디오 사용을 허용해 주세요',
+                    buttonPositive: '허용',
+                    buttonNegative: '거부',
                   }}
                 />
-
                 {/* 화면 위 텍스트 오버레이 */}
                 <FastImage
                   source={bubble}
@@ -739,14 +760,14 @@ export default function UploadModal({
                     width: 160,
                     aspectRatio: 230 / 204,
                     position: 'absolute',
-                    top: 80,
+                    top: 120,
                     left: 20,
                   }}
                 />
                 <View
                   style={{
                     position: 'absolute',
-                    top: 80,
+                    top: 120,
                     right: 20,
                     padding: 8,
                   }}>
@@ -798,6 +819,7 @@ export default function UploadModal({
                 <Text
                   style={{
                     color: 'white',
+                    fontSize: 20,
                   }}>
                   CANCEL
                 </Text>
@@ -809,9 +831,14 @@ export default function UploadModal({
                 style={{
                   position: 'absolute',
                   left: '50%',
-                  transform: [{ translateX: -10 }],
+                  transform: [{ translateX: -14 }],
                 }}>
-                <Text>📸</Text>
+                <Text
+                  style={{
+                    fontSize: 24,
+                  }}>
+                  📸
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
