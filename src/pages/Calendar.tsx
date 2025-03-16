@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -12,7 +12,11 @@ import {
 } from 'react-native';
 import dayjs from 'dayjs';
 import { Calendar as RNCalendar, LocaleConfig } from 'react-native-calendars';
-import { DateData, MarkedDates } from 'react-native-calendars/src/types';
+import {
+  DateData,
+  DayState,
+  MarkedDates,
+} from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 
 import TouchableWrapper from '@components/TouchableWrapper';
@@ -58,6 +62,7 @@ function Calendar() {
   const [matchRecord, setMatchRecord] = useState(INIT_COUNT_DATA); // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
   const [loading, setLoading] = useState(false);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
+  const [weeksInMonth, setWeeksInMonth] = useState(0);
 
   const { history } = useTabHistory();
   const { teamId, uniqueId } = useUserState();
@@ -93,6 +98,10 @@ function Calendar() {
     getRecordsBySelectedDate();
     getMatchData();
     handleRecordsCount();
+
+    // 최초 렌딩 시 weeks 계산
+    // const weeks = getWeeksInMonth(selectedDate);
+    // setWeeksInMonth(weeks);
   }, [history, teamId, selectedDate]);
 
   useEffect(() => {
@@ -137,20 +146,45 @@ function Calendar() {
     setSelectedDate(dayjs(day?.dateString).format(DATE_FORMAT));
   }, []);
 
+  const currentCellHeight = useMemo(() => {
+    if (Platform.OS === 'ios') {
+      if (weeksInMonth === 4) {
+        return 37;
+      } else if (weeksInMonth === 5) {
+        return 35;
+      } else if (weeksInMonth === 6) {
+        return 28;
+      }
+    }
+    if (Platform.OS === 'android') {
+      if (weeksInMonth === 4) {
+        return 35;
+      } else if (weeksInMonth === 5) {
+        return 32;
+      } else if (weeksInMonth === 6) {
+        return 25;
+      }
+    }
+    return 40;
+  }, [weeksInMonth]);
+
   const dayComponent = useCallback(
     (
       props: DayProps & {
         date?: DateData;
       },
-    ) => (
-      <DayComponent
-        key={props.date?.dateString}
-        selectedDate={selectedDate}
-        {...props}
-        onPress={onDayPress}
-      />
-    ),
-    [onDayPress, selectedDate],
+    ) => {
+      return (
+        <DayComponent
+          key={props.date?.dateString}
+          selectedDate={selectedDate}
+          {...props}
+          onPress={onDayPress}
+          cellHeight={currentCellHeight}
+        />
+      );
+    },
+    [onDayPress, selectedDate, weeksInMonth, currentCellHeight],
   );
 
   const headerComponent = (date: string) => {
@@ -258,6 +292,10 @@ function Calendar() {
           firstDay={1}
           renderHeader={headerComponent}
           dayComponent={dayComponent}
+          onMonthChange={(data: DateData) => {
+            const weeks = getWeeksInMonth(data.dateString);
+            setWeeksInMonth(weeks);
+          }}
         />
       </View>
 
@@ -471,38 +509,25 @@ function Calendar() {
   );
 }
 
-const getWeeksInMonth = (date: string) => {
-  const firstDayOfMonth = dayjs(date).startOf('month');
-  const totalDays = firstDayOfMonth.daysInMonth();
-  const startDayOfWeek = (firstDayOfMonth.day() + 1) % 7; // 0 (일) ~ 6 (토)
-
-  return Math.ceil((startDayOfWeek + totalDays) / 7);
-};
-
 function DayComponent({
   date,
   state,
   marking,
   onPress,
   selectedDate,
+  cellHeight,
   ...props
 }: DayProps & {
   date?: DateData;
   selectedDate: string;
+  cellHeight: number;
 }) {
   return (
     <TouchableOpacity
       onPress={() => onPress && onPress(date)}
       style={{
         width: '100%',
-        height:
-          getWeeksInMonth(date?.dateString || '') > 4
-            ? Platform.OS === 'android'
-              ? 26
-              : 29
-            : Platform.OS === 'android'
-            ? 37
-            : 40,
+        height: cellHeight,
         gap: 6,
         margin: 0,
         alignItems: 'center',
@@ -577,6 +602,15 @@ function MatchesItem({
     </View>
   );
 }
+
+const getWeeksInMonth = (date: string) => {
+  const firstDayOfMonth = dayjs(date).startOf('month');
+  const totalDays = firstDayOfMonth.daysInMonth();
+  const startDayOfWeek =
+    firstDayOfMonth.day() === 0 ? 6 : firstDayOfMonth.day() - 1;
+
+  return Math.ceil((startDayOfWeek + totalDays) / 7);
+};
 
 const styles = StyleSheet.create({
   calendarWrapper: {
