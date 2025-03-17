@@ -11,6 +11,7 @@ import { palette } from '@style/palette';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
 
 import splash_text from '@assets/splash_text.png';
+import ad_designer from '@assets/ad_designer.png';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   const { setTeamId, setUserName, setUniqueId } = useUserState();
@@ -81,6 +82,15 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
         },
       ]}>
       <FastImage source={splash_text} style={styles.logo} />
+      <FastImage
+        source={ad_designer}
+        style={{
+          width: '60%',
+          height: 100,
+          borderRadius: 20,
+          marginTop: 16,
+        }}
+      />
     </View>
   );
 }
