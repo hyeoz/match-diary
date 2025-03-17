@@ -17,9 +17,10 @@ import { PERMISSIONS, request } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import Geolocation from '@react-native-community/geolocation';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
 import ViewShot, { captureRef } from 'react-native-view-shot';
+import { RNCamera } from 'react-native-camera';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -54,7 +55,6 @@ import { getWeatherIcon } from '@/api/weather';
 import { StadiumInfoType } from '@/type/team';
 
 import bubble from '@/assets/bubble.png';
-import { RNCamera } from 'react-native-camera';
 
 const { width, height } = Dimensions.get('window');
 
@@ -99,8 +99,6 @@ export default function UploadModal({
   const fontStyle = useFontStyle;
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
-  const apiFormattedToday = dayjs(date).format(API_DATE_FORMAT);
-  const year = dayjs(date).year();
 
   const initRecord: RecordType = {
     match_id: null,
@@ -158,6 +156,7 @@ export default function UploadModal({
           },
         });
       }
+      setVisibleFakeCamera(false);
     } catch (error) {
       console.error(error);
       Toast.show({
@@ -170,6 +169,10 @@ export default function UploadModal({
   const getImageAction = async (buttonIndex: number) => {
     // 카메라 선택
     if (buttonIndex === 1) {
+      if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
+        Alert.alert('카메라 사용 권한을 먼저 설정해주세요!');
+        return;
+      }
       setVisibleFakeCamera(true);
 
       // TODO 가상카메라로 대체

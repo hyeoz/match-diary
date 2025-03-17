@@ -103,6 +103,7 @@ android {
         resValue "string", "NAVER_CLIENT_ID", env["REACT_APP_NAVER_CLIENT_ID"] ?: ''
         resValue "string", "NAVER_CLIENT_SECRET_KEY", env["REACT_APP_NAVER_CLIENT_SECRET_KEY"] ?: ''
         resValue "string", "HEROKU_API_KEY", env["REACT_APP_HEROKU_API_KEY"] ?: ''
+        missingDimensionStrategy 'react-native-camera', 'general' // <--- insert this line
     }
     signingConfigs {
         debug {
@@ -168,3 +169,4 @@ dependencies {
 }
 
 // apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
