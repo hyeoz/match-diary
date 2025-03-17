@@ -98,10 +98,6 @@ function Calendar() {
     getRecordsBySelectedDate();
     getMatchData();
     handleRecordsCount();
-
-    // 최초 렌딩 시 weeks 계산
-    // const weeks = getWeeksInMonth(selectedDate);
-    // setWeeksInMonth(weeks);
   }, [history, teamId, selectedDate]);
 
   useEffect(() => {
@@ -165,7 +161,7 @@ function Calendar() {
         return 25;
       }
     }
-    return 40;
+    return 30;
   }, [weeksInMonth]);
 
   const dayComponent = useCallback(

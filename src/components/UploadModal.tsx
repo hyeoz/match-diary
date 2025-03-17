@@ -711,32 +711,37 @@ export default function UploadModal({
               height,
               backgroundColor: 'black',
             }}>
-            <ViewShot
+            <View
               style={{
-                position: 'absolute',
-                width: '100%',
-                height,
-              }}
-              ref={viewShotRef}>
-              <View
+                flex: 1,
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                backgroundColor: 'black',
+              }}>
+              <ViewShot
                 style={{
-                  flex: 1,
-                  justifyContent: 'flex-start',
-                  alignItems: 'center',
-                  backgroundColor: 'gray',
-                }}>
+                  position: 'absolute',
+                  width: '100%',
+                  height,
+                }}
+                ref={viewShotRef}>
                 {/* 여기에 실제 카메라 뷰를 넣을 수 있음 */}
                 {/* <View
                   style={{
                     width,
-                    height: '80%',
+                    aspectRatio: 1 / 1,
+                    backgroundColor: 'grey',
+                    position: 'absolute',
+                    top: '25%',
                   }}
                 /> */}
-
                 <RNCamera
                   style={{
                     width,
-                    height: '60%',
+                    aspectRatio: 1 / 1,
+                    backgroundColor: 'grey',
+                    position: 'absolute',
+                    top: '25%',
                   }}
                   type={RNCamera.Constants.Type.back}
                   flashMode={RNCamera.Constants.FlashMode.on}
@@ -757,17 +762,17 @@ export default function UploadModal({
                 <FastImage
                   source={bubble}
                   style={{
-                    width: 160,
+                    width: 140,
                     aspectRatio: 230 / 204,
                     position: 'absolute',
-                    top: 120,
+                    top: '28%',
                     left: 20,
                   }}
                 />
                 <View
                   style={{
                     position: 'absolute',
-                    top: 120,
+                    top: '28%',
                     right: 20,
                     padding: 8,
                   }}>
@@ -801,12 +806,12 @@ export default function UploadModal({
                     오늘의 날씨: {currentWeather}
                   </Text>
                 </View>
-              </View>
-            </ViewShot>
+              </ViewShot>
+            </View>
             <View
               style={{
                 position: 'absolute',
-                bottom: 100,
+                bottom: 150,
                 width,
                 flexDirection: 'row',
               }}>
@@ -821,7 +826,7 @@ export default function UploadModal({
                     color: 'white',
                     fontSize: 20,
                   }}>
-                  CANCEL
+                  Cancel
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
