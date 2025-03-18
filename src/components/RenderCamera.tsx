@@ -22,9 +22,9 @@ export default function RenderCamera() {
         style={{
           width,
           aspectRatio: 1 / 1,
-          backgroundColor: 'grey',
           position: 'absolute',
-          top: '25%',
+          // top: '25%',
+          zIndex: 99,
         }}
         device={device}
       />

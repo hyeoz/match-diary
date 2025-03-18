@@ -3,7 +3,6 @@ import {
   Dimensions,
   FlatList,
   ListRenderItemInfo,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -12,12 +11,12 @@ import {
 import dayjs from 'dayjs';
 
 import { palette } from '@/style/palette';
-import Loading from './Loading';
 import { useFontStyle } from '@/style/hooks';
 import { DATE_FORMAT, NO_MATCH_STADIUM_KEY } from '@/utils/STATIC_DATA';
 import { getMatchByDate } from '@/api/match';
 import { StadiumInfoType } from '@/type/team';
 import { RecordType } from '@/type/record';
+import Loading from './Loading';
 
 const { width, height } = Dimensions.get('window');
 
@@ -69,6 +68,11 @@ export default function SelectStadiumModal({
     );
   }, [todayStadiums]);
 
+  useEffect(() => {
+    if (!tempRecord) return;
+    setCurrentRecord(tempRecord);
+  }, [tempRecord]);
+
   const getTodayStadiums = async () => {
     const res = await getMatchByDate(dayjs(selectedDate).format(DATE_FORMAT));
     if (res.data.length) {
@@ -76,6 +80,24 @@ export default function SelectStadiumModal({
     } else {
       setTodayStadiums([NO_MATCH_STADIUM_KEY]);
     }
+  };
+
+  const onSaveStadium = () => {
+    if (!tempRecord) {
+      return;
+    }
+    if (currentRecord) {
+      setTempRecord({
+        ...tempRecord,
+        ...currentRecord,
+      });
+    } else {
+      setTempRecord({
+        ...tempRecord,
+        stadium_id: NO_MATCH_STADIUM_KEY,
+      });
+    }
+    setIsVisible(false);
   };
 
   return (
@@ -98,19 +120,20 @@ export default function SelectStadiumModal({
               data={sortedInfo.map(info => ({
                 ...info,
                 isSelected:
-                  info.stadium_id === tempRecord?.stadium_id &&
-                  info.match_id === tempRecord?.match_id,
+                  info.stadium_id === currentRecord?.stadium_id &&
+                  info.match_id === currentRecord?.match_id,
                 isCommunity,
               }))}
               renderItem={item => (
                 <StadiumItem
-                  setSelect={value =>
-                    tempRecord &&
-                    setTempRecord({
-                      ...tempRecord,
-                      ...value,
-                    })
-                  }
+                  setSelect={value => {
+                    if (!currentRecord) return;
+                    setCurrentRecord({
+                      ...currentRecord,
+                      match_id: value.match_id,
+                      stadium_id: value.stadium_id,
+                    });
+                  }}
                   sortedInfo={sortedInfo}
                   {...item}
                 />
@@ -118,21 +141,7 @@ export default function SelectStadiumModal({
             />
 
             <TouchableOpacity
-              onPress={() => {
-                if (!tempRecord) return;
-                if (currentRecord) {
-                  setTempRecord({
-                    ...tempRecord,
-                    ...currentRecord,
-                  });
-                } else {
-                  setTempRecord({
-                    ...tempRecord,
-                    stadium_id: NO_MATCH_STADIUM_KEY,
-                  });
-                }
-                setIsVisible(false);
-              }}
+              onPress={onSaveStadium}
               style={styles.modalSelectButton}>
               <Text
                 style={fontStyle({
@@ -171,12 +180,12 @@ function StadiumItem({
         justifyContent: 'space-between',
         paddingVertical: 8,
       }}
-      onPress={() => {
+      onPress={() =>
         setSelect({
           match_id: props.item.match_id,
           stadium_id: props.item.stadium_id,
-        });
-      }}>
+        })
+      }>
       <View
         style={{
           flexDirection: 'row',

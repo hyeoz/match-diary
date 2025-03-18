@@ -24,8 +24,6 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
 
-import SelectStadiumModal from './SelectStadiumModal';
-import Loading from './Loading';
 import { CoordinateType, DetailPropsType } from '@/type/default';
 import { RecordType, TempRecordImageType } from '@/type/record';
 import {
@@ -52,6 +50,8 @@ import { useFontStyle } from '@/style/hooks';
 import { MatchDataType } from '@/type/match';
 import { getWeatherIcon } from '@/api/weather';
 import { StadiumInfoType } from '@/type/team';
+import SelectStadiumModal from './SelectStadiumModal';
+import Loading from './Loading';
 import RenderCamera from './RenderCamera';
 
 import bubble from '@/assets/bubble.png';
@@ -376,7 +376,7 @@ export default function UploadModal({
           home:
             teams.find(team => team.team_id === match.home)?.team_name ?? '',
           away:
-            teams.find(team => team.team_id === match.home)?.team_name ?? '',
+            teams.find(team => team.team_id === match.away)?.team_name ?? '',
         });
         return { name: stadiumName, stadium_id: stadiumId, match_id: match.id };
       });
@@ -626,9 +626,7 @@ export default function UploadModal({
               </Text>
               {isKeyboardShow && (
                 <TouchableOpacity
-                  onPress={() => {
-                    Keyboard.dismiss();
-                  }}
+                  onPress={() => Keyboard.dismiss()}
                   style={{
                     width: '100%',
                     alignItems: 'center',
@@ -729,15 +727,6 @@ export default function UploadModal({
                 }}
                 ref={viewShotRef}>
                 {/* 여기에 실제 카메라 뷰를 넣을 수 있음 */}
-                {/* <View
-                  style={{
-                    width,
-                    aspectRatio: 1 / 1,
-                    backgroundColor: 'grey',
-                    position: 'absolute',
-                    top: '25%',
-                  }}
-                /> */}
                 <RenderCamera />
                 {/* 화면 위 텍스트 오버레이 */}
                 <FastImage
@@ -764,9 +753,9 @@ export default function UploadModal({
                       textAlign: 'right',
                       fontSize: 14,
                     }}>
-                    {dayjs(date).format('YYYY년 MM월 DD일 HH:mm')}
+                    {dayjs(date).format('YYYY년 MM월 DD일')}
                   </Text>
-                  {matchInfo && (
+                  {tempRecord?.stadium_id && (
                     <Text
                       style={{
                         color: 'white',
@@ -774,7 +763,25 @@ export default function UploadModal({
                         textAlign: 'right',
                         fontSize: 16,
                       }}>
-                      {matchInfo?.home} 대 {matchInfo?.away}
+                      {
+                        teams.find(
+                          team =>
+                            team.team_id ===
+                            matches.find(
+                              match => match.stadium === tempRecord?.stadium_id,
+                            )?.home,
+                        )?.team_short_name
+                      }
+                      {' VS '}
+                      {
+                        teams.find(
+                          team =>
+                            team.team_id ===
+                            matches.find(
+                              match => match.stadium === tempRecord?.stadium_id,
+                            )?.away,
+                        )?.team_short_name
+                      }
                     </Text>
                   )}
                   <Text
