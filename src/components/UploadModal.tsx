@@ -20,7 +20,6 @@ import Geolocation from '@react-native-community/geolocation';
 import { launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
 import ViewShot, { captureRef } from 'react-native-view-shot';
-import { RNCamera } from 'react-native-camera';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -53,6 +52,7 @@ import { useFontStyle } from '@/style/hooks';
 import { MatchDataType } from '@/type/match';
 import { getWeatherIcon } from '@/api/weather';
 import { StadiumInfoType } from '@/type/team';
+import RenderCamera from './RenderCamera';
 
 import bubble from '@/assets/bubble.png';
 
@@ -173,9 +173,9 @@ export default function UploadModal({
         Alert.alert('카메라 사용 권한을 먼저 설정해주세요!');
         return;
       }
+      // TODO 가상카메라로 대체
       setVisibleFakeCamera(true);
 
-      // TODO 가상카메라로 대체
       // const result = await launchCamera({
       //   mediaType: 'photo',
       //   saveToPhotos: true,
@@ -738,29 +738,7 @@ export default function UploadModal({
                     top: '25%',
                   }}
                 /> */}
-                <RNCamera
-                  style={{
-                    width,
-                    aspectRatio: 1 / 1,
-                    backgroundColor: 'grey',
-                    position: 'absolute',
-                    top: '25%',
-                  }}
-                  type={RNCamera.Constants.Type.back}
-                  flashMode={RNCamera.Constants.FlashMode.on}
-                  androidCameraPermissionOptions={{
-                    title: '카메라 권한',
-                    message: '카메라 사용을 허용해 주세요',
-                    buttonPositive: '허용',
-                    buttonNegative: '거부',
-                  }}
-                  androidRecordAudioPermissionOptions={{
-                    title: '오디오 권한',
-                    message: '오디오 사용을 허용해 주세요',
-                    buttonPositive: '허용',
-                    buttonNegative: '거부',
-                  }}
-                />
+                <RenderCamera />
                 {/* 화면 위 텍스트 오버레이 */}
                 <FastImage
                   source={bubble}
