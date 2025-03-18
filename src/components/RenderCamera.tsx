@@ -13,21 +13,21 @@ export default function RenderCamera({
 }: {
   cameraRef: RefObject<Camera>;
 }) {
-  const tempRef = useRef<Camera>(null);
   const device = useCameraDevice('back');
   const { hasPermission } = useCameraPermission();
   console.log(cameraRef.current);
   if (hasPermission && device) {
     return (
       <Camera
-        ref={tempRef}
+        ref={cameraRef}
         isActive={true}
         style={{
-          width,
-          aspectRatio: 1 / 1,
           position: 'absolute',
-          top: '25%',
-          transform: [{ translateY: -height / 4 }],
+          width,
+          height,
+          // aspectRatio: 1 / 1,
+          // top: '35%',
+          // transform: [{ translateY: -height / 4 }],
         }}
         device={device}
       />

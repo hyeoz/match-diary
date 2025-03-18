@@ -91,7 +91,7 @@ export default function UploadModal({
   const [matches, setMatches] = useState<MatchDataType[]>([]);
   const [visibleFakeCamera, setVisibleFakeCamera] = useState(false);
   const [currentWeather, setCurrentWeather] = useState('');
-  const [cameraUri, setCameraUri] = useState('test');
+  const [cameraUri, setCameraUri] = useState('');
 
   const { uniqueId } = useUserState();
   const { stadiums } = useStadiumsState();
