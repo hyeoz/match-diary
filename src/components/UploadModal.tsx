@@ -20,14 +20,17 @@ import Geolocation from '@react-native-community/geolocation';
 import { launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
 import ViewShot, { captureRef } from 'react-native-view-shot';
+import { Camera } from 'react-native-vision-camera';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
 
-import { CoordinateType, DetailPropsType } from '@/type/default';
-import { RecordType, TempRecordImageType } from '@/type/record';
+import { API } from '@/api';
+import SelectStadiumModal from './SelectStadiumModal';
+import Loading from './Loading';
+import RenderCamera from './RenderCamera';
+import CameraOverlay from './CameraOverlay';
 import {
-  API_DATE_FORMAT,
   DATE_FORMAT,
   DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
@@ -37,24 +40,20 @@ import {
   SERVER_ERROR_MSG,
 } from '@utils/STATIC_DATA';
 import { getDistanceFromLatLonToKm, hasAndroidPermission } from '@utils/helper';
-import { Add, Arrow } from '@assets/svg';
-import { palette } from '@style/palette';
-import { modalStyles } from '@/style/modal';
 import { useUserState } from '@/stores/user';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { useCarouselIndexState } from '@/stores/default';
 import { getMatchByDate } from '@/api/match';
-import { API } from '@/api';
 import { getRecordByDate } from '@/api/record';
-import { useFontStyle } from '@/style/hooks';
-import { MatchDataType } from '@/type/match';
 import { getWeatherIcon } from '@/api/weather';
+import { CoordinateType, DetailPropsType } from '@/type/default';
+import { RecordType, TempRecordImageType } from '@/type/record';
+import { MatchDataType } from '@/type/match';
 import { StadiumInfoType } from '@/type/team';
-import SelectStadiumModal from './SelectStadiumModal';
-import Loading from './Loading';
-import RenderCamera from './RenderCamera';
-
-import bubble from '@/assets/bubble.png';
+import { palette } from '@style/palette';
+import { modalStyles } from '@/style/modal';
+import { useFontStyle } from '@/style/hooks';
+import { Add, Arrow } from '@assets/svg';
 
 const { width, height } = Dimensions.get('window');
 
@@ -72,6 +71,7 @@ export default function UploadModal({
   date?: string;
 }) {
   const viewShotRef = useRef(null);
+  const cameraRef = useRef<Camera>(null);
 
   const [todayStadiums, setTodayStadiums] = useState<
     { name: string; stadium_id: number; match_id: number }[]
@@ -91,11 +91,13 @@ export default function UploadModal({
   const [matches, setMatches] = useState<MatchDataType[]>([]);
   const [visibleFakeCamera, setVisibleFakeCamera] = useState(false);
   const [currentWeather, setCurrentWeather] = useState('');
+  const [cameraUri, setCameraUri] = useState('test');
 
   const { uniqueId } = useUserState();
   const { stadiums } = useStadiumsState();
   const { teams } = useTeamsState();
   const { carouselIndexState } = useCarouselIndexState();
+
   const fontStyle = useFontStyle;
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
@@ -138,13 +140,24 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
+  // TODO 카메라 촬영 버튼
+  const getPickture = async () => {
+    console.log('GET PICKTURE', cameraRef.current);
+    if (cameraRef.current) {
+      // const options = { quality: 0.7, base64: true };
+      const data = await cameraRef.current.takePhoto();
+      console.log(data, 'camera pickture');
+      setCameraUri(data.path);
+    }
+  };
+
+  // TODO 📌 ViewShot을 이용해 화면 캡처
   const captureFilteredImage = async () => {
-    // 📌 ViewShot을 이용해 화면 캡처
     const uri = await captureRef(viewShotRef, {
       format: 'jpg',
       quality: 1,
     });
-    console.log(uri);
+    console.log(uri, 'capture image');
     try {
       if (tempRecord) {
         setTempRecord({
@@ -157,6 +170,7 @@ export default function UploadModal({
         });
       }
       setVisibleFakeCamera(false);
+      setCameraUri('');
     } catch (error) {
       console.error(error);
       Toast.show({
@@ -175,17 +189,6 @@ export default function UploadModal({
       }
       // TODO 가상카메라로 대체
       setVisibleFakeCamera(true);
-
-      // const result = await launchCamera({
-      //   mediaType: 'photo',
-      //   saveToPhotos: true,
-      //   quality: 1,
-      // });
-      // const item = result.assets;
-
-      // if (!item || !item[0].uri || !item[0].width || !item[0].height) {
-      //   return;
-      // }
     } else if (buttonIndex === 2) {
       // 앨범 선택
       const result = await launchImageLibrary({
@@ -224,40 +227,7 @@ export default function UploadModal({
     }
   };
 
-  // 사진 선택 버튼 클릭
-  const onPressOpenGallery = async () => {
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ['취소', '카메라', '앨범'],
-          cancelButtonIndex: 0,
-        },
-        buttonIndex => getImageAction(buttonIndex),
-      );
-    } else if (Platform.OS === 'android') {
-      Alert.alert(
-        '이미지 선택',
-        '이미지를 추가할 방식을 선택해주세요!',
-        [
-          {
-            text: '취소',
-            onPress: () => getImageAction(0),
-            style: 'cancel',
-          },
-          {
-            text: '카메라',
-            onPress: () => getImageAction(1),
-          },
-          {
-            text: '앨범',
-            onPress: () => getImageAction(2),
-          },
-        ],
-        { cancelable: true, onDismiss: () => getImageAction(0) },
-      );
-    }
-  };
-
+  // 저장 버튼
   const onSave = async () => {
     if (!tempRecord) return;
 
@@ -346,6 +316,7 @@ export default function UploadModal({
     setIsVisible(false);
   };
 
+  // 오늘자 경기 조회
   const getTodayMatch = async () => {
     const res = await getMatchByDate(formattedToday);
     setMatches(res.data);
@@ -474,6 +445,40 @@ export default function UploadModal({
       formattedToday,
     );
     setCurrentWeather(weather);
+  };
+
+  // 사진 선택 버튼 클릭
+  const onPressOpenGallery = async () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['취소', '카메라', '앨범'],
+          cancelButtonIndex: 0,
+        },
+        buttonIndex => getImageAction(buttonIndex),
+      );
+    } else if (Platform.OS === 'android') {
+      Alert.alert(
+        '이미지 선택',
+        '이미지를 추가할 방식을 선택해주세요!',
+        [
+          {
+            text: '취소',
+            onPress: () => getImageAction(0),
+            style: 'cancel',
+          },
+          {
+            text: '카메라',
+            onPress: () => getImageAction(1),
+          },
+          {
+            text: '앨범',
+            onPress: () => getImageAction(2),
+          },
+        ],
+        { cancelable: true, onDismiss: () => getImageAction(0) },
+      );
+    }
   };
 
   return (
@@ -634,7 +639,7 @@ export default function UploadModal({
                   <Arrow
                     width={24}
                     height={24}
-                    color={'#666'}
+                    color={palette.greyColor.gray6}
                     style={{
                       transform: [
                         {
@@ -690,6 +695,7 @@ export default function UploadModal({
         </View>
       </View>
 
+      {/* SECTION 경기장 선택 모달 */}
       {stadiumSelectVisible && (
         <SelectStadiumModal
           stadiumInfo={stadiumInfo}
@@ -702,100 +708,31 @@ export default function UploadModal({
       )}
 
       {/* SECTION 가상카메라 */}
-      {/* ViewShot을 감싸서 캡처 가능하게 설정 */}
-      <>
-        {visibleFakeCamera && (
+      {visibleFakeCamera && (
+        <View
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height,
+            backgroundColor: 'black',
+          }}>
           <View
             style={{
-              position: 'absolute',
-              width: '100%',
-              height,
+              flex: 1,
+              justifyContent: 'flex-start',
+              alignItems: 'center',
               backgroundColor: 'black',
             }}>
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                backgroundColor: 'black',
-              }}>
-              <ViewShot
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height,
-                }}
-                ref={viewShotRef}>
-                {/* 여기에 실제 카메라 뷰를 넣을 수 있음 */}
-                <RenderCamera />
-                {/* 화면 위 텍스트 오버레이 */}
-                <FastImage
-                  source={bubble}
-                  style={{
-                    width: 140,
-                    aspectRatio: 230 / 204,
-                    position: 'absolute',
-                    top: '28%',
-                    left: 20,
-                  }}
-                />
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: '28%',
-                    right: 20,
-                    padding: 8,
-                  }}>
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontFamily: 'UhBee Seulvely',
-                      textAlign: 'right',
-                      fontSize: 14,
-                    }}>
-                    {dayjs(date).format('YYYY년 MM월 DD일')}
-                  </Text>
-                  {tempRecord?.stadium_id && (
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontFamily: 'UhBee Seulvely',
-                        textAlign: 'right',
-                        fontSize: 16,
-                      }}>
-                      {
-                        teams.find(
-                          team =>
-                            team.team_id ===
-                            matches.find(
-                              match => match.stadium === tempRecord?.stadium_id,
-                            )?.home,
-                        )?.team_short_name
-                      }
-                      {' VS '}
-                      {
-                        teams.find(
-                          team =>
-                            team.team_id ===
-                            matches.find(
-                              match => match.stadium === tempRecord?.stadium_id,
-                            )?.away,
-                        )?.team_short_name
-                      }
-                    </Text>
-                  )}
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontFamily: 'UhBee Seulvely',
-                      textAlign: 'right',
-                      fontSize: 16,
-                    }}>
-                    오늘의 날씨: {currentWeather}
-                  </Text>
-                </View>
-              </ViewShot>
-            </View>
+            {/* 카메라 뷰 */}
+            <RenderCamera cameraRef={cameraRef} />
+            {/* 화면 위 텍스트 오버레이 */}
+            <CameraOverlay
+              date={date}
+              tempRecord={tempRecord}
+              matches={matches}
+              currentWeather={currentWeather}
+            />
+            {/* 촬영 버튼 */}
             <View
               style={{
                 position: 'absolute',
@@ -819,7 +756,7 @@ export default function UploadModal({
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={async () => {
-                  await captureFilteredImage();
+                  await getPickture();
                 }}
                 style={{
                   position: 'absolute',
@@ -835,10 +772,94 @@ export default function UploadModal({
               </TouchableOpacity>
             </View>
           </View>
-        )}
+        </View>
+      )}
 
-        {/* 촬영 버튼 */}
-      </>
+      {/* SECTION 촬영 후 확인 화면 / 캡쳐될 화면 */}
+      {cameraUri && (
+        <View
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            bottom: 0,
+            zIndex: 9,
+            backgroundColor: 'white',
+            // borderTopRightRadius: 8,
+            // borderTopLeftRadius: 8,
+            // borderColor: palette.greyColor.gray6,
+            // borderWidth: 3,
+            flex: 1,
+          }}>
+          <ViewShot
+            style={{
+              // position: 'absolute',
+              width: '100%',
+              height: '80%',
+              // zIndex: 9,
+              // backgroundColor: 'white',
+            }}
+            ref={viewShotRef}>
+            <CameraOverlay
+              date={date}
+              tempRecord={tempRecord}
+              matches={matches}
+              currentWeather={currentWeather}
+            />
+            <FastImage
+              source={{ uri: cameraUri }}
+              style={{
+                position: 'absolute',
+              }}
+            />
+          </ViewShot>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              gap: 12,
+              marginTop: 18,
+            }}>
+            <TouchableOpacity
+              onPress={() => {
+                setCameraUri('');
+              }}
+              style={[
+                modalStyles.button,
+                {
+                  borderWidth: 1,
+                  borderColor: palette.greyColor.border,
+                },
+              ]}>
+              <View>
+                <Text style={modalStyles.buttonText}>다시 찍기</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={async () => {
+                await captureFilteredImage();
+              }}
+              style={[
+                modalStyles.button,
+                {
+                  backgroundColor: palette.commonColor.green,
+                },
+              ]}>
+              <View>
+                <Text
+                  style={[
+                    modalStyles.buttonText,
+                    {
+                      color: palette.greyColor.white,
+                    },
+                  ]}>
+                  사진 사용하기
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {/* NOTE root 위치에 존재하지만, 모달보다 위에 토스트를 띄우기 위해 한 번 더 호출 */}
       <Toast />

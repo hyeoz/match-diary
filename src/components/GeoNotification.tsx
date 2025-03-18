@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, AppState, Platform } from 'react-native';
-import PushNotification from 'react-native-push-notification';
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
+// import PushNotification from 'react-native-push-notification';
+// import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import {
   check,
   request,
@@ -45,11 +45,11 @@ export default function GeoNotification() {
         console.log(currentDistance, currentStadium);
         // TODO
         if (currentDistance <= DISTANCE_THRESHOLD) {
-          PushNotification.localNotification({
-            channelId: 'matchdiary-background-location-alert',
-            title: `📍혹시 ${currentStadium?.stadium_name} 이신가요?`,
-            message: '오늘의 직관일기를 기록해봐요!',
-          });
+          // PushNotification.localNotification({
+          //   channelId: 'matchdiary-background-location-alert',
+          //   title: `📍혹시 ${currentStadium?.stadium_name} 이신가요?`,
+          //   message: '오늘의 직관일기를 기록해봐요!',
+          // });
         }
       },
       error => console.log('위치 가져오기 실패', error),
@@ -86,22 +86,22 @@ export default function GeoNotification() {
     requestLocationPermission();
 
     // NOTE push 알림 설정
-    PushNotification.configure({
-      onNotification: function (notification) {
-        // 기본 알림 처리 막기
-        notification.finish(PushNotificationIOS.FetchResult.NoData);
+    // PushNotification.configure({
+    //   onNotification: function (notification) {
+    //     // 기본 알림 처리 막기
+    //     notification.finish(PushNotificationIOS.FetchResult.NoData);
 
-        // 커스텀 알림 생성
-        showNotificationAlert();
-      },
-      permissions: {
-        alert: true,
-        badge: true,
-        sound: true,
-      },
-      popInitialNotification: true,
-      requestPermissions: true,
-    });
+    //     // 커스텀 알림 생성
+    //     showNotificationAlert();
+    //   },
+    //   permissions: {
+    //     alert: true,
+    //     badge: true,
+    //     sound: true,
+    //   },
+    //   popInitialNotification: true,
+    //   requestPermissions: true,
+    // });
 
     // NOTE background notification
     await setupBackgroundFetch();
@@ -130,17 +130,17 @@ const showLocationAlert = () => {
 
 const showNotificationAlert = () => {
   // 커스텀 알림 생성
-  PushNotification.localNotification({
-    title: '"직관일기" 가 알림을 보내고 싶어합니다.',
-    message: '경기장 근처에서 알림을 보내드릴게요!',
-    playSound: true, // 사운드 재생 여부
-    soundName: 'default', // 사용할 사운드 파일
-    vibrate: true, // 진동 여부
-    priority: 'high', // 알림 우선순위
-    visibility: 'public', // 알림의 공개 범위
-    channelId: 'matchdiary-background-location-alert', // Android에서 필요한 채널 ID
-    userInfo: {}, // 사용자 정의 데이터
-  });
+  // PushNotification.localNotification({
+  //   title: '"직관일기" 가 알림을 보내고 싶어합니다.',
+  //   message: '경기장 근처에서 알림을 보내드릴게요!',
+  //   playSound: true, // 사운드 재생 여부
+  //   soundName: 'default', // 사용할 사운드 파일
+  //   vibrate: true, // 진동 여부
+  //   priority: 'high', // 알림 우선순위
+  //   visibility: 'public', // 알림의 공개 범위
+  //   channelId: 'matchdiary-background-location-alert', // Android에서 필요한 채널 ID
+  //   userInfo: {}, // 사용자 정의 데이터
+  // });
 };
 
 const requestLocationPermission = async () => {

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  ActionSheetIOS,
   Alert,
   Dimensions,
   FlatList,
@@ -16,6 +17,7 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 import FastImage from 'react-native-fast-image';
+import { onCreateTriggerNotification } from '@/hooks/schedulingHook';
 
 import { DetailPropsType } from '@/type/default';
 import { useCarouselIndexState } from '@stores/default';
@@ -94,32 +96,6 @@ export function Detail({
       );
     }
   }, [teamId, records, matches, carouselIndexState]);
-
-  // useEffect(() => {
-  //   const tempRecord = records[carouselIndexState];
-  //   const tempMatch = matches.find(mat => mat.id === tempRecord.match_id);
-
-  //   // TODO 더블헤더 분기처리
-  //   if (matches.length > 1) {
-  //     let newReocrd: MatchDataType;
-  //     if (tempMatch?.memo?.includes('더블헤더')) {
-  //       // 1경기
-  //       matches.forEach(mat => {
-  //         newReocrd =
-  //           new Date(tempMatch?.time) > new Date(mat.time) ? tempMatch : mat;
-  //       });
-  //     } else {
-  //       // 2경기
-  //       matches.forEach(mat => {
-  //         newReocrd =
-  //           new Date(tempMatch?.time) < new Date(mat.time) ? tempMatch : mat;
-  //       });
-  //     }
-  //     setSelectedMatch(tempMatch!);
-  //   } else {
-  //     setSelectedMatch(matches.find(mat => mat.id === tempMatch?.id));
-  //   }
-  // }, [records, matches]);
 
   const getTodayMatch = async () => {
     const res = await getMatchByDate(date || '');
@@ -216,6 +192,74 @@ export function Detail({
     [],
   );
 
+  const onPressScheduling = async () => {
+    Alert.alert(
+      '선택한 날짜에 직관 알림을 예약할까요?',
+      '해당 날짜에 알림을 보내드릴게요!',
+      [
+        { text: '취소', onPress: () => {} }, // TODO
+        {
+          text: '예약하기',
+          onPress: async () => {
+            if (!date) {
+              Toast.show({
+                type: 'info',
+                text1: '날짜를 먼저 선택해주세요!',
+              });
+              return;
+            }
+            await onCreateTriggerNotification(date);
+            Toast.show({
+              type: 'success',
+              text1: '직관 알림 예약이 완료되었어요!',
+              text2: '선택한 날짜에 알려드릴게요!',
+            });
+          },
+        },
+      ],
+    );
+  };
+
+  const selectAddRecordMode = async () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['취소', '직관 기록하기', '직관 예약하기'],
+          cancelButtonIndex: 0,
+        },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            setIsVisible(true);
+          } else if (buttonIndex === 2) {
+            onPressScheduling();
+          } else {
+          }
+        },
+      );
+    } else if (Platform.OS === 'android') {
+      Alert.alert(
+        '선택하기',
+        '해당 날짜에 추가할 액션을 선택해주세요!',
+        [
+          {
+            text: '취소',
+            onPress: () => {}, // TODO
+            style: 'cancel',
+          },
+          {
+            text: '직관 기록',
+            onPress: () => setIsVisible(true),
+          },
+          {
+            text: '직관 예약',
+            onPress: () => onPressScheduling(),
+          },
+        ],
+        { cancelable: true, onDismiss: () => {} },
+      );
+    }
+  };
+
   return (
     <View
       style={
@@ -263,7 +307,7 @@ export function Detail({
                     ]
               }>
               <TouchableOpacity
-                onPress={() => setIsVisible(true)}
+                onPress={() => selectAddRecordMode()}
                 style={{
                   flex: 1,
                   alignItems: 'center',
