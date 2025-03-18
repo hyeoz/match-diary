@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  ActionSheetIOS,
   Alert,
   Dimensions,
   FlatList,
@@ -41,6 +42,8 @@ import { getAllUserRecords, getRecordByDate } from '@/api/record';
 import { MatchDataType } from '@/type/match';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { StadiumType, TeamType } from '@/type/team';
+import Toast from 'react-native-toast-message';
+import { onCreateTriggerNotification } from '@/hooks/schedulingHook';
 
 const { width } = Dimensions.get('window');
 
@@ -275,6 +278,73 @@ function Calendar() {
     setMatchRecord(recordsCnt);
   };
 
+  const onPressScheduling = async () => {
+    Alert.alert(
+      '선택한 날짜에 직관 알림을 예약할까요?',
+      '해당 날짜에 알림을 보내드릴게요!',
+      [
+        { text: '취소', onPress: () => {} }, // TODO
+        {
+          text: '예약하기',
+          onPress: async () => {
+            if (!selectedDate) {
+              Toast.show({
+                type: 'info',
+                text1: '날짜를 먼저 선택해주세요!',
+              });
+              return;
+            }
+            await onCreateTriggerNotification(selectedDate);
+            Toast.show({
+              type: 'success',
+              text1: '직관 알림 예약이 완료되었어요!',
+              text2: '선택한 날짜에 알려드릴게요!',
+            });
+          },
+        },
+      ],
+    );
+  };
+
+  const selectAddRecordMode = async () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['취소', '직관 기록하기', '직관 예약하기'],
+          cancelButtonIndex: 0,
+        },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            setIsVisible(true);
+          } else if (buttonIndex === 2) {
+            onPressScheduling();
+          }
+        },
+      );
+    } else if (Platform.OS === 'android') {
+      Alert.alert(
+        '선택하기',
+        '해당 날짜에 추가할 액션을 선택해주세요!',
+        [
+          {
+            text: '취소',
+            onPress: () => {}, // TODO
+            style: 'cancel',
+          },
+          {
+            text: '직관 기록',
+            onPress: () => setIsVisible(true),
+          },
+          {
+            text: '직관 예약',
+            onPress: () => onPressScheduling(),
+          },
+        ],
+        { cancelable: true, onDismiss: () => {} },
+      );
+    }
+  };
+
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
@@ -319,7 +389,16 @@ function Calendar() {
             />
           ) : (
             <TouchableOpacity
-              onPress={() => setIsVisible(true)}
+              onPress={() => {
+                if (
+                  new Date(selectedDate + 'T00:00:00.000Z') <=
+                  new Date(dayjs().format('YYYY-MM-DD') + 'T00:00:00.000Z')
+                ) {
+                  setIsVisible(true);
+                } else {
+                  selectAddRecordMode();
+                }
+              }}
               style={{
                 padding: 16,
                 marginTop: -16,
@@ -501,6 +580,7 @@ function Calendar() {
       </View>
 
       <UploadModal {...detailProps} isVisible={isVisible} date={selectedDate} />
+      <Toast />
     </TouchableWrapper>
   );
 }

@@ -307,7 +307,16 @@ export function Detail({
                     ]
               }>
               <TouchableOpacity
-                onPress={() => selectAddRecordMode()}
+                onPress={() => {
+                  if (
+                    new Date(date + 'T00:00:00.000Z') <=
+                    new Date(dayjs().format('YYYY-MM-DD') + 'T00:00:00.000Z')
+                  ) {
+                    setIsVisible(true);
+                  } else {
+                    selectAddRecordMode();
+                  }
+                }}
                 style={{
                   flex: 1,
                   alignItems: 'center',
