@@ -148,12 +148,13 @@ export default function UploadModal({
       const data = await cameraRef.current.takePhoto();
       console.log(data, 'camera picture');
       setCameraUri(data.path);
+      setVisibleFakeCamera(false);
     } else {
       console.error('no ref');
     }
   };
 
-  // TODO 📌 ViewShot을 이용해 화면 캡처
+  // TODO ViewShot을 이용해 화면 캡처
   const captureFilteredImage = async () => {
     const uri = await captureRef(viewShotRef, {
       format: 'jpg',
@@ -171,7 +172,6 @@ export default function UploadModal({
           },
         });
       }
-      setVisibleFakeCamera(false);
       setCameraUri('');
     } catch (error) {
       console.error(error);
@@ -778,34 +778,29 @@ export default function UploadModal({
 
       {/* SECTION 촬영 후 확인 화면 / 캡쳐될 화면 */}
       {cameraUri && (
-        <View
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            bottom: 0,
-            zIndex: 9,
-            backgroundColor: 'white',
-            // borderTopRightRadius: 8,
-            // borderTopLeftRadius: 8,
-            // borderColor: palette.greyColor.gray6,
-            // borderWidth: 3,
-            flex: 1,
-          }}>
-          <ViewShot
-            style={{
-              // position: 'absolute',
-              width: '100%',
-              height: '80%',
-              // zIndex: 9,
-              // backgroundColor: 'white',
-            }}
-            ref={viewShotRef}>
+        <View style={styles.confirmImageWrapper}>
+          <Text
+            style={[
+              fontStyle({
+                position: 'absolute',
+                width: '100%',
+                textAlign: 'center',
+                top: '18%',
+                fontSize: 24,
+              }),
+            ]}>
+            이미지 미리보기
+          </Text>
+          <ViewShot style={styles.captureWrapper} ref={viewShotRef}>
             <CameraOverlay
               date={date}
               tempRecord={tempRecord}
               matches={matches}
               currentWeather={currentWeather}
+              additionalStyle={{
+                top: '5%',
+                width: '90%',
+              }}
             />
             <FastImage
               source={{ uri: cameraUri }}
@@ -814,13 +809,7 @@ export default function UploadModal({
               }}
             />
           </ViewShot>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              gap: 12,
-              marginTop: 18,
-            }}>
+          <View style={styles.captureImageWrapper}>
             <TouchableOpacity
               onPress={() => {
                 setCameraUri('');
@@ -875,5 +864,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     backgroundColor: '#fff',
+  },
+  confirmImageWrapper: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    bottom: 0,
+    zIndex: 9,
+    backgroundColor: 'white',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  captureWrapper: {
+    position: 'absolute',
+    width: '90%',
+    aspectRatio: 1,
+    top: '25%',
+    left: '5%',
+  },
+  captureImageWrapper: {
+    position: 'absolute',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    width: '100%',
+    bottom: '10%',
   },
 });

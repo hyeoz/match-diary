@@ -1,5 +1,13 @@
 import React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import {
+  Dimensions,
+  DimensionValue,
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import dayjs from 'dayjs';
 
@@ -16,11 +24,13 @@ export default function CameraOverlay({
   matches,
   date,
   currentWeather,
+  additionalStyle,
 }: {
   currentWeather: string;
   matches: MatchDataType[];
-  date?: string;
   tempRecord: RecordType | null;
+  date?: string;
+  additionalStyle?: StyleProp<ViewStyle>;
 }) {
   const { teams } = useTeamsState();
 
@@ -33,7 +43,7 @@ export default function CameraOverlay({
   };
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, additionalStyle]}>
       <FastImage source={bubble} style={styles.bubbleImage} />
       <View
         style={{
