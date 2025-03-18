@@ -1,17 +1,26 @@
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
 
 export async function onCreateTriggerNotification(selectedDate: string) {
-  // const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-  // const date = new Date(selectedDate + 'T00:00:00.000Z'); // UTC 기준으로 생성
-  // const offsetHours = Math.floor(timezoneOffset / 60);
-  // const offsetMinutesRemainder = timezoneOffset % 60;
+  const date = new Date(selectedDate + 'T00:00:00.000Z'); // UTC 기준으로 생성
 
   // offset을 적용하여 시간 조정
   // 정오에 알림 가도록
-  // date.setHours(date.getHours() + offsetHours + 12);
-  // date.setMinutes(date.getMinutes() + offsetMinutesRemainder);
-  const date = new Date(Date.now());
-  date.setMinutes(50);
+  date.setHours(12);
+  date.setMinutes(0);
+
+  // Request permissions (required for iOS)
+  await notifee.requestPermission();
+
+  // Create a channel (required for Android)
+  const channelId = await notifee.createChannel({
+    id: 'match_schedule_noti',
+    name: 'match_schedule_noti',
+  });
+
+  // // NOTE TEST
+  // const date = new Date(Date.now());
+  // date.setHours(19);
+  // date.setMinutes(11);
 
   // Create a time-based trigger
   const trigger: TimestampTrigger = {
@@ -25,7 +34,7 @@ export async function onCreateTriggerNotification(selectedDate: string) {
       title: '설레는 직관 날짜가 다가왔어요!',
       body: '승리요정이 간다🧚🏻',
       android: {
-        channelId: 'match_schedule_noti',
+        channelId,
       },
     },
     trigger,
