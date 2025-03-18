@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
@@ -141,7 +141,7 @@ export default function UploadModal({
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
   // TODO 카메라 촬영 버튼
-  const getPicture = async () => {
+  const getPicture = useCallback(async () => {
     console.log('GET PICTURE', cameraRef.current);
     if (cameraRef.current) {
       // const options = { quality: 0.7, base64: true };
@@ -152,7 +152,7 @@ export default function UploadModal({
     } else {
       console.error('no ref');
     }
-  };
+  }, [cameraRef]);
 
   // TODO ViewShot을 이용해 화면 캡처
   const captureFilteredImage = async () => {
@@ -759,7 +759,10 @@ export default function UploadModal({
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={async () => await getPicture()}
+                onPress={async () => {
+                  Alert.alert('테[스트');
+                  await getPicture();
+                }}
                 style={{
                   position: 'absolute',
                   left: '50%',

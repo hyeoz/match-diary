@@ -11,7 +11,7 @@
 
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-  center.delegate = self;
+  center.delegate = self;;//
   
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
