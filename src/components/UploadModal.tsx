@@ -142,14 +142,13 @@ export default function UploadModal({
 
   // TODO 카메라 촬영 버튼
   const getPicture = useCallback(async () => {
-    console.log('GET PICTURE', cameraRef.current);
+    Alert.alert('getPicture');
     if (cameraRef.current) {
-      // const options = { quality: 0.7, base64: true };
       const data = await cameraRef.current.takePhoto();
-      console.log(data, 'camera picture');
       setCameraUri(data.path);
       setVisibleFakeCamera(false);
     } else {
+      Alert.alert('no ref');
       console.error('no ref');
     }
   }, [cameraRef]);
@@ -760,7 +759,6 @@ export default function UploadModal({
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={async () => {
-                  Alert.alert('테[스트');
                   await getPicture();
                 }}
                 style={{
