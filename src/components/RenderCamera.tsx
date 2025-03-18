@@ -1,5 +1,6 @@
 import React, { RefObject, useRef } from 'react';
 import { Dimensions, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import {
   Camera,
   useCameraDevice,
@@ -15,7 +16,7 @@ export default function RenderCamera({
 }) {
   const device = useCameraDevice('back');
   const { hasPermission } = useCameraPermission();
-  console.log(cameraRef.current);
+
   if (hasPermission && device) {
     return (
       <Camera
@@ -25,14 +26,15 @@ export default function RenderCamera({
           position: 'absolute',
           width,
           height,
-          // aspectRatio: 1 / 1,
-          // top: '35%',
-          // transform: [{ translateY: -height / 4 }],
         }}
         device={device}
       />
     );
+  } else {
+    Toast.show({
+      type: 'info',
+      text1: '먼저 카메라 사용을 허용해주세요!',
+    });
+    return <></>;
   }
-
-  return <></>;
 }

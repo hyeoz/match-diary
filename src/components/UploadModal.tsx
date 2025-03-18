@@ -141,13 +141,15 @@ export default function UploadModal({
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
   // TODO 카메라 촬영 버튼
-  const getPickture = async () => {
-    console.log('GET PICKTURE', cameraRef.current);
+  const getPicture = async () => {
+    console.log('GET PICTURE', cameraRef.current);
     if (cameraRef.current) {
       // const options = { quality: 0.7, base64: true };
       const data = await cameraRef.current.takePhoto();
-      console.log(data, 'camera pickture');
+      console.log(data, 'camera picture');
       setCameraUri(data.path);
+    } else {
+      console.error('no ref');
     }
   };
 
@@ -157,7 +159,7 @@ export default function UploadModal({
       format: 'jpg',
       quality: 1,
     });
-    console.log(uri, 'capture image');
+
     try {
       if (tempRecord) {
         setTempRecord({
@@ -187,7 +189,7 @@ export default function UploadModal({
         Alert.alert('카메라 사용 권한을 먼저 설정해주세요!');
         return;
       }
-      // TODO 가상카메라로 대체
+      // NOTE 가상카메라로 대체
       setVisibleFakeCamera(true);
     } else if (buttonIndex === 2) {
       // 앨범 선택
@@ -739,6 +741,8 @@ export default function UploadModal({
                 bottom: 150,
                 width,
                 flexDirection: 'row',
+                paddingHorizontal: 24,
+                alignItems: 'center',
               }}>
               <TouchableOpacity
                 style={{
@@ -755,17 +759,14 @@ export default function UploadModal({
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={async () => {
-                  await getPickture();
-                }}
+                onPress={async () => await getPicture()}
                 style={{
                   position: 'absolute',
                   left: '50%',
-                  transform: [{ translateX: -14 }],
                 }}>
                 <Text
                   style={{
-                    fontSize: 24,
+                    fontSize: 32,
                   }}>
                   📸
                 </Text>

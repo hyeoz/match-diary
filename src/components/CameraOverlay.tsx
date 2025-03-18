@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     top: '25%',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
   },
   bubbleImage: {
     width: 140,
