@@ -1,6 +1,7 @@
 import { API } from '@/api';
 import { useUserState } from '@/stores/user';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
+import Toast from 'react-native-toast-message';
 
 export async function onCreateTriggerNotification(selectedDate: string) {
   const { uniqueId } = useUserState.getState();
@@ -43,6 +44,11 @@ export async function onCreateTriggerNotification(selectedDate: string) {
       trigger,
     );
     await API.post('/create-booking', { userId: uniqueId, date: date });
+    Toast.show({
+      type: 'success',
+      text1: '직관 알림 예약이 완료되었어요!',
+      text2: '선택한 날짜에 알려드릴게요!',
+    });
   } catch (error) {
     console.error(error);
   }

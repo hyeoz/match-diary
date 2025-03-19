@@ -29,7 +29,7 @@ import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
 import { palette } from '@/style/palette';
 import { useUserState } from '@/stores/user';
-import { MatchDataType } from '@/type/match';
+import { MatchBookingType, MatchDataType } from '@/type/match';
 import { API } from '@/api';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { getMatchByDate } from '@/api/match';
@@ -55,6 +55,7 @@ export function Detail({
     MatchDataType | undefined
   >();
   const [matches, setMatches] = useState<MatchDataType[]>([]);
+  const [bookings, setBookings] = useState<MatchBookingType[]>([]);
 
   const { teamId, uniqueId } = useUserState();
   const { teams } = useTeamsState();
@@ -63,6 +64,7 @@ export function Detail({
 
   useEffect(() => {
     getTodayMatch();
+    getBookings();
   }, []);
 
   useEffect(() => {
@@ -209,30 +211,64 @@ export function Detail({
               return;
             }
             await onCreateTriggerNotification(date);
-            Toast.show({
-              type: 'success',
-              text1: '직관 알림 예약이 완료되었어요!',
-              text2: '선택한 날짜에 알려드릴게요!',
-            });
+            await getBookings();
           },
         },
       ],
     );
   };
 
+  const onDeleteBooking = async () => {
+    const id = bookings.find(
+      book => dayjs(book.date).format(DATE_FORMAT) === date,
+    )?.booking_id;
+
+    try {
+      await API.delete(`/bookings/${id}`);
+      Toast.show({
+        type: 'success',
+        text1: '직관 예약이 성공적으로 삭제되었어요.',
+      });
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: '삭제를 실패했어요! 다시 시도해주세요.',
+      });
+    }
+
+    await getBookings();
+  };
+
+  const getBookings = async () => {
+    try {
+      const res = await API.post<MatchBookingType[]>('/bookings', {
+        userId: uniqueId,
+      });
+      setBookings(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const selectAddRecordMode = async () => {
+    const bookingDates = bookings.map(({ date }) =>
+      dayjs(date).format(DATE_FORMAT),
+    );
+    const isBooked = date && bookingDates.includes(date);
+
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['취소', '직관 기록하기', '직관 예약하기'],
+          options: isBooked
+            ? ['취소', '직관 기록하기', '직관 예약 취소']
+            : ['취소', '직관 기록하기', '직관 예약하기'],
           cancelButtonIndex: 0,
         },
         buttonIndex => {
           if (buttonIndex === 1) {
             setIsVisible(true);
           } else if (buttonIndex === 2) {
-            onPressScheduling();
-          } else {
+            isBooked ? onDeleteBooking() : onPressScheduling();
           }
         },
       );
@@ -251,8 +287,8 @@ export function Detail({
             onPress: () => setIsVisible(true),
           },
           {
-            text: '직관 예약',
-            onPress: () => onPressScheduling(),
+            text: isBooked ? '직관 예약 삭제' : '직관 예약',
+            onPress: () => (isBooked ? onDeleteBooking() : onPressScheduling()),
           },
         ],
         { cancelable: true, onDismiss: () => {} },

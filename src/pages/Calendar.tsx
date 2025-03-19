@@ -44,7 +44,6 @@ import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { StadiumType, TeamType } from '@/type/team';
 import Toast from 'react-native-toast-message';
 import { onCreateTriggerNotification } from '@/hooks/schedulingHook';
-import FastImage from 'react-native-fast-image';
 
 const { width } = Dimensions.get('window');
 
@@ -67,7 +66,7 @@ function Calendar() {
   const [loading, setLoading] = useState(false);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
   const [weeksInMonth, setWeeksInMonth] = useState(0);
-  const [bookings, setBookings] = useState<string[]>([]);
+  const [bookings, setBookings] = useState<MatchBookingType[]>([]);
 
   const { history } = useTabHistory();
   const { teamId, uniqueId } = useUserState();
@@ -99,14 +98,13 @@ function Calendar() {
   //   );
   // }, []);
 
-  useEffect(() => {
-    getBookings();
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     getRecordsBySelectedDate();
     getMatchData();
     handleRecordsCount();
+    getBookings();
   }, [history, teamId, selectedDate]);
 
   useEffect(() => {
@@ -186,7 +184,9 @@ function Calendar() {
           {...props}
           onPress={onDayPress}
           cellHeight={currentCellHeight}
-          bookingDates={bookings}
+          bookingDates={bookings.map(({ date }) =>
+            dayjs(date).format(DATE_FORMAT),
+          )}
         />
       );
     },
@@ -302,6 +302,7 @@ function Calendar() {
               return;
             }
             await onCreateTriggerNotification(selectedDate);
+            await getBookings();
             Toast.show({
               type: 'success',
               text1: '직관 알림 예약이 완료되었어요!',
@@ -313,29 +314,57 @@ function Calendar() {
     );
   };
 
+  const onDeleteBooking = async () => {
+    const id = bookings.find(
+      book => dayjs(book.date).format(DATE_FORMAT) === selectedDate,
+    )?.booking_id;
+
+    try {
+      await API.delete(`/bookings/${id}`);
+      Toast.show({
+        type: 'success',
+        text1: '직관 예약이 성공적으로 삭제되었어요.',
+      });
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: '삭제를 실패했어요! 다시 시도해주세요.',
+      });
+    }
+
+    await getBookings();
+  };
+
   const getBookings = async () => {
     try {
       const res = await API.post<MatchBookingType[]>('/bookings', {
         userId: uniqueId,
       });
-      setBookings(res.data.map(({ date }) => dayjs(date).format(DATE_FORMAT)));
+      setBookings(res.data);
     } catch (error) {
       console.error(error);
     }
   };
 
   const selectAddRecordMode = async () => {
+    const bookingDates = bookings.map(({ date }) =>
+      dayjs(date).format(DATE_FORMAT),
+    );
+    const isBooked = bookingDates.includes(selectedDate);
+
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['취소', '직관 기록하기', '직관 예약하기'],
+          options: isBooked
+            ? ['취소', '직관 기록하기', '직관 예약 취소']
+            : ['취소', '직관 기록하기', '직관 예약하기'],
           cancelButtonIndex: 0,
         },
         buttonIndex => {
           if (buttonIndex === 1) {
             setIsVisible(true);
           } else if (buttonIndex === 2) {
-            onPressScheduling();
+            isBooked ? onDeleteBooking() : onPressScheduling();
           }
         },
       );
@@ -354,8 +383,8 @@ function Calendar() {
             onPress: () => setIsVisible(true),
           },
           {
-            text: '직관 예약',
-            onPress: () => onPressScheduling(),
+            text: isBooked ? '직관 예약 삭제' : '직관 예약',
+            onPress: () => (isBooked ? onDeleteBooking() : onPressScheduling()),
           },
         ],
         { cancelable: true, onDismiss: () => {} },
@@ -649,18 +678,20 @@ function DayComponent({
           }}
         />
         {/* 직관 예약된 날짜 */}
-        {bookingDates.includes(selectedDate) && !marking?.marked && (
-          <AnswerCircle
-            style={{
-              position: 'absolute',
-              top: -16,
-              left: '50%',
-              transform: [{ translateX: -22 }],
-            }}
-            width={48}
-            height={48}
-          />
-        )}
+        {date &&
+          bookingDates.includes(dayjs(date.dateString).format(DATE_FORMAT)) &&
+          !marking?.marked && (
+            <AnswerCircle
+              style={{
+                position: 'absolute',
+                top: -16,
+                left: '50%',
+                transform: [{ translateX: -22 }],
+              }}
+              width={48}
+              height={48}
+            />
+          )}
         <Text
           style={[
             {
