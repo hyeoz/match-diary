@@ -317,7 +317,7 @@ export function Detail({
       <FlatList
         data={records}
         style={
-          records.length === 1
+          !isCalendar && records.length === 1
             ? {
                 width: '90%',
                 paddingLeft: '10%',

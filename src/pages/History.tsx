@@ -39,7 +39,6 @@ function History() {
 
     const images = res.data
       .map(dt => {
-        console.log(dt);
         // 티켓 이미지가 있는 경우 티켓 이미지 메인으로
         if (dt.ticket_image) {
           return dt.ticket_image;
