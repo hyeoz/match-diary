@@ -1,6 +1,9 @@
+import { API } from '@/api';
+import { useUserState } from '@/stores/user';
 import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
 
 export async function onCreateTriggerNotification(selectedDate: string) {
+  const { uniqueId } = useUserState.getState();
   const date = new Date(selectedDate + 'T00:00:00.000Z'); // UTC 기준으로 생성
 
   // offset을 적용하여 시간 조정
@@ -27,16 +30,20 @@ export async function onCreateTriggerNotification(selectedDate: string) {
     type: TriggerType.TIMESTAMP,
     timestamp: date.getTime(),
   };
-
-  // Create a trigger notification
-  await notifee.createTriggerNotification(
-    {
-      title: '설레는 직관 날짜가 다가왔어요!',
-      body: '승리요정이 간다🧚🏻',
-      android: {
-        channelId,
+  try {
+    // Create a trigger notification
+    await notifee.createTriggerNotification(
+      {
+        title: '설레는 직관 날짜가 다가왔어요!',
+        body: '승리요정이 간다🧚🏻',
+        android: {
+          channelId,
+        },
       },
-    },
-    trigger,
-  );
+      trigger,
+    );
+    await API.post('/create-booking', { userId: uniqueId, date: date });
+  } catch (error) {
+    console.error(error);
+  }
 }

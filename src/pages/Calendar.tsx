@@ -39,11 +39,12 @@ import Loading from '@/components/Loading';
 import { getMatchByDate, getMatchById } from '@/api/match';
 import { useUserState, useViewedMatchState } from '@/stores/user';
 import { getAllUserRecords, getRecordByDate } from '@/api/record';
-import { MatchDataType } from '@/type/match';
+import { MatchBookingType, MatchDataType } from '@/type/match';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { StadiumType, TeamType } from '@/type/team';
 import Toast from 'react-native-toast-message';
 import { onCreateTriggerNotification } from '@/hooks/schedulingHook';
+import FastImage from 'react-native-fast-image';
 
 const { width } = Dimensions.get('window');
 
@@ -66,6 +67,7 @@ function Calendar() {
   const [loading, setLoading] = useState(false);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
   const [weeksInMonth, setWeeksInMonth] = useState(0);
+  const [bookings, setBookings] = useState<string[]>([]);
 
   const { history } = useTabHistory();
   const { teamId, uniqueId } = useUserState();
@@ -82,19 +84,23 @@ function Calendar() {
     setRecords,
   };
 
-  useEffect(() => {
-    if (!records.length) return;
+  // useEffect(() => {
+  //   if (!records.length) return;
 
-    setRecords(
-      records.sort((a, b) => {
-        if (a.date === records[carouselIndexState].date) return -1;
-        if (b.date === records[carouselIndexState].date) return 1;
-        return (
-          records.findIndex(value => value.records_id === a.records_id) -
-          records.findIndex(value => value.records_id === b.records_id)
-        );
-      }),
-    );
+  //   setRecords(
+  //     records.sort((a, b) => {
+  //       if (a.date === records[carouselIndexState].date) return -1;
+  //       if (b.date === records[carouselIndexState].date) return 1;
+  //       return (
+  //         records.findIndex(value => value.records_id === a.records_id) -
+  //         records.findIndex(value => value.records_id === b.records_id)
+  //       );
+  //     }),
+  //   );
+  // }, []);
+
+  useEffect(() => {
+    getBookings();
   }, []);
 
   useEffect(() => {
@@ -180,6 +186,7 @@ function Calendar() {
           {...props}
           onPress={onDayPress}
           cellHeight={currentCellHeight}
+          bookingDates={bookings}
         />
       );
     },
@@ -304,6 +311,17 @@ function Calendar() {
         },
       ],
     );
+  };
+
+  const getBookings = async () => {
+    try {
+      const res = await API.post<MatchBookingType[]>('/bookings', {
+        userId: uniqueId,
+      });
+      setBookings(res.data.map(({ date }) => dayjs(date).format(DATE_FORMAT)));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const selectAddRecordMode = async () => {
@@ -592,11 +610,13 @@ function DayComponent({
   onPress,
   selectedDate,
   cellHeight,
+  bookingDates,
   ...props
 }: DayProps & {
   date?: DateData;
   selectedDate: string;
   cellHeight: number;
+  bookingDates: string[];
 }) {
   return (
     <TouchableOpacity
@@ -614,19 +634,33 @@ function DayComponent({
           position: 'relative',
           width: '100%',
         }}>
+        {/* 선택된 날짜 */}
         <View
           style={{
-            width: '50%',
-            height: 12,
             backgroundColor:
               dayjs(date?.dateString).format(DATE_FORMAT) === selectedDate
                 ? 'rgba(	123,	193,	88, 0.3)'
                 : 'transparent',
+            width: '50%',
+            height: 12,
             position: 'absolute',
             top: 4,
             left: '25%',
           }}
         />
+        {/* 직관 예약된 날짜 */}
+        {bookingDates.includes(selectedDate) && !marking?.marked && (
+          <AnswerCircle
+            style={{
+              position: 'absolute',
+              top: -16,
+              left: '50%',
+              transform: [{ translateX: -22 }],
+            }}
+            width={48}
+            height={48}
+          />
+        )}
         <Text
           style={[
             {
@@ -646,6 +680,7 @@ function DayComponent({
           {date?.day}
         </Text>
       </View>
+      {/* 기록 있는 경우 */}
       {marking?.marked && <Ball width={16} height={16} />}
     </TouchableOpacity>
   );

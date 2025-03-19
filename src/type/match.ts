@@ -10,3 +10,10 @@ export type MatchDataType = {
   away_score: number; // 원정 팀 점수
   memo: string | null;
 };
+
+// 직관 예약 타입
+export type MatchBookingType = {
+  booking_id: number;
+  date: string;
+  user_id: string;
+};
