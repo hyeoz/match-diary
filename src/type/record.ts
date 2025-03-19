@@ -7,5 +7,6 @@ export type RecordType = {
   stadium_id?: number;
   date: string;
   image: TempRecordImageType | string | null;
+  ticket_image?: TempRecordImageType | string | null;
   user_note: string;
 };

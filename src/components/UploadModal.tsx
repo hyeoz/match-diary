@@ -181,6 +181,7 @@ export default function UploadModal({
     }
   };
 
+  // 기본 이미지 선택 액션
   const getImageAction = async (buttonIndex: number) => {
     // 카메라 선택
     if (buttonIndex === 1) {
@@ -225,6 +226,43 @@ export default function UploadModal({
           text1: '이미지를 저장하는 데 문제가 생겼어요. 다시 시도해주세요!',
         });
       }
+    }
+  };
+
+  const getTicketImageAction = async () => {
+    // 앨범 선택
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 1,
+    });
+    const item = result.assets;
+    if (!item || !item[0].uri || !item[0].width || !item[0].height) {
+      return;
+    }
+    const tempName = [...item[0].uri.split('/').reverse()][0];
+    const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${
+      item[0].fileName ?? tempName
+    }`;
+
+    try {
+      await RNFS.copyFile(item[0].uri, destinationPath);
+
+      if (tempRecord) {
+        setTempRecord({
+          ...tempRecord,
+          ticket_image: {
+            uri: destinationPath,
+            type: item[0].type,
+            name: item[0].fileName || 'ticket.jpg', // 파일 이름을 기본 값으로 설정
+          },
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      Toast.show({
+        type: 'error',
+        text1: '이미지를 저장하는 데 문제가 생겼어요. 다시 시도해주세요!',
+      });
     }
   };
 
@@ -274,6 +312,13 @@ export default function UploadModal({
         formData.append('imageUrl', tempRecord?.image); // 수정인 경우 분기처리
       } else {
         formData.append('file', tempRecord?.image); // 수정인 경우 분기처리
+      }
+      if (tempRecord?.ticket_image) {
+        if (typeof tempRecord?.ticket_image === 'string') {
+          formData.append('ticketUrl', tempRecord?.ticket_image); // 수정인 경우 분기처리
+        } else {
+          formData.append('ticket', tempRecord?.image); // 수정인 경우 분기처리
+        }
       }
       try {
         await API.patch('/record/update', formData, {
@@ -498,7 +543,24 @@ export default function UploadModal({
           {/* SECTION CONTENTS */}
           <View style={modalStyles.contentWrapper}>
             <View style={{ position: 'relative' }}>
-              <Text style={modalStyles.labelText}>대표 이미지</Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={modalStyles.labelText}>이미지</Text>
+                <TouchableOpacity onPress={getTicketImageAction}>
+                  <Text
+                    style={fontStyle(
+                      {
+                        color: palette.commonColor.greenBg,
+                      },
+                      'bold',
+                    )}>
+                    + 티켓 이미지 추가
+                  </Text>
+                </TouchableOpacity>
+              </View>
               {/* 이미지 */}
               {cropperLoading ? (
                 <View
