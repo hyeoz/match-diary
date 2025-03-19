@@ -18,6 +18,7 @@ const RenderCamera = forwardRef<Camera, unknown>((_, ref) => {
       <Camera
         ref={ref}
         isActive={true}
+        photo={true}
         style={{
           position: 'absolute',
           width,

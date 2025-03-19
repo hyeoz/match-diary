@@ -148,19 +148,30 @@ export default function UploadModal({
         setCameraUri(data.path);
         setVisibleFakeCamera(false);
       } catch (error) {
-        Alert.alert(error as string);
+        Alert.alert((error as any).message || '???');
       }
     }
   };
 
   // TODO ViewShot을 이용해 화면 캡처
   const captureFilteredImage = async () => {
-    const uri = await captureRef(viewShotRef, {
-      format: 'jpg',
-      quality: 1,
-    });
-
     try {
+      const uri = await captureRef(viewShotRef, {
+        format: 'jpg',
+        quality: 1,
+      });
+      // 저장할 경로 설정 (iOS와 Android 경로 다름)
+      const fileName = `오늘의_직관일기_${new Date()
+        .toISOString()
+        .replace(/:/g, '-')}.jpg`;
+      const savePath =
+        Platform.OS === 'android'
+          ? `${RNFS.PicturesDirectoryPath}/${fileName}`
+          : `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+      // 캡처된 이미지 파일을 저장
+      await RNFS.copyFile(uri, savePath);
+
       if (tempRecord) {
         setTempRecord({
           ...tempRecord,
