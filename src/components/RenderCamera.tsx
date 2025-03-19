@@ -11,7 +11,7 @@ const { width, height } = Dimensions.get('window');
 
 const RenderCamera = forwardRef<Camera, unknown>((_, ref) => {
   const device = useCameraDevice('back');
-  const { hasPermission } = useCameraPermission();
+  const { hasPermission, requestPermission } = useCameraPermission();
 
   if (hasPermission && device) {
     return (
@@ -31,6 +31,7 @@ const RenderCamera = forwardRef<Camera, unknown>((_, ref) => {
       type: 'info',
       text1: '먼저 카메라 사용을 허용해주세요!',
     });
+    requestPermission();
     return <></>;
   }
 });
