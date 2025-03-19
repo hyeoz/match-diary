@@ -338,6 +338,8 @@ export default function UploadModal({
             'Content-Type': 'multipart/form-data',
           },
         });
+        setTempRecord(RESET_RECORD);
+        setIsVisible(false);
       } catch (error) {
         console.error(error);
         Toast.show({
@@ -358,6 +360,8 @@ export default function UploadModal({
             'Content-Type': 'multipart/form-data',
           },
         });
+        setTempRecord(RESET_RECORD);
+        setIsVisible(false);
       } catch (error) {
         console.error(error);
         Toast.show({
@@ -373,9 +377,6 @@ export default function UploadModal({
     } catch (error) {
       console.error(error);
     }
-
-    setTempRecord(RESET_RECORD);
-    setIsVisible(false);
   };
 
   // 오늘자 경기 조회
