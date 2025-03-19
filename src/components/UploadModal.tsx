@@ -239,7 +239,7 @@ export default function UploadModal({
       }
     }
   };
-  console.log(tempRecord);
+
   // 티켓 이미지 선택 액션
   const getTicketImageAction = async () => {
     // 앨범 선택
@@ -329,7 +329,7 @@ export default function UploadModal({
         if (typeof tempRecord?.ticket_image === 'string') {
           formData.append('ticketUrl', tempRecord?.ticket_image); // 수정인 경우 분기처리
         } else {
-          formData.append('ticket', tempRecord?.image); // 수정인 경우 분기처리
+          formData.append('ticketFile', tempRecord?.ticket_image); // 수정인 경우 분기처리
         }
       }
       try {
@@ -347,6 +347,10 @@ export default function UploadModal({
       }
     } else {
       formData.append('file', image);
+      if (tempRecord?.ticket_image) {
+        formData.append('ticketFile', tempRecord?.ticket_image); // 티켓 이미지 추가
+      }
+
       // 기록 생성
       try {
         await API.post('/create-record', formData, {
@@ -875,12 +879,14 @@ export default function UploadModal({
               additionalStyle={{
                 top: '5%',
                 width: '90%',
+                zIndex: 3,
               }}
             />
             <FastImage
               source={{ uri: cameraUri }}
               style={{
                 position: 'absolute',
+                zIndex: 4,
               }}
             />
           </ViewShot>

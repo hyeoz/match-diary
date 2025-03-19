@@ -83,21 +83,6 @@ function Calendar() {
     setRecords,
   };
 
-  // useEffect(() => {
-  //   if (!records.length) return;
-
-  //   setRecords(
-  //     records.sort((a, b) => {
-  //       if (a.date === records[carouselIndexState].date) return -1;
-  //       if (b.date === records[carouselIndexState].date) return 1;
-  //       return (
-  //         records.findIndex(value => value.records_id === a.records_id) -
-  //         records.findIndex(value => value.records_id === b.records_id)
-  //       );
-  //     }),
-  //   );
-  // }, []);
-
   useEffect(() => {}, []);
 
   useEffect(() => {

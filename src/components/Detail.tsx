@@ -316,6 +316,14 @@ export function Detail({
       }>
       <FlatList
         data={records}
+        style={
+          records.length === 1
+            ? {
+                width: '90%',
+                paddingLeft: '10%',
+              }
+            : {}
+        }
         renderItem={({ item, index }) => (
           <ViewShot
             ref={shareImageRef}
@@ -344,13 +352,18 @@ export function Detail({
               }>
               <TouchableOpacity
                 onPress={() => {
-                  if (
-                    new Date(date + 'T00:00:00.000Z') <=
-                    new Date(dayjs().format('YYYY-MM-DD') + 'T00:00:00.000Z')
-                  ) {
-                    setIsVisible(true);
+                  if (isCalendar) {
+                    if (
+                      new Date(date + 'T00:00:00.000Z') <=
+                      new Date(dayjs().format('YYYY-MM-DD') + 'T00:00:00.000Z')
+                    ) {
+                      setIsVisible(true);
+                    } else {
+                      selectAddRecordMode();
+                    }
                   } else {
-                    selectAddRecordMode();
+                    setIsVisible(true);
+                    records.length && setIsEdit(true);
                   }
                 }}
                 style={{

@@ -165,7 +165,7 @@ function Write() {
               style={{
                 flex: 0.9,
               }}>
-              {/* TODO 여러경기인 경우 캐러셀 디자인 */}
+              {/* 여러경기인 경우 캐러셀 디자인 */}
               <FlatList
                 data={records}
                 renderItem={({ item, index }) => (
