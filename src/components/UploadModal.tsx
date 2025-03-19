@@ -140,7 +140,7 @@ export default function UploadModal({
     getAllStadiumDistance();
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
-  // TODO 카메라 촬영 버튼
+  // 카메라 촬영 버튼
   const getPicture = async () => {
     if (cameraRef.current) {
       try {
@@ -148,7 +148,7 @@ export default function UploadModal({
         setCameraUri(data.path);
         setVisibleFakeCamera(false);
       } catch (error) {
-        Alert.alert((error as any).message || '???');
+        console.error(error);
       }
     }
   };
@@ -178,7 +178,7 @@ export default function UploadModal({
           image: {
             uri: uri,
             type: 'image/jpeg',
-            name: `${new Date()}_image.jpg`, // 파일 이름을 기본 값으로 설정
+            name: fileName, // 파일 이름을 기본 값으로 설정
           },
         });
       }
@@ -349,6 +349,7 @@ export default function UploadModal({
       }
     } else {
       formData.append('file', image);
+
       if (tempRecord?.ticket_image) {
         formData.append('ticketFile', tempRecord?.ticket_image); // 티켓 이미지 추가
       }
@@ -878,18 +879,31 @@ export default function UploadModal({
               matches={matches}
               currentWeather={currentWeather}
               additionalStyle={{
-                top: '5%',
-                width: '90%',
-                zIndex: 3,
+                top: 0,
+                width: '100%',
+                zIndex: 11,
               }}
             />
-            <FastImage
-              source={{ uri: cameraUri }}
+            <View
               style={{
-                position: 'absolute',
-                zIndex: 4,
-              }}
-            />
+                width: '100%',
+                aspectRatio: 1,
+                overflow: 'hidden',
+                backgroundColor: '#999',
+              }}>
+              <FastImage
+                source={{
+                  uri: cameraUri,
+                }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  position: 'absolute',
+                  zIndex: 10,
+                  top: '-5%',
+                }}
+              />
+            </View>
           </ViewShot>
           <View style={styles.captureImageWrapper}>
             <TouchableOpacity

@@ -51,12 +51,14 @@ export default function CameraOverlay({
         <Text style={styles.text}>
           {dayjs(date).format('YYYY년 MM월 DD일')}
         </Text>
-        {tempRecord?.stadium_id && (
+        {tempRecord?.stadium_id && tempRecord?.stadium_id !== 13 ? (
           <Text style={styles.text}>
             {getTeamName('home')}
             {' VS '}
             {getTeamName('away')}
           </Text>
+        ) : (
+          <></>
         )}
         <Text style={styles.text}>오늘의 날씨: {currentWeather}</Text>
       </View>
