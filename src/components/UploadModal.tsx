@@ -787,7 +787,7 @@ export default function UploadModal({
               backgroundColor: 'black',
             }}>
             {/* 카메라 뷰 */}
-            <RenderCamera cameraRef={cameraRef} />
+            <RenderCamera ref={cameraRef} />
             {/* 화면 위 텍스트 오버레이 */}
             <CameraOverlay
               date={date}

@@ -1,5 +1,5 @@
-import React, { RefObject, useRef } from 'react';
-import { Dimensions, View } from 'react-native';
+import React, { forwardRef } from 'react';
+import { Dimensions } from 'react-native';
 import Toast from 'react-native-toast-message';
 import {
   Camera,
@@ -9,18 +9,14 @@ import {
 
 const { width, height } = Dimensions.get('window');
 
-export default function RenderCamera({
-  cameraRef,
-}: {
-  cameraRef: RefObject<Camera>;
-}) {
+const RenderCamera = forwardRef<Camera, unknown>((_, ref) => {
   const device = useCameraDevice('back');
   const { hasPermission } = useCameraPermission();
 
   if (hasPermission && device) {
     return (
       <Camera
-        ref={cameraRef}
+        ref={ref}
         isActive={true}
         style={{
           position: 'absolute',
@@ -37,4 +33,6 @@ export default function RenderCamera({
     });
     return <></>;
   }
-}
+});
+
+export default RenderCamera;
