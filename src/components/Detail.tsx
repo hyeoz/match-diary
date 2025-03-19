@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  ActionSheetIOS,
   Alert,
   Dimensions,
   FlatList,
@@ -12,11 +13,11 @@ import {
   View,
 } from 'react-native';
 import ViewShot from 'react-native-view-shot';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
 import FastImage from 'react-native-fast-image';
+import { onCreateTriggerNotification } from '@/hooks/schedulingHook';
 
 import { DetailPropsType } from '@/type/default';
 import { useCarouselIndexState } from '@stores/default';
@@ -28,9 +29,9 @@ import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import { Stamp } from '@assets/svg';
 import { palette } from '@/style/palette';
 import { useUserState } from '@/stores/user';
-import { MatchDataType } from '@/type/match';
+import { MatchBookingType, MatchDataType } from '@/type/match';
 import { API } from '@/api';
-import { useStadiumsState } from '@/stores/teams';
+import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { getMatchByDate } from '@/api/match';
 
 const { width, height } = Dimensions.get('window');
@@ -54,13 +55,16 @@ export function Detail({
     MatchDataType | undefined
   >();
   const [matches, setMatches] = useState<MatchDataType[]>([]);
+  const [bookings, setBookings] = useState<MatchBookingType[]>([]);
 
   const { teamId, uniqueId } = useUserState();
+  const { teams } = useTeamsState();
   const { stadiums } = useStadiumsState();
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
 
   useEffect(() => {
     getTodayMatch();
+    getBookings();
   }, []);
 
   useEffect(() => {
@@ -94,32 +98,6 @@ export function Detail({
       );
     }
   }, [teamId, records, matches, carouselIndexState]);
-
-  // useEffect(() => {
-  //   const tempRecord = records[carouselIndexState];
-  //   const tempMatch = matches.find(mat => mat.id === tempRecord.match_id);
-
-  //   // TODO 더블헤더 분기처리
-  //   if (matches.length > 1) {
-  //     let newReocrd: MatchDataType;
-  //     if (tempMatch?.memo?.includes('더블헤더')) {
-  //       // 1경기
-  //       matches.forEach(mat => {
-  //         newReocrd =
-  //           new Date(tempMatch?.time) > new Date(mat.time) ? tempMatch : mat;
-  //       });
-  //     } else {
-  //       // 2경기
-  //       matches.forEach(mat => {
-  //         newReocrd =
-  //           new Date(tempMatch?.time) < new Date(mat.time) ? tempMatch : mat;
-  //       });
-  //     }
-  //     setSelectedMatch(tempMatch!);
-  //   } else {
-  //     setSelectedMatch(matches.find(mat => mat.id === tempMatch?.id));
-  //   }
-  // }, [records, matches]);
 
   const getTodayMatch = async () => {
     const res = await getMatchByDate(date || '');
@@ -216,6 +194,108 @@ export function Detail({
     [],
   );
 
+  const onPressScheduling = async () => {
+    Alert.alert(
+      '선택한 날짜에 직관 알림을 예약할까요?',
+      '해당 날짜에 알림을 보내드릴게요!',
+      [
+        { text: '취소', onPress: () => {} }, // TODO
+        {
+          text: '예약하기',
+          onPress: async () => {
+            if (!date) {
+              Toast.show({
+                type: 'info',
+                text1: '날짜를 먼저 선택해주세요!',
+              });
+              return;
+            }
+            await onCreateTriggerNotification(date);
+            await getBookings();
+          },
+        },
+      ],
+    );
+  };
+
+  const onDeleteBooking = async () => {
+    const id = bookings.find(
+      book => dayjs(book.date).format(DATE_FORMAT) === date,
+    )?.booking_id;
+
+    try {
+      await API.delete(`/bookings/${id}`);
+      Toast.show({
+        type: 'success',
+        text1: '직관 예약이 성공적으로 삭제되었어요.',
+      });
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: '삭제를 실패했어요! 다시 시도해주세요.',
+      });
+    }
+
+    await getBookings();
+  };
+
+  const getBookings = async () => {
+    try {
+      const res = await API.post<MatchBookingType[]>('/bookings', {
+        userId: uniqueId,
+      });
+      setBookings(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const selectAddRecordMode = async () => {
+    const bookingDates = bookings.map(({ date }) =>
+      dayjs(date).format(DATE_FORMAT),
+    );
+    const isBooked = date && bookingDates.includes(date);
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: isBooked
+            ? ['취소', '직관 기록하기', '직관 예약 취소']
+            : ['취소', '직관 기록하기', '직관 예약하기'],
+          cancelButtonIndex: 0,
+        },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            setIsVisible(true);
+          } else if (buttonIndex === 2) {
+            isBooked ? onDeleteBooking() : onPressScheduling();
+          }
+        },
+      );
+    } else if (Platform.OS === 'android') {
+      Alert.alert(
+        '선택하기',
+        '해당 날짜에 추가할 액션을 선택해주세요!',
+        [
+          {
+            text: '취소',
+            onPress: () => {}, // TODO
+            style: 'cancel',
+          },
+          {
+            text: '직관 기록',
+            onPress: () => setIsVisible(true),
+          },
+          {
+            text: isBooked ? '직관 예약 삭제' : '직관 예약',
+            onPress: () => (isBooked ? onDeleteBooking() : onPressScheduling()),
+          },
+        ],
+        { cancelable: true, onDismiss: () => {} },
+      );
+    }
+  };
+
   return (
     <View
       style={
@@ -236,6 +316,14 @@ export function Detail({
       }>
       <FlatList
         data={records}
+        style={
+          !isCalendar && records.length === 1
+            ? {
+                width: '90%',
+                paddingLeft: '10%',
+              }
+            : {}
+        }
         renderItem={({ item, index }) => (
           <ViewShot
             ref={shareImageRef}
@@ -263,7 +351,21 @@ export function Detail({
                     ]
               }>
               <TouchableOpacity
-                onPress={() => setIsVisible(true)}
+                onPress={() => {
+                  if (isCalendar) {
+                    if (
+                      new Date(date + 'T00:00:00.000Z') <=
+                      new Date(dayjs().format('YYYY-MM-DD') + 'T00:00:00.000Z')
+                    ) {
+                      setIsVisible(true);
+                    } else {
+                      selectAddRecordMode();
+                    }
+                  } else {
+                    setIsVisible(true);
+                    records.length && setIsEdit(true);
+                  }
+                }}
                 style={{
                   flex: 1,
                   alignItems: 'center',
@@ -348,11 +450,19 @@ export function Detail({
                         : records[carouselIndexState].date,
                     ).format('YY.MM.DD')}{' '}
                     {selectedMatch?.home && selectedMatch.away && (
-                      <>
-                        {selectedMatch?.home}
+                      <Text>
+                        {
+                          teams.find(
+                            team => team.team_id === selectedMatch?.home,
+                          )?.team_short_name
+                        }
                         {' VS '}
-                        {selectedMatch?.away}
-                      </>
+                        {
+                          teams.find(
+                            team => team.team_id === selectedMatch?.away,
+                          )?.team_short_name
+                        }
+                      </Text>
                     )}
                     {' @'}
                     {changeStadiumLongNameToNickname(

@@ -12,3 +12,10 @@ export type StadiumType = {
   latitude: number;
   longitude: number;
 };
+
+export type StadiumInfoType = {
+  name: string;
+  stadium_id: number;
+  distance: number;
+  match_id: number;
+};

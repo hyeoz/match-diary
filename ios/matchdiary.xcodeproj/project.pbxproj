@@ -18,6 +18,7 @@
 		52301F1075AD4E1A8F7F45B3 /* KBO Dia Gothic_medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */; };
 		70D30454468D46D7BC8396FB /* KBO Dia Gothic_light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		81ACA48033364D1285DDB53E /* NanumMiNiSonGeurSsi.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41B4CC2A25574117A0E14748 /* NanumMiNiSonGeurSsi.ttf */; };
 		82E0F6FD2C0410EA00CF8481 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 82E0F6FC2C0410EA00CF8481 /* main.jsbundle */; };
 		A9763E5ADFB030027C254B7C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 46C68FAE896734F4D5AE9A2A /* PrivacyInfo.xcprivacy */; };
 		DCD04D0FC21345F59D991345 /* UhBee Seulvely.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */; };
@@ -46,7 +47,8 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = matchdiary/main.m; sourceTree = "<group>"; };
 		1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_medium.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_medium.ttf"; sourceTree = "<group>"; };
 		3921698A27D1D88FD9F6D26F /* Pods-matchdiary.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.debug.xcconfig"; sourceTree = "<group>"; };
-		46C68FAE896734F4D5AE9A2A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = matchdiary/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		41B4CC2A25574117A0E14748 /* NanumMiNiSonGeurSsi.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = NanumMiNiSonGeurSsi.ttf; path = ../src/assets/fonts/NanumMiNiSonGeurSsi.ttf; sourceTree = "<group>"; };
+		46C68FAE896734F4D5AE9A2A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = matchdiary/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "UhBee Seulvely.ttf"; path = "../src/assets/fonts/UhBee Seulvely.ttf"; sourceTree = "<group>"; };
 		524D59A1356B0F6D481FE393 /* libPods-matchdiary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B512CF6B465BDAF94074939 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 				A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */,
 				1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */,
 				47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */,
+				41B4CC2A25574117A0E14748 /* NanumMiNiSonGeurSsi.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -192,7 +195,6 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				685DDD44B533E6441F9C2A00 /* [CP] Embed Pods Frameworks */,
 				69B87CB6A443977DF4FD5B54 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -215,7 +217,6 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				82141FBB2C08039900A1C9A8 /* ShellScript */,
-				91866DE7823CB63BCCBFCF8E /* [CP] Embed Pods Frameworks */,
 				8A224FAB6C73AFADF246C8E7 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -284,6 +285,7 @@
 				52301F1075AD4E1A8F7F45B3 /* KBO Dia Gothic_medium.ttf in Resources */,
 				DCD04D0FC21345F59D991345 /* UhBee Seulvely.ttf in Resources */,
 				A9763E5ADFB030027C254B7C /* PrivacyInfo.xcprivacy in Resources */,
+				81ACA48033364D1285DDB53E /* NanumMiNiSonGeurSsi.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,23 +329,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		685DDD44B533E6441F9C2A00 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		69B87CB6A443977DF4FD5B54 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -376,7 +361,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
 		};
 		8A224FAB6C73AFADF246C8E7 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -393,23 +378,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		91866DE7823CB63BCCBFCF8E /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-matchdiary/Pods-matchdiary-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D8FA41FD7A4E6B61E986BBA9 /* [CP] Check Pods Manifest.lock */ = {
@@ -534,7 +502,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6.11;
+				MARKETING_VERSION = 2.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -565,7 +533,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6.11;
+				MARKETING_VERSION = 2.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -653,15 +621,12 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				PRODUCT_NAME = "직관일기";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
-				USE_HERMES = true;
+				USE_HERMES = false;
 			};
 			name = Debug;
 		};
@@ -732,14 +697,11 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				PRODUCT_NAME = "직관일기";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
-				USE_HERMES = true;
+				USE_HERMES = false;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

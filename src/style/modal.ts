@@ -1,5 +1,7 @@
-import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@/utils/STATIC_DATA';
 import { Dimensions, Platform, StyleSheet } from 'react-native';
+
+import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@/utils/STATIC_DATA';
+import { palette } from './palette';
 
 const { width } = Dimensions.get('screen');
 
@@ -42,14 +44,13 @@ export const modalStyles = StyleSheet.create({
   },
   contentWrapper: {
     top: 48,
-    // height: height - 190,
   },
   input: {
     width: width - 48,
     height: 120,
     borderWidth: 1,
     borderRadius: 4,
-    borderColor: '#888',
+    borderColor: palette.greyColor.gray8,
     backgroundColor: '#fff',
     paddingHorizontal: 10,
     ...Platform.select({
@@ -67,7 +68,7 @@ export const modalStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#888',
+    borderColor: palette.greyColor.gray8,
     borderStyle: 'dashed',
     borderRadius: 8,
   },

@@ -71,9 +71,7 @@ function More() {
   }, [teamId, userName]);
 
   useEffect(() => {
-    if (teamModalVisible) {
-      getMyInfo();
-    }
+    getMyInfo();
   }, [teamModalVisible]);
 
   useEffect(() => {
@@ -148,6 +146,8 @@ function More() {
     const res = await API.post('/user', { userId: deviceId });
     setTeamId(res.data[0].team_id);
     setUserName(res.data[0].nickname);
+    setCurrentNickname(res.data[0].nickname);
+    setSelectedTeam(res.data[0].team_id);
   };
 
   const onPressSave = async () => {
@@ -159,11 +159,14 @@ function More() {
       });
     } else {
       try {
-        // 닉네임 중복확인
+        // 닉네임 중복확인 -> 내가 아닌 다른 사람 닉네임과 중복인지 확인
         const allUsers = await API.get<UserType[]>('/users');
         if (
           allUsers.data.findIndex(user => user.nickname === currentNickname) !==
-          -1
+            -1 &&
+          allUsers.data[
+            allUsers.data.findIndex(user => user.nickname === currentNickname)
+          ].user_id !== uniqueId
         ) {
           Toast.show({
             text1: '중복 닉네임이에요! 다른 닉네임을 사용해주세요.',

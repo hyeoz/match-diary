@@ -36,6 +36,7 @@ export const getAllUserRecords = async () => {
       statusText: res.statusText,
     };
   } catch (error) {
+    console.error(error);
     return {
       data: [],
       status: error,

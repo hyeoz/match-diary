@@ -11,6 +11,7 @@ import { palette } from '@style/palette';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
 
 import splash_text from '@assets/splash_text.png';
+import ad_designer from '@assets/ad_designer.png';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   const { setTeamId, setUserName, setUniqueId } = useUserState();
@@ -40,19 +41,23 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
 
   // 기기정보로 서버에서 유저 데이터 불러오기
   const getUserData = async (deviceId: string) => {
-    const res = await API.post('/user', { userId: deviceId });
+    try {
+      const res = await API.post('/user', { userId: deviceId });
 
-    if (!res.data.length) {
-      // 유저 정보가 없는 경우 가입 화면으로 넘기기
-      await setReplace(false);
-      return;
+      if (!res.data.length) {
+        // 유저 정보가 없는 경우 가입 화면으로 넘기기
+        await setReplace(false);
+        return;
+      }
+
+      setDefaultTeam(res.data[0].team_id);
+      setTeamId(res.data[0].team_id);
+      setUserName(res.data[0].nickname);
+
+      await setReplace(true);
+    } catch (error) {
+      console.error(error);
     }
-
-    setDefaultTeam(res.data[0].team_id);
-    setTeamId(res.data[0].team_id);
-    setUserName(res.data[0].nickname);
-
-    await setReplace(true);
   };
 
   const getTeamsData = async () => {
@@ -77,6 +82,15 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
         },
       ]}>
       <FastImage source={splash_text} style={styles.logo} />
+      <FastImage
+        source={ad_designer}
+        style={{
+          width: '60%',
+          height: 100,
+          borderRadius: 20,
+          marginTop: 16,
+        }}
+      />
     </View>
   );
 }

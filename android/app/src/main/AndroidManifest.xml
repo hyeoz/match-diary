@@ -6,13 +6,19 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:minSdkVersion="34" android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
     <meta-data android:name="com.naver.maps.map.CLIENT_ID" android:value="@string/MAPS_KEY" />
-     <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_name"
-            android:value="com.matchdiary"/>
-      <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_description"
-                  android:value="com.matchdiary"/>
+    <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_name"
+      android:value="com.matchdiary"/>
+    <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_description"
+      android:value="com.matchdiary"/>
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -33,6 +39,9 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <service android:name="com.transistorsoft.rnbackgroundfetch.HeadlessJobService"
+        android:permission="android.permission.BIND_JOB_SERVICE"
+        android:exported="false"/>
     </application>
     
 </manifest>

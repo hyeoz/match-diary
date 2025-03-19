@@ -1,4 +1,4 @@
-import { API } from '.';
+import { API } from '@/api';
 import { MatchDataType } from '@/type/match';
 
 export const getMatchByDate = async (date: string) => {
@@ -10,6 +10,7 @@ export const getMatchByDate = async (date: string) => {
       statusText: res.statusText,
     };
   } catch (error) {
+    console.error(error, 'GET MATCH BY DATE');
     return {
       data: [],
       status: error,
@@ -30,6 +31,7 @@ export const getMatchById = async (id?: number) => {
       statusText: res.statusText,
     };
   } catch (error) {
+    console.error(error);
     return {
       data: [],
       status: error,

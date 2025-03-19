@@ -38,7 +38,13 @@ function History() {
     const res = await getAllUserRecords();
 
     const images = res.data
-      .map(dt => dt.image)
+      .map(dt => {
+        // 티켓 이미지가 있는 경우 티켓 이미지 메인으로
+        if (dt.ticket_image) {
+          return dt.ticket_image;
+        }
+        return dt.image;
+      })
       .filter(data => data !== null) as string[];
 
     setLoading(false);

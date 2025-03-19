@@ -1,9 +1,5 @@
 import { create } from 'zustand';
 
-import { RecordType } from '@/type/default';
-import { RESET_RECORD } from '@/utils/STATIC_DATA';
-import { MatchDataType } from '@/type/match';
-
 const useBottomTabState = create<{ isOpen: boolean; update: () => void }>(
   set => ({
     isOpen: false,
@@ -28,6 +24,6 @@ const useCarouselIndexState = create<{
     set(() => ({ carouselIndexState: index })),
 }));
 
-// TODO 기록 및 경기에 대한 정보는 api 호출로 대체하고, 필요한 경우 추가
+// NOTE 기록 및 경기에 대한 정보는 api 호출로 대체하고, 필요한 경우 추가
 
 export { useBottomTabState, useTabHistory, useCarouselIndexState };

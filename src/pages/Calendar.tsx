@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  ActionSheetIOS,
   Alert,
   Dimensions,
   FlatList,
@@ -12,7 +13,11 @@ import {
 } from 'react-native';
 import dayjs from 'dayjs';
 import { Calendar as RNCalendar, LocaleConfig } from 'react-native-calendars';
-import { DateData, MarkedDates } from 'react-native-calendars/src/types';
+import {
+  DateData,
+  DayState,
+  MarkedDates,
+} from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 
 import TouchableWrapper from '@components/TouchableWrapper';
@@ -24,6 +29,7 @@ import {
   DATE_FORMAT,
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
+  INIT_COUNT_DATA,
   MONTH_LIST,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
@@ -33,8 +39,11 @@ import Loading from '@/components/Loading';
 import { getMatchByDate, getMatchById } from '@/api/match';
 import { useUserState, useViewedMatchState } from '@/stores/user';
 import { getAllUserRecords, getRecordByDate } from '@/api/record';
-import { MatchDataType } from '@/type/match';
-import { useTeamsState } from '@/stores/teams';
+import { MatchBookingType, MatchDataType } from '@/type/match';
+import { useStadiumsState, useTeamsState } from '@/stores/teams';
+import { StadiumType, TeamType } from '@/type/team';
+import Toast from 'react-native-toast-message';
+import { onCreateTriggerNotification } from '@/hooks/schedulingHook';
 
 const { width } = Dimensions.get('window');
 
@@ -47,43 +56,23 @@ LocaleConfig.locales.kr = {
 };
 LocaleConfig.defaultLocale = 'kr';
 
-const initCountData = {
-  byMonth: {
-    home: 0,
-    away: 0,
-  },
-  bySeason: {
-    home: 0,
-    away: 0,
-  },
-  rate: {
-    win: 0,
-    lose: 0,
-    draw: 0,
-  },
-};
-
 function Calendar() {
   const [markedDates, setMarkedDates] = useState<MarkedDates>({});
   const [selectedDate, setSelectedDate] = useState(dayjs().format(DATE_FORMAT));
   const [isVisible, setIsVisible] = useState(false);
-  // const [image, setImage] = useState<ImageOrVideo | null>(null);
-  // const [memo, setMemo] = useState('');
-  // const [selectedStadium, setSelectedStadium] = useState('');
   const [isEdit, setIsEdit] = useState(false);
   const [matches, setMatches] = useState<MatchDataType[]>([]);
-  const [matchRecord, setMatchRecord] = useState(initCountData); // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
+  const [matchRecord, setMatchRecord] = useState(INIT_COUNT_DATA); // NOTE my team 이 없는 경우 모두 home 안에 기록됩니다
   const [loading, setLoading] = useState(false);
-  const [weeksCount, setWeeksCount] = useState(0);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
+  const [weeksInMonth, setWeeksInMonth] = useState(0);
+  const [bookings, setBookings] = useState<MatchBookingType[]>([]);
 
   const { history } = useTabHistory();
   const { teamId, uniqueId } = useUserState();
   const { teams } = useTeamsState();
+  const { stadiums } = useStadiumsState();
   const { carouselIndexState } = useCarouselIndexState();
-  const { viewedMatch } = useViewedMatchState();
-
-  const year = dayjs(selectedDate).year();
 
   const detailProps = {
     isEdit,
@@ -95,28 +84,14 @@ function Calendar() {
   };
 
   useEffect(() => {
-    if (!records.length) return;
-
-    setRecords(
-      records.sort((a, b) => {
-        if (a.date === records[carouselIndexState].date) return -1;
-        if (b.date === records[carouselIndexState].date) return 1;
-        return (
-          records.findIndex(value => value.records_id === a.records_id) -
-          records.findIndex(value => value.records_id === b.records_id)
-        );
-      }),
-    );
-  }, []);
-
-  useEffect(() => {
     getRecordsBySelectedDate();
     getMatchData();
+    handleRecordsCount();
+    getBookings();
   }, [history, teamId, selectedDate]);
 
   useEffect(() => {
     getAllRecords();
-    handleRecordsCount();
   }, [history, teamId, isVisible]);
 
   const getRecordsBySelectedDate = async () => {
@@ -157,27 +132,51 @@ function Calendar() {
     setSelectedDate(dayjs(day?.dateString).format(DATE_FORMAT));
   }, []);
 
+  const currentCellHeight = useMemo(() => {
+    if (Platform.OS === 'ios') {
+      if (weeksInMonth === 4) {
+        return 37;
+      } else if (weeksInMonth === 5) {
+        return 35;
+      } else if (weeksInMonth === 6) {
+        return 28;
+      }
+    }
+    if (Platform.OS === 'android') {
+      if (weeksInMonth === 4) {
+        return 35;
+      } else if (weeksInMonth === 5) {
+        return 32;
+      } else if (weeksInMonth === 6) {
+        return 25;
+      }
+    }
+    return 30;
+  }, [weeksInMonth]);
+
   const dayComponent = useCallback(
     (
       props: DayProps & {
         date?: DateData;
       },
-    ) => (
-      <DayComponent
-        key={props.date?.dateString}
-        selectedDate={selectedDate}
-        weeksCount={weeksCount}
-        setWeeksCount={setWeeksCount}
-        {...props}
-        onPress={onDayPress}
-      />
-    ),
-    [onDayPress, selectedDate, weeksCount],
+    ) => {
+      return (
+        <DayComponent
+          key={props.date?.dateString}
+          selectedDate={selectedDate}
+          {...props}
+          onPress={onDayPress}
+          cellHeight={currentCellHeight}
+          bookingDates={bookings.map(({ date }) =>
+            dayjs(date).format(DATE_FORMAT),
+          )}
+        />
+      );
+    },
+    [onDayPress, selectedDate, weeksInMonth, currentCellHeight, bookings],
   );
 
-  const headerComponent = useCallback((date: string) => {
-    setWeeksCount(0);
-
+  const headerComponent = (date: string) => {
     return (
       <View
         style={{
@@ -188,7 +187,7 @@ function Calendar() {
         <Text style={styles.headerText}>{dayjs(date).format('M')}월</Text>
       </View>
     );
-  }, []);
+  };
 
   const getMatchData = async () => {
     setLoading(true);
@@ -225,48 +224,158 @@ function Calendar() {
       userId: uniqueId,
     });
 
-    allUserRecords.data.forEach(async record => {
-      if (!record.match_id) return;
+    // NOTE 한 시즌 기준 승률 계산
+    [...allUserRecords.data]
+      .filter(record => dayjs(record.date).year() === dayjs().year())
+      .forEach(async record => {
+        if (!record.match_id) return;
 
-      const matchInfo = await getMatchById(record.match_id);
-      const data = matchInfo?.data as MatchDataType;
+        const matchInfo = await getMatchById(record.match_id);
+        const data = matchInfo?.data as MatchDataType;
 
-      // ANCHOR 내 팀 경기 기록
-      // 홈경기
-      if (teamId === data.home) {
-        if (dayjs(data.date).year === dayjs().year) {
-          recordsCnt.bySeason.home += 1;
+        // ANCHOR 내 팀 경기 기록
+        // 홈경기
+        if (teamId === data.home) {
+          if (dayjs(data.date).year() === dayjs().year()) {
+            recordsCnt.bySeason.home += 1;
+          }
+          if (dayjs(data.date).month() === dayjs().month()) {
+            recordsCnt.byMonth.home += 1;
+          }
+          if (data.home_score > data.away_score) {
+            recordsCnt.rate.win += 1;
+          } else if (data.home_score < data.away_score) {
+            recordsCnt.rate.lose += 1;
+          } else {
+            recordsCnt.rate.draw += 1;
+          }
+        } else if (teamId === data.away) {
+          // 원정경기
+          if (dayjs(data.date).year() === dayjs().year()) {
+            recordsCnt.bySeason.away += 1;
+          }
+          if (dayjs(data.date).month() === dayjs().month()) {
+            recordsCnt.byMonth.away += 1;
+          }
+          if (data.home_score > data.away_score) {
+            recordsCnt.rate.lose += 1;
+          } else if (data.home_score < data.away_score) {
+            recordsCnt.rate.win += 1;
+          } else {
+            recordsCnt.rate.draw += 1;
+          }
         }
-        if (dayjs(data.date).month === dayjs().month) {
-          recordsCnt.byMonth.home += 1;
-        }
-        if (data.home_score > data.away_score) {
-          recordsCnt.rate.win += 1;
-        } else if (data.home_score < data.away_score) {
-          recordsCnt.rate.lose += 1;
-        } else {
-          recordsCnt.rate.draw += 1;
-        }
-      } else if (teamId === data.away) {
-        // 원정경기
-        if (dayjs(data.date).year === dayjs().year) {
-          recordsCnt.bySeason.away += 1;
-        }
-        if (dayjs(data.date).month === dayjs().month) {
-          recordsCnt.byMonth.away += 1;
-        }
-        if (data.home_score > data.away_score) {
-          recordsCnt.rate.lose += 1;
-        } else if (data.home_score < data.away_score) {
-          recordsCnt.rate.win += 1;
-        } else {
-          recordsCnt.rate.draw += 1;
-        }
-      }
-      // 내 팀 경기가 아닌 경우 승률은 계산하지 않음
-    });
+        // 내 팀 경기가 아닌 경우 승률은 계산하지 않음
+      });
 
     setMatchRecord(recordsCnt);
+  };
+
+  const onPressScheduling = async () => {
+    Alert.alert(
+      '선택한 날짜에 직관 알림을 예약할까요?',
+      '해당 날짜에 알림을 보내드릴게요!',
+      [
+        { text: '취소', onPress: () => {} }, // TODO
+        {
+          text: '예약하기',
+          onPress: async () => {
+            if (!selectedDate) {
+              Toast.show({
+                type: 'info',
+                text1: '날짜를 먼저 선택해주세요!',
+              });
+              return;
+            }
+            await onCreateTriggerNotification(selectedDate);
+            await getBookings();
+            Toast.show({
+              type: 'success',
+              text1: '직관 알림 예약이 완료되었어요!',
+              text2: '선택한 날짜에 알려드릴게요!',
+            });
+          },
+        },
+      ],
+    );
+  };
+
+  const onDeleteBooking = async () => {
+    const id = bookings.find(
+      book => dayjs(book.date).format(DATE_FORMAT) === selectedDate,
+    )?.booking_id;
+
+    try {
+      await API.delete(`/bookings/${id}`);
+      Toast.show({
+        type: 'success',
+        text1: '직관 예약이 성공적으로 삭제되었어요.',
+      });
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: '삭제를 실패했어요! 다시 시도해주세요.',
+      });
+    }
+
+    await getBookings();
+  };
+
+  const getBookings = async () => {
+    try {
+      const res = await API.post<MatchBookingType[]>('/bookings', {
+        userId: uniqueId,
+      });
+      setBookings(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const selectAddRecordMode = async () => {
+    const bookingDates = bookings.map(({ date }) =>
+      dayjs(date).format(DATE_FORMAT),
+    );
+    const isBooked = bookingDates.includes(selectedDate);
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: isBooked
+            ? ['취소', '직관 기록하기', '직관 예약 취소']
+            : ['취소', '직관 기록하기', '직관 예약하기'],
+          cancelButtonIndex: 0,
+        },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            setIsVisible(true);
+          } else if (buttonIndex === 2) {
+            isBooked ? onDeleteBooking() : onPressScheduling();
+          }
+        },
+      );
+    } else if (Platform.OS === 'android') {
+      Alert.alert(
+        '선택하기',
+        '해당 날짜에 추가할 액션을 선택해주세요!',
+        [
+          {
+            text: '취소',
+            onPress: () => {}, // TODO
+            style: 'cancel',
+          },
+          {
+            text: '직관 기록',
+            onPress: () => setIsVisible(true),
+          },
+          {
+            text: isBooked ? '직관 예약 삭제' : '직관 예약',
+            onPress: () => (isBooked ? onDeleteBooking() : onPressScheduling()),
+          },
+        ],
+        { cancelable: true, onDismiss: () => {} },
+      );
+    }
   };
 
   return (
@@ -282,6 +391,10 @@ function Calendar() {
           firstDay={1}
           renderHeader={headerComponent}
           dayComponent={dayComponent}
+          onMonthChange={(data: DateData) => {
+            const weeks = getWeeksInMonth(data.dateString);
+            setWeeksInMonth(weeks);
+          }}
         />
       </View>
 
@@ -309,7 +422,16 @@ function Calendar() {
             />
           ) : (
             <TouchableOpacity
-              onPress={() => setIsVisible(true)}
+              onPress={() => {
+                if (
+                  new Date(selectedDate + 'T00:00:00.000Z') <=
+                  new Date(dayjs().format('YYYY-MM-DD') + 'T00:00:00.000Z')
+                ) {
+                  setIsVisible(true);
+                } else {
+                  selectAddRecordMode();
+                }
+              }}
               style={{
                 padding: 16,
                 marginTop: -16,
@@ -340,7 +462,15 @@ function Calendar() {
                             fontSize: 20,
                           },
                         ]}>
-                        {matches[0].home} VS {matches[0].away}
+                        {
+                          teams.find(team => team.team_id === matches[0].home)
+                            ?.team_short_name
+                        }{' '}
+                        VS{' '}
+                        {
+                          teams.find(team => team.team_id === matches[0].away)
+                            ?.team_short_name
+                        }
                       </Text>
                       {!!matches[0].home && (
                         <View>
@@ -365,9 +495,10 @@ function Calendar() {
                             ]}>
                             (
                             {
-                              teams.find(
-                                team => team.team_id === matches[0].home,
-                              )?.team_short_name
+                              stadiums.find(
+                                stadium =>
+                                  stadium.stadium_id === matches[0].stadium,
+                              )?.stadium_short_name
                             }
                             )
                           </Text>
@@ -380,7 +511,12 @@ function Calendar() {
                     <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
                       오늘의 경기
                     </Text>
-                    <FlatList data={matches} renderItem={MatchesItem} />
+                    <FlatList
+                      data={matches}
+                      renderItem={props =>
+                        MatchesItem({ teams, stadiums, ...props })
+                      }
+                    />
                   </View>
                 ) : (
                   <View>
@@ -477,6 +613,7 @@ function Calendar() {
       </View>
 
       <UploadModal {...detailProps} isVisible={isVisible} date={selectedDate} />
+      <Toast />
     </TouchableWrapper>
   );
 }
@@ -487,35 +624,21 @@ function DayComponent({
   marking,
   onPress,
   selectedDate,
-  weeksCount,
-  setWeeksCount,
+  cellHeight,
+  bookingDates,
   ...props
 }: DayProps & {
   date?: DateData;
   selectedDate: string;
-  weeksCount: number;
-  setWeeksCount: React.Dispatch<React.SetStateAction<number>>;
+  cellHeight: number;
+  bookingDates: string[];
 }) {
-  setWeeksCount(prev => {
-    if (props.accessibilityLabel?.includes('월요일')) {
-      return prev + 1;
-    }
-    return prev;
-  });
-
   return (
     <TouchableOpacity
       onPress={() => onPress && onPress(date)}
       style={{
         width: '100%',
-        height:
-          weeksCount > 5
-            ? Platform.OS === 'android'
-              ? 27
-              : 30
-            : Platform.OS === 'android'
-            ? 37
-            : 40,
+        height: cellHeight,
         gap: 6,
         margin: 0,
         alignItems: 'center',
@@ -526,19 +649,35 @@ function DayComponent({
           position: 'relative',
           width: '100%',
         }}>
+        {/* 선택된 날짜 */}
         <View
           style={{
-            width: '50%',
-            height: 12,
             backgroundColor:
               dayjs(date?.dateString).format(DATE_FORMAT) === selectedDate
                 ? 'rgba(	123,	193,	88, 0.3)'
                 : 'transparent',
+            width: '50%',
+            height: 12,
             position: 'absolute',
             top: 4,
             left: '25%',
           }}
         />
+        {/* 직관 예약된 날짜 */}
+        {date &&
+          bookingDates.includes(dayjs(date.dateString).format(DATE_FORMAT)) &&
+          !marking?.marked && (
+            <AnswerCircle
+              style={{
+                position: 'absolute',
+                top: -16,
+                left: '50%',
+                transform: [{ translateX: -22 }],
+              }}
+              width={48}
+              height={48}
+            />
+          )}
         <Text
           style={[
             {
@@ -558,25 +697,48 @@ function DayComponent({
           {date?.day}
         </Text>
       </View>
+      {/* 기록 있는 경우 */}
       {marking?.marked && <Ball width={16} height={16} />}
     </TouchableOpacity>
   );
 }
 
-function MatchesItem({ ...props }: ListRenderItemInfo<MatchDataType>) {
+function MatchesItem({
+  teams,
+  stadiums,
+  ...props
+}: ListRenderItemInfo<MatchDataType> & {
+  teams: TeamType[];
+  stadiums: StadiumType[];
+}) {
   const { home, away, stadium } = props.item;
 
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
       <View style={{ flexDirection: 'row', gap: 4 }}>
-        <Text style={styles.stickyNoteText}>{away}</Text>
+        <Text style={styles.stickyNoteText}>
+          {teams.find(team => team.team_id === away)?.team_short_name}
+        </Text>
         <Text style={styles.stickyNoteText}>VS</Text>
-        <Text style={styles.stickyNoteText}>{home}</Text>
+        <Text style={styles.stickyNoteText}>
+          {teams.find(team => team.team_id === home)?.team_short_name}
+        </Text>
       </View>
-      <Text style={styles.stickyNoteText}>@{stadium}</Text>
+      <Text style={styles.stickyNoteText}>
+        @{stadiums.find(s => s.stadium_id === stadium)?.stadium_short_name}
+      </Text>
     </View>
   );
 }
+
+const getWeeksInMonth = (date: string) => {
+  const firstDayOfMonth = dayjs(date).startOf('month');
+  const totalDays = firstDayOfMonth.daysInMonth();
+  const startDayOfWeek =
+    firstDayOfMonth.day() === 0 ? 6 : firstDayOfMonth.day() - 1;
+
+  return Math.ceil((startDayOfWeek + totalDays) / 7);
+};
 
 const styles = StyleSheet.create({
   calendarWrapper: {

@@ -20,28 +20,26 @@ import {
   View,
 } from 'react-native';
 import dayjs from 'dayjs';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ViewShot from 'react-native-view-shot';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 
+import { API } from '@/api';
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
 import UploadModal from '@components/UploadModal';
-import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
-import { useCarouselIndexState, useTabHistory } from '@/stores/default';
 import { RecordType } from '@/type/record';
-import { Add } from '@assets/svg';
-import { palette } from '@/style/palette';
+import { DATE_FORMAT, IMAGE_HEIGHT, IMAGE_WIDTH } from '@utils/STATIC_DATA';
 import {
   changeStadiumLongNameToNickname,
   hasAndroidPermission,
 } from '@/utils/helper';
-import { API } from '@/api';
 import { useUserState } from '@/stores/user';
 import { useStadiumsState } from '@/stores/teams';
+import { useCarouselIndexState } from '@/stores/default';
+import { palette } from '@/style/palette';
+import { Add } from '@assets/svg';
 
 // NOTE 메인페이지
 
@@ -49,17 +47,13 @@ const formattedToday = dayjs().format(DATE_FORMAT);
 const { width, height } = Dimensions.get('window');
 
 function Write() {
-  const navigate = useNavigation<NativeStackNavigationProp<any>>();
-
   const shareImageRef = useRef<ViewShot>(null);
-  const flatListRef = useRef<FlatList>(null);
 
   const [isVisible, setIsVisible] = useState(false);
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
   const [isEdit, setIsEdit] = useState(false);
 
   const { uniqueId } = useUserState();
-  const { history } = useTabHistory();
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
 
   useEffect(() => {
@@ -171,7 +165,7 @@ function Write() {
               style={{
                 flex: 0.9,
               }}>
-              {/* TODO 여러경기인 경우 캐러셀 디자인 */}
+              {/* 여러경기인 경우 캐러셀 디자인 */}
               <FlatList
                 data={records}
                 renderItem={({ item, index }) => (

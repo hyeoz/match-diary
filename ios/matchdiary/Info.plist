@@ -2,8 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>matchdiary-background-location</string>
+	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<true/>
+	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -24,6 +31,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>instagram</string>
@@ -37,28 +46,29 @@
 	<false/>
 	<key>NSAllowsLocalNetworking</key>
 	<true/>
-	<key>NSAppTransportSecurity</key>
-	<string></string>
+	<key>NSCameraUsageDescription</key>
+	<string>지금 바로 기록을 남길 수 있게 카메라를 허용해주세요!</string>
+	<key>NSExceptionAllowsInsecureHTTPLoads</key>
+	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>앱이 백그라운드에서도 위치 기반으로 경기장과의 거리를 계산하기 위해 필요합니다. "항상"을 선택해주시면, 경기장 근처에서 알림을 보내드릴게요!</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>앱이 백그라운드에서도 위치 기반으로 경기장과의 거리를 계산하기 위해 필요합니다. "항상"을 선택해주시면, 경기장 근처에서 알림을 보내드릴게요!</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>앱에서 사용자의 위치를 기반으로 경기장과의 거리를 계산하기 위해 위치 정보가 필요해요!</string>
+	<key>NSMotionUsageDescription</key>
+	<string>앱이 백그라운드에서도 위치 기반으로 경기장과의 거리를 계산하기 위해 필요합니다. "항상"을 선택해주시면, 경기장 근처에서 알림을 보내드릴게요!</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>앱에서 사용자가 일기를 기록할 때 사진을 추가할 수 있도록 사진 라이브러리 접근 권한이 필요해요!</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>앱에서 사용자가 일기를 기록할 때 사진을 추가할 수 있도록 사진 라이브러리 접근 권한이 필요해요!</string>
-	<key>NSMotionUsageDescription</key>
-	<string>앱이 백그라운드에서도 위치 기반으로 경기장과의 거리를 계산하기 위해 필요합니다. "항상"을 선택해주시면, 경기장 근처에서 알림을 보내드릴게요!</string>
-	<key>NSCameraUsageDescription</key>
-	<string>지금 바로 기록을 남길 수 있게 카메라를 허용해주세요!</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>KBO Dia Gothic_bold.ttf</string>
 		<string>KBO Dia Gothic_light.ttf</string>
 		<string>KBO Dia Gothic_medium.ttf</string>
 		<string>UhBee Seulvely.ttf</string>
+		<string>NanumMiNiSonGeurSsi.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
@@ -67,7 +77,7 @@
 		<string>fetch</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
-	<string></string>
+	<string/>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
@@ -80,7 +90,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSExceptionAllowsInsecureHTTPLoads</key>
-<true/>
 </dict>
 </plist>
