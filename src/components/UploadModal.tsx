@@ -142,14 +142,11 @@ export default function UploadModal({
 
   // TODO 카메라 촬영 버튼
   const getPicture = useCallback(async () => {
-    Alert.alert('getPicture');
     if (cameraRef.current) {
-      const data = await cameraRef.current.takePhoto();
+      const data = await cameraRef.current.takeSnapshot();
+      Alert.alert(data.path);
       setCameraUri(data.path);
       setVisibleFakeCamera(false);
-    } else {
-      Alert.alert('no ref');
-      console.error('no ref');
     }
   }, [cameraRef]);
 
