@@ -141,14 +141,17 @@ export default function UploadModal({
   }, [latitude, longitude, isVisible, stadiumSelectVisible]);
 
   // TODO 카메라 촬영 버튼
-  const getPicture = useCallback(async () => {
+  const getPicture = async () => {
     if (cameraRef.current) {
-      const data = await cameraRef.current.takeSnapshot();
-      Alert.alert(data.path);
-      setCameraUri(data.path);
-      setVisibleFakeCamera(false);
+      try {
+        const data = await cameraRef.current.takePhoto();
+        setCameraUri(data.path);
+        setVisibleFakeCamera(false);
+      } catch (error) {
+        Alert.alert(error as string);
+      }
     }
-  }, [cameraRef]);
+  };
 
   // TODO ViewShot을 이용해 화면 캡처
   const captureFilteredImage = async () => {
@@ -225,7 +228,8 @@ export default function UploadModal({
       }
     }
   };
-
+  console.log(tempRecord);
+  // 티켓 이미지 선택 액션
   const getTicketImageAction = async () => {
     // 앨범 선택
     const result = await launchImageLibrary({
