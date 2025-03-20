@@ -896,6 +896,7 @@ export default function UploadModal({
                 aspectRatio: 1,
                 overflow: 'hidden',
                 backgroundColor: '#999',
+                top: '-5%',
               }}>
               <FastImage
                 source={{
