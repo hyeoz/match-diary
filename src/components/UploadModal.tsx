@@ -887,9 +887,9 @@ export default function UploadModal({
               matches={matches}
               currentWeather={currentWeather}
               additionalStyle={{
-                top: 0,
                 width: '100%',
                 zIndex: 11,
+                top: 0,
               }}
             />
             <View
@@ -898,7 +898,7 @@ export default function UploadModal({
                 aspectRatio: 1,
                 overflow: 'hidden',
                 backgroundColor: '#999',
-                top: '-5%',
+                top: '-5%'
               }}>
               <FastImage
                 source={{
@@ -909,7 +909,6 @@ export default function UploadModal({
                   height: '100%',
                   position: 'absolute',
                   zIndex: 10,
-                  top: '-5%',
                 }}
               />
             </View>
