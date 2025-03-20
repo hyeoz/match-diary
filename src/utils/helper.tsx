@@ -18,8 +18,8 @@ import {
 import { CoordinateType } from '@/type/default';
 import { NICKNAME_ADJECTIVE, NICKNAME_NOUN } from './NICKNAME_STATIC_DATA';
 
-const hasAndroidPermission = async () => {
-  const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+const hasAndroidPermission = async (permissionType: string) => {
+  const permission = PermissionsAndroid.PERMISSIONS[permissionType];
 
   const hasPermission = await PermissionsAndroid.check(permission);
   if (hasPermission) {
