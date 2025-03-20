@@ -144,10 +144,10 @@ function Calendar() {
       } else if (weeksInMonth === 5) {
         return 30;
       } else if (weeksInMonth === 6) {
-        return 25;
+        return 28;
       }
     }
-    return 30;
+    return 28;
   }, [weeksInMonth]);
 
   const dayComponent = useCallback(
