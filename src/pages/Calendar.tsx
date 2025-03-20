@@ -13,10 +13,7 @@ import {
 } from 'react-native';
 import dayjs from 'dayjs';
 import { Calendar as RNCalendar, LocaleConfig } from 'react-native-calendars';
-import {
-  DateData,
-  MarkedDates,
-} from 'react-native-calendars/src/types';
+import { DateData, MarkedDates } from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 import Toast from 'react-native-toast-message';
 

@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.matchdiary",
+  "applicationId": "com.matchdiary.origin",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 1,
-      "versionName": "1.2.2",
+      "versionCode": 3,
+      "versionName": "2.0",
       "outputFile": "app-release.apk"
     }
   ],
@@ -21,13 +21,17 @@
     {
       "minApi": 28,
       "maxApi": 30,
-      "baselineProfiles": ["baselineProfiles/1/app-release.dm"]
+      "baselineProfiles": [
+        "baselineProfiles/1/app-release.dm"
+      ]
     },
     {
       "minApi": 31,
       "maxApi": 2147483647,
-      "baselineProfiles": ["baselineProfiles/0/app-release.dm"]
+      "baselineProfiles": [
+        "baselineProfiles/0/app-release.dm"
+      ]
     }
   ],
-  "minSdkVersionForDexing": 21
+  "minSdkVersionForDexing": 23
 }

@@ -196,7 +196,10 @@ export default function UploadModal({
   const getImageAction = async (buttonIndex: number) => {
     // 카메라 선택
     if (buttonIndex === 1) {
-      if (Platform.OS === 'android' && !(await hasAndroidPermission('CAMERA'))) {
+      if (
+        Platform.OS === 'android' &&
+        !(await hasAndroidPermission('CAMERA'))
+      ) {
         Alert.alert('카메라 사용 권한을 먼저 설정해주세요!');
         return;
       }
@@ -312,7 +315,10 @@ export default function UploadModal({
       return;
     }
 
-    if (Platform.OS === 'android' && !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))) {
+    if (
+      Platform.OS === 'android' &&
+      !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))
+    ) {
       Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
       return;
     }
