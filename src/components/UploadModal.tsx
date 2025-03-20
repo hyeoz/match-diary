@@ -496,27 +496,49 @@ export default function UploadModal({
 
   // 현재 유저의 위치
   const getLocation = async () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const _latitude = JSON.stringify(position.coords.latitude);
-        const _longitude = JSON.stringify(position.coords.longitude);
+    try {
+      // 안드로이드 권한 체크 및 요청
+      if (Platform.OS === 'android') {
+        const result = await hasAndroidPermission('ACCESS_FINE_LOCATION');
+        if (!result) {
+          console.error('Location permission denied');
+          return;
+        }
+      } else {
+        // iOS 권한 체크 및 요청
+        const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+        if (result !== 'granted') {
+          console.error('Location permission denied');
+          return;
+        }
+      }
 
-        setLatitude(_latitude);
-        setLongitude(_longitude);
-      },
-      async error => {
-        console.error(error.code, error.message);
-        return await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-      },
-      { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 },
-    );
+      Geolocation.getCurrentPosition(
+        position => {
+          const _latitude = JSON.stringify(position.coords.latitude);
+          const _longitude = JSON.stringify(position.coords.longitude);
+          setLatitude(_latitude);
+          setLongitude(_longitude);
+        },
+        error => {
+          console.error('Location error:', error.code, error.message);
+        },
+        { 
+          enableHighAccuracy: true,  // 정확도를 높이기 위해 true로 변경
+          timeout: 30000,
+          maximumAge: 10000
+        },
+      );
 
-    const weather = await getWeatherIcon(
-      Number(latitude),
-      Number(longitude),
-      formattedToday,
-    );
-    setCurrentWeather(weather);
+      const weather = await getWeatherIcon(
+        Number(latitude),
+        Number(longitude),
+        formattedToday,
+      );
+      setCurrentWeather(weather);
+    } catch (error) {
+      console.error('Error getting location or weather:', error);
+    }
   };
 
   // 사진 선택 버튼 클릭
