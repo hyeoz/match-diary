@@ -145,7 +145,9 @@ export default function UploadModal({
     if (cameraRef.current) {
       try {
         const data = await cameraRef.current.takePhoto();
-        setCameraUri(data.path);
+        // 안드로이드에서 file:// 스키마 추가
+        const imagePath = Platform.OS === 'android' ? `file://${data.path}` : data.path;
+        setCameraUri(imagePath);
         setVisibleFakeCamera(false);
       } catch (error) {
         console.error(error);
