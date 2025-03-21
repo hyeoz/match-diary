@@ -13,12 +13,9 @@ import {
 } from 'react-native';
 import dayjs from 'dayjs';
 import { Calendar as RNCalendar, LocaleConfig } from 'react-native-calendars';
-import {
-  DateData,
-  DayState,
-  MarkedDates,
-} from 'react-native-calendars/src/types';
+import { DateData, MarkedDates } from 'react-native-calendars/src/types';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
+import Toast from 'react-native-toast-message';
 
 import TouchableWrapper from '@components/TouchableWrapper';
 import { Detail } from '@components/Detail';
@@ -37,12 +34,11 @@ import { RecordType } from '@/type/record';
 import { AnswerCircle, Ball, PaperClip } from '@assets/svg';
 import Loading from '@/components/Loading';
 import { getMatchByDate, getMatchById } from '@/api/match';
-import { useUserState, useViewedMatchState } from '@/stores/user';
+import { useUserState } from '@/stores/user';
 import { getAllUserRecords, getRecordByDate } from '@/api/record';
 import { MatchBookingType, MatchDataType } from '@/type/match';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { StadiumType, TeamType } from '@/type/team';
-import Toast from 'react-native-toast-message';
 import { onCreateTriggerNotification } from '@/hooks/schedulingHook';
 
 const { width } = Dimensions.get('window');
@@ -146,12 +142,12 @@ function Calendar() {
       if (weeksInMonth === 4) {
         return 35;
       } else if (weeksInMonth === 5) {
-        return 32;
+        return 30;
       } else if (weeksInMonth === 6) {
-        return 25;
+        return 28;
       }
     }
-    return 30;
+    return 28;
   }, [weeksInMonth]);
 
   const dayComponent = useCallback(

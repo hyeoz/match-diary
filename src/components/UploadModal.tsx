@@ -145,7 +145,9 @@ export default function UploadModal({
     if (cameraRef.current) {
       try {
         const data = await cameraRef.current.takePhoto();
-        setCameraUri(data.path);
+        // 안드로이드에서 file:// 스키마 추가
+        const imagePath = Platform.OS === 'android' ? `file://${data.path}` : data.path;
+        setCameraUri(imagePath);
         setVisibleFakeCamera(false);
       } catch (error) {
         console.error(error);
@@ -196,7 +198,10 @@ export default function UploadModal({
   const getImageAction = async (buttonIndex: number) => {
     // 카메라 선택
     if (buttonIndex === 1) {
-      if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
+      if (
+        Platform.OS === 'android' &&
+        !(await hasAndroidPermission('CAMERA'))
+      ) {
         Alert.alert('카메라 사용 권한을 먼저 설정해주세요!');
         return;
       }
@@ -312,7 +317,10 @@ export default function UploadModal({
       return;
     }
 
-    if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
+    if (
+      Platform.OS === 'android' &&
+      !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))
+    ) {
       Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
       return;
     }
@@ -488,27 +496,49 @@ export default function UploadModal({
 
   // 현재 유저의 위치
   const getLocation = async () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const _latitude = JSON.stringify(position.coords.latitude);
-        const _longitude = JSON.stringify(position.coords.longitude);
+    try {
+      // 안드로이드 권한 체크 및 요청
+      if (Platform.OS === 'android') {
+        const result = await hasAndroidPermission('ACCESS_FINE_LOCATION');
+        if (!result) {
+          console.error('Location permission denied');
+          return;
+        }
+      } else {
+        // iOS 권한 체크 및 요청
+        const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+        if (result !== 'granted') {
+          console.error('Location permission denied');
+          return;
+        }
+      }
 
-        setLatitude(_latitude);
-        setLongitude(_longitude);
-      },
-      async error => {
-        console.error(error.code, error.message);
-        return await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-      },
-      { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 },
-    );
+      Geolocation.getCurrentPosition(
+        position => {
+          const _latitude = JSON.stringify(position.coords.latitude);
+          const _longitude = JSON.stringify(position.coords.longitude);
+          setLatitude(_latitude);
+          setLongitude(_longitude);
+        },
+        error => {
+          console.error('Location error:', error.code, error.message);
+        },
+        { 
+          enableHighAccuracy: true,  // 정확도를 높이기 위해 true로 변경
+          timeout: 30000,
+          maximumAge: 10000
+        },
+      );
 
-    const weather = await getWeatherIcon(
-      Number(latitude),
-      Number(longitude),
-      formattedToday,
-    );
-    setCurrentWeather(weather);
+      const weather = await getWeatherIcon(
+        Number(latitude),
+        Number(longitude),
+        formattedToday,
+      );
+      setCurrentWeather(weather);
+    } catch (error) {
+      console.error('Error getting location or weather:', error);
+    }
   };
 
   // 사진 선택 버튼 클릭
@@ -879,9 +909,9 @@ export default function UploadModal({
               matches={matches}
               currentWeather={currentWeather}
               additionalStyle={{
-                top: 0,
                 width: '100%',
                 zIndex: 11,
+                top: 0,
               }}
             />
             <View
@@ -890,6 +920,7 @@ export default function UploadModal({
                 aspectRatio: 1,
                 overflow: 'hidden',
                 backgroundColor: '#999',
+                top: '-5%'
               }}>
               <FastImage
                 source={{
@@ -900,7 +931,6 @@ export default function UploadModal({
                   height: '100%',
                   position: 'absolute',
                   zIndex: 10,
-                  top: '-5%',
                 }}
               />
             </View>
