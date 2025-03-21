@@ -928,8 +928,9 @@ export default function UploadModal({
             <View
               style={{
                 width: '100%',
+                height: '100%',
                 overflow: 'hidden',
-                // backgroundColor: '#999',
+                backgroundColor: '#999',
                 top: '-5%',
               }}>
               <FastImage
@@ -939,7 +940,6 @@ export default function UploadModal({
                 style={{
                   width: '100%',
                   aspectRatio: 1,
-                  // height: '100%',
                   position: 'absolute',
                   zIndex: 10,
                 }}
