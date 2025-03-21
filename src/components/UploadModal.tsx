@@ -922,16 +922,14 @@ export default function UploadModal({
               additionalStyle={{
                 width: '100%',
                 zIndex: 11,
-                top: 0,
+                top: '5%',
               }}
             />
             <View
               style={{
                 width: '100%',
-                height: '100%',
+                aspectRatio: 1,
                 overflow: 'hidden',
-                backgroundColor: '#999',
-                top: '-5%',
               }}>
               <FastImage
                 source={{
@@ -939,7 +937,7 @@ export default function UploadModal({
                 }}
                 style={{
                   width: '100%',
-                  aspectRatio: 1,
+                  height: '100%',
                   position: 'absolute',
                   zIndex: 10,
                 }}
@@ -1014,7 +1012,7 @@ const styles = StyleSheet.create({
   },
   captureWrapper: {
     position: 'absolute',
-    width: '90%',
+    width: '100%',
     aspectRatio: 1,
     top: '25%',
     left: '5%',
