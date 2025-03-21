@@ -1015,7 +1015,6 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     top: '25%',
-    left: '5%',
   },
   captureImageWrapper: {
     position: 'absolute',
