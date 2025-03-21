@@ -212,6 +212,7 @@ export default function UploadModal({
       const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 1,
+        includeExtra: true
       });
       const item = result.assets;
       if (!item || !item[0].uri || !item[0].width || !item[0].height) {
@@ -251,6 +252,7 @@ export default function UploadModal({
     const result = await launchImageLibrary({
       mediaType: 'photo',
       quality: 1,
+      includeExtra: true
     });
     const item = result.assets;
     if (!item || !item[0].uri || !item[0].width || !item[0].height) {
@@ -917,9 +919,8 @@ export default function UploadModal({
             <View
               style={{
                 width: '100%',
-                aspectRatio: 1,
                 overflow: 'hidden',
-                backgroundColor: '#999',
+                // backgroundColor: '#999',
                 top: '-5%'
               }}>
               <FastImage
@@ -928,7 +929,8 @@ export default function UploadModal({
                 }}
                 style={{
                   width: '100%',
-                  height: '100%',
+                  aspectRatio: 1,
+                  // height: '100%',
                   position: 'absolute',
                   zIndex: 10,
                 }}
