@@ -259,31 +259,39 @@ export default function UploadModal({
 
   // 티켓 이미지 선택 액션
   const getTicketImageAction = async () => {
-    // 앨범 선택
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 1,
-      includeExtra: true,
-    });
-    const item = result.assets;
-    if (!item || !item[0].uri || !item[0].width || !item[0].height) {
-      return;
-    }
-    const tempName = [...item[0].uri.split('/').reverse()][0];
-    const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${
-      item[0].fileName ?? tempName
-    }`;
-
     try {
-      await RNFS.copyFile(item[0].uri, destinationPath);
+
+      // 앨범 선택
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 1,
+        includeExtra: true,
+      });
+
+      const item = result.assets;
+      if (!item || !item[0].uri) {
+        return;
+      }
+      // 이미지 리사이즈 및 회전 처리
+      const resizedImage = await ImageResizer.createResizedImage(
+        item[0].uri,
+        item[0].width || 1024,
+        item[0].height || 1024,
+        'JPEG',
+        100,
+        0,
+        undefined,
+        false,
+        { mode: 'contain', onlyScaleDown: true }
+      );
 
       if (tempRecord) {
         setTempRecord({
           ...tempRecord,
           ticket_image: {
-            uri: destinationPath,
-            type: item[0].type,
-            name: item[0].fileName || 'ticket.jpg', // 파일 이름을 기본 값으로 설정
+            uri: resizedImage.uri,
+            type: 'image/jpeg',
+            name: resizedImage.name || 'image.jpg',
           },
         });
       }
