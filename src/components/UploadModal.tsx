@@ -18,6 +18,7 @@ import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import Geolocation from '@react-native-community/geolocation';
 import { launchImageLibrary } from 'react-native-image-picker';
+import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { Camera } from 'react-native-vision-camera';
@@ -92,6 +93,7 @@ export default function UploadModal({
   const [visibleFakeCamera, setVisibleFakeCamera] = useState(false);
   const [currentWeather, setCurrentWeather] = useState('');
   const [cameraUri, setCameraUri] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const { uniqueId } = useUserState();
   const { stadiums } = useStadiumsState();
@@ -146,7 +148,8 @@ export default function UploadModal({
       try {
         const data = await cameraRef.current.takePhoto();
         // 안드로이드에서 file:// 스키마 추가
-        const imagePath = Platform.OS === 'android' ? `file://${data.path}` : data.path;
+        const imagePath =
+          Platform.OS === 'android' ? `file://${data.path}` : data.path;
         setCameraUri(imagePath);
         setVisibleFakeCamera(false);
       } catch (error) {
@@ -208,30 +211,39 @@ export default function UploadModal({
       // NOTE 가상카메라로 대체
       setVisibleFakeCamera(true);
     } else if (buttonIndex === 2) {
-      // 앨범 선택
-      const result = await launchImageLibrary({
-        mediaType: 'photo',
-        quality: 1,
-      });
-      const item = result.assets;
-      if (!item || !item[0].uri || !item[0].width || !item[0].height) {
-        return;
-      }
-      const tempName = [...item[0].uri.split('/').reverse()][0];
-      const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${
-        item[0].fileName ?? tempName
-      }`;
-
       try {
-        await RNFS.copyFile(item[0].uri, destinationPath);
+        // 앨범 선택
+        const result = await launchImageLibrary({
+          mediaType: 'photo',
+          quality: 1,
+          includeExtra: true,
+        });
+
+        const item = result.assets;
+        if (!item || !item[0].uri) {
+          return;
+        }
+
+        // 이미지 리사이즈 및 회전 처리
+        const resizedImage = await ImageResizer.createResizedImage(
+          item[0].uri,
+          item[0].width || 1024,
+          item[0].height || 1024,
+          'JPEG',
+          100,
+          0,
+          undefined,
+          false,
+          { mode: 'contain', onlyScaleDown: true }
+        );
 
         if (tempRecord) {
           setTempRecord({
             ...tempRecord,
             image: {
-              uri: destinationPath,
-              type: item[0].type,
-              name: item[0].fileName || 'image.jpg', // 파일 이름을 기본 값으로 설정
+              uri: resizedImage.uri,
+              type: 'image/jpeg',
+              name: resizedImage.name || 'image.jpg',
             },
           });
         }
@@ -247,30 +259,39 @@ export default function UploadModal({
 
   // 티켓 이미지 선택 액션
   const getTicketImageAction = async () => {
-    // 앨범 선택
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 1,
-    });
-    const item = result.assets;
-    if (!item || !item[0].uri || !item[0].width || !item[0].height) {
-      return;
-    }
-    const tempName = [...item[0].uri.split('/').reverse()][0];
-    const destinationPath = `${RNFS.DocumentDirectoryPath}/cropped_${
-      item[0].fileName ?? tempName
-    }`;
-
     try {
-      await RNFS.copyFile(item[0].uri, destinationPath);
+
+      // 앨범 선택
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 1,
+        includeExtra: true,
+      });
+
+      const item = result.assets;
+      if (!item || !item[0].uri) {
+        return;
+      }
+      // 이미지 리사이즈 및 회전 처리
+      const resizedImage = await ImageResizer.createResizedImage(
+        item[0].uri,
+        item[0].width || 1024,
+        item[0].height || 1024,
+        'JPEG',
+        100,
+        0,
+        undefined,
+        false,
+        { mode: 'contain', onlyScaleDown: true }
+      );
 
       if (tempRecord) {
         setTempRecord({
           ...tempRecord,
           ticket_image: {
-            uri: destinationPath,
-            type: item[0].type,
-            name: item[0].fileName || 'ticket.jpg', // 파일 이름을 기본 값으로 설정
+            uri: resizedImage.uri,
+            type: 'image/jpeg',
+            name: resizedImage.name || 'image.jpg',
           },
         });
       }
@@ -285,106 +306,101 @@ export default function UploadModal({
 
   // 저장 버튼
   const onSave = async () => {
-    if (!tempRecord) return;
+    if (!tempRecord || isSaving) return;
 
-    const {
-      user_id,
-      image,
-      user_note,
-      stadium_id,
-      date: tempDate,
-    } = tempRecord;
-    const formData = new FormData();
+    try {
+      setIsSaving(true);
+      const {
+        user_id,
+        image,
+        user_note,
+        stadium_id,
+        date: tempDate,
+      } = tempRecord;
 
-    // 이미지 파일을 FormData에 추가
-    formData.append('userId', user_id);
-    formData.append('stadiumId', stadium_id);
-    formData.append('date', tempDate);
-    formData.append('userNote', user_note);
-    formData.append(
-      'matchId',
-      (tempRecord?.match_id
-        ? tempRecord?.match_id
-        : matches.find(mat => mat.stadium === stadium_id)?.id) || null,
-    );
-
-    if (!image || !user_note || !stadium_id) {
-      Toast.show({
-        type: 'error',
-        text1: '아직 입력하지 않은 항목이 있어요!',
-        topOffset: 64,
-      });
-      return;
-    }
-
-    if (
-      Platform.OS === 'android' &&
-      !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))
-    ) {
-      Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
-      return;
-    }
-
-    // 기록 수정
-    if (isEdit && tempRecord?.records_id) {
-      formData.append('recordsId', tempRecord?.records_id);
-      if (typeof tempRecord?.image === 'string') {
-        formData.append('imageUrl', tempRecord?.image); // 수정인 경우 분기처리
-      } else {
-        formData.append('file', tempRecord?.image); // 수정인 경우 분기처리
+      if (!image || !user_note || !stadium_id) {
+        Toast.show({
+          type: 'error',
+          text1: '아직 입력하지 않은 항목이 있어요!',
+          topOffset: 64,
+        });
+        return;
       }
-      if (tempRecord?.ticket_image) {
-        if (typeof tempRecord?.ticket_image === 'string') {
-          formData.append('ticketUrl', tempRecord?.ticket_image); // 수정인 경우 분기처리
+
+      if (
+        Platform.OS === 'android' &&
+        !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))
+      ) {
+        Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('userId', user_id);
+      formData.append('stadiumId', stadium_id);
+      formData.append('date', tempDate);
+      formData.append('userNote', user_note);
+      formData.append(
+        'matchId',
+        (tempRecord?.match_id
+          ? tempRecord?.match_id
+          : matches.find(mat => mat.stadium === stadium_id)?.id) || null,
+      );
+
+      // 기록 수정
+      if (isEdit && tempRecord?.records_id) {
+        formData.append('recordsId', tempRecord?.records_id);
+        if (typeof tempRecord?.image === 'string') {
+          formData.append('imageUrl', tempRecord?.image);
         } else {
-          formData.append('ticketFile', tempRecord?.ticket_image); // 수정인 경우 분기처리
+          formData.append('file', tempRecord?.image);
         }
-      }
-      try {
+
+        if (tempRecord?.ticket_image) {
+          if (typeof tempRecord?.ticket_image === 'string') {
+            formData.append('ticketUrl', tempRecord?.ticket_image);
+          } else {
+            formData.append('ticketFile', tempRecord?.ticket_image);
+          }
+        }
+
         await API.patch('/record/update', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        setTempRecord(RESET_RECORD);
-        setIsVisible(false);
-      } catch (error) {
-        console.error(error);
-        Toast.show({
-          type: 'error',
-          text1: SERVER_ERROR_MSG,
-        });
-      }
-    } else {
-      formData.append('file', image);
+      } else {
+        // 기록 생성
+        formData.append('file', image);
+        if (tempRecord?.ticket_image) {
+          formData.append('ticketFile', tempRecord?.ticket_image);
+        }
 
-      if (tempRecord?.ticket_image) {
-        formData.append('ticketFile', tempRecord?.ticket_image); // 티켓 이미지 추가
-      }
-
-      // 기록 생성
-      try {
         await API.post('/create-record', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        setTempRecord(RESET_RECORD);
-        setIsVisible(false);
-      } catch (error) {
-        console.error(error);
-        Toast.show({
-          type: 'error',
-          text1: SERVER_ERROR_MSG,
-        });
       }
-    }
 
-    try {
+      // 성공적으로 저장된 경우
       const res = await getRecordByDate(tempDate);
       setRecords(res.data);
+      setTempRecord(RESET_RECORD);
+      setIsVisible(false);
+
+      Toast.show({
+        type: 'success',
+        text1: '저장되었습니다!',
+      });
     } catch (error) {
       console.error(error);
+      Toast.show({
+        type: 'error',
+        text1: SERVER_ERROR_MSG,
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -523,10 +539,10 @@ export default function UploadModal({
         error => {
           console.error('Location error:', error.code, error.message);
         },
-        { 
-          enableHighAccuracy: true,  // 정확도를 높이기 위해 true로 변경
+        {
+          enableHighAccuracy: true, // 정확도를 높이기 위해 true로 변경
           timeout: 30000,
-          maximumAge: 10000
+          maximumAge: 10000,
         },
       );
 
@@ -784,10 +800,13 @@ export default function UploadModal({
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onSave}
+              disabled={isSaving}
               style={[
                 modalStyles.button,
                 {
-                  backgroundColor: palette.commonColor.green,
+                  backgroundColor: isSaving
+                    ? palette.greyColor.gray6
+                    : palette.commonColor.green,
                 },
               ]}>
               <View>
@@ -798,7 +817,7 @@ export default function UploadModal({
                       color: palette.greyColor.white,
                     },
                   ]}>
-                  저장하기
+                  {isSaving ? '저장 중...' : '저장하기'}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -911,7 +930,7 @@ export default function UploadModal({
               additionalStyle={{
                 width: '100%',
                 zIndex: 11,
-                top: 0,
+                top: '5%',
               }}
             />
             <View
@@ -919,8 +938,6 @@ export default function UploadModal({
                 width: '100%',
                 aspectRatio: 1,
                 overflow: 'hidden',
-                backgroundColor: '#999',
-                top: '-5%'
               }}>
               <FastImage
                 source={{
@@ -1003,10 +1020,9 @@ const styles = StyleSheet.create({
   },
   captureWrapper: {
     position: 'absolute',
-    width: '90%',
+    width: '100%',
     aspectRatio: 1,
     top: '25%',
-    left: '5%',
   },
   captureImageWrapper: {
     position: 'absolute',

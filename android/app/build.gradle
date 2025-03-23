@@ -96,13 +96,9 @@ android {
         applicationId "com.matchdiary.origin" // 배포 시 .origin 붙여야 함
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 5
-        versionName "2.1.1"
+        versionCode 8
+        versionName "2.1.3"
         multiDexEnabled true
-        resValue "string", "MAPS_KEY", env["REACT_APP_NAVER_MAPS_PRIMARY_KEY"] ?: ''
-        resValue "string", "NAVER_CLIENT_ID", env["REACT_APP_NAVER_CLIENT_ID"] ?: ''
-        resValue "string", "NAVER_CLIENT_SECRET_KEY", env["REACT_APP_NAVER_CLIENT_SECRET_KEY"] ?: ''
-        resValue "string", "HEROKU_API_KEY", env["REACT_APP_HEROKU_API_KEY"] ?: ''
         missingDimensionStrategy 'react-native-camera', 'general' // <--- insert this line
     }
     signingConfigs {
@@ -161,6 +157,7 @@ dependencies {
     implementation "com.facebook.react:react-native:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation "androidx.multidex:multidex:2.0.1"
+    implementation 'com.google.android.gms:play-services-ads:23.0.0' // 안정적인 이전 버전 사용
     if (project.ext.react.enableHermes) {
         implementation "com.facebook.react:hermes-engine:+"
     } else {

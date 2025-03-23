@@ -33,7 +33,8 @@ const RenderCamera = forwardRef<Camera, unknown>((_, ref) => {
         style={{
           position: 'absolute',
           width,
-          height,
+          aspectRatio: 1 / 1.2,
+          top: '7%'
         }}
         device={device}
       />

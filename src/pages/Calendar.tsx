@@ -82,7 +82,7 @@ function Calendar() {
   useEffect(() => {
     getRecordsBySelectedDate();
     getMatchData();
-    handleRecordsCount();
+    // handleRecordsCount();
     getBookings();
   }, [history, teamId, selectedDate]);
 
@@ -225,10 +225,10 @@ function Calendar() {
       .filter(record => dayjs(record.date).year() === dayjs().year())
       .forEach(async record => {
         if (!record.match_id) return;
-
+        
         const matchInfo = await getMatchById(record.match_id);
         const data = matchInfo?.data as MatchDataType;
-
+        
         // ANCHOR 내 팀 경기 기록
         // 홈경기
         if (teamId === data.home) {
@@ -245,6 +245,7 @@ function Calendar() {
           } else {
             recordsCnt.rate.draw += 1;
           }
+
         } else if (teamId === data.away) {
           // 원정경기
           if (dayjs(data.date).year() === dayjs().year()) {
@@ -261,9 +262,9 @@ function Calendar() {
             recordsCnt.rate.draw += 1;
           }
         }
-        // 내 팀 경기가 아닌 경우 승률은 계산하지 않음
-      });
 
+    // 내 팀 경기 아닌 경우 승률은 계산하지 않음
+    });
     setMatchRecord(recordsCnt);
   };
 

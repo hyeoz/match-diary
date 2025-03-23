@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     width,
     position: 'absolute',
     zIndex: 3,
-    top: '25%',
+    top: '18%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
