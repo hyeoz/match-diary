@@ -164,27 +164,37 @@ export function Detail({
   };
 
   const onPressShare = async () => {
-    if (
-      Platform.OS === 'android' &&
-      !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))
-    ) {
-      Alert.alert('갤러리 접근 권한을 먼저 설정해주세요!');
-      return;
+    try {
+      if (
+        Platform.OS === 'android' &&
+        !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))
+      ) {
+        Alert.alert('갤러리 접근 권한을 먼저 설정해주세요!');
+        return;
+      }
+
+      const uri = await getImageUrl();
+
+      if (!uri) {
+        console.log('이미지 URL을 가져올 수 없습니다.');
+        return;
+      }
+
+      await CameraRoll.save(uri, { type: 'photo', album: '직관일기' });
+
+      Toast.show({
+        type: 'success',
+        text1: '오늘의 직관일기가 앨범에 저장되었어요. 공유해보세요!',
+        topOffset: 60,
+      });
+    } catch (error) {
+      console.error('이미지 저장 중 오류:', error);
+      Toast.show({
+        type: 'error',
+        text1: '이미지 저장에 실패했습니다.',
+        topOffset: 60,
+      });
     }
-
-    const uri = await getImageUrl();
-
-    if (!uri) {
-      return;
-    }
-
-    await CameraRoll.save(uri, { type: 'photo', album: '직관일기' });
-
-    Toast.show({
-      type: 'success',
-      text1: '오늘의 직관일기가 앨범에 저장되었어요. 공유해보세요!',
-      topOffset: 60,
-    });
   };
 
   const onScroll = useCallback(
@@ -328,15 +338,15 @@ export function Detail({
             : {}
         }
         renderItem={({ item, index }) => (
-          <ViewShot
-            ref={shareImageRef}
-            options={{
-              fileName: `${item.date}_직관일기`,
-              format: 'jpg',
-              quality: 1,
-            }}
-            key={item.records_id}>
-            <View
+          <>
+            <ViewShot
+              ref={shareImageRef}
+              options={{
+                fileName: `${item.date}_직관일기`,
+                format: 'jpg',
+                quality: 1,
+              }}
+              key={item.records_id}
               style={
                 isCalendar
                   ? [
@@ -490,10 +500,10 @@ export function Detail({
                   </Text>
                 </View>
               </TouchableOpacity>
-            </View>
+            </ViewShot>
             {isCalendar && <View style={[polaroidStyles.shadow]} />}
             {isCalendar && <View style={polaroidStyles.effect} />}
-          </ViewShot>
+          </>
         )}
         onScroll={onScroll}
         horizontal
@@ -625,11 +635,10 @@ const polaroidStyles = StyleSheet.create({
   shadow: {
     zIndex: -1,
     position: 'absolute',
-    bottom: 15,
     left: 10,
     width: '87%',
-    height: '90%',
-    top: 16,
+    height: '70%',
+    top: -50,
     backgroundColor: '#fff',
     transform: [{ rotate: '3deg' }],
     ...Platform.select({
