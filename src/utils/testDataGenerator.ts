@@ -1,0 +1,72 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export const generateTestData = async () => {
+  // 테스트 데이터 예시
+  const testData = [
+    {
+      date: '2025-03-25',
+      data: {
+        image: 'file:///storage/emulated/0/Pictures/MyApp/test1.jpg',
+        memo: '테스트 메모 1',
+        selectedStadium: '잠실',
+      }
+    },
+    {
+      date: '2025-03-25 (1)',
+      data: {
+        image: 'file:///storage/emulated/0/Pictures/MyApp/test2.jpg',
+        memo: '테스트 메모 2',
+        selectedStadium: '고척',
+      }
+    },
+    {
+      date: '2025-03-24',
+      data: {
+        image: 'file:///storage/emulated/0/Pictures/MyApp/test3.jpg',
+        memo: '테스트 메모 3',
+        selectedStadium: '대구',
+      }
+    }
+  ];
+
+  try {
+    // 기존 데이터 모두 삭제
+    const keys = await AsyncStorage.getAllKeys();
+    const dateKeys = keys.filter((key: string) => /^\d{4}-\d{2}-\d{2}(\s*\(\d+\))?$/.test(key));
+    if (dateKeys.length > 0) {
+      await AsyncStorage.multiRemove(dateKeys);
+    }
+
+    // 테스트 데이터 저장
+    for (const item of testData) {
+      await AsyncStorage.setItem(item.date, JSON.stringify(item.data));
+    }
+
+    console.log('Test data generated successfully');
+    return true;
+  } catch (error) {
+    console.error('Failed to generate test data:', error);
+    return false;
+  }
+};
+
+// 현재 저장된 모든 데이터 확인
+export const checkCurrentData = async () => {
+  try {
+    const keys = await AsyncStorage.getAllKeys();
+    const dateKeys = keys.filter((key: string) => /^\d{4}-\d{2}-\d{2}(\s*\(\d+\))?$/.test(key));
+    
+    const data = await Promise.all(
+      dateKeys.map(async (key: string) => {
+        const value = await AsyncStorage.getItem(key);
+        return { [key]: value ? JSON.parse(value) : null };
+      })
+    );
+
+    console.log('Current local storage data:', data);
+    return data;
+  } catch (error) {
+    console.error('Failed to check current data:', error);
+    return null;
+  }
+};
