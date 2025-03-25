@@ -9,6 +9,7 @@ import { RootStackListType } from '@/type/default';
 import { useUserState } from '@/stores/user';
 import { palette } from '@style/palette';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
+import { useMigrateLocalToServer } from '@/hooks/useMigrateLocalToServer';
 
 import splash_text from '@assets/splash_text.png';
 import ad_designer from '@assets/ad_designer.png';
@@ -21,7 +22,17 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
 
   useEffect(() => {
     getAllData();
+    migrateLocalData();
   }, []);
+
+  const migrateLocalData = async () => {
+    const { migrateData } = useMigrateLocalToServer();
+    try {
+      await migrateData();
+    } catch (error) {
+      console.error('Local data migration failed:', error);
+    }
+  };
 
   const getAllData = async () => {
     const deviceId = await getUniqueId();

@@ -11,7 +11,10 @@ export const useMigrateLocalToServer = () => {
     try {
       // 1. 모든 날짜 키 가져오기
       const keys = await AsyncStorage.getAllKeys();
-      const datesToMigrate = keys.filter((key: string) => /^\d{4}-\d{2}-\d{2}$/.test(key)); // YYYY-MM-DD 형식의 키만 필터링
+      if (!keys || keys.length === 0) return false;
+
+      const datesToMigrate = keys.filter((key: string) => /^\d{4}-\d{2}-\d{2}(\s*\(\d+\))?$/.test(key)); // YYYY-MM-DD 또는 YYYY-MM-DD (1) 형식의 키만 필터링
+      if (datesToMigrate.length === 0) return false;
 
       // 2. 각 날짜별 데이터 마이그레이션
       for (const date of datesToMigrate) {
@@ -53,7 +56,7 @@ export const useMigrateLocalToServer = () => {
         await AsyncStorage.removeItem(date);
       }
 
-      return true;
+      return datesToMigrate.length > 0;
     } catch (error) {
       console.error('Migration failed:', error);
       throw error;
