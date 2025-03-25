@@ -82,7 +82,7 @@ function Calendar() {
   useEffect(() => {
     getRecordsBySelectedDate();
     getMatchData();
-    // handleRecordsCount();
+    handleRecordsCount();
     getBookings();
   }, [history, teamId, selectedDate]);
 
@@ -221,49 +221,61 @@ function Calendar() {
     });
 
     // NOTE 한 시즌 기준 승률 계산
-    [...allUserRecords.data]
+    const thisYearRecords = allUserRecords.data
       .filter(record => dayjs(record.date).year() === dayjs().year())
-      .forEach(async record => {
-        if (!record.match_id) return;
-        
-        const matchInfo = await getMatchById(record.match_id);
-        const data = matchInfo?.data as MatchDataType;
-        
-        // ANCHOR 내 팀 경기 기록
-        // 홈경기
-        if (teamId === data.home) {
-          if (dayjs(data.date).year() === dayjs().year()) {
-            recordsCnt.bySeason.home += 1;
-          }
-          if (dayjs(data.date).month() === dayjs().month()) {
-            recordsCnt.byMonth.home += 1;
-          }
-          if (data.home_score > data.away_score) {
-            recordsCnt.rate.win += 1;
-          } else if (data.home_score < data.away_score) {
-            recordsCnt.rate.lose += 1;
-          } else {
-            recordsCnt.rate.draw += 1;
-          }
+      .filter(record => record.match_id);
 
-        } else if (teamId === data.away) {
-          // 원정경기
-          if (dayjs(data.date).year() === dayjs().year()) {
-            recordsCnt.bySeason.away += 1;
-          }
-          if (dayjs(data.date).month() === dayjs().month()) {
-            recordsCnt.byMonth.away += 1;
-          }
-          if (data.home_score > data.away_score) {
-            recordsCnt.rate.lose += 1;
-          } else if (data.home_score < data.away_score) {
-            recordsCnt.rate.win += 1;
-          } else {
-            recordsCnt.rate.draw += 1;
-          }
+    // 모든 경기 정보를 동시에 가져오기
+    const matchPromises = thisYearRecords.map(record =>
+      getMatchById(record.match_id!),
+    );
+
+    const matchResults = await Promise.all(matchPromises);
+    const allMatches = [];
+    for (const result of matchResults) {
+      const data = result?.data as MatchDataType;
+
+      if (data) {
+        allMatches.push(data);
+      }
+    }
+    // 결과 처리
+    allMatches.forEach(data => {
+      if (!data) return;
+
+      // ANCHOR 내 팀 경기 기록
+      // 홈경기
+      if (teamId === data.home) {
+        if (dayjs(data.date).year() === dayjs().year()) {
+          recordsCnt.bySeason.home += 1;
         }
-
-    // 내 팀 경기 아닌 경우 승률은 계산하지 않음
+        if (dayjs(data.date).month() === dayjs().month()) {
+          recordsCnt.byMonth.home += 1;
+        }
+        if (data.home_score > data.away_score) {
+          recordsCnt.rate.win += 1;
+        } else if (data.home_score < data.away_score) {
+          recordsCnt.rate.lose += 1;
+        } else {
+          recordsCnt.rate.draw += 1;
+        }
+      } else if (teamId === data.away) {
+        // 원정경기
+        if (dayjs(data.date).year() === dayjs().year()) {
+          recordsCnt.bySeason.away += 1;
+        }
+        if (dayjs(data.date).month() === dayjs().month()) {
+          recordsCnt.byMonth.away += 1;
+        }
+        if (data.home_score > data.away_score) {
+          recordsCnt.rate.lose += 1;
+        } else if (data.home_score < data.away_score) {
+          recordsCnt.rate.win += 1;
+        } else {
+          recordsCnt.rate.draw += 1;
+        }
+      }
+      // 내 팀 경기 아닌 경우 승률은 계산하지 않음
     });
     setMatchRecord(recordsCnt);
   };
