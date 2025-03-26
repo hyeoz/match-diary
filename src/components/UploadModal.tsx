@@ -234,7 +234,7 @@ export default function UploadModal({
           0,
           undefined,
           false,
-          { mode: 'contain', onlyScaleDown: true }
+          { mode: 'contain', onlyScaleDown: true },
         );
 
         if (tempRecord) {
@@ -260,7 +260,6 @@ export default function UploadModal({
   // 티켓 이미지 선택 액션
   const getTicketImageAction = async () => {
     try {
-
       // 앨범 선택
       const result = await launchImageLibrary({
         mediaType: 'photo',
@@ -282,7 +281,7 @@ export default function UploadModal({
         0,
         undefined,
         false,
-        { mode: 'contain', onlyScaleDown: true }
+        { mode: 'contain', onlyScaleDown: true },
       );
 
       if (tempRecord) {

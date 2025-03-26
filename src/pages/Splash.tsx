@@ -3,30 +3,54 @@ import { View, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import FastImage from 'react-native-fast-image';
 import { getUniqueId } from 'react-native-device-info';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { API } from '@/api';
 import { RootStackListType } from '@/type/default';
 import { useUserState } from '@/stores/user';
 import { palette } from '@style/palette';
 import { useStadiumsState, useTeamsState } from '@/stores/teams';
-import { useMigrateLocalToServer } from '@/hooks/useMigrateLocalToServer';
+import {
+  useMigrateLocalToServer,
+  uploadStorageToServer,
+} from '@/hooks/migrationHook';
 
 import splash_text from '@assets/splash_text.png';
 import ad_designer from '@assets/ad_designer.png';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
-  const { setTeamId, setUserName, setUniqueId } = useUserState();
+  const { setTeamId, setUserName, setUniqueId, uniqueId } = useUserState();
   const { setTeams } = useTeamsState();
   const { setStadiums } = useStadiumsState();
   const [defaultTeam, setDefaultTeam] = useState(1);
 
+  const { migrateData } = useMigrateLocalToServer();
+
   useEffect(() => {
     getAllData();
-    migrateLocalData();
+    uploadTempData();
+    // migrateLocalData(); // TODO 추후 마이그레이션을 위한 코드
   }, []);
 
+  const uploadTempData = async () => {
+    const keys = await AsyncStorage.getAllKeys();
+
+    for (const key of keys) {
+      try {
+        const value = await AsyncStorage.getItem(key);
+        if (!value) continue;
+        await uploadStorageToServer({
+          key,
+          value,
+        });
+      } catch (error) {
+        console.error('Failed to upload storage to server:', error);
+      }
+    }
+  };
+
+  // TODO
   const migrateLocalData = async () => {
-    const { migrateData } = useMigrateLocalToServer();
     try {
       await migrateData();
     } catch (error) {
