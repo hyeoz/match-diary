@@ -166,6 +166,8 @@ const INIT_COUNT_DATA = {
   },
 };
 
+const MINIMUM_HEIGHT = 780; // 13 mini
+
 export {
   DATE_FORMAT,
   DATE_FORMAT_SLASH,
@@ -184,4 +186,5 @@ export {
   NO_MATCH_STADIUM_KEY,
   STATIC_STADIUMS,
   INIT_COUNT_DATA,
+  MINIMUM_HEIGHT,
 };

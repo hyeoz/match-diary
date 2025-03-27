@@ -36,6 +36,7 @@ import {
   DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
+  MINIMUM_HEIGHT,
   NO_MATCH_STADIUM_KEY,
   RESET_RECORD,
   SERVER_ERROR_MSG,
@@ -755,8 +756,11 @@ export default function UploadModal({
                             : (tempRecord?.image as TempRecordImageType).uri,
                       }}
                       style={{
-                        width: width - 48,
-                        height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
+                        width: width - (height < MINIMUM_HEIGHT ? 80 : 48),
+                        height:
+                          (IMAGE_HEIGHT *
+                            (width - (height < MINIMUM_HEIGHT ? 80 : 48))) /
+                          IMAGE_WIDTH,
                       }}
                     />
                   </View>
@@ -834,7 +838,14 @@ export default function UploadModal({
             keyboardVerticalOffset={80}
             behavior="position">
             {/* 텍스트 */}
-            <View style={isKeyboardShow ? styles.keyboardShowTextStyle : {}}>
+            <View
+              style={
+                isKeyboardShow
+                  ? styles.keyboardShowTextStyle
+                  : {
+                      marginTop: height < MINIMUM_HEIGHT ? -16 : 0,
+                    }
+              }>
               <Text style={modalStyles.labelText}>내용</Text>
               <TextInput
                 multiline

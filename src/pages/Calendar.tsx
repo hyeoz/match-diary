@@ -27,6 +27,7 @@ import {
   DAYS_NAME_KOR,
   DAYS_NAME_KOR_SHORT,
   INIT_COUNT_DATA,
+  MINIMUM_HEIGHT,
   MONTH_LIST,
 } from '@utils/STATIC_DATA';
 import { palette } from '@style/palette';
@@ -41,7 +42,7 @@ import { useStadiumsState, useTeamsState } from '@/stores/teams';
 import { StadiumType, TeamType } from '@/type/team';
 import { onCreateTriggerNotification } from '@/hooks/schedulingHook';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 LocaleConfig.locales.kr = {
   monthNames: MONTH_LIST,
@@ -415,7 +416,7 @@ function Calendar() {
             style={{
               position: 'absolute',
               zIndex: 9,
-              top: -12,
+              top: height < MINIMUM_HEIGHT ? 2 : -12,
             }}
           />
           {records[carouselIndexState]?.image &&
@@ -442,8 +443,8 @@ function Calendar() {
                 }
               }}
               style={{
-                padding: 16,
-                marginTop: -16,
+                padding: height < MINIMUM_HEIGHT ? 0 : 16,
+                marginTop: height < MINIMUM_HEIGHT ? 16 : -16,
               }}>
               <View
                 style={{

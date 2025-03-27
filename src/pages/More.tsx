@@ -28,7 +28,7 @@ import {
   EMAIL_LINK,
   INSTAGRAM_LINK,
   INSTAGRAM_WEB_LINK,
-  RESET_RECORD,
+  MINIMUM_HEIGHT,
   SERVER_ERROR_MSG,
 } from '@utils/STATIC_DATA';
 import { getTeamArrayWithIcon } from '@/utils/helper';
@@ -254,7 +254,7 @@ function More() {
       </View>
       <View
         style={{
-          marginTop: -32,
+          marginTop: height < MINIMUM_HEIGHT ? -68 : -32,
           justifyContent: 'center',
           flexDirection: 'row',
         }}>

@@ -23,7 +23,11 @@ import {
   getTeamArrayWithIcon,
   renderIconSizeWithColor,
 } from '@/utils/helper';
-import { EMAIL_LINK, SERVER_ERROR_MSG } from '@/utils/STATIC_DATA';
+import {
+  EMAIL_LINK,
+  MINIMUM_HEIGHT,
+  SERVER_ERROR_MSG,
+} from '@/utils/STATIC_DATA';
 import { palette } from '@/style/palette';
 import { Change } from '@/assets/svg';
 import SignInGif from '@assets/logo_moving_loop_stop.gif';
@@ -31,7 +35,7 @@ import { useFontStyle } from '@/style/hooks';
 import { UserType } from '@/type/user';
 
 const Tab = createBottomTabNavigator();
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default function SignIn() {
   return (
@@ -279,7 +283,7 @@ const SignInStyle = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignContent: 'center',
-    marginBottom: 80,
+    marginBottom: height > MINIMUM_HEIGHT ? 80 : 40,
   },
   buttonText: {
     textAlign: 'center',
