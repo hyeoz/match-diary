@@ -47,7 +47,7 @@
 	<key>NSAllowsLocalNetworking</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>지금 바로 기록을 남길 수 있게 카메라를 허용해주세요!</string>
+	<string>지금 바로 사진을 찍어 기록을 남길 수 있게 카메라를 허용해주세요!</string>
 	<key>NSExceptionAllowsInsecureHTTPLoads</key>
 	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
