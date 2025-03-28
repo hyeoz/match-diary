@@ -36,6 +36,7 @@ import {
   DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
+  INIT_RECORD,
   MINIMUM_HEIGHT,
   NO_MATCH_STADIUM_KEY,
   RESET_RECORD,
@@ -105,19 +106,15 @@ export default function UploadModal({
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
 
-  const initRecord: RecordType = {
-    match_id: null,
-    user_id: uniqueId,
-    date: formattedToday,
-    image: null,
-    user_note: '',
-    stadium_id: undefined,
-  };
-
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
     Keyboard.addListener('keyboardWillHide', () => setIsKeyboardShow(false));
-    !tempRecord && setTempRecord(initRecord);
+    !tempRecord &&
+      setTempRecord({
+        ...INIT_RECORD,
+        user_id: uniqueId,
+        date: formattedToday,
+      });
 
     return () => {
       Keyboard.removeAllListeners('keyboardWillShow');
@@ -130,7 +127,11 @@ export default function UploadModal({
     if (isEdit) {
       setTempRecord(records[carouselIndexState]);
     } else {
-      setTempRecord(initRecord);
+      setTempRecord({
+        ...INIT_RECORD,
+        user_id: uniqueId,
+        date: formattedToday,
+      });
     }
   }, [isEdit, isVisible]);
 
