@@ -96,8 +96,8 @@ android {
         applicationId "com.matchdiary.origin" // 배포 시 .origin 붙여야 함
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 11
-        versionName "2.1.41"
+        versionCode 13
+        versionName "2.1.43"
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'general' // <--- insert this line
     }
