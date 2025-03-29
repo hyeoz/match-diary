@@ -17,7 +17,7 @@ import TouchableWrapper from '@components/TouchableWrapper';
 import SelectStadiumModal from '@/components/SelectStadiumModal';
 import Loading from '@/components/Loading';
 import { getTeamArrayWithIcon } from '@/utils/helper';
-import { DATE_FORMAT } from '@/utils/STATIC_DATA';
+import { DATE_FORMAT, INIT_RECORD } from '@/utils/STATIC_DATA';
 import { useUserState } from '@/stores/user';
 import { useStadiumsState } from '@/stores/teams';
 import { CommunityLogType } from '@/type/community';
@@ -26,10 +26,10 @@ import { modalStyles } from '@/style/modal';
 import { palette } from '@/style/palette';
 import { useFontStyle } from '@/style/hooks';
 import { Arrow } from '@assets/svg';
+import { RecordType } from '@/type/record';
 
 function Community() {
   const [stadiumSelectVisible, setStadiumSelectVisible] = useState(false);
-  const [selectedStadium, setSelectedStadium] = useState<number>();
   const [allItems, setAllItems] = useState<CommunityLogType[]>([]);
   const [page, setPage] = useState(1);
   const [isReached, setIsReached] = useState(false);
@@ -37,8 +37,9 @@ function Community() {
   const [memo, setMemo] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [tempRecord, setTempRecord] = useState<RecordType | null>(INIT_RECORD); // NOTE selected stadium modal 사용 시 데이터 형식을 맞추기위해
 
-  const { teamId, userName, uniqueId } = useUserState();
+  const { uniqueId } = useUserState();
   const { stadiums } = useStadiumsState();
   const fontStyle = useFontStyle;
 
@@ -46,13 +47,13 @@ function Community() {
     setPage(1);
     setIsReached(false);
     setAllItems([]);
-    getCommunityAllItems(1, selectedStadium, false);
-  }, [selectedStadium]);
+    getCommunityAllItems(1, tempRecord?.stadium_id, false);
+  }, [tempRecord]);
 
   const getCommunityAllItems = useCallback(
     async (
       pageToLoad = page,
-      stadium = selectedStadium,
+      stadium = tempRecord?.stadium_id,
       reached = isReached,
     ) => {
       setLoading(true);
@@ -89,7 +90,7 @@ function Community() {
         setLoading(false);
       }
     },
-    [selectedStadium, isReached, allItems, page],
+    [tempRecord, isReached, allItems, page],
   );
 
   const onSave = async () => {
@@ -104,7 +105,7 @@ function Community() {
     try {
       await API.post('/community-log', {
         userId: uniqueId,
-        stadiumId: selectedStadium,
+        stadiumId: tempRecord?.stadium_id,
         date: dayjs().format(DATE_FORMAT),
         userPost: memo,
       });
@@ -126,9 +127,9 @@ function Community() {
     setRefreshing(true);
     setPage(1);
     setIsReached(false);
-    await getCommunityAllItems(1, selectedStadium, false);
+    await getCommunityAllItems(1, tempRecord?.stadium_id, false);
     setRefreshing(false);
-  }, [getCommunityAllItems]);
+  }, [getCommunityAllItems, tempRecord]);
 
   return (
     <TouchableWrapper>
@@ -153,7 +154,7 @@ function Community() {
             커뮤니티
           </Text>
 
-          {selectedStadium ? (
+          {tempRecord?.stadium_id ? (
             <TouchableOpacity
               style={{
                 backgroundColor: palette.commonColor.greenBg,
@@ -191,13 +192,13 @@ function Community() {
           <Text
             style={{
               fontFamily: 'UhBee Seulvely',
-              color: selectedStadium
+              color: tempRecord?.stadium_id
                 ? palette.greyColor.gray2
                 : palette.greyColor.gray8,
             }}>
             {' @'}
-            {selectedStadium
-              ? stadiums.find(sta => sta.stadium_id === selectedStadium)
+            {tempRecord?.stadium_id
+              ? stadiums.find(sta => sta.stadium_id === tempRecord?.stadium_id)
                   ?.stadium_name
               : '경기장을 선택해주세요'}
           </Text>
@@ -206,7 +207,7 @@ function Community() {
 
         {loading && allItems.length === 0 ? (
           <Loading />
-        ) : selectedStadium ? (
+        ) : tempRecord?.stadium_id ? (
           allItems.length ? (
             <FlatList
               showsVerticalScrollIndicator={false}
@@ -236,7 +237,7 @@ function Community() {
                 },
                 'bold',
               )}>
-              {`아직 글이 없어요TT\n지금 글을 남겨보세요!`}
+              {'아직 글이 없어요TT\n지금 글을 남겨보세요!'}
             </Text>
           )
         ) : (
@@ -257,14 +258,15 @@ function Community() {
 
       {stadiumSelectVisible ? (
         <SelectStadiumModal
-          stadiumInfo={stadiums.map(stadium => ({
-            id: stadium.stadium_id,
-            name: stadium.stadium_name,
+          stadiumInfo={stadiums.map(sta => ({
+            name: sta.stadium_name,
+            stadium_id: sta.stadium_id,
             distance: 0,
+            match_id: 0,
           }))}
           setIsVisible={value => setStadiumSelectVisible(value)}
-          selectStadiumId={selectedStadium}
-          setSelectedStadiumId={value => setSelectedStadium(value)}
+          tempRecord={tempRecord}
+          setTempRecord={setTempRecord}
           isLoading={false}
           isCommunity={true}
         />
@@ -303,7 +305,9 @@ function Community() {
               onChangeText={value => {
                 setMemo(value);
               }}
-              placeholder={`공유하고 싶은 내용을 작성해주세요!\n수정 및 삭제가 불가하니, 신중히 작성해주세요 ;)`}
+              placeholder={
+                '공유하고 싶은 내용을 작성해주세요!\n수정 및 삭제가 불가하니, 신중히 작성해주세요 ;)'
+              }
               style={modalStyles.input}
             />
           </View>

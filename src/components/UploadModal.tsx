@@ -36,6 +36,8 @@ import {
   DATE_FORMAT_SLASH,
   IMAGE_HEIGHT,
   IMAGE_WIDTH,
+  INIT_RECORD,
+  MINIMUM_HEIGHT,
   NO_MATCH_STADIUM_KEY,
   RESET_RECORD,
   SERVER_ERROR_MSG,
@@ -104,19 +106,15 @@ export default function UploadModal({
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
 
-  const initRecord: RecordType = {
-    match_id: null,
-    user_id: uniqueId,
-    date: formattedToday,
-    image: null,
-    user_note: '',
-    stadium_id: undefined,
-  };
-
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
     Keyboard.addListener('keyboardWillHide', () => setIsKeyboardShow(false));
-    !tempRecord && setTempRecord(initRecord);
+    !tempRecord &&
+      setTempRecord({
+        ...INIT_RECORD,
+        user_id: uniqueId,
+        date: formattedToday,
+      });
 
     return () => {
       Keyboard.removeAllListeners('keyboardWillShow');
@@ -129,7 +127,11 @@ export default function UploadModal({
     if (isEdit) {
       setTempRecord(records[carouselIndexState]);
     } else {
-      setTempRecord(initRecord);
+      setTempRecord({
+        ...INIT_RECORD,
+        user_id: uniqueId,
+        date: formattedToday,
+      });
     }
   }, [isEdit, isVisible]);
 
@@ -234,7 +236,7 @@ export default function UploadModal({
           0,
           undefined,
           false,
-          { mode: 'contain', onlyScaleDown: true }
+          { mode: 'contain', onlyScaleDown: true },
         );
 
         if (tempRecord) {
@@ -260,7 +262,6 @@ export default function UploadModal({
   // 티켓 이미지 선택 액션
   const getTicketImageAction = async () => {
     try {
-
       // 앨범 선택
       const result = await launchImageLibrary({
         mediaType: 'photo',
@@ -282,7 +283,7 @@ export default function UploadModal({
         0,
         undefined,
         false,
-        { mode: 'contain', onlyScaleDown: true }
+        { mode: 'contain', onlyScaleDown: true },
       );
 
       if (tempRecord) {
@@ -403,6 +404,116 @@ export default function UploadModal({
       setIsSaving(false);
     }
   };
+
+  /* 기존 저장 로직
+  const onSave = async () => {
+    const { image, memo, selectedStadium } = tempRecord;
+    if (!image || !memo || !selectedStadium) {
+      Toast.show({
+        type: 'error',
+        text1: '아직 입력하지 않은 항목이 있어요!',
+        topOffset: 64,
+      });
+      return;
+    }
+
+    if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
+      Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
+      return;
+    }
+
+    if (isEdit) {
+      await AsyncStorage.removeItem(tempRecord.date);
+      await AsyncStorage.setItem(
+        tempRecord.date,
+        JSON.stringify({
+          image,
+          memo,
+          selectedStadium,
+          date: tempRecord.date,
+          home: matchInfo?.[selectedStadium]?.home,
+          away: matchInfo?.[selectedStadium]?.away,
+        }),
+      );
+
+      setRecordsState(
+        recordsState.map(record =>
+          record.date === tempRecord.date ? tempRecord : record,
+        ),
+      );
+      setRecordState(tempRecord);
+    } else {
+      const keys = await AsyncStorage.getAllKeys();
+      // NOTE 하루에 여러개의 기록 저장하는 경우
+      if (keys.includes(formattedToday)) {
+        const duplDate = `${formattedToday}(${
+          keys.filter(key => key === formattedToday).length
+        })`;
+        await AsyncStorage.setItem(
+          duplDate,
+          JSON.stringify({
+            image,
+            memo,
+            selectedStadium,
+            date: duplDate,
+            home: matchInfo?.[selectedStadium]?.home,
+            away: matchInfo?.[selectedStadium]?.away,
+          }),
+        );
+        setRecordsState(
+          filterDuplicatedArray([
+            ...recordsState,
+            {
+              id: uuid.v4(),
+              date: duplDate,
+              image,
+              memo,
+              selectedStadium,
+            },
+          ]),
+        );
+        setRecordState({
+          id: uuid.v4(),
+          date: duplDate,
+          image,
+          memo,
+          selectedStadium,
+        });
+      } else {
+        await AsyncStorage.setItem(
+          formattedToday,
+          JSON.stringify({
+            image,
+            memo,
+            selectedStadium,
+            date: formattedToday,
+            home: matchInfo?.[selectedStadium]?.home,
+            away: matchInfo?.[selectedStadium]?.away,
+          }),
+        );
+        setRecordsState([
+          {
+            id: uuid.v4(),
+            date: formattedToday,
+            image,
+            memo,
+            selectedStadium,
+          },
+        ]);
+        setRecordState({
+          id: uuid.v4(),
+          date: formattedToday,
+          image,
+          memo,
+          selectedStadium,
+        });
+      }
+    }
+
+    setTempRecord(RESET_RECORD);
+    setIsVisible(false);
+  };
+  */
 
   // 오늘자 경기 조회
   const getTodayMatch = async () => {
@@ -646,8 +757,11 @@ export default function UploadModal({
                             : (tempRecord?.image as TempRecordImageType).uri,
                       }}
                       style={{
-                        width: width - 48,
-                        height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
+                        width: width - (height < MINIMUM_HEIGHT ? 80 : 48),
+                        height:
+                          (IMAGE_HEIGHT *
+                            (width - (height < MINIMUM_HEIGHT ? 80 : 48))) /
+                          IMAGE_WIDTH,
                       }}
                     />
                   </View>
@@ -725,7 +839,14 @@ export default function UploadModal({
             keyboardVerticalOffset={80}
             behavior="position">
             {/* 텍스트 */}
-            <View style={isKeyboardShow ? styles.keyboardShowTextStyle : {}}>
+            <View
+              style={
+                isKeyboardShow
+                  ? styles.keyboardShowTextStyle
+                  : {
+                      marginTop: height < MINIMUM_HEIGHT ? -16 : 0,
+                    }
+              }>
               <Text style={modalStyles.labelText}>내용</Text>
               <TextInput
                 multiline

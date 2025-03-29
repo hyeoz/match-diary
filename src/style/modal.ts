@@ -1,15 +1,15 @@
 import { Dimensions, Platform, StyleSheet } from 'react-native';
 
-import { IMAGE_HEIGHT, IMAGE_WIDTH } from '@/utils/STATIC_DATA';
+import { IMAGE_HEIGHT, IMAGE_WIDTH, MINIMUM_HEIGHT } from '@/utils/STATIC_DATA';
 import { palette } from './palette';
 
-const { width } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
 export const modalStyles = StyleSheet.create({
   header: {
     borderBottomWidth: 1,
     paddingBottom: 10,
-    top: 0,
+    top: height < MINIMUM_HEIGHT ? -32 : 0,
     left: 0,
     position: 'absolute',
     width: width - 48,
@@ -43,11 +43,11 @@ export const modalStyles = StyleSheet.create({
     }),
   },
   contentWrapper: {
-    top: 48,
+    top: height < MINIMUM_HEIGHT ? 16 : 48,
   },
   input: {
-    width: width - 48,
-    height: 120,
+    width: width - (height < MINIMUM_HEIGHT ? 80 : 48),
+    height: height < MINIMUM_HEIGHT ? 100 : 120,
     borderWidth: 1,
     borderRadius: 4,
     borderColor: palette.greyColor.gray8,
@@ -63,8 +63,10 @@ export const modalStyles = StyleSheet.create({
     }),
   },
   emptyImageWrapper: {
-    width: width - 48,
-    height: (IMAGE_HEIGHT * (width - 48)) / IMAGE_WIDTH,
+    width: width - (height < MINIMUM_HEIGHT ? 80 : 48),
+    height:
+      (IMAGE_HEIGHT * (width - (height < MINIMUM_HEIGHT ? 80 : 48))) /
+      IMAGE_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -76,10 +78,12 @@ export const modalStyles = StyleSheet.create({
     flexDirection: 'row',
     gap: 16,
     width: '100%',
-    paddingTop: 48,
+    paddingTop: height < MINIMUM_HEIGHT ? 8 : 48,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
-    width: width / 2 - 24 - 8,
+    width: width / 2 - (height < MINIMUM_HEIGHT ? 40 : 24) - 8,
     padding: 16,
     borderRadius: 8,
   },
