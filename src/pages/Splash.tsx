@@ -29,7 +29,7 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   useEffect(() => {
     getAllData();
     uploadTempData();
-    // migrateLocalData(); // TODO 추후 마이그레이션을 위한 코드
+    migrateLocalData(); // TODO 추후 마이그레이션을 위한 코드
   }, []);
 
   const uploadTempData = async () => {
