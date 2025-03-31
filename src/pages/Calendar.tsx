@@ -388,6 +388,11 @@ function Calendar() {
     }
   };
 
+  console.log(
+    teamId,
+    matches.find(match => match.home === teamId || match.away === teamId),
+  );
+
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
@@ -419,6 +424,7 @@ function Calendar() {
               top: height < MINIMUM_HEIGHT ? 2 : -12,
             }}
           />
+          {/* NOTE 기록이 있는 경우 기록을 보여줌 */}
           {records[carouselIndexState]?.image &&
           records[carouselIndexState]?.user_note ? (
             <Detail
@@ -431,6 +437,7 @@ function Calendar() {
               date={selectedDate}
             />
           ) : (
+            // NOTE 기록이 없는 경우 일정을 보여줌
             <TouchableOpacity
               onPress={() => {
                 if (
@@ -456,7 +463,10 @@ function Calendar() {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                 }}>
-                {matches.length === 1 ? (
+                {/* NOTE 마이팀 경기가 있는 경우 경기 정보를 보여줌 */}
+                {matches.find(
+                  match => match.home === teamId || match.away === teamId,
+                ) ? (
                   loading ? (
                     <Loading />
                   ) : (
@@ -473,16 +483,32 @@ function Calendar() {
                           },
                         ]}>
                         {
-                          teams.find(team => team.team_id === matches[0].home)
-                            ?.team_short_name
+                          teams.find(
+                            team =>
+                              team.team_id ===
+                              matches.find(
+                                match =>
+                                  match.home === teamId ||
+                                  match.away === teamId,
+                              )?.home,
+                          )?.team_short_name
                         }{' '}
                         VS{' '}
                         {
-                          teams.find(team => team.team_id === matches[0].away)
-                            ?.team_short_name
+                          teams.find(
+                            team =>
+                              team.team_id ===
+                              matches.find(
+                                match =>
+                                  match.home === teamId ||
+                                  match.away === teamId,
+                              )?.away,
+                          )?.team_short_name
                         }
                       </Text>
-                      {!!matches[0].home && (
+                      {!!matches.find(
+                        match => match.home === teamId || match.away === teamId,
+                      )?.home && (
                         <View>
                           <AnswerCircle
                             width={88}
@@ -507,7 +533,12 @@ function Calendar() {
                             {
                               stadiums.find(
                                 stadium =>
-                                  stadium.stadium_id === matches[0].stadium,
+                                  stadium.stadium_id ===
+                                  matches.find(
+                                    match =>
+                                      match.home === teamId ||
+                                      match.away === teamId,
+                                  )?.stadium,
                               )?.stadium_short_name
                             }
                             )
@@ -516,7 +547,8 @@ function Calendar() {
                       )}
                     </View>
                   )
-                ) : matches.length ? (
+                ) : // NOTE 마이팀 경기가 없는 경우 모든 팀 경기를 보여줌
+                matches.length ? (
                   <View>
                     <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
                       오늘의 경기
@@ -529,6 +561,7 @@ function Calendar() {
                     />
                   </View>
                 ) : (
+                  // NOTE 경기가 없는 경우 없다고 보여줌
                   <View>
                     <Text style={[styles.stickyNoteText, { fontSize: 18 }]}>
                       오늘의 경기
