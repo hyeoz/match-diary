@@ -40,6 +40,7 @@ import { useStadiumsState } from '@/stores/teams';
 import { useCarouselIndexState } from '@/stores/default';
 import { palette } from '@/style/palette';
 import { Add } from '@assets/svg';
+import BannerAds from '@/components/ads/BannerAds';
 
 // NOTE 메인페이지
 
@@ -160,6 +161,7 @@ function Write() {
 
   return (
     <TouchableWrapper>
+      <BannerAds />
       {/* SECTION 메인 버튼 / 폴라로이드 */}
       {isEdit || (records.length && records[0].image) ? (
         records.length > 1 && records[0].image ? (
