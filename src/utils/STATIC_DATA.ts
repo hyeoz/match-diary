@@ -168,6 +168,17 @@ const INIT_COUNT_DATA = {
 
 const MINIMUM_HEIGHT = 780; // 13 mini
 
+const INIT_RECORD: RecordType = {
+  match_id: null,
+  // user_id: uniqueId,
+  // date: formattedToday,
+  user_id: '',
+  date: '',
+  image: null,
+  user_note: '',
+  stadium_id: undefined,
+};
+
 export {
   DATE_FORMAT,
   DATE_FORMAT_SLASH,
@@ -187,4 +198,5 @@ export {
   STATIC_STADIUMS,
   INIT_COUNT_DATA,
   MINIMUM_HEIGHT,
+  INIT_RECORD,
 };
