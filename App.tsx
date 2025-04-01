@@ -5,7 +5,10 @@ import {
   useNavigationContainerRef,
 } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import mobileAds, { MaxAdContentRating } from 'react-native-google-mobile-ads';
+import mobileAds, {
+  MaxAdContentRating,
+  ConsentDebugSettings,
+} from 'react-native-google-mobile-ads';
 // import GeoNotification from '@/components/GeoNotification';
 import Router from '@/router';
 
@@ -23,8 +26,14 @@ function App(): React.JSX.Element {
           tagForChildDirectedTreatment: true,
           tagForUnderAgeOfConsent: true,
           // TODO 실제 배포 시 테스트 디바이스 제거
-          testDeviceIdentifiers: ['EMULATOR'],
+          // testDeviceIdentifiers: ['EMULATOR'],
         });
+        // TODO UMP 설정
+        if (__DEV__) {
+          ConsentDebugSettings.getInstance()
+            .addTestDeviceHashedId('TEST-DEVICE-HASHED-ID')
+            .setDebugGeography(ConsentDebugSettings.DebugGeography.EEA);
+        }
       });
   }, []);
 
