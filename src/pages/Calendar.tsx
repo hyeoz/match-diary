@@ -388,11 +388,6 @@ function Calendar() {
     }
   };
 
-  console.log(
-    teamId,
-    matches.find(match => match.home === teamId || match.away === teamId),
-  );
-
   return (
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>

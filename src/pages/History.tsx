@@ -77,6 +77,7 @@ function History() {
         style={{
           flex: 1,
           paddingHorizontal: 8,
+          paddingBottom: 64,
         }}>
         {loading ? (
           <Loading />
