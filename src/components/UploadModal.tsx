@@ -22,6 +22,7 @@ import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { Camera } from 'react-native-vision-camera';
+// import { AdEventType, InterstitialAd } from 'react-native-google-mobile-ads';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -57,6 +58,7 @@ import { palette } from '@style/palette';
 import { modalStyles } from '@/style/modal';
 import { useFontStyle } from '@/style/hooks';
 import { Add, Arrow } from '@assets/svg';
+// import { interstitialAd } from '@components/ads/InterstitialAds';
 
 const { width, height } = Dimensions.get('window');
 
@@ -390,6 +392,31 @@ export default function UploadModal({
       setTempRecord(RESET_RECORD);
       setIsVisible(false);
 
+      // TODO 저장 후 전면광고
+      // 광고 표시 시도
+      // try {
+      //   // 이전 광고가 표시되지 않은 경우에만 새로운 광고 로드
+      //   if (!interstitialAd.loaded) {
+      //     await new Promise<void>(resolve => {
+      //       const unsubscribe = interstitialAd.addAdEventListener(
+      //         AdEventType.LOADED,
+      //         () => {
+      //           unsubscribe();
+      //           resolve();
+      //         },
+      //       );
+      //       interstitialAd.load();
+      //     });
+      //   }
+
+      //   // 광고가 로드되면 표시
+      //   if (interstitialAd.loaded) {
+      //     await interstitialAd.show();
+      //   }
+      // } catch (error) {
+      //   console.log('Error showing ad:', error);
+      // }
+
       Toast.show({
         type: 'success',
         text1: '저장되었습니다!',
@@ -404,116 +431,6 @@ export default function UploadModal({
       setIsSaving(false);
     }
   };
-
-  /* 기존 저장 로직
-  const onSave = async () => {
-    const { image, memo, selectedStadium } = tempRecord;
-    if (!image || !memo || !selectedStadium) {
-      Toast.show({
-        type: 'error',
-        text1: '아직 입력하지 않은 항목이 있어요!',
-        topOffset: 64,
-      });
-      return;
-    }
-
-    if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
-      Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
-      return;
-    }
-
-    if (isEdit) {
-      await AsyncStorage.removeItem(tempRecord.date);
-      await AsyncStorage.setItem(
-        tempRecord.date,
-        JSON.stringify({
-          image,
-          memo,
-          selectedStadium,
-          date: tempRecord.date,
-          home: matchInfo?.[selectedStadium]?.home,
-          away: matchInfo?.[selectedStadium]?.away,
-        }),
-      );
-
-      setRecordsState(
-        recordsState.map(record =>
-          record.date === tempRecord.date ? tempRecord : record,
-        ),
-      );
-      setRecordState(tempRecord);
-    } else {
-      const keys = await AsyncStorage.getAllKeys();
-      // NOTE 하루에 여러개의 기록 저장하는 경우
-      if (keys.includes(formattedToday)) {
-        const duplDate = `${formattedToday}(${
-          keys.filter(key => key === formattedToday).length
-        })`;
-        await AsyncStorage.setItem(
-          duplDate,
-          JSON.stringify({
-            image,
-            memo,
-            selectedStadium,
-            date: duplDate,
-            home: matchInfo?.[selectedStadium]?.home,
-            away: matchInfo?.[selectedStadium]?.away,
-          }),
-        );
-        setRecordsState(
-          filterDuplicatedArray([
-            ...recordsState,
-            {
-              id: uuid.v4(),
-              date: duplDate,
-              image,
-              memo,
-              selectedStadium,
-            },
-          ]),
-        );
-        setRecordState({
-          id: uuid.v4(),
-          date: duplDate,
-          image,
-          memo,
-          selectedStadium,
-        });
-      } else {
-        await AsyncStorage.setItem(
-          formattedToday,
-          JSON.stringify({
-            image,
-            memo,
-            selectedStadium,
-            date: formattedToday,
-            home: matchInfo?.[selectedStadium]?.home,
-            away: matchInfo?.[selectedStadium]?.away,
-          }),
-        );
-        setRecordsState([
-          {
-            id: uuid.v4(),
-            date: formattedToday,
-            image,
-            memo,
-            selectedStadium,
-          },
-        ]);
-        setRecordState({
-          id: uuid.v4(),
-          date: formattedToday,
-          image,
-          memo,
-          selectedStadium,
-        });
-      }
-    }
-
-    setTempRecord(RESET_RECORD);
-    setIsVisible(false);
-  };
-  */
 
   // 오늘자 경기 조회
   const getTodayMatch = async () => {

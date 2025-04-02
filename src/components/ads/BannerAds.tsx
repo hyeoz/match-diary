@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import {
   BannerAd,
   BannerAdSize,
@@ -13,12 +13,13 @@ const BannerAdComponent = () => {
     <View style={styles.container}>
       <BannerAd
         // TODO 배포 시 실제 ID 로 수정
-        unitId={TestIds.BANNER}
-        // unitId={
-        //   Platform.OS === 'android'
-        //     ? REACT_APP_ANDROID_APP_ID
-        //     : REACT_APP_IOS_APP_ID
-        // }
+        unitId={
+          __DEV__
+            ? TestIds.BANNER
+            : Platform.OS === 'android'
+            ? REACT_APP_ANDROID_APP_ID
+            : REACT_APP_IOS_APP_ID
+        }
         size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
         requestOptions={{
           requestNonPersonalizedAdsOnly: true,
