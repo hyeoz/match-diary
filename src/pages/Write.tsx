@@ -40,9 +40,8 @@ import { useStadiumsState } from '@/stores/teams';
 import { useCarouselIndexState } from '@/stores/default';
 import { palette } from '@/style/palette';
 import { Add } from '@assets/svg';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-// import BannerAds from '@/components/ads/BannerAds';
-// import { interstitialAd } from '@components/ads/InterstitialAds';
+import BannerAds from '@/components/ads/BannerAds';
+import { interstitialAd } from '@components/ads/InterstitialAds';
 
 // NOTE 메인페이지
 
@@ -63,12 +62,10 @@ function Write() {
     getTodayRecord();
 
     // TODO Start loading the interstitial straight away
-    // interstitialAd.load();
+    interstitialAd.load();
   }, []);
 
   const getTodayRecord = async () => {
-    const keys = await AsyncStorage.getAllKeys();
-    console.log(keys);
     try {
       // 페이지 진입 시 오늘 날짜 데이터가 있는지 확인
       const res = await API.post('/user-record/date', {
@@ -169,7 +166,7 @@ function Write() {
   return (
     <TouchableWrapper>
       {/* TODO 배너광고 */}
-      {/* <BannerAds /> */}
+      <BannerAds />
       {/* SECTION 메인 버튼 / 폴라로이드 */}
       {isEdit || (records.length && records[0].image) ? (
         records.length > 1 && records[0].image ? (
