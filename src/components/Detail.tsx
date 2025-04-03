@@ -76,8 +76,12 @@ export function Detail({
     const tempRecord = records[carouselIndexState];
     const tempMatch = matches.find(mat => mat.id === tempRecord.match_id);
 
+    if (!tempMatch) {
+      return;
+    }
+
     // 마이팀과 기록한 팀의 경기가 다른 경우
-    if (teamId !== tempMatch?.home && teamId !== tempMatch?.away) {
+    if (teamId !== tempMatch.home && teamId !== tempMatch.away) {
       return setResult(null);
     }
 
@@ -97,7 +101,7 @@ export function Detail({
         home_score > away_score ? 'L' : home_score < away_score ? 'W' : 'D',
       );
     }
-  }, [teamId, records, matches, carouselIndexState]);
+  }, [teamId, records, matches, carouselIndexState, date]);
 
   const getTodayMatch = async () => {
     const res = await getMatchByDate(date || '');

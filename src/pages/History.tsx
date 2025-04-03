@@ -17,6 +17,7 @@ import { useTabHistory } from '@stores/default';
 import Loading from '@components/Loading';
 import { getAllUserRecords } from '@/api/record';
 import { useFontStyle } from '@/style/hooks';
+import dayjs from 'dayjs';
 
 const { width } = Dimensions.get('window');
 
@@ -38,6 +39,7 @@ function History() {
     const res = await getAllUserRecords();
 
     const images = res.data
+      .sort((a, b) => dayjs(b.date).diff(dayjs(a.date)))
       .map(dt => {
         // 티켓 이미지가 있는 경우 티켓 이미지 메인으로
         if (dt.ticket_image) {
@@ -75,6 +77,7 @@ function History() {
         style={{
           flex: 1,
           paddingHorizontal: 8,
+          paddingBottom: 64,
         }}>
         {loading ? (
           <Loading />

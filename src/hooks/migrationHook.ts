@@ -1,17 +1,23 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
+import { getUniqueId } from 'react-native-device-info';
 
 import { API } from '@/api';
 import { useStadiumsState } from '@/stores/teams';
 import { getMatchByDate } from '@/api/match';
 import { MatchDataType } from '@/type/match';
-import { useUserState } from '@/stores/user';
 
 export const useMigrateLocalToServer = () => {
   const { stadiums } = useStadiumsState();
 
   const migrateData = async () => {
+    const uniqueId = await getUniqueId();
+
+    if (!uniqueId) {
+      throw new Error('User ID is not available');
+    }
+
     try {
       // 1. 모든 날짜 키 가져오기
       const keys = await AsyncStorage.getAllKeys();
@@ -64,6 +70,7 @@ export const useMigrateLocalToServer = () => {
           name: filename,
         } as any);
 
+        formData.append('userId', uniqueId);
         formData.append('userNote', memo);
         // 이미 찾은 stadium 사용
         formData.append(
@@ -117,7 +124,7 @@ export const uploadStorageToServer = async (data: {
   key: string;
   value: string;
 }) => {
-  const { uniqueId } = useUserState.getState();
+  const uniqueId = await getUniqueId();
 
   if (!uniqueId) {
     throw new Error('User ID is not available');
@@ -125,7 +132,7 @@ export const uploadStorageToServer = async (data: {
 
   try {
     // 서버에서 전체 데이터 가져오기
-    const { data: allStorageData } = await API.get('local-storage');
+    const { data: allStorageData } = await API.get('/local-storage');
 
     // 날짜 형식의 키값인지 확인 (YYYY-MM-DD)
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data.key)) {
@@ -148,7 +155,7 @@ export const uploadStorageToServer = async (data: {
         storageKey: data.key,
         storageValue: data.value,
       };
-      await API.post('create-local-storage', body);
+      await API.post('/create-local-storage', body);
       return;
     }
 
