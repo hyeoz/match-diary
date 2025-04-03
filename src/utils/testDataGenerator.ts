@@ -7,7 +7,7 @@ export const generateTestData = async () => {
       date: '2024-09-14',
       data: {
         image:
-          'file:///Users/hyewonlee/Library/Developer/CoreSimulator/Devices/8C5DF8AE-613C-4F86-A1AA-C1263A05344A/data/Containers/Data/Application/1E76847E-473F-43F2-8C00-C6C396F03103/tmp/480E047C-8B5A-4DD7-BB9D-35A65540305A.jpg',
+          'file:///Users/hyewonlee/Library/Developer/CoreSimulator/Devices/8C5DF8AE-613C-4F86-A1AA-C1263A05344A/data/Containers/Data/Application/2BC516D0-9AA2-4416-8D5C-E1548E80C244/Library/Caches/DD9342FA-CC49-4546-983E-5F255A6A4185.jpg',
         memo: '테스트 메모 1',
         selectedStadium: '문학',
       },
@@ -16,7 +16,7 @@ export const generateTestData = async () => {
       date: '2024-08-21',
       data: {
         image:
-          'file:///Users/hyewonlee/Library/Developer/CoreSimulator/Devices/8C5DF8AE-613C-4F86-A1AA-C1263A05344A/data/Containers/Data/Application/1E76847E-473F-43F2-8C00-C6C396F03103/tmp/480E047C-8B5A-4DD7-BB9D-35A65540305A.jpg',
+          'file:///Users/hyewonlee/Library/Developer/CoreSimulator/Devices/8C5DF8AE-613C-4F86-A1AA-C1263A05344A/data/Containers/Data/Application/2BC516D0-9AA2-4416-8D5C-E1548E80C244/Library/Caches/DD9342FA-CC49-4546-983E-5F255A6A4185.jpg',
         memo: '테스트 메모 2',
         selectedStadium: '잠실',
       },
@@ -25,7 +25,7 @@ export const generateTestData = async () => {
       date: '2024-06-22',
       data: {
         image:
-          'file:///Users/hyewonlee/Library/Developer/CoreSimulator/Devices/8C5DF8AE-613C-4F86-A1AA-C1263A05344A/data/Containers/Data/Application/1E76847E-473F-43F2-8C00-C6C396F03103/tmp/480E047C-8B5A-4DD7-BB9D-35A65540305A.jpg',
+          'file:///Users/hyewonlee/Library/Developer/CoreSimulator/Devices/8C5DF8AE-613C-4F86-A1AA-C1263A05344A/data/Containers/Data/Application/2BC516D0-9AA2-4416-8D5C-E1548E80C244/Library/Caches/DD9342FA-CC49-4546-983E-5F255A6A4185.jpg',
         memo: '테스트 메모 3',
         selectedStadium: '문학',
       },
@@ -34,7 +34,7 @@ export const generateTestData = async () => {
       date: '2024-06-14',
       data: {
         image:
-          'file:///Users/hyewonlee/Library/Developer/CoreSimulator/Devices/8C5DF8AE-613C-4F86-A1AA-C1263A05344A/data/Containers/Data/Application/1E76847E-473F-43F2-8C00-C6C396F03103/tmp/480E047C-8B5A-4DD7-BB9D-35A65540305A.jpg',
+          'file:///Users/hyewonlee/Library/Developer/CoreSimulator/Devices/8C5DF8AE-613C-4F86-A1AA-C1263A05344A/data/Containers/Data/Application/2BC516D0-9AA2-4416-8D5C-E1548E80C244/Library/Caches/DD9342FA-CC49-4546-983E-5F255A6A4185.jpg',
         memo: '테스트 메모 3',
         selectedStadium: '대전',
       },

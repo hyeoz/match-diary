@@ -40,6 +40,7 @@ import { useStadiumsState } from '@/stores/teams';
 import { useCarouselIndexState } from '@/stores/default';
 import { palette } from '@/style/palette';
 import { Add } from '@assets/svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import BannerAds from '@/components/ads/BannerAds';
 // import { interstitialAd } from '@components/ads/InterstitialAds';
 
@@ -66,6 +67,8 @@ function Write() {
   }, []);
 
   const getTodayRecord = async () => {
+    const keys = await AsyncStorage.getAllKeys();
+    console.log(keys);
     try {
       // 페이지 진입 시 오늘 날짜 데이터가 있는지 확인
       const res = await API.post('/user-record/date', {
