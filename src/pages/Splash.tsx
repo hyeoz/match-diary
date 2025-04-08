@@ -36,15 +36,23 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   };
 
   const getAllData = async () => {
-    const deviceId = await getUniqueId();
-    setUniqueId(deviceId);
-    await getTeamsData();
-    await getStadiumsData();
-    await getUserData(deviceId);
+    try {
+      const deviceId = await getUniqueId();
+      setUniqueId(deviceId);
+
+      // 병렬로 데이터 요청하여 속도 개선
+      await Promise.all([
+        getTeamsData(),
+        getStadiumsData(),
+        getUserData(deviceId),
+      ]);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
   };
 
   // 스플래시 화면 종료 후 이동
-  const setReplace = async (hasAccount: boolean = false) =>
+  const setReplace = (hasAccount: boolean = false) =>
     new Promise(() =>
       setTimeout(() => {
         hasAccount ? navigation.replace('Write') : navigation.replace('SignIn');
@@ -55,7 +63,6 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   const getUserData = async (deviceId: string) => {
     try {
       const res = await API.post('/user', { userId: deviceId });
-
       if (!res.data.length) {
         // 유저 정보가 없는 경우 가입 화면으로 넘기기
         await setReplace(false);
@@ -68,20 +75,30 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
 
       await setReplace(true);
     } catch (error) {
-      console.error(error);
+      console.error('Failed to fetch user data:', error);
+      // 유저 정보 호출 에러의 경우에도 sign in 으로 넘기기
+      await setReplace(false);
     }
   };
 
   const getTeamsData = async () => {
-    const res = await API.get('/teams');
-    if (res.data) {
-      setTeams(res.data);
+    try {
+      const res = await API.get('/teams');
+      if (res.data) {
+        setTeams(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch teams data:', error);
     }
   };
   const getStadiumsData = async () => {
-    const res = await API.get('/stadiums');
-    if (res.data) {
-      setStadiums(res.data);
+    try {
+      const res = await API.get('/stadiums');
+      if (res.data) {
+        setStadiums(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stadiums data:', error);
     }
   };
 

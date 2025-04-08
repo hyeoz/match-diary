@@ -157,7 +157,7 @@ dependencies {
     implementation "com.facebook.react:react-native:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation "androidx.multidex:multidex:2.0.1"
-    implementation 'com.google.android.gms:play-services-ads:23.0.0' // 안정적인 이전 버전 사용
+    implementation 'com.google.android.gms:play-services-ads:24.2.0'
     if (project.ext.react.enableHermes) {
         implementation "com.facebook.react:hermes-engine:+"
     } else {
