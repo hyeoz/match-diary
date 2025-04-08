@@ -6,7 +6,7 @@ import {
   TestIds,
 } from 'react-native-google-mobile-ads';
 
-import { REACT_APP_ANDROID_APP_ID, REACT_APP_IOS_APP_ID } from '@env';
+import { REACT_APP_ANDROID_BANNER_ID, REACT_APP_IOS_BANNER_ID } from '@env';
 
 const BannerAdComponent = () => {
   return (
@@ -17,8 +17,8 @@ const BannerAdComponent = () => {
           __DEV__
             ? TestIds.BANNER
             : Platform.OS === 'android'
-            ? REACT_APP_ANDROID_APP_ID
-            : REACT_APP_IOS_APP_ID
+            ? REACT_APP_ANDROID_BANNER_ID
+            : REACT_APP_IOS_BANNER_ID
         }
         size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
         requestOptions={{

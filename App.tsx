@@ -7,34 +7,42 @@ import {
 import Toast from 'react-native-toast-message';
 import mobileAds, {
   MaxAdContentRating,
-  ConsentDebugSettings,
+  AdsConsent,
 } from 'react-native-google-mobile-ads';
-// import GeoNotification from '@/components/GeoNotification';
+
 import Router from '@/router';
+// import GeoNotification from '@/components/GeoNotification';
 
 function App(): React.JSX.Element {
   const navigationRef = useNavigationContainerRef();
   const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
-    mobileAds()
-      .initialize()
-      .then(() => {
-        // 초기화 완료 후 구성 설정
-        mobileAds().setRequestConfiguration({
-          maxAdContentRating: MaxAdContentRating.G,
-          tagForChildDirectedTreatment: true,
-          tagForUnderAgeOfConsent: true,
-          // TODO 실제 배포 시 테스트 디바이스 제거
-          // testDeviceIdentifiers: ['EMULATOR'],
-        });
-        // TODO UMP 설정
-        if (__DEV__) {
-          ConsentDebugSettings.getInstance()
-            .addTestDeviceHashedId('TEST-DEVICE-HASHED-ID')
-            .setDebugGeography(ConsentDebugSettings.DebugGeography.EEA);
-        }
+    const initializeAds = async () => {
+      await mobileAds().initialize();
+
+      // 초기화 완료 후 구성 설정
+      mobileAds().setRequestConfiguration({
+        maxAdContentRating: MaxAdContentRating.G,
+        tagForChildDirectedTreatment: true,
+        tagForUnderAgeOfConsent: true,
+        // TODO 실제 배포 시 테스트 디바이스 제거
+        // testDeviceIdentifiers: ['EMULATOR'],
       });
+
+      // TODO UMP 설정
+      if (__DEV__) {
+        // UMP 테스트를 위한 설정
+        await AdsConsent.requestInfoUpdate();
+        const consentInfo = await AdsConsent.getConsentInfo();
+
+        if (consentInfo.isConsentFormAvailable) {
+          await AdsConsent.showForm();
+        }
+      }
+    };
+
+    initializeAds().catch(console.error);
   }, []);
 
   return (
