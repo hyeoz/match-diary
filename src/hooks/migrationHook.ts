@@ -2,16 +2,18 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import { getUniqueId } from 'react-native-device-info';
+import RNFS from 'react-native-fs';
 
 import { API } from '@/api';
-import { useStadiumsState } from '@/stores/teams';
 import { getMatchByDate } from '@/api/match';
 import { MatchDataType } from '@/type/match';
+import { StadiumType } from '@/type/team';
 
-export const useMigrateLocalToServer = () => {
-  const { stadiums } = useStadiumsState();
+const EMPTY_IMAGE_BASE64 =
+  'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // 1x1 투명 GIF
 
-  const migrateData = async () => {
+export const migrateLocalToServer = async (stadiums: StadiumType[]) => {
+  try {
     const uniqueId = await getUniqueId();
 
     if (!uniqueId) {
@@ -34,8 +36,22 @@ export const useMigrateLocalToServer = () => {
         const recordData = await AsyncStorage.getItem(date);
         if (!recordData) continue;
 
+        // 서버에서 데이터 확인
+        const { data: records } = await API.post('/user-records', {
+          date,
+          userId: uniqueId,
+        });
+
+        if (records.length > 0) {
+          await AsyncStorage.removeItem(date);
+          continue;
+        }
+
         const { image, memo, selectedStadium } = JSON.parse(recordData);
-        if (!image?.path) continue; // 이미지가 없으면 스킵
+
+        if (!image) continue; // 이미지가 없으면 스킵
+        const fileExists = await RNFS.exists(image);
+
         // 해당 날짜의 경기 데이터 조회
         const matchResponse = await getMatchByDate(date);
         const matches = matchResponse.data;
@@ -56,26 +72,35 @@ export const useMigrateLocalToServer = () => {
         // FormData 생성
         const formData = new FormData();
 
-        // 이미지 경로를 파일로 변환
-        const filename = image.path.split('/').pop() || 'image.jpg';
-        const match = /\.([a-zA-Z0-9]+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : 'image/jpeg';
+        if (!fileExists) {
+          // 임시 빈 파일 생성
+          const tempFilePath = `${RNFS.TemporaryDirectoryPath}/empty.jpg`;
+          await RNFS.writeFile(tempFilePath, EMPTY_IMAGE_BASE64, 'base64');
 
-        formData.append('file', {
-          uri:
-            Platform.OS === 'ios'
-              ? image.path.replace('file://', '')
-              : image.path,
-          type,
-          name: filename,
-        } as any);
+          formData.append('file', {
+            uri: `file://${tempFilePath}`,
+            type: 'image/jpeg',
+            name: 'empty.jpg',
+          } as any);
+        } else {
+          // 이미지 경로를 파일로 변환
+          const filename = image.split('/').pop() || 'image.jpg';
+          const match = /\.([a-zA-Z0-9]+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+          formData.append('file', {
+            uri: image,
+            type,
+            name: filename,
+          } as any);
+        }
 
         formData.append('userId', uniqueId);
         formData.append('userNote', memo);
         // 이미 찾은 stadium 사용
         formData.append(
           'stadiumId',
-          foundStadium?.stadium_id?.toString() || '',
+          foundStadium?.stadium_id?.toString() || '1',
         );
         formData.append('date', date);
         if (matchId) {
@@ -88,9 +113,6 @@ export const useMigrateLocalToServer = () => {
             'Content-Type': 'multipart/form-data',
           },
         });
-
-        // 서버에서 데이터 확인
-        const { data: records } = await API.get(`/records/${date}`);
 
         // 동일한 날짜와 경기장의 데이터가 있는지 확인
         const recordExists = records.some(
@@ -115,9 +137,10 @@ export const useMigrateLocalToServer = () => {
       });
       throw error;
     }
-  };
-
-  return { migrateData };
+  } catch (error) {
+    console.error('Migration failed:', error);
+    throw error;
+  }
 };
 
 export const uploadStorageToServer = async (data: {

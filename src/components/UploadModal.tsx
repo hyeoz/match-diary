@@ -22,7 +22,7 @@ import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import { Camera } from 'react-native-vision-camera';
-// import { AdEventType, InterstitialAd } from 'react-native-google-mobile-ads';
+import { AdEventType, InterstitialAd } from 'react-native-google-mobile-ads';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 dayjs.locale('ko');
@@ -58,7 +58,7 @@ import { palette } from '@style/palette';
 import { modalStyles } from '@/style/modal';
 import { useFontStyle } from '@/style/hooks';
 import { Add, Arrow } from '@assets/svg';
-// import { interstitialAd } from '@components/ads/InterstitialAds';
+import { interstitialAd } from '@components/ads/InterstitialAds';
 
 const { width, height } = Dimensions.get('window');
 
@@ -394,28 +394,28 @@ export default function UploadModal({
 
       // TODO 저장 후 전면광고
       // 광고 표시 시도
-      // try {
-      //   // 이전 광고가 표시되지 않은 경우에만 새로운 광고 로드
-      //   if (!interstitialAd.loaded) {
-      //     await new Promise<void>(resolve => {
-      //       const unsubscribe = interstitialAd.addAdEventListener(
-      //         AdEventType.LOADED,
-      //         () => {
-      //           unsubscribe();
-      //           resolve();
-      //         },
-      //       );
-      //       interstitialAd.load();
-      //     });
-      //   }
+      try {
+        // 이전 광고가 표시되지 않은 경우에만 새로운 광고 로드
+        if (!interstitialAd.loaded) {
+          await new Promise<void>(resolve => {
+            const unsubscribe = interstitialAd.addAdEventListener(
+              AdEventType.LOADED,
+              () => {
+                unsubscribe();
+                resolve();
+              },
+            );
+            interstitialAd.load();
+          });
+        }
 
-      //   // 광고가 로드되면 표시
-      //   if (interstitialAd.loaded) {
-      //     await interstitialAd.show();
-      //   }
-      // } catch (error) {
-      //   console.log('Error showing ad:', error);
-      // }
+        // 광고가 로드되면 표시
+        if (interstitialAd.loaded) {
+          await interstitialAd.show();
+        }
+      } catch (error) {
+        console.log('Error showing ad:', error);
+      }
 
       Toast.show({
         type: 'success',

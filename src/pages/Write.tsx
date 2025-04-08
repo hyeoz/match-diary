@@ -40,8 +40,8 @@ import { useStadiumsState } from '@/stores/teams';
 import { useCarouselIndexState } from '@/stores/default';
 import { palette } from '@/style/palette';
 import { Add } from '@assets/svg';
-// import BannerAds from '@/components/ads/BannerAds';
-// import { interstitialAd } from '@components/ads/InterstitialAds';
+import BannerAds from '@/components/ads/BannerAds';
+import { interstitialAd } from '@components/ads/InterstitialAds';
 
 // NOTE 메인페이지
 
@@ -62,7 +62,7 @@ function Write() {
     getTodayRecord();
 
     // TODO Start loading the interstitial straight away
-    // interstitialAd.load();
+    interstitialAd.load();
   }, []);
 
   const getTodayRecord = async () => {
@@ -166,7 +166,7 @@ function Write() {
   return (
     <TouchableWrapper>
       {/* TODO 배너광고 */}
-      {/* <BannerAds /> */}
+      <BannerAds />
       {/* SECTION 메인 버튼 / 폴라로이드 */}
       {isEdit || (records.length && records[0].image) ? (
         records.length > 1 && records[0].image ? (
