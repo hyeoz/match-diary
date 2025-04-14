@@ -23,6 +23,7 @@ export const migrateLocalToServer = async (stadiums: StadiumType[]) => {
     try {
       // 1. 모든 날짜 키 가져오기
       const keys = await AsyncStorage.getAllKeys();
+
       if (!keys || keys.length === 0) return false;
 
       const datesToMigrate = keys.filter((key: string) =>
@@ -34,10 +35,10 @@ export const migrateLocalToServer = async (stadiums: StadiumType[]) => {
       for (let i = 0; i < datesToMigrate.length; i++) {
         const date = datesToMigrate[i];
         const recordData = await AsyncStorage.getItem(date);
-        if (!recordData) continue;
 
+        if (!recordData) continue;
         // 서버에서 데이터 확인
-        const { data: records } = await API.post('/user-records', {
+        const { data: records } = await API.post('/user-record/date', {
           date,
           userId: uniqueId,
         });
@@ -49,8 +50,8 @@ export const migrateLocalToServer = async (stadiums: StadiumType[]) => {
 
         const { image, memo, selectedStadium } = JSON.parse(recordData);
 
-        if (!image) continue; // 이미지가 없으면 스킵
-        const fileExists = await RNFS.exists(image);
+        if (!image || !image.path) continue; // 이미지나 경로가 없으면 스킵
+        const fileExists = await RNFS.exists(image.path);
 
         // 해당 날짜의 경기 데이터 조회
         const matchResponse = await getMatchByDate(date);
@@ -84,12 +85,15 @@ export const migrateLocalToServer = async (stadiums: StadiumType[]) => {
           } as any);
         } else {
           // 이미지 경로를 파일로 변환
-          const filename = image.split('/').pop() || 'image.jpg';
-          const match = /\.([a-zA-Z0-9]+)$/.exec(filename);
-          const type = match ? `image/${match[1]}` : 'image/jpeg';
+          const filename =
+            image.filename || image.path.split('/').pop() || 'image.jpg';
+          const type = image.mime || 'image/jpeg';
 
           formData.append('file', {
-            uri: image,
+            uri:
+              Platform.OS === 'android'
+                ? image.path
+                : image.path.replace('file://', ''),
             type,
             name: filename,
           } as any);
