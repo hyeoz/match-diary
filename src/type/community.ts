@@ -5,3 +5,10 @@ export type CommunityLogType = {
   date: string;
   user_post: string;
 };
+
+export type CommunityNoticeType = {
+  notice_id: number;
+  notice: string;
+  stadium_id: number;
+  notice_type: string;
+};
