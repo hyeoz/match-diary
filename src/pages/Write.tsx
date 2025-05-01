@@ -165,8 +165,7 @@ function Write() {
 
   return (
     <TouchableWrapper>
-      {/* TODO 배너광고 */}
-      <BannerAds />
+      <BannerAds isSplash={false} />
       {/* SECTION 메인 버튼 / 폴라로이드 */}
       {isEdit || (records.length && records[0].image) ? (
         records.length > 1 && records[0].image ? (

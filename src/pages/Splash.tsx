@@ -13,6 +13,7 @@ import { migrateLocalToServer } from '@/hooks/migrationHook';
 
 import splash_text from '@assets/splash_text.png';
 import ad_designer from '@assets/ad_designer.png';
+import BannerAdComponent from '@/components/ads/BannerAds';
 
 function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
   const { setTeamId, setUserName, setUniqueId, uniqueId } = useUserState();
@@ -111,7 +112,7 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
         },
       ]}>
       <FastImage source={splash_text} style={styles.logo} />
-      <FastImage
+      {/* <FastImage
         source={ad_designer}
         style={{
           width: '60%',
@@ -119,7 +120,8 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
           borderRadius: 20,
           marginTop: 16,
         }}
-      />
+      /> */}
+      <BannerAdComponent isSplash />
     </View>
   );
 }

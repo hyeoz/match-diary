@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 import {
   NavigationContainer,
   useNavigationContainerRef,
@@ -15,7 +14,6 @@ import Router from '@/router';
 
 function App(): React.JSX.Element {
   const navigationRef = useNavigationContainerRef();
-  const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
     const initializeAds = async () => {
@@ -27,10 +25,10 @@ function App(): React.JSX.Element {
         tagForChildDirectedTreatment: true,
         tagForUnderAgeOfConsent: true,
         // TODO 실제 배포 시 테스트 디바이스 제거
-        // testDeviceIdentifiers: ['EMULATOR'],
+        testDeviceIdentifiers: ['EMULATOR'],
       });
 
-      // TODO UMP 설정
+      // NOTE UMP 설정
       if (__DEV__) {
         // UMP 테스트를 위한 설정
         await AdsConsent.requestInfoUpdate();
