@@ -17,7 +17,15 @@ import { getUniqueId } from 'react-native-device-info';
 
 import { useBottomTabState, useTabHistory } from '@stores/default';
 import { palette } from '@style/palette.ts';
-import { Home, Calendar, More, Send, Photos, Write } from '@assets/svg';
+import {
+  Home,
+  Calendar,
+  More,
+  Send,
+  Photos,
+  Write,
+  Location,
+} from '@assets/svg';
 import { useUserState } from '@/stores/user';
 import { API } from '@/api';
 
@@ -136,7 +144,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
               <View
                 style={{
                   width: 64,
-                  height: 192,
+                  height: 232,
                   justifyContent: 'space-evenly',
                 }}>
                 <TouchableOpacity onPress={() => onPressNavigate('Main')}>
@@ -169,6 +177,16 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                     />
                   </View>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={() => onPressNavigate('MapTap')}>
+                  <View style={styles.floatIconWrapper}>
+                    <View style={styles.floatIconBg} />
+                    <Location
+                      width={32}
+                      height={32}
+                      color={isRouteMatchStyle('MapTap', '#fff')}
+                    />
+                  </View>
+                </TouchableOpacity>
               </View>
             ) : (
               <TouchableOpacity
@@ -187,7 +205,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                     width={28}
                     height={28}
                     color={
-                      ['Main', 'ContactTab', 'HistoryTab'].includes(
+                      ['Main', 'ContactTab', 'HistoryTab', 'MapTap'].includes(
                         currentTab.name,
                       )
                         ? '#fff'
