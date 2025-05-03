@@ -63,7 +63,7 @@ function BottomTab({ ...props }: BottomTabBarProps) {
   }, [navigation.getState().history]);
 
   const handleHeightScaleUp = () => {
-    homeHeight.value = withSpring(192);
+    homeHeight.value = withSpring(232);
   };
   const handleHomeRotate = () => {
     homeDeg.value = withTiming(180, { duration: 300 });
@@ -177,13 +177,13 @@ function BottomTab({ ...props }: BottomTabBarProps) {
                     />
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => onPressNavigate('MapTap')}>
+                <TouchableOpacity onPress={() => onPressNavigate('MapTab')}>
                   <View style={styles.floatIconWrapper}>
                     <View style={styles.floatIconBg} />
                     <Location
                       width={32}
                       height={32}
-                      color={isRouteMatchStyle('MapTap', '#fff')}
+                      color={isRouteMatchStyle('MapTab', '#fff')}
                     />
                   </View>
                 </TouchableOpacity>

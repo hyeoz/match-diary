@@ -9,4 +9,6 @@ declare module '@env' {
   export const REACT_APP_IOS_INTERSTITIAL_ID: string;
   export const REACT_APP_ANDROID_SPLASH_BANNER_ID: string;
   export const REACT_APP_IOS_SPLASH_BANNER_ID: string;
+  export const REACT_APP_NAVER_MAP_CLIENT_ID: string;
+  export const REACT_APP_NAVER_MAP_CLIENT_SECRET: string;
 }
