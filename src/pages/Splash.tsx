@@ -121,7 +121,7 @@ function Splash({ navigation }: NativeStackScreenProps<RootStackListType>) {
           marginTop: 16,
         }}
       /> */}
-      <BannerAdComponent isSplash />
+      <BannerAdComponent adsType="splash" />
     </View>
   );
 }
