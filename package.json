@@ -51,6 +51,7 @@
     "react-native-toast-message": "^2.2.0",
     "react-native-view-shot": "^3.8.0",
     "react-native-vision-camera": "^4.6.4",
+    "react-native-webview": "^13.13.5",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

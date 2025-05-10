@@ -25,6 +25,9 @@
       android:allowBackup="false"
       android:largeHeap="true"
       android:theme="@style/AppTheme">
+      <meta-data
+        android:name="com.naver.maps.map.CLIENT_ID"
+        android:value="@string/REACT_APP_NAVER_MAP_CLIENT_ID" />
       <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
         android:value="ca-app-pub-9265511847962299~8879999932"
         tools:replace="android:value" />
