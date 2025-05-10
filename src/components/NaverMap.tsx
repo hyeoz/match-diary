@@ -22,7 +22,7 @@ const NaverMap = () => {
       ref={webViewRef}
       onMessage={event => {
         // NOTE 웹뷰에서 보내는 로깅 확인용
-        // console.log('[WebView LOG]:', event.nativeEvent.data);
+        console.log('[WebView LOG]:', event.nativeEvent.data);
       }}
       originWhitelist={['*']}
       mixedContentMode="compatibility"
