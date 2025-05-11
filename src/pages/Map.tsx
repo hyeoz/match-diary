@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import { useFontStyle } from '@/style/hooks';
 import BannerAds from '@/components/ads/BannerAds';
 import NaverMap from '@/components/NaverMap';
+import { palette } from '@/style/palette';
 
 export default function Map() {
   const fontStyle = useFontStyle;
@@ -17,7 +18,6 @@ export default function Map() {
             fontStyle(
               {
                 textAlign: 'center',
-                fontWeight: '700',
                 fontSize: 18,
               },
               'bold',
@@ -25,6 +25,20 @@ export default function Map() {
             { marginTop: 16 },
           ]}>
           내 직관 지도 보기
+        </Text>
+        <Text
+          style={[
+            fontStyle(
+              {
+                textAlign: 'center',
+                fontSize: 14,
+                color: palette.greyColor.gray8,
+              },
+              'light',
+            ),
+            { marginTop: 8 },
+          ]}>
+          내 직관 지도를 확인할 수 있어요! 지도를 움직여보세요.
         </Text>
       </View>
       <View style={styles.mapContainer}>

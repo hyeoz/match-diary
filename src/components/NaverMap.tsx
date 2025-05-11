@@ -3,6 +3,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 import WebView from 'react-native-webview';
 
 import { useUserState } from '@/stores/user';
+import Loading from '@/components/Loading';
 
 const NaverMap = () => {
   const webViewRef = useRef<WebView>(null);
@@ -14,11 +15,22 @@ const NaverMap = () => {
     webViewRef.current?.postMessage(message);
   };
 
+  if (!uniqueId) {
+    return <Loading />;
+  }
+
   return (
     <WebView
       style={styles.webview}
-      source={{ uri: 'https://hyeoz.today/maps' }}
-      onLoadEnd={handleWebViewLoad}
+      source={{
+        uri: __DEV__
+          ? 'http://localhost:5173/maps'
+          : 'https://hyeoz.today/maps',
+      }}
+      onLoadEnd={e => {
+        console.log('[WebView LOG END]:', e.nativeEvent);
+        handleWebViewLoad();
+      }}
       ref={webViewRef}
       onMessage={event => {
         // NOTE 웹뷰에서 보내는 로깅 확인용
