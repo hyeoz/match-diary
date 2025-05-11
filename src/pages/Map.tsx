@@ -1,31 +1,57 @@
 import TouchableWrapper from '@/components/TouchableWrapper';
-import React from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import React, { useRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import { useFontStyle } from '@/style/hooks';
 import BannerAds from '@/components/ads/BannerAds';
-import NaverMap from '@/components/NaverMap';
+import NaverMap, { NaverMapRef } from '@/components/NaverMap';
 import { palette } from '@/style/palette';
+import { Refresh } from '@/assets/svg';
 
 export default function Map() {
   const fontStyle = useFontStyle;
+  const mapRef = useRef<NaverMapRef>(null);
 
   return (
     <TouchableWrapper>
       <View style={styles.titleContainer}>
         <BannerAds adsType="map" />
-        <Text
-          style={[
-            fontStyle(
-              {
-                textAlign: 'center',
-                fontSize: 18,
-              },
-              'bold',
-            ),
-            { marginTop: 16 },
-          ]}>
-          내 직관 지도 보기
-        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 8,
+          }}>
+          <Text
+            style={[
+              fontStyle(
+                {
+                  textAlign: 'center',
+                  fontSize: 18,
+                },
+                'bold',
+              ),
+              { marginTop: 16 },
+            ]}>
+            내 직관 지도 보기
+          </Text>
+          <TouchableOpacity
+            style={styles.refreshButton}
+            onPress={() => {
+              if (mapRef.current?.reload) {
+                mapRef.current.reload();
+              }
+            }}>
+            <Refresh width={16} height={16} color={palette.commonColor.green} />
+          </TouchableOpacity>
+        </View>
+
         <Text
           style={[
             fontStyle(
@@ -42,7 +68,7 @@ export default function Map() {
         </Text>
       </View>
       <View style={styles.mapContainer}>
-        <NaverMap />
+        <NaverMap ref={mapRef} />
       </View>
     </TouchableWrapper>
   );
@@ -54,6 +80,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginBottom: 24,
   },
+  refreshButton: {
+    marginTop: 16,
+  },
   mapContainer: {
     flex: 1,
     width: '100%',
@@ -61,5 +90,7 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: Dimensions.get('window').height - 200,
+    borderWidth: 1,
+    borderColor: palette.greyColor.gray2,
   },
 });

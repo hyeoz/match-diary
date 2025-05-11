@@ -1,13 +1,19 @@
-import React, { useRef } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
 import { StyleSheet, Dimensions } from 'react-native';
 import WebView from 'react-native-webview';
 
 import { useUserState } from '@/stores/user';
 import Loading from '@/components/Loading';
 
-const NaverMap = () => {
+const NaverMap = forwardRef<NaverMapRef>((props, ref) => {
   const webViewRef = useRef<WebView>(null);
   const { uniqueId } = useUserState();
+
+  useImperativeHandle(ref, () => ({
+    reload: () => {
+      webViewRef.current?.reload();
+    },
+  }));
 
   const handleWebViewLoad = () => {
     // 앱에서 웹으로 userId 전달
@@ -43,7 +49,7 @@ const NaverMap = () => {
       domStorageEnabled={true}
     />
   );
-};
+});
 
 const styles = StyleSheet.create({
   webview: {
@@ -53,3 +59,7 @@ const styles = StyleSheet.create({
 });
 
 export default NaverMap;
+
+export type NaverMapRef = {
+  reload: () => void;
+};

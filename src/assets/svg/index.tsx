@@ -14,6 +14,7 @@ import Send from './send.svg';
 import Stamp from './stamp.svg';
 import Write from './write.svg';
 import Change from './change.svg';
+import Refresh from './refresh.svg';
 
 import Bears from './bears.svg';
 import Dinos from './dinos.svg';
@@ -43,6 +44,7 @@ export {
   Stamp,
   Write,
   Change,
+  Refresh,
   Bears,
   Dinos,
   Eagles,
