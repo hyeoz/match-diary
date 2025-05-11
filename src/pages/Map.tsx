@@ -41,7 +41,7 @@ export default function Map() {
             ]}>
             내 직관 지도 보기
           </Text>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.refreshButton}
             onPress={() => {
               if (mapRef.current?.reload) {
@@ -49,7 +49,7 @@ export default function Map() {
               }
             }}>
             <Refresh width={16} height={16} color={palette.commonColor.green} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <Text
