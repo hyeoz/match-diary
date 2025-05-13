@@ -216,7 +216,7 @@ function Community() {
                 fontSize: 16,
               })}>
               {findNoticeEmoji(notices[0].notice_type)}
-              {notices[0].notice}
+              {notices[notices.length - 1].notice}
             </Text>
           </View>
         )}
