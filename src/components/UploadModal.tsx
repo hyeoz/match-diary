@@ -120,59 +120,15 @@ export default function UploadModal({
     const unsubscribeLoaded = interstitialAd.addAdEventListener(
       AdEventType.LOADED,
       () => {
-        console.log('광고 로드 완료');
         setAdLoaded(true);
       },
     );
 
-    // 광고가 닫힐 때 저장 요청 처리
+    // 광고가 닫힐 때 처리
     const unsubscribeClosed = interstitialAd.addAdEventListener(
       AdEventType.CLOSED,
-      async () => {
-        console.log('광고 닫힘, 저장 요청 처리');
+      () => {
         setAdLoaded(false);
-
-        // 저장할 데이터가 있는 경우에만 저장 요청 처리
-        if (savedData && savedData.formData) {
-          try {
-            // 기록 수정 또는 생성 API 호출
-            if (savedData.isEdit) {
-              await API.patch('/record/update', savedData.formData, {
-                headers: {
-                  'Content-Type': 'multipart/form-data',
-                },
-              });
-            } else {
-              await API.post('/create-record', savedData.formData, {
-                headers: {
-                  'Content-Type': 'multipart/form-data',
-                },
-              });
-            }
-
-            // 성공적으로 저장된 경우
-            const res = await getRecordByDate(savedData.tempDate);
-            setRecords(res.data);
-            setTempRecord(RESET_RECORD);
-            setIsVisible(false);
-
-            Toast.show({
-              type: 'success',
-              text1: '저장되었습니다!',
-            });
-          } catch (error) {
-            console.error(error);
-            Toast.show({
-              type: 'error',
-              text1: SERVER_ERROR_MSG,
-            });
-          } finally {
-            setIsSaving(false);
-            setSavedData(null); // 저장 데이터 초기화
-          }
-        } else {
-          setIsSaving(false);
-        }
 
         // 다음 사용을 위해 다시 광고 로드
         interstitialAd.load();
@@ -186,7 +142,7 @@ export default function UploadModal({
       unsubscribeLoaded();
       unsubscribeClosed();
     };
-  }, [savedData]);
+  }, []);
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
@@ -386,7 +342,7 @@ export default function UploadModal({
       });
     }
   };
-  console.log(isSaving);
+
   // 저장 버튼
   const onSave = async () => {
     if (!tempRecord || isSaving) return;
@@ -457,66 +413,86 @@ export default function UploadModal({
         }
       }
 
-      // 저장할 데이터 설정 (광고 닫힌 후 처리를 위해)
-      setSavedData({
-        formData,
-        isEdit: !!(isEdit && tempRecord?.records_id),
-        tempDate,
-      });
-
-      console.log('광고 표시 시도');
+      // 먼저 데이터 저장 처리
       try {
-        // 광고가 로드되지 않은 경우 로드 시도
-        if (!interstitialAd.loaded) {
-          console.log('광고 로드 시도');
-          await new Promise<void>((resolve, reject) => {
-            // 타임아웃 처리 (5초)
-            const timeout = setTimeout(() => {
-              console.log('광고 로드 타임아웃');
-              reject(new Error('광고 로드 타임아웃'));
-            }, 5000);
-
-            const unsubscribe = interstitialAd.addAdEventListener(
-              AdEventType.LOADED,
-              () => {
-                console.log('광고 로드 성공');
-                clearTimeout(timeout);
-                unsubscribe();
-                resolve();
-              },
-            );
-
-            const errorUnsubscribe = interstitialAd.addAdEventListener(
-              AdEventType.ERROR,
-              error => {
-                console.log('광고 로드 오류:', error);
-                clearTimeout(timeout);
-                errorUnsubscribe();
-                reject(error);
-              },
-            );
-
-            interstitialAd.load();
-          }).catch(error => {
-            console.log('광고 로드 실패:', error);
-            // 광고 로드 실패 시 저장 진행
-            processAdClosed();
+        // 기록 수정 또는 생성 API 호출
+        if (isEdit && tempRecord?.records_id) {
+          await API.patch('/record/update', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+        } else {
+          await API.post('/create-record', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
           });
         }
 
-        // 광고가 로드되면 표시
-        if (interstitialAd.loaded) {
-          console.log('광고 표시 시작');
-          await interstitialAd.show();
-        } else {
-          console.log('광고가 로드되지 않아 바로 저장 진행');
-          // 광고가 로드되지 않은 경우 바로 저장 진행
-          processAdClosed();
-        }
+        // 성공적으로 저장된 경우
+        const res = await getRecordByDate(tempDate);
+        setRecords(res.data);
+        setTempRecord(RESET_RECORD);
+        setIsVisible(false);
+
+        // 성공 토스트 표시
+        Toast.show({
+          type: 'success',
+          text1: '저장되었습니다!',
+        });
+
+        // 1초 후 광고 표시 준비
+        setTimeout(async () => {
+          try {
+            // 광고가 로드되지 않은 경우 로드 시도
+            if (!interstitialAd.loaded) {
+              await new Promise<void>((resolve, reject) => {
+                // 타임아웃 처리 (5초)
+                const timeout = setTimeout(() => {
+                  reject(new Error('광고 로드 타임아웃'));
+                }, 5000);
+
+                const unsubscribe = interstitialAd.addAdEventListener(
+                  AdEventType.LOADED,
+                  () => {
+                    clearTimeout(timeout);
+                    unsubscribe();
+                    resolve();
+                  },
+                );
+
+                const errorUnsubscribe = interstitialAd.addAdEventListener(
+                  AdEventType.ERROR,
+                  error => {
+                    clearTimeout(timeout);
+                    errorUnsubscribe();
+                    reject(error);
+                  },
+                );
+
+                interstitialAd.load();
+              }).catch(error => {});
+            }
+
+            // 광고가 로드되면 표시
+            if (interstitialAd.loaded) {
+              await interstitialAd.show();
+            }
+          } catch (error) {
+          } finally {
+            // 다음 사용을 위해 광고 다시 로드
+            interstitialAd.load();
+          }
+        }, 1000); // 1초 후 광고 표시
       } catch (error) {
-        console.log('광고 표시 오류:', error);
-        // 오류 발생 시 바로 저장 진행
-        processAdClosed();
+        console.error(error);
+        Toast.show({
+          type: 'error',
+          text1: SERVER_ERROR_MSG,
+        });
+      } finally {
+        setIsSaving(false);
       }
     } catch (error) {
       console.error(error);
@@ -528,49 +504,11 @@ export default function UploadModal({
     }
   };
 
-  // 광고 닫힌 이벤트 처리를 위한 함수 (광고 로드 실패 시에도 호출)
+  // 이 함수는 더 이상 사용하지 않지만, 기존 코드와의 호환성을 위해 남겨둠
+  // 광고 닫힌 이벤트 처리를 위한 함수 (현재는 onSave에서 직접 처리함)
   const processAdClosed = async () => {
-    if (!savedData || !savedData.formData) {
-      setIsSaving(false);
-      return;
-    }
-
-    try {
-      // 기록 수정 또는 생성 API 호출
-      if (savedData.isEdit) {
-        await API.patch('/record/update', savedData.formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-      } else {
-        await API.post('/create-record', savedData.formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-      }
-
-      // 성공적으로 저장된 경우
-      const res = await getRecordByDate(savedData.tempDate);
-      setRecords(res.data);
-      setTempRecord(RESET_RECORD);
-      setIsVisible(false);
-
-      Toast.show({
-        type: 'success',
-        text1: '저장되었습니다!',
-      });
-    } catch (error) {
-      console.error(error);
-      Toast.show({
-        type: 'error',
-        text1: SERVER_ERROR_MSG,
-      });
-    } finally {
-      setIsSaving(false);
-      setSavedData(null); // 저장 데이터 초기화
-    }
+    setIsSaving(false);
+    setSavedData(null); // 저장 데이터 초기화
   };
 
   // 오늘자 경기 조회
