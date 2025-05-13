@@ -171,7 +171,7 @@ export function Detail({
     try {
       if (
         Platform.OS === 'android' &&
-        !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))
+        !(await hasAndroidPermission('MANAGE_EXTERNAL_STORAGE'))
       ) {
         Alert.alert('갤러리 접근 권한을 먼저 설정해주세요!');
         return;
