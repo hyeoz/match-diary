@@ -98,6 +98,7 @@ export default function UploadModal({
   const [currentWeather, setCurrentWeather] = useState('');
   const [cameraUri, setCameraUri] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [adLoaded, setAdLoaded] = useState(false);
 
   const { uniqueId } = useUserState();
   const { stadiums } = useStadiumsState();
@@ -107,6 +108,85 @@ export default function UploadModal({
   const fontStyle = useFontStyle;
 
   const formattedToday = dayjs(date).format(DATE_FORMAT);
+
+  // 저장 요청을 위한 참조 변수
+  const [savedData, setSavedData] = useState<{
+    formData: FormData | null;
+    isEdit: boolean;
+    tempDate: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const unsubscribeLoaded = interstitialAd.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        console.log('광고 로드 완료');
+        setAdLoaded(true);
+      },
+    );
+
+    // 광고가 닫힐 때 저장 요청 처리
+    const unsubscribeClosed = interstitialAd.addAdEventListener(
+      AdEventType.CLOSED,
+      async () => {
+        console.log('광고 닫힘, 저장 요청 처리');
+        setAdLoaded(false);
+
+        // 저장할 데이터가 있는 경우에만 저장 요청 처리
+        if (savedData && savedData.formData) {
+          try {
+            // 기록 수정 또는 생성 API 호출
+            if (savedData.isEdit) {
+              await API.patch('/record/update', savedData.formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              });
+            } else {
+              await API.post('/create-record', savedData.formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              });
+            }
+
+            // 성공적으로 저장된 경우
+            const res = await getRecordByDate(savedData.tempDate);
+            setRecords(res.data);
+            setTempRecord(RESET_RECORD);
+            setIsVisible(false);
+
+            Toast.show({
+              type: 'success',
+              text1: '저장되었습니다!',
+            });
+          } catch (error) {
+            console.error(error);
+            Toast.show({
+              type: 'error',
+              text1: SERVER_ERROR_MSG,
+            });
+          } finally {
+            setIsSaving(false);
+            setSavedData(null); // 저장 데이터 초기화
+          }
+        } else {
+          setIsSaving(false);
+        }
+
+        // 다음 사용을 위해 다시 광고 로드
+        interstitialAd.load();
+      },
+    );
+
+    // 초기 광고 로드
+    interstitialAd.load();
+
+    return () => {
+      unsubscribeLoaded();
+      unsubscribeClosed();
+    };
+  }, [savedData]);
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', () => setIsKeyboardShow(true));
@@ -306,7 +386,7 @@ export default function UploadModal({
       });
     }
   };
-
+  console.log(isSaving);
   // 저장 버튼
   const onSave = async () => {
     if (!tempRecord || isSaving) return;
@@ -327,6 +407,7 @@ export default function UploadModal({
           text1: '아직 입력하지 않은 항목이 있어요!',
           topOffset: 64,
         });
+        setIsSaving(false);
         return;
       }
 
@@ -335,9 +416,11 @@ export default function UploadModal({
         !(await hasAndroidPermission('MANAGE_EXTERNAL_STORAGE'))
       ) {
         Alert.alert('저장소 접근 권한을 먼저 설정해주세요!');
+        setIsSaving(false);
         return;
       }
 
+      // FormData 준비
       const formData = new FormData();
       formData.append('userId', user_id);
       formData.append('stadiumId', stadium_id);
@@ -350,7 +433,7 @@ export default function UploadModal({
           : matches.find(mat => mat.stadium === stadium_id)?.id) || null,
       );
 
-      // 기록 수정
+      // 기록 수정 여부에 따라 FormData 구성
       if (isEdit && tempRecord?.records_id) {
         formData.append('recordsId', tempRecord?.records_id);
         if (typeof tempRecord?.image === 'string') {
@@ -366,20 +449,102 @@ export default function UploadModal({
             formData.append('ticketFile', tempRecord?.ticket_image);
           }
         }
-
-        await API.patch('/record/update', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
       } else {
         // 기록 생성
         formData.append('file', image);
         if (tempRecord?.ticket_image) {
           formData.append('ticketFile', tempRecord?.ticket_image);
         }
+      }
 
-        await API.post('/create-record', formData, {
+      // 저장할 데이터 설정 (광고 닫힌 후 처리를 위해)
+      setSavedData({
+        formData,
+        isEdit: !!(isEdit && tempRecord?.records_id),
+        tempDate,
+      });
+
+      console.log('광고 표시 시도');
+      try {
+        // 광고가 로드되지 않은 경우 로드 시도
+        if (!interstitialAd.loaded) {
+          console.log('광고 로드 시도');
+          await new Promise<void>((resolve, reject) => {
+            // 타임아웃 처리 (5초)
+            const timeout = setTimeout(() => {
+              console.log('광고 로드 타임아웃');
+              reject(new Error('광고 로드 타임아웃'));
+            }, 5000);
+
+            const unsubscribe = interstitialAd.addAdEventListener(
+              AdEventType.LOADED,
+              () => {
+                console.log('광고 로드 성공');
+                clearTimeout(timeout);
+                unsubscribe();
+                resolve();
+              },
+            );
+
+            const errorUnsubscribe = interstitialAd.addAdEventListener(
+              AdEventType.ERROR,
+              error => {
+                console.log('광고 로드 오류:', error);
+                clearTimeout(timeout);
+                errorUnsubscribe();
+                reject(error);
+              },
+            );
+
+            interstitialAd.load();
+          }).catch(error => {
+            console.log('광고 로드 실패:', error);
+            // 광고 로드 실패 시 저장 진행
+            processAdClosed();
+          });
+        }
+
+        // 광고가 로드되면 표시
+        if (interstitialAd.loaded) {
+          console.log('광고 표시 시작');
+          await interstitialAd.show();
+        } else {
+          console.log('광고가 로드되지 않아 바로 저장 진행');
+          // 광고가 로드되지 않은 경우 바로 저장 진행
+          processAdClosed();
+        }
+      } catch (error) {
+        console.log('광고 표시 오류:', error);
+        // 오류 발생 시 바로 저장 진행
+        processAdClosed();
+      }
+    } catch (error) {
+      console.error(error);
+      Toast.show({
+        type: 'error',
+        text1: SERVER_ERROR_MSG,
+      });
+      setIsSaving(false);
+    }
+  };
+
+  // 광고 닫힌 이벤트 처리를 위한 함수 (광고 로드 실패 시에도 호출)
+  const processAdClosed = async () => {
+    if (!savedData || !savedData.formData) {
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      // 기록 수정 또는 생성 API 호출
+      if (savedData.isEdit) {
+        await API.patch('/record/update', savedData.formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } else {
+        await API.post('/create-record', savedData.formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -387,35 +552,10 @@ export default function UploadModal({
       }
 
       // 성공적으로 저장된 경우
-      const res = await getRecordByDate(tempDate);
+      const res = await getRecordByDate(savedData.tempDate);
       setRecords(res.data);
       setTempRecord(RESET_RECORD);
       setIsVisible(false);
-
-      // TODO 저장 후 전면광고
-      // 광고 표시 시도
-      try {
-        // 이전 광고가 표시되지 않은 경우에만 새로운 광고 로드
-        if (!interstitialAd.loaded) {
-          await new Promise<void>(resolve => {
-            const unsubscribe = interstitialAd.addAdEventListener(
-              AdEventType.LOADED,
-              () => {
-                unsubscribe();
-                resolve();
-              },
-            );
-            interstitialAd.load();
-          });
-        }
-
-        // 광고가 로드되면 표시
-        if (interstitialAd.loaded) {
-          await interstitialAd.show();
-        }
-      } catch (error) {
-        console.log('Error showing ad:', error);
-      }
 
       Toast.show({
         type: 'success',
@@ -429,6 +569,7 @@ export default function UploadModal({
       });
     } finally {
       setIsSaving(false);
+      setSavedData(null); // 저장 데이터 초기화
     }
   };
 
