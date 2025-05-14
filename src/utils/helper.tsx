@@ -1,5 +1,5 @@
 import React from 'react';
-import { PermissionsAndroid } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
 import { SvgProps } from 'react-native-svg';
 import { palette } from '@/style/palette';
 // @assets
@@ -19,8 +19,29 @@ import { CoordinateType } from '@/type/default';
 import { NICKNAME_ADJECTIVE, NICKNAME_NOUN } from './NICKNAME_STATIC_DATA';
 
 const hasAndroidPermission = async (permissionType: string) => {
-  const permission = PermissionsAndroid.PERMISSIONS[permissionType];
+  if (Platform.OS === 'android' && Platform.Version >= 33) {
+    // Android 13 이상에서는 새로운 미디어 권한 사용
+    if (permissionType === 'READ_EXTERNAL_STORAGE') {
+      const permissions = [
+        PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+        PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO
+      ];
 
+      const hasPermissions = await Promise.all(
+        permissions.map(permission => PermissionsAndroid.check(permission))
+      );
+
+      if (hasPermissions.every(Boolean)) {
+        return true;
+      }
+
+      const statuses = await PermissionsAndroid.requestMultiple(permissions);
+      return Object.values(statuses).every(status => status === 'granted');
+    }
+  }
+
+  // Android 12 이하 또는 다른 권한 타입
+  const permission = PermissionsAndroid.PERMISSIONS[permissionType];
   const hasPermission = await PermissionsAndroid.check(permission);
   if (hasPermission) {
     return true;
