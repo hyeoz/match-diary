@@ -425,9 +425,10 @@ function Calendar() {
             <Detail
               {...detailProps}
               isCalendar
-              refetch={() => {
-                getAllRecords();
-                handleRecordsCount();
+              refetch={async () => {
+                await getRecordsBySelectedDate();
+                await getAllRecords();
+                await handleRecordsCount();
               }}
               date={selectedDate}
             />
