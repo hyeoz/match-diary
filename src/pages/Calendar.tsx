@@ -64,6 +64,8 @@ function Calendar() {
   const [records, setRecords] = useState<RecordType[]>([]); // 같은 날 중복된 기록들 관리
   const [weeksInMonth, setWeeksInMonth] = useState(0);
   const [bookings, setBookings] = useState<MatchBookingType[]>([]);
+  // 현재 보고 있는 월을 저장하는 상태 변수 추가
+  const [currentMonth, setCurrentMonth] = useState(dayjs().format('YYYY-MM'));
 
   const { history } = useTabHistory();
   const { teamId, uniqueId } = useUserState();
@@ -170,7 +172,14 @@ function Calendar() {
         />
       );
     },
-    [onDayPress, selectedDate, weeksInMonth, currentCellHeight, bookings],
+    [
+      onDayPress,
+      selectedDate,
+      weeksInMonth,
+      currentCellHeight,
+      bookings,
+      markedDates,
+    ],
   );
 
   const headerComponent = (date: string) => {
@@ -392,6 +401,7 @@ function Calendar() {
     <TouchableWrapper bgColor={palette.commonColor.greenBg}>
       <View style={styles.calendarWrapper}>
         <RNCalendar
+          key={JSON.stringify(markedDates)} // markedDates가 변경될 때 컴포넌트 강제 리렌더링
           style={styles.calendar}
           theme={{
             textDayHeaderFontFamily: 'KBO Dia Gothic_medium',
@@ -401,9 +411,12 @@ function Calendar() {
           firstDay={1}
           renderHeader={headerComponent}
           dayComponent={dayComponent}
+          current={currentMonth} // 현재 보고 있는 월 유지
           onMonthChange={(data: DateData) => {
             const weeks = getWeeksInMonth(data.dateString);
             setWeeksInMonth(weeks);
+            // 현재 보고 있는 월 업데이트
+            setCurrentMonth(data.dateString.substring(0, 7)); // YYYY-MM 형식으로 저장
           }}
         />
       </View>
@@ -665,7 +678,6 @@ function DayComponent({
   selectedDate,
   cellHeight,
   bookingDates,
-  ...props
 }: DayProps & {
   date?: DateData;
   selectedDate: string;
