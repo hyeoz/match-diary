@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import ViewShot from 'react-native-view-shot';
 import {
   ActionSheetIOS,
   Alert,
@@ -12,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ViewShot from 'react-native-view-shot';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
@@ -68,39 +68,46 @@ export function Detail({
   }, []);
 
   useEffect(() => {
-    // 마이팀 없는 경우
-    if (!teamId) {
-      return setResult(null);
-    }
+    const updateResult = async () => {
+      // 마이팀 없는 경우
+      if (!teamId || !records.length || !matches.length) {
+        return setResult(null);
+      }
 
-    const tempRecord = records[carouselIndexState];
-    const tempMatch = matches.find(mat => mat.id === tempRecord.match_id);
+      const tempRecord = records[carouselIndexState];
+      if (!tempRecord) {
+        return setResult(null);
+      }
 
-    if (!tempMatch) {
-      return;
-    }
+      const tempMatch = matches.find(mat => mat.id === tempRecord.match_id);
+      if (!tempMatch) {
+        return setResult(null);
+      }
 
-    // 마이팀과 기록한 팀의 경기가 다른 경우
-    if (teamId !== tempMatch.home && teamId !== tempMatch.away) {
-      return setResult(null);
-    }
+      // 마이팀과 기록한 팀의 경기가 다른 경우
+      if (teamId !== tempMatch.home && teamId !== tempMatch.away) {
+        return setResult(null);
+      }
 
-    const { home_score, away_score, home, away } = tempMatch;
+      const { home_score, away_score, home, away } = tempMatch;
 
-    // 아직 열리지 않은 경기
-    if (home_score === -1 || away_score === -1) {
-      return setResult(null);
-    }
+      // 아직 열리지 않은 경기
+      if (home_score === -1 || away_score === -1) {
+        return setResult(null);
+      }
 
-    if (home === teamId) {
-      setResult(
-        home_score > away_score ? 'W' : home_score < away_score ? 'L' : 'D',
-      );
-    } else {
-      setResult(
-        home_score > away_score ? 'L' : home_score < away_score ? 'W' : 'D',
-      );
-    }
+      if (home === teamId) {
+        setResult(
+          home_score > away_score ? 'W' : home_score < away_score ? 'L' : 'D',
+        );
+      } else {
+        setResult(
+          home_score > away_score ? 'L' : home_score < away_score ? 'W' : 'D',
+        );
+      }
+    };
+
+    updateResult();
   }, [teamId, records, matches, carouselIndexState, date]);
 
   const getTodayMatch = async () => {
@@ -177,7 +184,12 @@ export function Detail({
         return;
       }
 
-      const uri = await getImageUrl();
+      if (!shareImageRef.current) {
+        console.log('이미지 컴포넌트를 찾을 수 없습니다.');
+        return;
+      }
+
+      const uri = await shareImageRef.current.capture();
 
       if (!uri) {
         console.log('이미지 URL을 가져올 수 없습니다.');
