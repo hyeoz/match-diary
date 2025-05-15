@@ -18,6 +18,7 @@ import Loading from '@components/Loading';
 import { getAllUserRecords } from '@/api/record';
 import { useFontStyle } from '@/style/hooks';
 import dayjs from 'dayjs';
+import BannerAds from '@/components/ads/BannerAds';
 
 const { width } = Dimensions.get('window');
 
@@ -61,15 +62,21 @@ function History() {
           paddingVertical: 10,
           marginBottom: 24,
         }}>
+        <BannerAds adsType="history" />
         <Text
-          style={fontStyle(
+          style={[
+            fontStyle(
+              {
+                textAlign: 'center',
+                fontWeight: '700',
+                fontSize: 18,
+              },
+              'bold',
+            ),
             {
-              textAlign: 'center',
-              fontWeight: '700',
-              fontSize: 18,
+              marginTop: 16,
             },
-            'bold',
-          )}>
+          ]}>
           내 직관일기 모아보기
         </Text>
       </View>

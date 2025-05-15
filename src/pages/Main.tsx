@@ -11,6 +11,7 @@ import More from './More';
 import Community from './Community';
 import Write from './Write';
 import History from './History';
+import Map from './Map';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -52,6 +53,15 @@ function MainHistoryStackNavigator() {
     </Stack.Navigator>
   );
 }
+function MainMapStackNavigator() {
+  return (
+    <Stack.Navigator
+      initialRouteName="Map"
+      screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Map" component={Map} />
+    </Stack.Navigator>
+  );
+}
 
 function MoreStackNavigator() {
   return (
@@ -78,6 +88,7 @@ function Main() {
       <Tab.Screen name="Main" component={MainWriteStackNavigator} />
       <Tab.Screen name="ContactTab" component={MainCommunityStackNavigator} />
       <Tab.Screen name="HistoryTab" component={MainHistoryStackNavigator} />
+      <Tab.Screen name="MapTab" component={MainMapStackNavigator} />
 
       <Tab.Screen name="MoreTab" component={MoreStackNavigator} />
     </Tab.Navigator>

@@ -5,7 +5,6 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:minSdkVersion="34" android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -25,6 +24,9 @@
       android:allowBackup="false"
       android:largeHeap="true"
       android:theme="@style/AppTheme">
+      <meta-data
+        android:name="com.naver.maps.map.CLIENT_ID"
+        android:value="@string/REACT_APP_NAVER_MAP_CLIENT_ID" />
       <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
         android:value="ca-app-pub-9265511847962299~8879999932"
         tools:replace="android:value" />

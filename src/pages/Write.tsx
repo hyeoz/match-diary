@@ -124,7 +124,7 @@ function Write() {
   const onPressShare = async () => {
     if (
       Platform.OS === 'android' &&
-      !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))
+      !(await hasAndroidPermission('MANAGE_EXTERNAL_STORAGE'))
     ) {
       Alert.alert('갤러리 접근 권한을 먼저 설정해주세요!');
       return;
@@ -165,8 +165,7 @@ function Write() {
 
   return (
     <TouchableWrapper>
-      {/* TODO 배너광고 */}
-      <BannerAds />
+      <BannerAds adsType="main" />
       {/* SECTION 메인 버튼 / 폴라로이드 */}
       {isEdit || (records.length && records[0].image) ? (
         records.length > 1 && records[0].image ? (

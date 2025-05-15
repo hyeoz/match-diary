@@ -41,7 +41,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NMFClientId</key>
-	<string>${REACT_APP_NAVER_MAPS_PRIMARY_KEY}</string>
+	<string>${REACT_APP_NAVER_MAP_CLIENT_ID}</string>
 	<key>NSAllowsArbitraryLoads</key>
 	<false/>
 	<key>NSAllowsLocalNetworking</key>

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import ViewShot from 'react-native-view-shot';
 import {
   ActionSheetIOS,
   Alert,
@@ -12,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ViewShot from 'react-native-view-shot';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
 import dayjs from 'dayjs';
@@ -62,22 +62,84 @@ export function Detail({
   const { stadiums } = useStadiumsState();
   const { carouselIndexState, setCarouselIndexState } = useCarouselIndexState();
 
+  // 날짜가 변경되면 경기 정보를 다시 가져오기
   useEffect(() => {
-    getTodayMatch();
-    getBookings();
-  }, []);
+    if (date) {
+      getTodayMatch();
+      getBookings();
+    }
+  }, [date]);
 
-  useEffect(() => {
+  const updateResult = useCallback(async () => {
     // 마이팀 없는 경우
-    if (!teamId) {
+    if (!teamId || !records.length || !matches.length) {
       return setResult(null);
     }
 
     const tempRecord = records[carouselIndexState];
+
+    if (!tempRecord) {
+      return setResult(null);
+    }
+
+    // 경기 ID가 없는 경우 처리
+    if (!tempRecord.match_id) {
+      return setResult(null);
+    }
+
     const tempMatch = matches.find(mat => mat.id === tempRecord.match_id);
 
     if (!tempMatch) {
-      return;
+      // 경기 정보를 찾지 못한 경우, 경기 정보를 다시 가져와서 처리
+      if (date && tempRecord.match_id) {
+        try {
+          const matchRes = await getMatchByDate(date);
+          if (matchRes.data && matchRes.data.length > 0) {
+            setMatches(matchRes.data); // 경기 데이터 업데이트
+            // 업데이트된 경기 데이터에서 다시 찾기
+            const updatedMatch = matchRes.data.find(
+              m => m.id === tempRecord.match_id,
+            );
+            if (!updatedMatch) {
+              return setResult(null);
+            }
+
+            // 마이팀과 기록한 팀의 경기가 다른 경우
+            if (teamId !== updatedMatch.home && teamId !== updatedMatch.away) {
+              return setResult(null);
+            }
+
+            const { home_score, away_score, home, away } = updatedMatch;
+
+            // 아직 열리지 않은 경기
+            if (home_score === -1 || away_score === -1) {
+              return setResult(null);
+            }
+
+            if (home === teamId) {
+              return setResult(
+                home_score > away_score
+                  ? 'W'
+                  : home_score < away_score
+                  ? 'L'
+                  : 'D',
+              );
+            } else {
+              return setResult(
+                home_score > away_score
+                  ? 'L'
+                  : home_score < away_score
+                  ? 'W'
+                  : 'D',
+              );
+            }
+          }
+        } catch (error) {
+          console.error('경기 데이터 재조회 실패:', error);
+          return setResult(null);
+        }
+      }
+      return setResult(null);
     }
 
     // 마이팀과 기록한 팀의 경기가 다른 경우
@@ -101,13 +163,22 @@ export function Detail({
         home_score > away_score ? 'L' : home_score < away_score ? 'W' : 'D',
       );
     }
-  }, [teamId, records, matches, carouselIndexState, date]);
+  }, [matches, records, carouselIndexState, teamId, date]);
+
+  useEffect(() => {
+    // 레코드, 캐러셀 인덱스, 팀 ID, matches가 변경될 때 결과 계산
+    updateResult();
+  }, [teamId, records, carouselIndexState, matches, updateResult]);
 
   const getTodayMatch = async () => {
-    const res = await getMatchByDate(date || '');
+    try {
+      const res = await getMatchByDate(date || '');
 
-    if (res.data) {
-      setMatches(res.data);
+      if (res.data) {
+        setMatches(res.data);
+      }
+    } catch (error) {
+      console.error('경기 데이터 로딩 실패:', error);
     }
   };
 
@@ -145,6 +216,11 @@ export function Detail({
               await API.delete(`/user-records/${deleteRecord.records_id}`);
               await getTodayRecord(); // 삭제 후 새 데이터 가져오기
               setIsEdit(false);
+
+              // refetch 함수가 있으면 호출하여 Calendar의 getAllRecords 트리거
+              if (refetch) {
+                refetch();
+              }
             } catch (e) {
               console.error(e);
             }
@@ -171,13 +247,18 @@ export function Detail({
     try {
       if (
         Platform.OS === 'android' &&
-        !(await hasAndroidPermission('WRITE_EXTERNAL_STORAGE'))
+        !(await hasAndroidPermission('MANAGE_EXTERNAL_STORAGE'))
       ) {
         Alert.alert('갤러리 접근 권한을 먼저 설정해주세요!');
         return;
       }
 
-      const uri = await getImageUrl();
+      if (!shareImageRef.current) {
+        console.log('이미지 컴포넌트를 찾을 수 없습니다.');
+        return;
+      }
+
+      const uri = await shareImageRef.current.capture();
 
       if (!uri) {
         console.log('이미지 URL을 가져올 수 없습니다.');
@@ -312,6 +393,8 @@ export function Detail({
       );
     }
   };
+
+  // 디버깅 코드 제거
 
   return (
     <View

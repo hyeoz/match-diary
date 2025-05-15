@@ -4,6 +4,7 @@ import {
   ListRenderItemInfo,
   Modal,
   RefreshControl,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -20,7 +21,7 @@ import { getTeamArrayWithIcon } from '@/utils/helper';
 import { DATE_FORMAT, INIT_RECORD } from '@/utils/STATIC_DATA';
 import { useUserState } from '@/stores/user';
 import { useStadiumsState } from '@/stores/teams';
-import { CommunityLogType } from '@/type/community';
+import { CommunityLogType, CommunityNoticeType } from '@/type/community';
 import { UserType } from '@/type/user';
 import { modalStyles } from '@/style/modal';
 import { palette } from '@/style/palette';
@@ -38,6 +39,7 @@ function Community() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [tempRecord, setTempRecord] = useState<RecordType | null>(INIT_RECORD); // NOTE selected stadium modal 사용 시 데이터 형식을 맞추기위해
+  const [notices, setNotices] = useState<CommunityNoticeType[]>([]);
 
   const { uniqueId } = useUserState();
   const { stadiums } = useStadiumsState();
@@ -48,7 +50,23 @@ function Community() {
     setIsReached(false);
     setAllItems([]);
     getCommunityAllItems(1, tempRecord?.stadium_id, false);
+
+    if (tempRecord?.stadium_id) {
+      getNotices(tempRecord.stadium_id);
+    }
   }, [tempRecord]);
+
+  const getNotices = async (stadiumId: number) => {
+    try {
+      const res = await API.get(`/community-notices?stadiumId=${stadiumId}`);
+      if (!res.data) {
+        return;
+      }
+      setNotices(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const getCommunityAllItems = useCallback(
     async (
@@ -131,6 +149,18 @@ function Community() {
     setRefreshing(false);
   }, [getCommunityAllItems, tempRecord]);
 
+  const findNoticeEmoji = (noticeType: string) => {
+    switch (noticeType) {
+      case 'food':
+        return '🍽️ ';
+      case 'moment':
+        return '⚾️ ';
+      case 'normal':
+      default:
+        return '📢 ';
+    }
+  };
+
   return (
     <TouchableWrapper>
       <View
@@ -178,16 +208,21 @@ function Community() {
           )}
         </View>
 
+        {notices.length > 0 && (
+          <View style={CommunityStyle.noticeContainer}>
+            <Text
+              style={fontStyle({
+                color: palette.greyColor.black,
+                fontSize: 16,
+              })}>
+              {findNoticeEmoji(notices[0].notice_type)}
+              {notices[notices.length - 1].notice}
+            </Text>
+          </View>
+        )}
+
         <TouchableOpacity
-          style={{
-            marginLeft: 4,
-            marginTop: 16,
-            marginBottom: 16,
-            padding: 4,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-          }}
+          style={CommunityStyle.stadiumSelect}
           onPress={() => setStadiumSelectVisible(true)}>
           <Text
             style={{
@@ -416,5 +451,23 @@ const CommunityItems = ({ item }: ListRenderItemInfo<CommunityLogType>) => {
     </View>
   );
 };
+
+const CommunityStyle = StyleSheet.create({
+  noticeContainer: {
+    padding: 16,
+    backgroundColor: '#F8F8F7',
+    borderRadius: 32,
+    marginVertical: 8,
+  },
+  stadiumSelect: {
+    marginLeft: 4,
+    marginTop: 16,
+    marginBottom: 16,
+    padding: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+});
 
 export default Community;
