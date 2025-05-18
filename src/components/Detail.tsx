@@ -5,6 +5,7 @@ import {
   Alert,
   Dimensions,
   FlatList,
+  Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -49,6 +50,11 @@ export function Detail({
   isCalendar?: boolean;
   refetch?: () => void;
 }) {
+  // 공유 미리보기 모달 상태 및 인덱스
+  const [isSharePreviewVisible, setIsSharePreviewVisible] = useState(false);
+  const [sharePreviewRecordIndex, setSharePreviewRecordIndex] =
+    useState<number>(0);
+  const sharePreviewRef = useRef<ViewShot>(null);
   const shareImageRef = useRef<ViewShot>(null);
   const [result, setResult] = useState<'W' | 'D' | 'L' | null>(null);
   const [selectedMatch, setSelectedMatch] = useState<
@@ -235,6 +241,44 @@ export function Detail({
     setIsEdit(false);
   };
 
+  // 공유 미리보기 이미지 저장
+  const saveSharePreviewImage = async () => {
+    try {
+      if (
+        Platform.OS === 'android' &&
+        !(await hasAndroidPermission('MANAGE_EXTERNAL_STORAGE'))
+      ) {
+        Alert.alert('갤러리 접근 권한을 먼저 설정해주세요!');
+        return;
+      }
+      if (!sharePreviewRef.current) {
+        console.log('미리보기 이미지 컴포넌트를 찾을 수 없습니다.');
+        return;
+      }
+
+      const uri = await sharePreviewRef.current.capture?.();
+
+      if (!uri) {
+        console.log('이미지 URL을 가져올 수 없습니다.');
+        return;
+      }
+      await CameraRoll.save(uri, { type: 'photo', album: '직관일기' });
+      Toast.show({
+        type: 'success',
+        text1: '오늘의 직관일기가 앨범에 저장되었어요. 공유해보세요!',
+        topOffset: 60,
+      });
+      setIsSharePreviewVisible(false);
+    } catch (error) {
+      console.error('이미지 저장 중 오류:', error);
+      Toast.show({
+        type: 'error',
+        text1: '이미지 저장에 실패했습니다.',
+        topOffset: 60,
+      });
+    }
+  };
+
   const getImageUrl = async () => {
     if (!shareImageRef.current?.capture) {
       return;
@@ -243,7 +287,14 @@ export function Detail({
     return uri;
   };
 
-  const onPressShare = async () => {
+  const onPressShare = async (index?: number) => {
+    if (isCalendar) {
+      // calendar 모드에서는 미리보기 모달 오픈
+      setSharePreviewRecordIndex(index ?? carouselIndexState);
+      setIsSharePreviewVisible(true);
+      return;
+    }
+    // 일반 모드: 기존 로직
     try {
       if (
         Platform.OS === 'android' &&
@@ -258,7 +309,7 @@ export function Detail({
         return;
       }
 
-      const uri = await shareImageRef.current.capture();
+      const uri = await shareImageRef.current.capture?.();
 
       if (!uri) {
         console.log('이미지 URL을 가져올 수 없습니다.');
@@ -601,6 +652,174 @@ export function Detail({
           justifyContent: 'center',
         }}
       />
+
+      {/* 공유 미리보기 모달 (calendar 모드에서만) */}
+      {isCalendar && (
+        <Modal
+          visible={isSharePreviewVisible}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={() => setIsSharePreviewVisible(false)}>
+          <View style={polaroidStyles.modalOverlay}>
+            <View style={polaroidStyles.modalContent}>
+              <ViewShot
+                ref={sharePreviewRef}
+                options={{
+                  fileName: `${records[sharePreviewRecordIndex]?.date}_직관일기`,
+                  format: 'jpg',
+                  quality: 1,
+                }}
+                style={[
+                  polaroidStyles.photoWrapper,
+                  {
+                    width: width * 0.7,
+                    height: height * 0.47,
+                    marginBottom: 16,
+                  },
+                ]}>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                  }}>
+                  <View style={{ position: 'relative' }}>
+                    <View
+                      style={[
+                        polaroidStyles.photo,
+                        {
+                          width: width * 0.7 - 12,
+                          height:
+                            (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 12,
+                        },
+                      ]}
+                    />
+                    <FastImage
+                      source={{
+                        uri:
+                          (records[sharePreviewRecordIndex]?.image as string) ||
+                          '',
+                      }}
+                      style={{
+                        width: width * 0.7 - 16,
+                        height:
+                          (IMAGE_HEIGHT * (width * 0.7)) / IMAGE_WIDTH - 16,
+                      }}
+                    />
+                    {!!result && (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          bottom: 45,
+                          left: width * 0.7 - 16 - 60,
+                        }}>
+                        <Stamp
+                          width={60}
+                          height={60}
+                          color={
+                            result === 'W'
+                              ? 'red'
+                              : result === 'L'
+                              ? 'blue'
+                              : 'gray'
+                          }
+                          style={{ position: 'absolute' }}
+                        />
+                        <Text
+                          style={[
+                            polaroidStyles.resultText,
+                            {
+                              color:
+                                result === 'W'
+                                  ? 'red'
+                                  : result === 'L'
+                                  ? 'blue'
+                                  : 'gray',
+                            },
+                          ]}>
+                          {result === 'W'
+                            ? '승리!'
+                            : result === 'L'
+                            ? '패배'
+                            : '무승부'}
+                        </Text>
+                      </View>
+                    )}
+                    <Text
+                      style={{
+                        width: '105%',
+                        fontFamily: 'UhBee Seulvely',
+                        fontSize: 12,
+                        marginTop: 8,
+                      }}>
+                      {dayjs(
+                        records[sharePreviewRecordIndex]?.date?.includes('(')
+                          ? records[sharePreviewRecordIndex]?.date.split('(')[0]
+                          : records[sharePreviewRecordIndex]?.date,
+                      ).format('YY.MM.DD')}{' '}
+                      {selectedMatch?.home && selectedMatch.away && (
+                        <Text>
+                          {
+                            teams.find(
+                              team => team.team_id === selectedMatch?.home,
+                            )?.team_short_name
+                          }
+                          {' VS '}
+                          {
+                            teams.find(
+                              team => team.team_id === selectedMatch?.away,
+                            )?.team_short_name
+                          }
+                        </Text>
+                      )}
+                      {' @'}
+                      {changeStadiumLongNameToNickname(
+                        stadiums.find(
+                          sta =>
+                            sta.stadium_id ===
+                            records[sharePreviewRecordIndex]?.stadium_id,
+                        )?.stadium_name,
+                      )}
+                    </Text>
+                  </View>
+                  <View style={{ width: '100%' }}>
+                    <Text
+                      style={{
+                        width: '100%',
+                        fontSize: 12,
+                        fontFamily: 'UhBee Seulvely',
+                        lineHeight: 14,
+                        marginTop: 8,
+                      }}
+                      // numberOfLines 없이 전체 표시
+                    >
+                      {records[sharePreviewRecordIndex]?.user_note}
+                    </Text>
+                  </View>
+                </View>
+              </ViewShot>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 12,
+                }}>
+                <TouchableOpacity
+                  onPress={saveSharePreviewImage}
+                  style={polaroidStyles.shareButton}>
+                  <Text style={polaroidStyles.shareText}>저장</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setIsSharePreviewVisible(false)}
+                  style={polaroidStyles.shareButton}>
+                  <Text style={polaroidStyles.shareText}>닫기</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
+
       <View
         style={{
           flexDirection: 'row',
@@ -640,7 +859,7 @@ export function Detail({
             : polaroidStyles.buttonWrapper
         }>
         <TouchableOpacity
-          onPress={onPressShare}
+          onPress={() => onPressShare(carouselIndexState)}
           style={polaroidStyles.shareButton}>
           <Text style={polaroidStyles.shareText}>
             {isCalendar ? '공유' : '공유하기'}
@@ -666,6 +885,24 @@ export function Detail({
 }
 
 const polaroidStyles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    width: width * 0.8,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 24,
+    elevation: 8,
+  },
   wrapper: {
     flex: 1,
     justifyContent: 'center',
