@@ -10,6 +10,7 @@ import mobileAds, {
 } from 'react-native-google-mobile-ads';
 
 import Router from '@/router';
+import ChatbotButton from '@/components/ChatbotButton';
 // import GeoNotification from '@/components/GeoNotification';
 
 function App(): React.JSX.Element {
@@ -48,6 +49,7 @@ function App(): React.JSX.Element {
       <NavigationContainer ref={navigationRef}>
         <Router />
       </NavigationContainer>
+      <ChatbotButton />
       <Toast />
       {/* <GeoNotification /> */}
     </>

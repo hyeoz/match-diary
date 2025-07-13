@@ -1,5 +1,10 @@
-import axios, { AxiosResponse } from 'axios';
-import { REACT_APP_EC2_URI } from '@env';
+import axios from 'axios';
+import {
+  REACT_APP_EC2_URI,
+  REACT_APP_GEMINI_API_KEY,
+  REACT_APP_GEMINI_URI,
+  REACT_APP_WEATHER_URI,
+} from '@env';
 
 export const API = axios.create({
   baseURL: REACT_APP_EC2_URI,
@@ -8,9 +13,16 @@ export const API = axios.create({
   },
 });
 export const WeatherAPI = axios.create({
-  baseURL: 'https://api.open-meteo.com/v1',
+  baseURL: REACT_APP_WEATHER_URI,
   headers: {
     'Content-Type': 'application/json',
+  },
+});
+export const GeminiAPI = axios.create({
+  baseURL: REACT_APP_GEMINI_URI,
+  headers: {
+    'Content-Type': 'application/json',
+    'X-goog-api-key': REACT_APP_GEMINI_API_KEY,
   },
 });
 
