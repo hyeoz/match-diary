@@ -33,12 +33,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>지금 바로 사진을 찍어 기록을 남길 수 있게 카메라를 허용해주세요!</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>앱에서 사용자가 일기를 기록할 때 사진을 추가할 수 있도록 사진 라이브러리 접근 권한이 필요해요!</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>앱에서 사용자가 일기를 기록할 때 사진을 추가할 수 있도록 사진 라이브러리 접근 권한이 필요해요!</string>
+	<string>사용자가 선택한 사진과 티켓을 직관 기록에 추가하기 위해 사진 보관함 접근이 필요합니다.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict><key>SKAdNetworkIdentifier</key><string>cstr6suwn9.skadnetwork</string></dict>
@@ -102,15 +98,9 @@
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string/>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>armv7</string>
-	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>

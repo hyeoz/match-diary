@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
 
 import { backupErrorMessage } from '../backupErrors';
+import { APP_VERSION, PRIVACY_POLICY_URL, SUPPORT_URL } from '../appInfo';
 import { recoveryErrorMessage } from '../recovery/errors';
 import { MenuRow, PaperCard, Screen } from '../components';
 import { useAds } from '../ads/AdsContext';
@@ -40,6 +48,17 @@ export default function SettingsScreen() {
   );
   const recoverLegacyData = useRevivalStore(state => state.recoverLegacyData);
   const team = teamById(profile?.teamId ?? 1);
+
+  const openExternalUrl = async (url: string) => {
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert(
+        '페이지를 열지 못했어요',
+        '네트워크 연결을 확인하고 다시 시도해주세요.',
+      );
+    }
+  };
 
   const confirmDelete = () => {
     Alert.alert(
@@ -238,7 +257,19 @@ export default function SettingsScreen() {
             label="기존 기록 자동 복구"
             onPress={handleLegacyRecovery}
           />
-          <MenuRow icon="ⓘ" label="앱 정보" />
+          <MenuRow
+            caption="수집·이용·보관 및 삭제 안내"
+            icon="▤"
+            label="개인정보처리방침"
+            onPress={() => openExternalUrl(PRIVACY_POLICY_URL)}
+          />
+          <MenuRow
+            caption="사용 안내와 이메일 문의"
+            icon="?"
+            label="지원 및 문의"
+            onPress={() => openExternalUrl(SUPPORT_URL)}
+          />
+          <MenuRow caption={`버전 ${APP_VERSION}`} icon="ⓘ" label="앱 정보" />
         </PaperCard>
 
         <PaperCard style={styles.deleteCard}>

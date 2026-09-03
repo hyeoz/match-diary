@@ -1,6 +1,6 @@
 {
   "name": "matchdiary",
-  "version": "0.0.1",
+  "version": "2.4.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -8,11 +8,13 @@
     "ios": "react-native run-ios --simulator=\"iPhone 16\"",
     "ios:debug": "xcodebuild -workspace ios/matchdiary.xcworkspace -scheme matchdiary -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build",
     "lint": "eslint App.tsx src/router.tsx src/revival --ext .ts,.tsx",
+    "postinstall": "node scripts/patch-react-native-gradle-plugin.mjs",
     "start": "react-native start",
     "test": "jest",
     "test:ci": "jest --runInBand",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck && npm run lint && npm run test:ci"
+    "verify": "npm run typecheck && npm run lint && npm run test:ci",
+    "release:verify": "node scripts/verify-release-readiness.mjs"
   },
   "dependencies": {
     "@notifee/react-native": "^7.8.2",

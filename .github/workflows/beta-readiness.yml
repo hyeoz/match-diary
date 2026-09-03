@@ -1,0 +1,90 @@
+name: Beta Readiness
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: beta-readiness-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  production-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MATCHDIARY_RECOVERY_API_BASE_URL: ${{ secrets.MATCHDIARY_RECOVERY_API_BASE_URL }}
+      MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER: ${{ secrets.MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify application and release metadata
+        run: npm run verify && npm run release:verify -- --production
+
+  ios-unsigned-archive:
+    needs: production-gate
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      MATCHDIARY_RECOVERY_API_BASE_URL: ${{ secrets.MATCHDIARY_RECOVERY_API_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install CocoaPods dependencies
+        working-directory: ios
+        run: pod install
+      - name: Validate iOS Release build
+        run: >-
+          xcodebuild
+          -workspace ios/matchdiary.xcworkspace
+          -scheme matchdiary
+          -configuration Release
+          -sdk iphonesimulator
+          MATCHDIARY_RECOVERY_API_BASE_URL="$MATCHDIARY_RECOVERY_API_BASE_URL"
+          CODE_SIGNING_ALLOWED=NO
+          build
+
+  android-signed-bundle:
+    needs: production-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      MATCHDIARY_RECOVERY_API_BASE_URL: ${{ secrets.MATCHDIARY_RECOVERY_API_BASE_URL }}
+      MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER: ${{ secrets.MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER }}
+      ORG_GRADLE_PROJECT_MYAPP_RELEASE_STORE_FILE: matchdiary-release.keystore
+      ORG_GRADLE_PROJECT_MYAPP_RELEASE_STORE_PASSWORD: ${{ secrets.MATCHDIARY_ANDROID_STORE_PASSWORD }}
+      ORG_GRADLE_PROJECT_MYAPP_RELEASE_KEY_ALIAS: ${{ secrets.MATCHDIARY_ANDROID_KEY_ALIAS }}
+      ORG_GRADLE_PROJECT_MYAPP_RELEASE_KEY_PASSWORD: ${{ secrets.MATCHDIARY_ANDROID_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Restore Android upload key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.MATCHDIARY_ANDROID_KEYSTORE_BASE64 }}
+        run: printf '%s' "$KEYSTORE_BASE64" | base64 --decode > android/app/matchdiary-release.keystore
+      - name: Build signed Android App Bundle
+        working-directory: android
+        run: ./gradlew bundleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: matchdiary-2.4.0-android-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
