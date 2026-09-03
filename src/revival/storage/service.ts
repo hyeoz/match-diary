@@ -4,7 +4,11 @@ import { LocalRepository } from './repository';
 import { SQLiteLocalRepository } from './sqliteRepository';
 import { bundledStadiums } from '../scheduleCatalog';
 import { fetchScheduleUpdate } from '../scheduleSync';
+import { AppBackupService } from './backupService';
 import {
+  BackupExportResult,
+  BackupHistory,
+  BackupRestoreResult,
   createLocalId,
   LocalReminder,
   LocalProfile,
@@ -18,11 +22,14 @@ import {
 
 export class LocalDataService {
   private initializationPromise: Promise<void> | null = null;
+  private readonly backupService: AppBackupService;
 
   constructor(
     private readonly repository: LocalRepository,
     private readonly mediaStorage: MediaStorage,
-  ) {}
+  ) {
+    this.backupService = new AppBackupService(repository, mediaStorage);
+  }
 
   initialize = async (): Promise<void> => {
     if (!this.initializationPromise) {
@@ -38,6 +45,7 @@ export class LocalDataService {
     await Promise.all([
       this.repository.initialize(),
       this.mediaStorage.initialize(),
+      this.backupService.cleanupStaleWorkspaces(),
     ]);
     await this.repository.replaceSchedule(bundledStadiums, []);
     await migrateLegacyAsyncStorage(this.repository, this.mediaStorage);
@@ -57,16 +65,29 @@ export class LocalDataService {
     games: ScheduledGame[];
     stadiums: Stadium[];
     reminders: LocalReminder[];
+    latestBackup: BackupHistory | null;
   }> => {
     await this.initialize();
-    const [profile, records, games, stadiums, reminders] = await Promise.all([
-      this.repository.getProfile(),
-      this.repository.listRecords(),
-      this.repository.listGames(),
-      this.repository.listStadiums(),
-      this.repository.listReminders(),
-    ]);
-    return { profile, records, games, stadiums, reminders };
+    const [profile, records, games, stadiums, reminders, latestBackup] =
+      await Promise.all([
+        this.repository.getProfile(),
+        this.repository.listRecords(),
+        this.repository.listGames(),
+        this.repository.listStadiums(),
+        this.repository.listReminders(),
+        this.repository.getLatestBackupHistory(),
+      ]);
+    return { profile, records, games, stadiums, reminders, latestBackup };
+  };
+
+  createBackup = async (): Promise<BackupExportResult | null> => {
+    const snapshot = await this.getSnapshot();
+    return this.backupService.createAndShare(snapshot);
+  };
+
+  restoreBackup = async (): Promise<BackupRestoreResult | null> => {
+    await this.initialize();
+    return this.backupService.pickAndRestore();
   };
 
   saveProfile = async (profile: LocalProfile): Promise<void> => {

@@ -3,7 +3,10 @@ import type { ResultSet, SQLiteDatabase } from 'react-native-sqlite-storage';
 
 import { DATABASE_NAME, SCHEMA_V1, SCHEMA_V2, SCHEMA_VERSION } from './schema';
 import { LocalRepository } from './repository';
+import type { BackupMergeResult } from './repository';
+import type { BackupPayload } from './backupFormat';
 import {
+  BackupHistory,
   Game,
   LocalReminder,
   LocalProfile,
@@ -83,6 +86,15 @@ type ReminderRow = {
   enabled: number;
   created_at: string;
   updated_at: string;
+};
+
+type BackupHistoryRow = {
+  id: string;
+  file_name: string;
+  checksum_sha256: string;
+  record_count: number;
+  byte_size: number;
+  created_at: string;
 };
 
 const rows = <T>(result: ResultSet): T[] => result.rows.raw() as T[];
@@ -387,6 +399,7 @@ export class SQLiteLocalRepository implements LocalRepository {
       await database.executeSql('DELETE FROM reminders');
       await database.executeSql('DELETE FROM records');
       await database.executeSql('DELETE FROM profile');
+      await database.executeSql('DELETE FROM backup_history');
       return rows<{ relative_path: string }>(mediaResult).map(
         row => row.relative_path,
       );
@@ -604,6 +617,194 @@ export class SQLiteLocalRepository implements LocalRepository {
         reminderId,
       ]);
     });
+  };
+
+  mergeBackup = async (payload: BackupPayload): Promise<BackupMergeResult> => {
+    await this.initialize();
+    return this.withTransaction(async database => {
+      if (payload.profile) {
+        await database.executeSql(
+          `INSERT INTO profile (id, nickname, team_id, updated_at)
+           VALUES (1, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             nickname = excluded.nickname,
+             team_id = excluded.team_id,
+             updated_at = excluded.updated_at`,
+          [
+            payload.profile.nickname,
+            payload.profile.teamId,
+            new Date().toISOString(),
+          ],
+        );
+      }
+
+      for (const stadium of payload.stadiums) {
+        await database.executeSql(
+          `INSERT INTO stadiums (
+            id, name, short_name, latitude, longitude, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            name = excluded.name,
+            short_name = excluded.short_name,
+            latitude = excluded.latitude,
+            longitude = excluded.longitude,
+            updated_at = excluded.updated_at`,
+          [
+            stadium.id,
+            stadium.name,
+            stadium.shortName,
+            stadium.latitude,
+            stadium.longitude,
+            stadium.updatedAt,
+          ],
+        );
+      }
+
+      for (const game of payload.games) {
+        await database.executeSql(
+          `INSERT INTO games (
+            id, date, time, home_team_id, away_team_id, stadium_id,
+            status, home_score, away_score, memo, source_version, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            date = excluded.date,
+            time = excluded.time,
+            home_team_id = excluded.home_team_id,
+            away_team_id = excluded.away_team_id,
+            stadium_id = excluded.stadium_id,
+            status = excluded.status,
+            home_score = excluded.home_score,
+            away_score = excluded.away_score,
+            memo = excluded.memo,
+            source_version = excluded.source_version,
+            updated_at = excluded.updated_at`,
+          [
+            game.id,
+            game.date,
+            game.time,
+            game.homeTeamId,
+            game.awayTeamId,
+            game.stadiumId,
+            game.status,
+            game.homeScore,
+            game.awayScore,
+            game.memo,
+            game.sourceVersion,
+            game.updatedAt,
+          ],
+        );
+      }
+      if (payload.games.length) {
+        await database.executeSql(
+          `INSERT INTO schedule_metadata (id, source_version, updated_at)
+           VALUES (1, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             source_version = excluded.source_version,
+             updated_at = excluded.updated_at`,
+          [payload.games[0].sourceVersion, new Date().toISOString()],
+        );
+      }
+
+      const importedRecordIds: string[] = [];
+      let skippedRecordCount = 0;
+      for (const record of payload.records) {
+        const [result] = await database.executeSql(
+          `INSERT OR IGNORE INTO records (
+            id, game_id, date, opponent, time, stadium, seat, memo, result,
+            created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            record.id,
+            record.gameId,
+            record.date,
+            record.opponent,
+            record.time,
+            record.stadium,
+            record.seat,
+            record.memo,
+            record.result,
+            record.createdAt,
+            record.updatedAt,
+          ],
+        );
+        if (!result.rowsAffected) {
+          skippedRecordCount += 1;
+          continue;
+        }
+        await this.insertMedia(
+          database,
+          record.id,
+          [record.photo, record.ticket].filter(
+            (item): item is StoredMedia => item !== null,
+          ),
+        );
+        importedRecordIds.push(record.id);
+      }
+
+      const importedReminderIds: string[] = [];
+      for (const reminder of payload.reminders) {
+        const [result] = await database.executeSql(
+          `INSERT OR IGNORE INTO reminders (
+            id, game_id, record_id, scheduled_at, native_notification_id,
+            enabled, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, NULL, ?, ?, ?)`,
+          [
+            reminder.id,
+            reminder.gameId,
+            reminder.recordId,
+            reminder.scheduledAt,
+            reminder.enabled ? 1 : 0,
+            reminder.createdAt,
+            reminder.updatedAt,
+          ],
+        );
+        if (result.rowsAffected) importedReminderIds.push(reminder.id);
+      }
+
+      return {
+        importedRecordIds,
+        importedReminderIds,
+        skippedRecordCount,
+      };
+    });
+  };
+
+  addBackupHistory = async (history: BackupHistory): Promise<void> => {
+    await this.initialize();
+    await this.enqueueWrite(async () => {
+      const database = await this.getDatabase();
+      await database.executeSql(
+        `INSERT INTO backup_history (
+          id, file_name, checksum_sha256, record_count, byte_size, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+          history.id,
+          history.fileName,
+          history.checksumSha256,
+          history.recordCount,
+          history.byteSize,
+          history.createdAt,
+        ],
+      );
+    });
+  };
+
+  getLatestBackupHistory = async (): Promise<BackupHistory | null> => {
+    await this.initialize();
+    const database = await this.getDatabase();
+    const [result] = await database.executeSql(
+      'SELECT * FROM backup_history ORDER BY created_at DESC LIMIT 1',
+    );
+    if (!result.rows.length) return null;
+    const row = result.rows.item(0) as BackupHistoryRow;
+    return {
+      id: row.id,
+      fileName: row.file_name,
+      checksumSha256: row.checksum_sha256,
+      recordCount: row.record_count,
+      byteSize: row.byte_size,
+      createdAt: row.created_at,
+    };
   };
 
   hasMigration = async (sourceKey: string): Promise<boolean> => {

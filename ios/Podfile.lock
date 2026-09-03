@@ -855,6 +855,10 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
+  - react-native-document-picker (9.3.1):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
   - react-native-image-picker (7.2.3):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -1053,7 +1057,13 @@ PODS:
     - React-Core
   - RNSVG (15.11.2):
     - React-Core
+  - RNZipArchive (9.4.1):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+    - SSZipArchive (~> 2.5.5)
   - SocketRocket (0.6.1)
+  - SSZipArchive (2.5.5)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1085,6 +1095,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector-modern`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
@@ -1116,6 +1127,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1124,6 +1136,7 @@ SPEC REPOS:
     - Google-Mobile-Ads-SDK
     - GoogleUserMessagingPlatform
     - SocketRocket
+    - SSZipArchive
 
 EXTERNAL SOURCES:
   boost:
@@ -1178,6 +1191,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-safe-area-context:
@@ -1240,6 +1255,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  RNZipArchive:
+    :path: "../node_modules/react-native-zip-archive"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -1273,6 +1290,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 85583ef014ce53d731a98c66a0e24496f7a83066
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: 84ea43c6c6232049135b1550b8c60b2faac19fab
+  react-native-document-picker: 23b6a82e09199f4f109376e73d88892a8931eeea
   react-native-image-picker: 3e4ad7a308e087f49f8aa1443c9ead2e8ce8f060
   react-native-safe-area-context: 141eca0fd4e4191288dfc8b96a7c7e1c2983447a
   react-native-sqlite-storage: f6d515e1c446d1e6d026aa5352908a25d4de3261
@@ -1304,9 +1322,11 @@ SPEC CHECKSUMS:
   RNScreens: b6b64d956af3715adbfe84808694ae82d3fec74f
   RNShare: 4bf2a3bf5f436253196c92578a914f96adce71a6
   RNSVG: d3dcdd1472cc7e82b0654c48bf6abf893485b074
+  RNZipArchive: 3d9b2516a810c5b5d8d05da6e68e8bef6c2c264d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
   Yoga: d17d2cc8105eed528474683b42e2ea310e1daf61
 
-PODFILE CHECKSUM: 076c915bc28c90c8e4fbff0f72fb645eaf184e2a
+PODFILE CHECKSUM: af64b9d532510e2259a93d87a263268de8037fa5
 
 COCOAPODS: 1.13.0

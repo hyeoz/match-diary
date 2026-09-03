@@ -6,6 +6,9 @@ import {
   scheduleLocalNotification,
 } from './notifications';
 import {
+  BackupExportResult,
+  BackupHistory,
+  BackupRestoreResult,
   createLocalId,
   LocalReminder,
   LocalProfile,
@@ -28,6 +31,7 @@ type RevivalState = {
   games: ScheduledGame[];
   stadiums: Stadium[];
   reminders: LocalReminder[];
+  latestBackup: BackupHistory | null;
   hydrate: () => Promise<void>;
   refreshSchedule: () => Promise<void>;
   saveProfile: (profile: LocalProfile) => Promise<void>;
@@ -42,6 +46,8 @@ type RevivalState = {
   deleteRecord: (recordId: string) => Promise<void>;
   deleteAllRecords: () => Promise<void>;
   deleteAllUserData: () => Promise<void>;
+  createBackup: () => Promise<BackupExportResult | null>;
+  restoreBackup: () => Promise<BackupRestoreResult | null>;
   scheduleReminder: (date: string, gameId?: string | null) => Promise<void>;
   deleteReminder: (reminderId: string) => Promise<void>;
 };
@@ -56,6 +62,7 @@ export const useRevivalStore = create<RevivalState>((set, get) => ({
   games: [],
   stadiums: [],
   reminders: [],
+  latestBackup: null,
   hydrate: async () => {
     try {
       const snapshot = await localDataService.getSnapshot();
@@ -67,6 +74,7 @@ export const useRevivalStore = create<RevivalState>((set, get) => ({
         games: snapshot.games,
         stadiums: snapshot.stadiums,
         reminders: snapshot.reminders,
+        latestBackup: snapshot.latestBackup,
       });
       get()
         .refreshSchedule()
@@ -143,7 +151,57 @@ export const useRevivalStore = create<RevivalState>((set, get) => ({
       ),
     );
     await localDataService.deleteAllUserData();
-    set({ profile: null, records: [], reminders: [] });
+    set({ profile: null, records: [], reminders: [], latestBackup: null });
+  },
+  createBackup: async () => {
+    const backup = await localDataService.createBackup();
+    if (backup) set({ latestBackup: backup });
+    return backup;
+  },
+  restoreBackup: async () => {
+    const result = await localDataService.restoreBackup();
+    if (!result) return null;
+
+    const snapshot = await localDataService.getSnapshot();
+    let notificationFailureCount = 0;
+    const reminders = await Promise.all(
+      snapshot.reminders.map(async reminder => {
+        if (
+          !reminder.enabled ||
+          reminder.nativeNotificationId ||
+          new Date(reminder.scheduledAt).getTime() <= Date.now()
+        ) {
+          return reminder;
+        }
+        try {
+          const nativeNotificationId = await scheduleLocalNotification({
+            id: reminder.id,
+            scheduledAt: reminder.scheduledAt,
+            title: '오늘은 직관 가는 날! ⚾',
+            body: '좌석과 사진을 직관일기에 남겨보세요.',
+          });
+          const restored = {
+            ...reminder,
+            nativeNotificationId,
+            updatedAt: new Date().toISOString(),
+          };
+          await localDataService.saveReminder(restored);
+          return restored;
+        } catch {
+          notificationFailureCount += 1;
+          return reminder;
+        }
+      }),
+    );
+    set({
+      profile: snapshot.profile,
+      records: snapshot.records,
+      games: snapshot.games,
+      stadiums: snapshot.stadiums,
+      reminders,
+      latestBackup: snapshot.latestBackup,
+    });
+    return { ...result, notificationFailureCount };
   },
   scheduleReminder: async (date, gameId = null) => {
     const scheduled = new Date(`${date}T10:00:00`);

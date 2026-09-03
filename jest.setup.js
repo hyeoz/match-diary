@@ -3,6 +3,7 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 );
 
 jest.mock('react-native-fs2', () => ({
+  CachesDirectoryPath: '/caches',
   DocumentDirectoryPath: '/documents',
   copyFile: jest.fn(() => Promise.resolve()),
   exists: jest.fn(() => Promise.resolve(false)),
@@ -15,8 +16,26 @@ jest.mock('react-native-fs2', () => ({
   hash: jest.fn(() => Promise.resolve('test-sha256')),
   mkdir: jest.fn(() => Promise.resolve()),
   readDir: jest.fn(() => Promise.resolve([])),
+  readFile: jest.fn(() => Promise.resolve('{}')),
   stat: jest.fn(() => Promise.resolve({ size: 1024 })),
   unlink: jest.fn(() => Promise.resolve()),
+  writeFile: jest.fn(() => Promise.resolve()),
+}));
+
+jest.mock('react-native-document-picker', () => ({
+  __esModule: true,
+  default: {
+    isCancel: jest.fn(() => false),
+    pickSingle: jest.fn(() => Promise.reject(new Error('picker not mocked'))),
+    types: { allFiles: '*/*' },
+  },
+}));
+
+jest.mock('react-native-zip-archive', () => ({
+  getUncompressedSize: jest.fn(() => Promise.resolve(1024)),
+  listContents: jest.fn(() => Promise.resolve([])),
+  unzip: jest.fn(() => Promise.resolve('/caches/extracted')),
+  zip: jest.fn(() => Promise.resolve('/caches/backup.matchdiary')),
 }));
 
 jest.mock('react-native-image-picker', () => ({

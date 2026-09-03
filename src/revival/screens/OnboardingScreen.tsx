@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -14,7 +15,8 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { PrimaryButton, Screen } from '../components';
+import { backupErrorMessage } from '../backupErrors';
+import { PrimaryButton, Screen, SecondaryButton } from '../components';
 import { getRandomNickname, teams } from '../data';
 import { RootStackParamList } from '../navigationTypes';
 import { getPreviewScreen } from '../preview';
@@ -32,7 +34,9 @@ export default function OnboardingScreen({ navigation }: Props) {
   const [nickname, setNickname] = useState('');
   const [teamId, setTeamId] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const saveProfile = useRevivalStore(state => state.saveProfile);
+  const restoreBackup = useRevivalStore(state => state.restoreBackup);
   const selectedTeam = useMemo(
     () => teams.find(team => team.id === teamId) ?? teams[0],
     [teamId],
@@ -43,6 +47,45 @@ export default function OnboardingScreen({ navigation }: Props) {
     setSaving(true);
     await saveProfile({ nickname: nickname.trim(), teamId });
     navigation.replace('Main');
+  };
+
+  const runRestore = async () => {
+    if (restoring) return;
+    setRestoring(true);
+    try {
+      const result = await restoreBackup();
+      if (!result) return;
+      const profile = useRevivalStore.getState().profile;
+      if (!profile) {
+        Alert.alert(
+          '프로필을 찾지 못했어요',
+          '기록은 복원했지만 프로필 정보가 없어 먼저 닉네임과 응원 팀을 설정해주세요.',
+          [{ text: '확인', onPress: () => setStep('form') }],
+        );
+        return;
+      }
+      Alert.alert(
+        '백업 복원을 완료했어요',
+        `${result.recordCount}개 기록과 ${result.mediaCount}개 사진·티켓을 복원했습니다.`,
+        [{ text: '직관일기 열기', onPress: () => navigation.replace('Main') }],
+      );
+    } catch (error) {
+      Alert.alert('백업을 복원하지 못했어요', backupErrorMessage(error));
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const confirmRestore = () => {
+    if (restoring) return;
+    Alert.alert(
+      '백업에서 복원',
+      '백업 파일을 먼저 검증한 뒤 현재 데이터와 합칩니다. 검증에 실패하면 현재 데이터는 변경되지 않습니다.',
+      [
+        { text: '취소', style: 'cancel' },
+        { text: '파일 선택', onPress: runRestore },
+      ],
+    );
   };
 
   if (step === 'intro') {
@@ -58,13 +101,21 @@ export default function OnboardingScreen({ navigation }: Props) {
           source={require('@/assets/revival_app_icon.png')}
           style={styles.introLogo}
         />
-        <PrimaryButton
-          label="시작하기"
-          onPress={() => setStep('form')}
-          style={styles.introButton}
-        />
+        <View style={styles.introActions}>
+          <PrimaryButton
+            label="시작하기"
+            onPress={() => setStep('form')}
+            style={styles.introButton}
+          />
+          <SecondaryButton
+            label={restoring ? '복원 중...' : '백업에서 복원'}
+            onPress={confirmRestore}
+            style={styles.restoreButton}
+          />
+        </View>
         <Text style={styles.help}>
-          기기를 변경했다면 설정의 복원 기능을 이용해주세요
+          기기를 변경했거나 앱을 다시 설치했다면{'\n'}저장해둔 .matchdiary
+          파일로 복원할 수 있어요
         </Text>
       </Screen>
     );
@@ -176,6 +227,13 @@ const styles = StyleSheet.create({
   },
   introButton: {
     width: '100%',
+  },
+  introActions: {
+    width: '100%',
+  },
+  restoreButton: {
+    width: '100%',
+    marginTop: spacing.sm,
   },
   help: {
     ...font('light'),

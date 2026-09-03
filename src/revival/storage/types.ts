@@ -101,6 +101,27 @@ export type LocalReminder = {
   updatedAt: string;
 };
 
+export type BackupHistory = {
+  id: string;
+  fileName: string;
+  checksumSha256: string;
+  recordCount: number;
+  byteSize: number;
+  createdAt: string;
+};
+
+export type BackupExportResult = BackupHistory & {
+  mediaCount: number;
+};
+
+export type BackupRestoreResult = {
+  recordCount: number;
+  skippedRecordCount: number;
+  mediaCount: number;
+  reminderCount: number;
+  notificationFailureCount: number;
+};
+
 export const createLocalId = (prefix: string): string =>
   `${prefix}_${Date.now().toString(36)}_${Math.random()
     .toString(36)

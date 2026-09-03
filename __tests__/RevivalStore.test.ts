@@ -1,12 +1,14 @@
 jest.mock('../src/revival/storage/service', () => ({
   localDataService: {
     createRecord: jest.fn(),
+    createBackup: jest.fn(),
     deleteAllRecords: jest.fn(),
     deleteAllUserData: jest.fn(),
     deleteRecord: jest.fn(),
     deleteReminder: jest.fn(),
     getSnapshot: jest.fn(),
     refreshSchedule: jest.fn(),
+    restoreBackup: jest.fn(),
     saveProfile: jest.fn(),
     saveReminder: jest.fn(),
     updateRecord: jest.fn(),
@@ -46,6 +48,7 @@ const resetStore = () => {
     games: [],
     stadiums: [],
     reminders: [],
+    latestBackup: null,
   });
 };
 
@@ -63,6 +66,7 @@ describe('revival local UI store', () => {
       games: [],
       stadiums: [],
       reminders: [],
+      latestBackup: null,
     });
     await useRevivalStore.getState().hydrate();
 

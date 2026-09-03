@@ -1,4 +1,5 @@
 import {
+  BackupHistory,
   Game,
   LocalReminder,
   LocalProfile,
@@ -7,6 +8,13 @@ import {
   Stadium,
   StoredRecordInput,
 } from './types';
+import type { BackupPayload } from './backupFormat';
+
+export type BackupMergeResult = {
+  importedRecordIds: string[];
+  importedReminderIds: string[];
+  skippedRecordCount: number;
+};
 
 export type LocalRepository = {
   initialize: () => Promise<void>;
@@ -29,6 +37,9 @@ export type LocalRepository = {
   listReminders: () => Promise<LocalReminder[]>;
   upsertReminder: (reminder: LocalReminder) => Promise<void>;
   deleteReminder: (reminderId: string) => Promise<void>;
+  mergeBackup: (payload: BackupPayload) => Promise<BackupMergeResult>;
+  addBackupHistory: (history: BackupHistory) => Promise<void>;
+  getLatestBackupHistory: () => Promise<BackupHistory | null>;
   hasMigration: (sourceKey: string) => Promise<boolean>;
   markMigration: (sourceKey: string) => Promise<void>;
 };

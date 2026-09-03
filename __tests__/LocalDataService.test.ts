@@ -65,6 +65,13 @@ const makeRepository = () => {
     listReminders: jest.fn(async () => []),
     upsertReminder: jest.fn(async () => undefined),
     deleteReminder: jest.fn(async () => undefined),
+    mergeBackup: jest.fn(async () => ({
+      importedRecordIds: [],
+      importedReminderIds: [],
+      skippedRecordCount: 0,
+    })),
+    addBackupHistory: jest.fn(async () => undefined),
+    getLatestBackupHistory: jest.fn(async () => null),
     hasMigration: jest.fn(async () => false),
     markMigration: jest.fn(async () => undefined),
   };

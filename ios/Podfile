@@ -5,7 +5,7 @@
 #     {paths: [process.argv[1]]},
 #   )', __dir__]).strip
 
-# platform :ios, '13.4'
+# platform :ios, '15.5'
 # prepare_react_native_project!
 
 def node_require(script)
@@ -18,7 +18,7 @@ def node_require(script)
 end
 
 node_require('react-native/scripts/react_native_pods.rb')
-platform :ios, '13.4'
+platform :ios, '15.5'
 prepare_react_native_project!
 
 # If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.

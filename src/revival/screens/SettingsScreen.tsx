@@ -1,20 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
 
+import { backupErrorMessage } from '../backupErrors';
 import { MenuRow, PaperCard, Screen } from '../components';
 import { useAds } from '../ads/AdsContext';
 import { teamById } from '../data';
 import { useRevivalStore } from '../store';
 import { colors, font, spacing } from '../theme';
 
+const formatBytes = (bytes: number): string => {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+};
+
 export default function SettingsScreen() {
   const navigation = useNavigation<any>();
+  const [backupBusy, setBackupBusy] = useState<'create' | 'restore' | null>(
+    null,
+  );
   const { privacyOptionsRequired, showPrivacyOptions } = useAds();
   const profile = useRevivalStore(state => state.profile);
   const records = useRevivalStore(state => state.records);
   const reminders = useRevivalStore(state => state.reminders);
+  const latestBackup = useRevivalStore(state => state.latestBackup);
+  const createBackup = useRevivalStore(state => state.createBackup);
+  const restoreBackup = useRevivalStore(state => state.restoreBackup);
   const deleteAllUserData = useRevivalStore(state => state.deleteAllUserData);
   const team = teamById(profile?.teamId ?? 1);
 
@@ -46,6 +58,62 @@ export default function SettingsScreen() {
     );
   };
 
+  const handleCreateBackup = async () => {
+    if (backupBusy) return;
+    setBackupBusy('create');
+    try {
+      const result = await createBackup();
+      if (!result) return;
+      Alert.alert(
+        '전체 백업을 저장했어요',
+        `${result.recordCount}개 기록과 ${
+          result.mediaCount
+        }개 사진·티켓을 ${formatBytes(
+          result.byteSize,
+        )} 파일로 저장했습니다.\n\n파일명: ${result.fileName}`,
+      );
+    } catch (error) {
+      Alert.alert('백업을 만들지 못했어요', backupErrorMessage(error));
+    } finally {
+      setBackupBusy(null);
+    }
+  };
+
+  const runRestore = async () => {
+    if (backupBusy) return;
+    setBackupBusy('restore');
+    try {
+      const result = await restoreBackup();
+      if (!result) return;
+      const reminderNotice = result.notificationFailureCount
+        ? `\n알림 ${result.notificationFailureCount}개는 기기 권한 때문에 다시 예약하지 못했습니다.`
+        : '';
+      const duplicateNotice = result.skippedRecordCount
+        ? `\n중복 기록 ${result.skippedRecordCount}개는 건너뛰었습니다.`
+        : '';
+      Alert.alert(
+        '백업 복원을 완료했어요',
+        `${result.recordCount}개 기록과 ${result.mediaCount}개 사진·티켓을 복원했습니다.${duplicateNotice}${reminderNotice}`,
+      );
+    } catch (error) {
+      Alert.alert('백업을 복원하지 못했어요', backupErrorMessage(error));
+    } finally {
+      setBackupBusy(null);
+    }
+  };
+
+  const confirmRestore = () => {
+    if (backupBusy) return;
+    Alert.alert(
+      '백업에서 복원',
+      '백업 파일을 먼저 검증한 뒤 현재 데이터와 합칩니다. 같은 기록은 중복 생성하지 않으며, 검증에 실패하면 현재 데이터는 변경되지 않습니다.',
+      [
+        { text: '취소', style: 'cancel' },
+        { text: '파일 선택', onPress: runRestore },
+      ],
+    );
+  };
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
@@ -59,7 +127,11 @@ export default function SettingsScreen() {
 
         <View style={styles.backupStatus}>
           <Text style={styles.backupText}>
-            ● 로컬 저장 정상 · {dayjs().format('YYYY.MM.DD HH:mm')}
+            {latestBackup
+              ? `● 최근 백업 · ${dayjs(latestBackup.createdAt).format(
+                  'YYYY.MM.DD HH:mm',
+                )}`
+              : `● 로컬 저장 정상 · ${dayjs().format('YYYY.MM.DD HH:mm')}`}
           </Text>
         </View>
 
@@ -94,14 +166,24 @@ export default function SettingsScreen() {
             />
           ) : null}
           <MenuRow
-            caption="전체 기록과 사진을 한 파일로 저장"
+            caption={
+              backupBusy === 'create'
+                ? '파일을 만들고 검증하는 중…'
+                : '전체 기록과 사진을 .matchdiary 파일로 저장'
+            }
             icon="⇩"
-            label="백업 생성"
+            label={backupBusy === 'create' ? '백업 생성 중' : '백업 생성'}
+            onPress={handleCreateBackup}
           />
           <MenuRow
-            caption="백업 파일에서 기록 복원"
+            caption={
+              backupBusy === 'restore'
+                ? '파일을 검증하고 안전하게 합치는 중…'
+                : '검증된 백업을 현재 데이터와 안전하게 합치기'
+            }
             icon="⇧"
-            label="백업 복원"
+            label={backupBusy === 'restore' ? '백업 복원 중' : '백업 복원'}
+            onPress={confirmRestore}
           />
           <MenuRow icon="ⓘ" label="앱 정보" />
         </PaperCard>
@@ -117,8 +199,9 @@ export default function SettingsScreen() {
         </PaperCard>
 
         <Text style={styles.note}>
-          기록과 사진은 앱 전용 저장 공간에 보관됩니다. 전체 백업·복원은
-          8단계에서 활성화됩니다.
+          기록과 사진은 앱 전용 저장 공간에 보관됩니다. 백업 파일에는 개인
+          기록과 사진이 포함되므로 안전한 위치에 보관해주세요. 앱 밖에 저장한
+          백업 파일은 앱 데이터 삭제 시 함께 지워지지 않습니다.
         </Text>
       </ScrollView>
     </Screen>
