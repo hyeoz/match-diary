@@ -17,6 +17,7 @@ const manifest = {
   recordCount: 1,
   mediaCount: 1,
   reminderCount: 0,
+  communityPostCount: 0,
   totalMediaBytes: 1024,
   checksumsSha256: checksum,
 } as const;
@@ -52,6 +53,8 @@ const payload = {
   records: [
     {
       id: 'record-1',
+      legacyServerRecordId: null,
+      source: 'new',
       gameId: 'game-1',
       date: '2026-09-03',
       opponent: 'LG 트윈스',
@@ -78,6 +81,7 @@ const payload = {
     },
   ],
   reminders: [],
+  legacyCommunityPosts: [],
 };
 
 describe('matchdiary backup format', () => {

@@ -38,6 +38,8 @@ const photo: StoredMedia = {
 
 const record: LocalRecord = {
   id: 'record-1',
+  legacyServerRecordId: null,
+  source: 'new',
   gameId: null,
   date: '2026-09-03',
   opponent: 'LG 트윈스',
@@ -58,6 +60,7 @@ const makeRepository = (): jest.Mocked<LocalRepository> =>
     getProfile: jest.fn(async () => null),
     upsertProfile: jest.fn(async () => undefined),
     listRecords: jest.fn(async () => []),
+    listLegacyCommunityPosts: jest.fn(async () => []),
     createRecord: jest.fn(async () => undefined),
     createMigratedRecord: jest.fn(async () => true),
     updateRecord: jest.fn(async () => undefined),
@@ -136,6 +139,7 @@ describe('AppBackupService', () => {
       games: [],
       stadiums: [],
       reminders: [],
+      legacyCommunityPosts: [],
     });
 
     expect(zipArchive.zip).toHaveBeenCalledTimes(1);
@@ -164,6 +168,7 @@ describe('AppBackupService', () => {
       stadiums: [],
       games: [],
       reminders: [],
+      legacyCommunityPosts: [],
     };
     const manifest = {
       format: BACKUP_FORMAT,
@@ -173,6 +178,7 @@ describe('AppBackupService', () => {
       recordCount: 1,
       mediaCount: 1,
       reminderCount: 0,
+      communityPostCount: 0,
       totalMediaBytes: 1024,
       checksumsSha256: checksumsChecksum,
     };
@@ -255,6 +261,7 @@ describe('AppBackupService', () => {
           recordCount: 0,
           mediaCount: 0,
           reminderCount: 0,
+          communityPostCount: 0,
           totalMediaBytes: 0,
           checksumsSha256: 'e'.repeat(64),
         });
@@ -271,6 +278,7 @@ describe('AppBackupService', () => {
         stadiums: [],
         games: [],
         reminders: [],
+        legacyCommunityPosts: [],
       });
     });
 

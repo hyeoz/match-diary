@@ -1,5 +1,5 @@
 export const DATABASE_NAME = 'matchdiary-v1.sqlite';
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export const SCHEMA_V1 = [
   `CREATE TABLE IF NOT EXISTS profile (
@@ -93,5 +93,21 @@ export const SCHEMA_V2 = [
     id INTEGER PRIMARY KEY CHECK (id = 1),
     source_version TEXT NOT NULL,
     updated_at TEXT NOT NULL
+  )`,
+];
+
+export const SCHEMA_V3 = [
+  'ALTER TABLE records ADD COLUMN legacy_server_record_id TEXT',
+  "ALTER TABLE records ADD COLUMN source TEXT NOT NULL DEFAULT 'new' CHECK (source IN ('new', 'legacy_device', 'legacy_server'))",
+  `CREATE UNIQUE INDEX IF NOT EXISTS records_legacy_server_id_idx
+   ON records(legacy_server_record_id)
+   WHERE legacy_server_record_id IS NOT NULL`,
+  `CREATE TABLE IF NOT EXISTS legacy_community_posts (
+    id TEXT PRIMARY KEY,
+    legacy_server_post_id TEXT NOT NULL UNIQUE,
+    stadium_id TEXT,
+    date TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL
   )`,
 ];

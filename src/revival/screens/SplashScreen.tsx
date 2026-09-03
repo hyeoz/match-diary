@@ -51,6 +51,10 @@ export default function SplashScreen({ navigation }: Props) {
         }
         const hasProfile = Boolean(useRevivalStore.getState().profile);
         navigation.replace(hasProfile ? 'Main' : 'SignIn');
+        useRevivalStore
+          .getState()
+          .recoverLegacyData()
+          .catch(() => undefined);
       })
       .catch(() => {
         if (active) navigation.replace('SignIn');

@@ -121,6 +121,13 @@ jest.mock('react-native-share', () => ({
   default: { open: jest.fn(() => Promise.resolve({ success: true })) },
 }));
 
+jest.mock('react-native-keychain', () => ({
+  ACCESSIBLE: { WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'WhenUnlockedThisDeviceOnly' },
+  getGenericPassword: jest.fn(() => Promise.resolve(false)),
+  setGenericPassword: jest.fn(() => Promise.resolve(true)),
+  resetGenericPassword: jest.fn(() => Promise.resolve(true)),
+}));
+
 jest.mock('react-native-view-shot', () => {
   const React = require('react');
   const { View } = require('react-native');

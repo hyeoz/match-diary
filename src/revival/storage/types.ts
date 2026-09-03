@@ -1,4 +1,5 @@
 export type RecordResult = 'win' | 'lose' | 'draw' | 'unknown';
+export type RecordSource = 'new' | 'legacy_device' | 'legacy_server';
 
 export type LocalProfile = {
   nickname: string;
@@ -31,6 +32,8 @@ export type StoredMedia = {
 
 export type LocalRecord = {
   id: string;
+  legacyServerRecordId: string | null;
+  source: RecordSource;
   gameId: string | null;
   date: string;
   opponent: string;
@@ -43,6 +46,15 @@ export type LocalRecord = {
   ticket: StoredMedia | null;
   createdAt: string;
   updatedAt: string;
+};
+
+export type LegacyCommunityPost = {
+  id: string;
+  legacyServerPostId: string;
+  stadiumId: string | null;
+  date: string;
+  content: string;
+  createdAt: string;
 };
 
 export type LocalRecordDraft = Pick<
@@ -120,6 +132,8 @@ export type BackupRestoreResult = {
   mediaCount: number;
   reminderCount: number;
   notificationFailureCount: number;
+  missingMediaCount: number;
+  communityPostCount: number;
 };
 
 export const createLocalId = (prefix: string): string =>

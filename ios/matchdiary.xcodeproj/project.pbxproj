@@ -19,6 +19,8 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		81ACA48033364D1285DDB53E /* NanumMiNiSonGeurSsi.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41B4CC2A25574117A0E14748 /* NanumMiNiSonGeurSsi.ttf */; };
 		92ECA9676FBCB53F5D939672 /* libPods-matchdiary-matchdiaryTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78DFFB19426D0C1D773B35FD /* libPods-matchdiary-matchdiaryTests.a */; };
+		A4C100012D00000000000001 /* MatchDiaryRecoveryAttestation.mm in Sources */ = {isa = PBXBuildFile; fileRef = A4C100022D00000000000001 /* MatchDiaryRecoveryAttestation.mm */; };
+		A4C100032D00000000000001 /* DeviceCheck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4C100042D00000000000001 /* DeviceCheck.framework */; };
 		A9763E5ADFB030027C254B7C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 46C68FAE896734F4D5AE9A2A /* PrivacyInfo.xcprivacy */; };
 		DCD04D0FC21345F59D991345 /* UhBee Seulvely.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47CDA3D524A7444DB8436DE0 /* UhBee Seulvely.ttf */; };
 /* End PBXBuildFile section */
@@ -55,6 +57,8 @@
 		8B54B3B541E3481A2870B367 /* Pods-matchdiary-matchdiaryTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary-matchdiaryTests.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary-matchdiaryTests/Pods-matchdiary-matchdiaryTests.debug.xcconfig"; sourceTree = "<group>"; };
 		94F5A74689A3EB6BC36EFB88 /* libPods-matchdiary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matchdiary.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_bold.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_bold.ttf"; sourceTree = "<group>"; };
+		A4C100022D00000000000001 /* MatchDiaryRecoveryAttestation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MatchDiaryRecoveryAttestation.mm; path = matchdiary/MatchDiaryRecoveryAttestation.mm; sourceTree = "<group>"; };
+		A4C100042D00000000000001 /* DeviceCheck.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceCheck.framework; path = System/Library/Frameworks/DeviceCheck.framework; sourceTree = SDKROOT; };
 		A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_light.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_light.ttf"; sourceTree = "<group>"; };
 		C0F53C0CAFC5DD2470D02515 /* Pods-matchdiary.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.debug.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.debug.xcconfig"; sourceTree = "<group>"; };
 		DCDE76AF041217BF3AEF2D4E /* Pods-matchdiary.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matchdiary.release.xcconfig"; path = "Target Support Files/Pods-matchdiary/Pods-matchdiary.release.xcconfig"; sourceTree = "<group>"; };
@@ -75,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A4C100032D00000000000001 /* DeviceCheck.framework in Frameworks */,
 				03A0DC936897B2D63EF85CCC /* libPods-matchdiary.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -105,6 +110,7 @@
 				82CD87832BFB48490074A314 /* matchdiary.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
+				A4C100022D00000000000001 /* MatchDiaryRecoveryAttestation.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
@@ -129,6 +135,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A4C100042D00000000000001 /* DeviceCheck.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				94F5A74689A3EB6BC36EFB88 /* libPods-matchdiary.a */,
 				78DFFB19426D0C1D773B35FD /* libPods-matchdiary-matchdiaryTests.a */,
@@ -429,6 +436,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				A4C100012D00000000000001 /* MatchDiaryRecoveryAttestation.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -499,6 +507,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C0F53C0CAFC5DD2470D02515 /* Pods-matchdiary.debug.xcconfig */;
 			buildSettings = {
+				APP_ATTEST_ENVIRONMENT = development;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = matchdiary/matchdiary.entitlements;
@@ -531,6 +540,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DCDE76AF041217BF3AEF2D4E /* Pods-matchdiary.release.xcconfig */;
 			buildSettings = {
+				APP_ATTEST_ENVIRONMENT = production;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = matchdiary/matchdiary.entitlements;

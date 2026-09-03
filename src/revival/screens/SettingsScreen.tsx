@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
 
 import { backupErrorMessage } from '../backupErrors';
+import { recoveryErrorMessage } from '../recovery/errors';
 import { MenuRow, PaperCard, Screen } from '../components';
 import { useAds } from '../ads/AdsContext';
 import { teamById } from '../data';
@@ -28,6 +29,16 @@ export default function SettingsScreen() {
   const createBackup = useRevivalStore(state => state.createBackup);
   const restoreBackup = useRevivalStore(state => state.restoreBackup);
   const deleteAllUserData = useRevivalStore(state => state.deleteAllUserData);
+  const legacyRecoveryStatus = useRevivalStore(
+    state => state.legacyRecoveryStatus,
+  );
+  const legacyRecoveryResult = useRevivalStore(
+    state => state.legacyRecoveryResult,
+  );
+  const legacyRecoveryError = useRevivalStore(
+    state => state.legacyRecoveryError,
+  );
+  const recoverLegacyData = useRevivalStore(state => state.recoverLegacyData);
   const team = teamById(profile?.teamId ?? 1);
 
   const confirmDelete = () => {
@@ -114,6 +125,42 @@ export default function SettingsScreen() {
     );
   };
 
+  const recoveryCaption = (() => {
+    if (legacyRecoveryStatus === 'checking')
+      return '원래 기기인지 확인하고 기록을 준비하는 중…';
+    if (legacyRecoveryStatus === 'completed') {
+      return legacyRecoveryResult
+        ? `${legacyRecoveryResult.recordCount}개 기존 기록 복구 완료`
+        : '이 기기의 기존 기록 확인 완료';
+    }
+    if (legacyRecoveryStatus === 'no_data')
+      return '이 기기에서 복구할 기존 기록 없음';
+    if (legacyRecoveryStatus === 'failed')
+      return recoveryErrorMessage(legacyRecoveryError);
+    if (legacyRecoveryStatus === 'unavailable')
+      return '복구 서비스 연결 후 원래 기기에서 자동 확인';
+    return '원래 설치 기기에서 기존 기록을 안전하게 가져오기';
+  })();
+
+  const handleLegacyRecovery = async () => {
+    if (
+      legacyRecoveryStatus === 'checking' ||
+      legacyRecoveryStatus === 'unavailable'
+    )
+      return;
+    try {
+      const result = await recoverLegacyData(true);
+      Alert.alert(
+        result ? '기존 기록을 복구했어요' : '복구할 기록이 없어요',
+        result
+          ? `${result.recordCount}개 기록과 ${result.mediaCount}개 사진·티켓을 현재 데이터와 안전하게 합쳤습니다.`
+          : '이 기기 식별자로 저장된 예전 기록을 찾지 못했습니다.',
+      );
+    } catch (error) {
+      Alert.alert('기존 기록을 복구하지 못했어요', recoveryErrorMessage(error));
+    }
+  };
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
@@ -184,6 +231,12 @@ export default function SettingsScreen() {
             icon="⇧"
             label={backupBusy === 'restore' ? '백업 복원 중' : '백업 복원'}
             onPress={confirmRestore}
+          />
+          <MenuRow
+            caption={recoveryCaption}
+            icon="↻"
+            label="기존 기록 자동 복구"
+            onPress={handleLegacyRecovery}
           />
           <MenuRow icon="ⓘ" label="앱 정보" />
         </PaperCard>

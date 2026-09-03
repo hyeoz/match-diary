@@ -1,13 +1,20 @@
 import SQLite from 'react-native-sqlite-storage';
 import type { ResultSet, SQLiteDatabase } from 'react-native-sqlite-storage';
 
-import { DATABASE_NAME, SCHEMA_V1, SCHEMA_V2, SCHEMA_VERSION } from './schema';
+import {
+  DATABASE_NAME,
+  SCHEMA_V1,
+  SCHEMA_V2,
+  SCHEMA_V3,
+  SCHEMA_VERSION,
+} from './schema';
 import { LocalRepository } from './repository';
 import type { BackupMergeResult } from './repository';
 import type { BackupPayload } from './backupFormat';
 import {
   BackupHistory,
   Game,
+  LegacyCommunityPost,
   LocalReminder,
   LocalProfile,
   LocalRecord,
@@ -22,6 +29,8 @@ SQLite.enablePromise(true);
 
 type RecordRow = {
   id: string;
+  legacy_server_record_id: string | null;
+  source: LocalRecord['source'];
   game_id: string | null;
   date: string;
   opponent: string;
@@ -157,6 +166,11 @@ export class SQLiteLocalRepository implements LocalRepository {
           await transactionDatabase.executeSql(statement);
         }
       }
+      if (version < 3) {
+        for (const statement of SCHEMA_V3) {
+          await transactionDatabase.executeSql(statement);
+        }
+      }
       await transactionDatabase.executeSql(
         `PRAGMA user_version = ${SCHEMA_VERSION}`,
       );
@@ -235,6 +249,8 @@ export class SQLiteLocalRepository implements LocalRepository {
       const media = mediaByRecord.get(row.id) ?? [];
       return {
         id: row.id,
+        legacyServerRecordId: row.legacy_server_record_id,
+        source: row.source,
         gameId: row.game_id,
         date: row.date,
         opponent: row.opponent,
@@ -257,11 +273,13 @@ export class SQLiteLocalRepository implements LocalRepository {
   ): Promise<void> => {
     await database.executeSql(
       `INSERT INTO records (
-        id, game_id, date, opponent, time, stadium, seat, memo, result,
-        created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        id, legacy_server_record_id, source, game_id, date, opponent, time,
+        stadium, seat, memo, result, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         record.id,
+        record.legacyServerRecordId,
+        record.source,
         record.gameId,
         record.date,
         record.opponent,
@@ -336,10 +354,13 @@ export class SQLiteLocalRepository implements LocalRepository {
     await this.withTransaction(async database => {
       const [result] = await database.executeSql(
         `UPDATE records SET
-          game_id = ?, date = ?, opponent = ?, time = ?, stadium = ?,
-          seat = ?, memo = ?, result = ?, updated_at = ?
+          legacy_server_record_id = ?, source = ?, game_id = ?, date = ?,
+          opponent = ?, time = ?, stadium = ?, seat = ?, memo = ?, result = ?,
+          updated_at = ?
          WHERE id = ?`,
         [
+          record.legacyServerRecordId,
+          record.source,
           record.gameId,
           record.date,
           record.opponent,
@@ -398,12 +419,38 @@ export class SQLiteLocalRepository implements LocalRepository {
       );
       await database.executeSql('DELETE FROM reminders');
       await database.executeSql('DELETE FROM records');
+      await database.executeSql('DELETE FROM legacy_community_posts');
       await database.executeSql('DELETE FROM profile');
       await database.executeSql('DELETE FROM backup_history');
       return rows<{ relative_path: string }>(mediaResult).map(
         row => row.relative_path,
       );
     });
+  };
+
+  listLegacyCommunityPosts = async (): Promise<LegacyCommunityPost[]> => {
+    await this.initialize();
+    const database = await this.getDatabase();
+    const [result] = await database.executeSql(
+      `SELECT id, legacy_server_post_id, stadium_id, date, content, created_at
+       FROM legacy_community_posts
+       ORDER BY date ASC, created_at ASC`,
+    );
+    return rows<{
+      id: string;
+      legacy_server_post_id: string;
+      stadium_id: string | null;
+      date: string;
+      content: string;
+      created_at: string;
+    }>(result).map(row => ({
+      id: row.id,
+      legacyServerPostId: row.legacy_server_post_id,
+      stadiumId: row.stadium_id,
+      date: row.date,
+      content: row.content,
+      createdAt: row.created_at,
+    }));
   };
 
   replaceSchedule = async (
@@ -710,11 +757,13 @@ export class SQLiteLocalRepository implements LocalRepository {
       for (const record of payload.records) {
         const [result] = await database.executeSql(
           `INSERT OR IGNORE INTO records (
-            id, game_id, date, opponent, time, stadium, seat, memo, result,
-            created_at, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            id, legacy_server_record_id, source, game_id, date, opponent, time,
+            stadium, seat, memo, result, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             record.id,
+            record.legacyServerRecordId,
+            record.source,
             record.gameId,
             record.date,
             record.opponent,
@@ -759,6 +808,22 @@ export class SQLiteLocalRepository implements LocalRepository {
           ],
         );
         if (result.rowsAffected) importedReminderIds.push(reminder.id);
+      }
+
+      for (const post of payload.legacyCommunityPosts ?? []) {
+        await database.executeSql(
+          `INSERT OR IGNORE INTO legacy_community_posts (
+            id, legacy_server_post_id, stadium_id, date, content, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?)`,
+          [
+            post.id,
+            post.legacyServerPostId,
+            post.stadiumId,
+            post.date,
+            post.content,
+            post.createdAt,
+          ],
+        );
       }
 
       return {

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { localDataService } from './storage/service';
+import { LegacyRecoveryService } from './recovery/service';
 import {
   cancelLocalNotification,
   scheduleLocalNotification,
@@ -21,6 +22,52 @@ import {
 
 export type { LocalProfile, LocalRecord } from './storage/types';
 
+export type LegacyRecoveryStatus =
+  | 'idle'
+  | 'checking'
+  | 'completed'
+  | 'no_data'
+  | 'unavailable'
+  | 'failed';
+
+const legacyRecoveryService = new LegacyRecoveryService(localDataService);
+
+const restoreReminderNotifications = async (
+  reminders: LocalReminder[],
+): Promise<{ reminders: LocalReminder[]; failureCount: number }> => {
+  let failureCount = 0;
+  const restored = await Promise.all(
+    reminders.map(async reminder => {
+      if (
+        !reminder.enabled ||
+        reminder.nativeNotificationId ||
+        new Date(reminder.scheduledAt).getTime() <= Date.now()
+      ) {
+        return reminder;
+      }
+      try {
+        const nativeNotificationId = await scheduleLocalNotification({
+          id: reminder.id,
+          scheduledAt: reminder.scheduledAt,
+          title: '오늘은 직관 가는 날! ⚾',
+          body: '좌석과 사진을 직관일기에 남겨보세요.',
+        });
+        const scheduled = {
+          ...reminder,
+          nativeNotificationId,
+          updatedAt: new Date().toISOString(),
+        };
+        await localDataService.saveReminder(scheduled);
+        return scheduled;
+      } catch {
+        failureCount += 1;
+        return reminder;
+      }
+    }),
+  );
+  return { reminders: restored, failureCount };
+};
+
 type RevivalState = {
   hydrated: boolean;
   hydrationError: string | null;
@@ -32,6 +79,9 @@ type RevivalState = {
   stadiums: Stadium[];
   reminders: LocalReminder[];
   latestBackup: BackupHistory | null;
+  legacyRecoveryStatus: LegacyRecoveryStatus;
+  legacyRecoveryResult: BackupRestoreResult | null;
+  legacyRecoveryError: unknown;
   hydrate: () => Promise<void>;
   refreshSchedule: () => Promise<void>;
   saveProfile: (profile: LocalProfile) => Promise<void>;
@@ -48,6 +98,9 @@ type RevivalState = {
   deleteAllUserData: () => Promise<void>;
   createBackup: () => Promise<BackupExportResult | null>;
   restoreBackup: () => Promise<BackupRestoreResult | null>;
+  recoverLegacyData: (
+    retryNoData?: boolean,
+  ) => Promise<BackupRestoreResult | null>;
   scheduleReminder: (date: string, gameId?: string | null) => Promise<void>;
   deleteReminder: (reminderId: string) => Promise<void>;
 };
@@ -63,6 +116,11 @@ export const useRevivalStore = create<RevivalState>((set, get) => ({
   stadiums: [],
   reminders: [],
   latestBackup: null,
+  legacyRecoveryStatus: legacyRecoveryService.isConfigured()
+    ? 'idle'
+    : 'unavailable',
+  legacyRecoveryResult: null,
+  legacyRecoveryError: null,
   hydrate: async () => {
     try {
       const snapshot = await localDataService.getSnapshot();
@@ -151,7 +209,16 @@ export const useRevivalStore = create<RevivalState>((set, get) => ({
       ),
     );
     await localDataService.deleteAllUserData();
-    set({ profile: null, records: [], reminders: [], latestBackup: null });
+    await legacyRecoveryService.disableAfterUserDeletion();
+    set({
+      profile: null,
+      records: [],
+      reminders: [],
+      latestBackup: null,
+      legacyRecoveryStatus: 'completed',
+      legacyRecoveryResult: null,
+      legacyRecoveryError: null,
+    });
   },
   createBackup: async () => {
     const backup = await localDataService.createBackup();
@@ -163,36 +230,8 @@ export const useRevivalStore = create<RevivalState>((set, get) => ({
     if (!result) return null;
 
     const snapshot = await localDataService.getSnapshot();
-    let notificationFailureCount = 0;
-    const reminders = await Promise.all(
-      snapshot.reminders.map(async reminder => {
-        if (
-          !reminder.enabled ||
-          reminder.nativeNotificationId ||
-          new Date(reminder.scheduledAt).getTime() <= Date.now()
-        ) {
-          return reminder;
-        }
-        try {
-          const nativeNotificationId = await scheduleLocalNotification({
-            id: reminder.id,
-            scheduledAt: reminder.scheduledAt,
-            title: '오늘은 직관 가는 날! ⚾',
-            body: '좌석과 사진을 직관일기에 남겨보세요.',
-          });
-          const restored = {
-            ...reminder,
-            nativeNotificationId,
-            updatedAt: new Date().toISOString(),
-          };
-          await localDataService.saveReminder(restored);
-          return restored;
-        } catch {
-          notificationFailureCount += 1;
-          return reminder;
-        }
-      }),
-    );
+    const { reminders, failureCount: notificationFailureCount } =
+      await restoreReminderNotifications(snapshot.reminders);
     set({
       profile: snapshot.profile,
       records: snapshot.records,
@@ -202,6 +241,45 @@ export const useRevivalStore = create<RevivalState>((set, get) => ({
       latestBackup: snapshot.latestBackup,
     });
     return { ...result, notificationFailureCount };
+  },
+  recoverLegacyData: async (retryNoData = false) => {
+    if (get().legacyRecoveryStatus === 'checking') return null;
+    if (!legacyRecoveryService.isConfigured()) {
+      set({ legacyRecoveryStatus: 'unavailable' });
+      return null;
+    }
+    if (retryNoData) await legacyRecoveryService.resetNoDataMarker();
+    const completionStatus = await legacyRecoveryService.getCompletionStatus();
+    if (completionStatus) {
+      set({ legacyRecoveryStatus: completionStatus });
+      return null;
+    }
+    set({ legacyRecoveryStatus: 'checking', legacyRecoveryError: null });
+    try {
+      const result = await legacyRecoveryService.recover();
+      if (!result) {
+        set({ legacyRecoveryStatus: 'no_data' });
+        return null;
+      }
+      const snapshot = await localDataService.getSnapshot();
+      const { reminders, failureCount: notificationFailureCount } =
+        await restoreReminderNotifications(snapshot.reminders);
+      const restoredResult = { ...result, notificationFailureCount };
+      set({
+        profile: snapshot.profile,
+        records: snapshot.records,
+        games: snapshot.games,
+        stadiums: snapshot.stadiums,
+        reminders,
+        latestBackup: snapshot.latestBackup,
+        legacyRecoveryStatus: 'completed',
+        legacyRecoveryResult: restoredResult,
+      });
+      return restoredResult;
+    } catch (error) {
+      set({ legacyRecoveryStatus: 'failed', legacyRecoveryError: error });
+      throw error;
+    }
   },
   scheduleReminder: async (date, gameId = null) => {
     const scheduled = new Date(`${date}T10:00:00`);

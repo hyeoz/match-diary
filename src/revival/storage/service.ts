@@ -10,6 +10,7 @@ import {
   BackupHistory,
   BackupRestoreResult,
   createLocalId,
+  LegacyCommunityPost,
   LocalReminder,
   LocalProfile,
   LocalRecord,
@@ -66,18 +67,35 @@ export class LocalDataService {
     stadiums: Stadium[];
     reminders: LocalReminder[];
     latestBackup: BackupHistory | null;
+    legacyCommunityPosts: LegacyCommunityPost[];
   }> => {
     await this.initialize();
-    const [profile, records, games, stadiums, reminders, latestBackup] =
-      await Promise.all([
-        this.repository.getProfile(),
-        this.repository.listRecords(),
-        this.repository.listGames(),
-        this.repository.listStadiums(),
-        this.repository.listReminders(),
-        this.repository.getLatestBackupHistory(),
-      ]);
-    return { profile, records, games, stadiums, reminders, latestBackup };
+    const [
+      profile,
+      records,
+      games,
+      stadiums,
+      reminders,
+      latestBackup,
+      legacyCommunityPosts,
+    ] = await Promise.all([
+      this.repository.getProfile(),
+      this.repository.listRecords(),
+      this.repository.listGames(),
+      this.repository.listStadiums(),
+      this.repository.listReminders(),
+      this.repository.getLatestBackupHistory(),
+      this.repository.listLegacyCommunityPosts(),
+    ]);
+    return {
+      profile,
+      records,
+      games,
+      stadiums,
+      reminders,
+      latestBackup,
+      legacyCommunityPosts,
+    };
   };
 
   createBackup = async (): Promise<BackupExportResult | null> => {
@@ -88,6 +106,13 @@ export class LocalDataService {
   restoreBackup = async (): Promise<BackupRestoreResult | null> => {
     await this.initialize();
     return this.backupService.pickAndRestore();
+  };
+
+  restoreBackupFromFile = async (
+    archiveUri: string,
+  ): Promise<BackupRestoreResult> => {
+    await this.initialize();
+    return this.backupService.restoreFromArchive(archiveUri);
   };
 
   saveProfile = async (profile: LocalProfile): Promise<void> => {
@@ -114,6 +139,8 @@ export class LocalDataService {
       const record: LocalRecord = {
         ...draft,
         id: createLocalId('record'),
+        legacyServerRecordId: null,
+        source: 'new',
         gameId: draft.gameId ?? null,
         photo: media.find(item => item.kind === 'photo') ?? null,
         ticket: media.find(item => item.kind === 'ticket') ?? null,

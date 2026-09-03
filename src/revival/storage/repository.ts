@@ -4,6 +4,7 @@ import {
   LocalReminder,
   LocalProfile,
   LocalRecord,
+  LegacyCommunityPost,
   ScheduledGame,
   Stadium,
   StoredRecordInput,
@@ -21,6 +22,7 @@ export type LocalRepository = {
   getProfile: () => Promise<LocalProfile | null>;
   upsertProfile: (profile: LocalProfile) => Promise<void>;
   listRecords: () => Promise<LocalRecord[]>;
+  listLegacyCommunityPosts: () => Promise<LegacyCommunityPost[]>;
   createRecord: (record: StoredRecordInput) => Promise<void>;
   createMigratedRecord: (
     sourceKey: string,

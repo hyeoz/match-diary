@@ -30,6 +30,7 @@ import {
   BackupRestoreResult,
   createLocalId,
   Game,
+  LegacyCommunityPost,
   LocalProfile,
   LocalRecord,
   LocalReminder,
@@ -50,6 +51,7 @@ type BackupSnapshot = {
   games: ScheduledGame[];
   stadiums: Stadium[];
   reminders: LocalReminder[];
+  legacyCommunityPosts: LegacyCommunityPost[];
 };
 
 const normalizeFilePath = (uri: string): string => {
@@ -91,6 +93,7 @@ const toPayload = (snapshot: BackupSnapshot): BackupPayload => ({
     ...reminder,
     nativeNotificationId: null,
   })),
+  legacyCommunityPosts: snapshot.legacyCommunityPosts,
 });
 
 export class AppBackupService {
@@ -178,6 +181,7 @@ export class AppBackupService {
         recordCount: payload.records.length,
         mediaCount: media.length,
         reminderCount: payload.reminders.length,
+        communityPostCount: payload.legacyCommunityPosts?.length ?? 0,
         totalMediaBytes,
         checksumsSha256,
       };
@@ -238,12 +242,19 @@ export class AppBackupService {
       throw new Error('BACKUP_FILE_COPY_FAILED');
     }
 
+    return this.restoreFromArchive(picked.fileCopyUri, true);
+  };
+
+  restoreFromArchive = async (
+    archiveUri: string,
+    removeSource = false,
+  ): Promise<BackupRestoreResult> => {
     const operationId = createLocalId('restore');
     const workspace = `${RNFS.CachesDirectoryPath}/matchdiary/${operationId}`;
     const extractedFolder = `${workspace}/extracted`;
     await RNFS.mkdir(extractedFolder);
 
-    const archivePath = normalizeFilePath(picked.fileCopyUri);
+    const archivePath = normalizeFilePath(archiveUri);
     try {
       const entries = await listContents(archivePath);
       const archiveFiles = entries.filter(entry => !entry.isDirectory);
@@ -274,7 +285,9 @@ export class AppBackupService {
     } finally {
       await Promise.all([
         RNFS.unlink(workspace).catch(() => undefined),
-        RNFS.unlink(archivePath).catch(() => undefined),
+        removeSource
+          ? RNFS.unlink(archivePath).catch(() => undefined)
+          : Promise.resolve(),
       ]);
     }
   };
@@ -415,6 +428,8 @@ export class AppBackupService {
         mediaCount: importedMediaCount,
         reminderCount: result.importedReminderIds.length,
         notificationFailureCount: 0,
+        missingMediaCount: backup.payload.recovery?.missingMediaCount ?? 0,
+        communityPostCount: backup.payload.legacyCommunityPosts?.length ?? 0,
       };
     } catch (error) {
       await this.mediaStorage.removeMany(

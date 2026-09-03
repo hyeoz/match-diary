@@ -115,6 +115,8 @@ export const migrateLegacyAsyncStorage = async (
       `async:${RECORDS_KEY}:${id}`,
       {
         id,
+        legacyServerRecordId: null,
+        source: 'legacy_device',
         gameId: previous.gameId ?? null,
         date: previous.date,
         opponent: previous.opponent,
@@ -153,6 +155,8 @@ export const migrateLegacyAsyncStorage = async (
       const now = new Date().toISOString();
       await migrateRecord(repository, mediaStorage, sourceKey, {
         id: createLocalId('legacy'),
+        legacyServerRecordId: null,
+        source: 'legacy_device',
         gameId: null,
         date: legacy.date || key.slice(0, 10),
         opponent: '기존 기록',

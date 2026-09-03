@@ -3,12 +3,13 @@ import {
   LocalProfile,
   LocalRecord,
   LocalReminder,
+  LegacyCommunityPost,
   Stadium,
   StoredMedia,
 } from './types';
 
 export const BACKUP_FORMAT = 'com.matchdiary.backup';
-export const BACKUP_VERSION = 1;
+export const BACKUP_VERSION = 2;
 export const BACKUP_APP_VERSION = '2.3.4';
 export const BACKUP_EXTENSION = '.matchdiary';
 export const BACKUP_MIME_TYPE = 'application/vnd.matchdiary.backup';
@@ -21,6 +22,7 @@ export type BackupManifest = {
   recordCount: number;
   mediaCount: number;
   reminderCount: number;
+  communityPostCount?: number;
   totalMediaBytes: number;
   checksumsSha256: string;
 };
@@ -31,6 +33,11 @@ export type BackupPayload = {
   stadiums: Stadium[];
   games: Game[];
   reminders: LocalReminder[];
+  legacyCommunityPosts?: LegacyCommunityPost[];
+  recovery?: {
+    source: 'legacy_server';
+    missingMediaCount: number;
+  };
 };
 
 export type BackupChecksums = {
@@ -121,9 +128,32 @@ const parseRecord = (value: unknown): LocalRecord => {
   }
   return {
     ...(value as Omit<LocalRecord, 'photo' | 'ticket'>),
+    legacyServerRecordId: isNullableString(value.legacyServerRecordId)
+      ? value.legacyServerRecordId
+      : null,
+    source: ['new', 'legacy_device', 'legacy_server'].includes(
+      String(value.source),
+    )
+      ? (value.source as LocalRecord['source'])
+      : 'new',
     photo: value.photo === null ? null : parseStoredMedia(value.photo),
     ticket: value.ticket === null ? null : parseStoredMedia(value.ticket),
   };
+};
+
+const parseLegacyCommunityPost = (value: unknown): LegacyCommunityPost => {
+  if (
+    !isObject(value) ||
+    !isString(value.id) ||
+    !isString(value.legacyServerPostId) ||
+    !isNullableString(value.stadiumId) ||
+    !isGameDate(value.date) ||
+    !isString(value.content) ||
+    !isIsoDate(value.createdAt)
+  ) {
+    throw new Error('BACKUP_DATA_INVALID');
+  }
+  return value as LegacyCommunityPost;
 };
 
 const parseStadium = (value: unknown): Stadium => {
@@ -204,6 +234,9 @@ export const parseBackupManifest = (value: unknown): BackupManifest => {
     Number(value.mediaCount) < 0 ||
     !Number.isInteger(value.reminderCount) ||
     Number(value.reminderCount) < 0 ||
+    (Number(value.version) >= 2 &&
+      (!Number.isInteger(value.communityPostCount) ||
+        Number(value.communityPostCount) < 0)) ||
     !isFiniteNumber(value.totalMediaBytes) ||
     Number(value.totalMediaBytes) < 0 ||
     !isSha256(value.checksumsSha256)
@@ -239,7 +272,11 @@ export const parseBackupPayload = (
     !Array.isArray(value.records) ||
     !Array.isArray(value.stadiums) ||
     !Array.isArray(value.games) ||
-    !Array.isArray(value.reminders)
+    !Array.isArray(value.reminders) ||
+    !(
+      value.legacyCommunityPosts === undefined ||
+      Array.isArray(value.legacyCommunityPosts)
+    )
   ) {
     throw new Error('BACKUP_DATA_INVALID');
   }
@@ -259,6 +296,9 @@ export const parseBackupPayload = (
   const stadiums = value.stadiums.map(parseStadium);
   const games = value.games.map(parseGame);
   const reminders = value.reminders.map(parseReminder);
+  const legacyCommunityPosts = (
+    (value.legacyCommunityPosts as unknown[] | undefined) ?? []
+  ).map(parseLegacyCommunityPost);
   const media = records.flatMap(record =>
     [record.photo, record.ticket].filter(
       (item): item is StoredMedia => item !== null,
@@ -271,11 +311,14 @@ export const parseBackupPayload = (
   assertUnique(reminders.map(reminder => reminder.id));
   assertUnique(media.map(item => item.id));
   assertUnique(media.map(item => item.relativePath));
+  assertUnique(legacyCommunityPosts.map(item => item.id));
+  assertUnique(legacyCommunityPosts.map(item => item.legacyServerPostId));
 
   if (
     manifest.recordCount !== records.length ||
     manifest.mediaCount !== media.length ||
     manifest.reminderCount !== reminders.length ||
+    (manifest.communityPostCount ?? 0) !== legacyCommunityPosts.length ||
     manifest.totalMediaBytes !==
       media.reduce((total, item) => total + item.byteSize, 0)
   ) {
@@ -308,6 +351,17 @@ export const parseBackupPayload = (
       stadiums,
       games,
       reminders,
+      legacyCommunityPosts,
+      recovery:
+        isObject(value.recovery) &&
+        value.recovery.source === 'legacy_server' &&
+        Number.isInteger(value.recovery.missingMediaCount) &&
+        Number(value.recovery.missingMediaCount) >= 0
+          ? {
+              source: 'legacy_server',
+              missingMediaCount: Number(value.recovery.missingMediaCount),
+            }
+          : undefined,
     },
     media,
   };

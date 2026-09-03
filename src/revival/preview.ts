@@ -29,6 +29,8 @@ export const getPreviewScreen = (): PreviewScreen | null => {
 export const previewRecords = (): LocalRecord[] => [
   {
     id: 'preview-1',
+    legacyServerRecordId: null,
+    source: 'new',
     gameId: null,
     date: dayjs().subtract(4, 'day').format('YYYY-MM-DD'),
     opponent: '라이온즈',
@@ -44,6 +46,8 @@ export const previewRecords = (): LocalRecord[] => [
   },
   {
     id: 'preview-2',
+    legacyServerRecordId: null,
+    source: 'new',
     gameId: null,
     date: dayjs().subtract(18, 'day').format('YYYY-MM-DD'),
     opponent: '타이거즈',
@@ -59,6 +63,8 @@ export const previewRecords = (): LocalRecord[] => [
   },
   {
     id: 'preview-3',
+    legacyServerRecordId: null,
+    source: 'new',
     gameId: null,
     date: dayjs().subtract(32, 'day').format('YYYY-MM-DD'),
     opponent: '베어스',
@@ -74,6 +80,8 @@ export const previewRecords = (): LocalRecord[] => [
   },
   {
     id: 'preview-4',
+    legacyServerRecordId: null,
+    source: 'new',
     gameId: null,
     date: dayjs().subtract(47, 'day').format('YYYY-MM-DD'),
     opponent: '이글스',
