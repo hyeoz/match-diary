@@ -5,7 +5,11 @@ import dayjs, { Dayjs } from 'dayjs';
 
 import { PaperCard, Screen } from '../components';
 import { useRevivalStore } from '../store';
-import { gameIncludesTeam, matchupForGame } from '../schedule';
+import {
+  gameIncludesTeam,
+  gameStatusCaption,
+  matchupForGame,
+} from '../schedule';
 import { colors, font, handwriting, spacing } from '../theme';
 
 const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
@@ -138,7 +142,7 @@ export default function CalendarScreen() {
             </Text>
             <Text style={styles.noteMemo}>
               {selectedGames.length
-                ? `${selectedGames[0].time} · ${selectedGames[0].stadium.name}`
+                ? gameStatusCaption(selectedGames[0])
                 : selectedRecords[0]?.memo || '야구장 가고싶다...'}
             </Text>
             {selectedRecords[0] ? (

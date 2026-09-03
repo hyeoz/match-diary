@@ -79,6 +79,9 @@ export type Game = {
   awayTeamId: number;
   stadiumId: string;
   status: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  memo: string;
   sourceVersion: string;
   updatedAt: string;
 };

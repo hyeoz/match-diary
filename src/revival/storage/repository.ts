@@ -23,6 +23,7 @@ export type LocalRepository = {
   deleteAllRecords: () => Promise<string[]>;
   deleteAllUserData: () => Promise<string[]>;
   replaceSchedule: (stadiums: Stadium[], games: Game[]) => Promise<void>;
+  getScheduleSourceVersion: () => Promise<string | null>;
   listStadiums: () => Promise<Stadium[]>;
   listGames: (fromDate?: string, toDate?: string) => Promise<ScheduledGame[]>;
   listReminders: () => Promise<LocalReminder[]>;

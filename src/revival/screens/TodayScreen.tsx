@@ -12,7 +12,11 @@ import dayjs from 'dayjs';
 
 import { PaperCard, Screen } from '../components';
 import { teamById } from '../data';
-import { gameIncludesTeam, matchupForGame } from '../schedule';
+import {
+  gameIncludesTeam,
+  gameStatusCaption,
+  matchupForGame,
+} from '../schedule';
 import { useRevivalStore } from '../store';
 import { localDataService } from '../storage/service';
 import { colors, font, handwriting, radius, spacing } from '../theme';
@@ -53,7 +57,7 @@ export default function TodayScreen() {
           </Text>
           <Text style={styles.matchCaption}>
             {todayGame
-              ? `${todayGame.time} · ${todayGame.stadium.name}`
+              ? gameStatusCaption(todayGame)
               : '일정 캐시에 경기가 추가되면 상대 팀·시간·경기장을 자동으로 보여드려요.'}
           </Text>
         </PaperCard>

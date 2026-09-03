@@ -6,6 +6,7 @@ jest.mock('../src/revival/storage/service', () => ({
     deleteRecord: jest.fn(),
     deleteReminder: jest.fn(),
     getSnapshot: jest.fn(),
+    refreshSchedule: jest.fn(),
     saveProfile: jest.fn(),
     saveReminder: jest.fn(),
     updateRecord: jest.fn(),
@@ -38,6 +39,8 @@ const resetStore = () => {
   useRevivalStore.setState({
     hydrated: false,
     hydrationError: null,
+    scheduleRefreshing: false,
+    scheduleSyncError: null,
     profile: null,
     records: [],
     games: [],
@@ -49,6 +52,7 @@ const resetStore = () => {
 describe('revival local UI store', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    service.refreshSchedule.mockResolvedValue(null);
     resetStore();
   });
 

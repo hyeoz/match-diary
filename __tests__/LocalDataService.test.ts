@@ -59,6 +59,7 @@ const makeRepository = () => {
     }),
     deleteAllUserData: jest.fn(async () => []),
     replaceSchedule: jest.fn(async () => undefined),
+    getScheduleSourceVersion: jest.fn(async () => null),
     listStadiums: jest.fn(async () => []),
     listGames: jest.fn(async () => []),
     listReminders: jest.fn(async () => []),

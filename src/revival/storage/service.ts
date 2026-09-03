@@ -3,6 +3,7 @@ import { AppMediaStorage, MediaStorage } from './mediaStorage';
 import { LocalRepository } from './repository';
 import { SQLiteLocalRepository } from './sqliteRepository';
 import { bundledStadiums } from '../scheduleCatalog';
+import { fetchScheduleUpdate } from '../scheduleSync';
 import {
   createLocalId,
   LocalReminder,
@@ -179,6 +180,21 @@ export class LocalDataService {
   ): Promise<ScheduledGame[]> => {
     await this.initialize();
     return this.repository.listGames(fromDate, toDate);
+  };
+
+  refreshSchedule = async (): Promise<{
+    games: ScheduledGame[];
+    stadiums: Stadium[];
+  } | null> => {
+    await this.initialize();
+    const currentVersion = await this.repository.getScheduleSourceVersion();
+    const update = await fetchScheduleUpdate(currentVersion);
+    if (!update) return null;
+    await this.repository.replaceSchedule(update.stadiums, update.games);
+    return {
+      stadiums: update.stadiums,
+      games: await this.repository.listGames(),
+    };
   };
 
   replaceSchedule = async (

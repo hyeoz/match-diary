@@ -21,12 +21,15 @@ export type { LocalProfile, LocalRecord } from './storage/types';
 type RevivalState = {
   hydrated: boolean;
   hydrationError: string | null;
+  scheduleRefreshing: boolean;
+  scheduleSyncError: string | null;
   profile: LocalProfile | null;
   records: LocalRecord[];
   games: ScheduledGame[];
   stadiums: Stadium[];
   reminders: LocalReminder[];
   hydrate: () => Promise<void>;
+  refreshSchedule: () => Promise<void>;
   saveProfile: (profile: LocalProfile) => Promise<void>;
   saveRecord: (
     record: LocalRecordDraft,
@@ -46,6 +49,8 @@ type RevivalState = {
 export const useRevivalStore = create<RevivalState>((set, get) => ({
   hydrated: false,
   hydrationError: null,
+  scheduleRefreshing: false,
+  scheduleSyncError: null,
   profile: null,
   records: [],
   games: [],
@@ -63,6 +68,9 @@ export const useRevivalStore = create<RevivalState>((set, get) => ({
         stadiums: snapshot.stadiums,
         reminders: snapshot.reminders,
       });
+      get()
+        .refreshSchedule()
+        .catch(() => undefined);
     } catch (error) {
       set({
         hydrated: true,
@@ -70,6 +78,23 @@ export const useRevivalStore = create<RevivalState>((set, get) => ({
           error instanceof Error
             ? error.message
             : '로컬 저장소를 열 수 없습니다.',
+      });
+    }
+  },
+  refreshSchedule: async () => {
+    if (get().scheduleRefreshing) return;
+    set({ scheduleRefreshing: true, scheduleSyncError: null });
+    try {
+      const update = await localDataService.refreshSchedule();
+      if (update) {
+        set({ games: update.games, stadiums: update.stadiums });
+      }
+      set({ scheduleRefreshing: false });
+    } catch (error) {
+      set({
+        scheduleRefreshing: false,
+        scheduleSyncError:
+          error instanceof Error ? error.message : '일정 갱신에 실패했습니다.',
       });
     }
   },

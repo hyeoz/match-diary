@@ -1,5 +1,5 @@
 export const DATABASE_NAME = 'matchdiary-v1.sqlite';
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export const SCHEMA_V1 = [
   `CREATE TABLE IF NOT EXISTS profile (
@@ -82,5 +82,16 @@ export const SCHEMA_V1 = [
   `CREATE TABLE IF NOT EXISTS migration_log (
     source_key TEXT PRIMARY KEY,
     migrated_at TEXT NOT NULL
+  )`,
+];
+
+export const SCHEMA_V2 = [
+  'ALTER TABLE games ADD COLUMN home_score INTEGER',
+  'ALTER TABLE games ADD COLUMN away_score INTEGER',
+  "ALTER TABLE games ADD COLUMN memo TEXT NOT NULL DEFAULT ''",
+  `CREATE TABLE IF NOT EXISTS schedule_metadata (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    source_version TEXT NOT NULL,
+    updated_at TEXT NOT NULL
   )`,
 ];

@@ -1,7 +1,7 @@
 import SQLite from 'react-native-sqlite-storage';
 import type { ResultSet, SQLiteDatabase } from 'react-native-sqlite-storage';
 
-import { DATABASE_NAME, SCHEMA_V1, SCHEMA_VERSION } from './schema';
+import { DATABASE_NAME, SCHEMA_V1, SCHEMA_V2, SCHEMA_VERSION } from './schema';
 import { LocalRepository } from './repository';
 import {
   Game,
@@ -62,6 +62,9 @@ type GameRow = {
   away_team_id: number;
   stadium_id: string;
   status: string;
+  home_score: number | null;
+  away_score: number | null;
+  memo: string;
   source_version: string;
   updated_at: string;
   stadium_name: string;
@@ -131,11 +134,20 @@ export class SQLiteLocalRepository implements LocalRepository {
 
     if (version >= SCHEMA_VERSION) return;
 
-    await this.withTransaction(async db => {
-      for (const statement of SCHEMA_V1) {
-        await db.executeSql(statement);
+    await this.withTransaction(async transactionDatabase => {
+      if (version < 1) {
+        for (const statement of SCHEMA_V1) {
+          await transactionDatabase.executeSql(statement);
+        }
       }
-      await db.executeSql(`PRAGMA user_version = ${SCHEMA_VERSION}`);
+      if (version < 2) {
+        for (const statement of SCHEMA_V2) {
+          await transactionDatabase.executeSql(statement);
+        }
+      }
+      await transactionDatabase.executeSql(
+        `PRAGMA user_version = ${SCHEMA_VERSION}`,
+      );
     });
   };
 
@@ -412,8 +424,8 @@ export class SQLiteLocalRepository implements LocalRepository {
         await database.executeSql(
           `INSERT INTO games (
             id, date, time, home_team_id, away_team_id, stadium_id,
-            status, source_version, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            status, home_score, away_score, memo, source_version, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(id) DO UPDATE SET
             date = excluded.date,
             time = excluded.time,
@@ -421,6 +433,9 @@ export class SQLiteLocalRepository implements LocalRepository {
             away_team_id = excluded.away_team_id,
             stadium_id = excluded.stadium_id,
             status = excluded.status,
+            home_score = excluded.home_score,
+            away_score = excluded.away_score,
+            memo = excluded.memo,
             source_version = excluded.source_version,
             updated_at = excluded.updated_at`,
           [
@@ -431,12 +446,35 @@ export class SQLiteLocalRepository implements LocalRepository {
             game.awayTeamId,
             game.stadiumId,
             game.status,
+            game.homeScore,
+            game.awayScore,
+            game.memo,
             game.sourceVersion,
             game.updatedAt,
           ],
         );
       }
+      if (games.length) {
+        await database.executeSql(
+          `INSERT INTO schedule_metadata (id, source_version, updated_at)
+           VALUES (1, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET
+             source_version = excluded.source_version,
+             updated_at = excluded.updated_at`,
+          [games[0].sourceVersion, new Date().toISOString()],
+        );
+      }
     });
+  };
+
+  getScheduleSourceVersion = async (): Promise<string | null> => {
+    await this.initialize();
+    const database = await this.getDatabase();
+    const [result] = await database.executeSql(
+      'SELECT source_version FROM schedule_metadata WHERE id = 1',
+    );
+    if (!result.rows.length) return null;
+    return (result.rows.item(0) as { source_version: string }).source_version;
   };
 
   listStadiums = async (): Promise<Stadium[]> => {
@@ -494,6 +532,9 @@ export class SQLiteLocalRepository implements LocalRepository {
       awayTeamId: row.away_team_id,
       stadiumId: row.stadium_id,
       status: row.status,
+      homeScore: row.home_score,
+      awayScore: row.away_score,
+      memo: row.memo,
       sourceVersion: row.source_version,
       updatedAt: row.updated_at,
       stadium: {
