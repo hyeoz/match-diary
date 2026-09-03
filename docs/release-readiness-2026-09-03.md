@@ -22,10 +22,13 @@
 - Apple Developer App ID에 App Attest 활성화 확인
 - App Attest entitlement가 포함된 iOS App Store 프로비저닝 프로파일 생성·설치
 - Apple Distribution 서명, production App Attest entitlement, 스토어 검증을 포함한 iOS 2.4.0 archive 성공
+- iOS 2.4.0 (빌드 1)을 TestFlight에 업로드하고 Apple 처리 완료 확인 (`VALID`, 내부 상태 `IN_BETA_TESTING`)
+- 기존 내부 `Admin` 그룹은 모든 빌드 자동 접근 설정으로 별도 베타 심사 없이 설치 가능
+- 한국어 `테스트할 내용`에 이번 빌드의 점검 범위와 기존 사용자 자동 복구 비활성 상태를 명시
 - 설정 화면 검토 캡처: `docs/runtime-captures/stage10-settings.png`
 - Google Play 데이터 보안 설문 반영과 베타 바이너리 업로드는 아래 운영 게이트 통과 후 진행
 
-TestFlight 2.4.0 바이너리는 아직 업로드하지 않았다. iOS 배포 서명 게이트는 통과했으며, 운영 복구 API와 실제 기기 복구 E2E 검증을 완료한 뒤 업로드한다.
+TestFlight 2.4.0 (1)은 UI와 서버리스 로컬 기능을 먼저 검증할 수 있도록 업로드했다. 이 빌드에는 `MATCHDIARY_RECOVERY_API_BASE_URL`을 주입하지 않았으므로 기존 사용자 자동 복구는 비활성화되어 있다. 자동 복구는 운영 API와 실제 기기 E2E 검증을 끝낸 후 후속 빌드로 제공한다.
 
 ## 베타 업로드 전 필수 게이트
 
@@ -36,7 +39,7 @@ TestFlight 2.4.0 바이너리는 아직 업로드하지 않았다. iOS 배포 �
 3. Android 기존 앱과 동일한 업로드 키
 4. App Store Connect 및 iOS 배포 서명 권한
 
-두 복구 설정이 없으면 `npm run release:verify -- --production`이 실패하도록 했다. 기존 사용자의 데이터 복구를 약속하는 빌드를 복구 기능 없이 배포하지 않기 위한 장치다.
+두 복구 설정이 없으면 `npm run release:verify -- --production`이 실패하도록 했다. 따라서 기존 사용자 자동 복구를 포함하는 운영 후보 빌드는 이 검증을 통과해야 한다. 자동 복구를 제외한 내부 기능 검증용 TestFlight 빌드는 비활성 상태를 테스터에게 명시하고 별도로 배포할 수 있다.
 
 ## 제출 순서
 
