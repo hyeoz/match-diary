@@ -1,0 +1,51 @@
+name: Mobile CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - revival/serverless
+
+concurrency:
+  group: mobile-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-and-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Typecheck, lint, and test
+        run: npm run verify
+      - name: Reject critical dependency vulnerabilities
+        run: npm audit --audit-level=critical
+      - name: Build Android debug APK
+        run: npm run android:debug
+
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install CocoaPods dependencies
+        working-directory: ios
+        run: pod install
+      - name: Build iOS simulator app
+        run: npm run ios:debug

@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import Splash from './pages/Splash';
-import Main from './pages/Main';
-import SignIn from './pages/SignIn';
-// TODO 위치 기반 기능
-// import BackgroundGeolocation from 'react-native-background-geolocation';
-// import { STADIUM_GEO } from './utils/STATIC_DATA';
+import MainTabs from './revival/MainTabs';
+import { RootStackParamList } from './revival/navigationTypes';
+import OnboardingScreen from './revival/screens/OnboardingScreen';
+import NotificationSettingsScreen from './revival/screens/NotificationSettingsScreen';
+import RecordDetailScreen from './revival/screens/RecordDetailScreen';
+import RecordEditorScreen from './revival/screens/RecordEditorScreen';
+import SplashScreen from './revival/screens/SplashScreen';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const Router = () => {
   return (
@@ -21,20 +22,24 @@ const Router = () => {
       }}>
       <Stack.Screen
         name="Splash"
-        component={Splash}
+        component={SplashScreen}
         options={{ animation: 'fade_from_bottom' }}
       />
       <Stack.Screen
         name="SignIn"
-        component={SignIn}
+        component={OnboardingScreen}
         options={{ animation: 'fade_from_bottom' }}
       />
+      <Stack.Screen name="Main" component={MainTabs} />
       <Stack.Screen
-        name="Write"
-        component={Main}
-        // options={{
-        //   animation: 'fade',
-        // }}
+        name="RecordEditor"
+        component={RecordEditorScreen}
+        options={{ animation: 'slide_from_bottom' }}
+      />
+      <Stack.Screen name="RecordDetail" component={RecordDetailScreen} />
+      <Stack.Screen
+        name="NotificationSettings"
+        component={NotificationSettingsScreen}
       />
     </Stack.Navigator>
   );

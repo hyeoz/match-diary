@@ -14,24 +14,6 @@ PODS:
   - Google-Mobile-Ads-SDK (11.7.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - GoogleUserMessagingPlatform (2.5.0)
-  - libwebp (1.5.0):
-    - libwebp/demux (= 1.5.0)
-    - libwebp/mux (= 1.5.0)
-    - libwebp/sharpyuv (= 1.5.0)
-    - libwebp/webp (= 1.5.0)
-  - libwebp/demux (1.5.0):
-    - libwebp/webp
-  - libwebp/mux (1.5.0):
-    - libwebp/demux
-  - libwebp/sharpyuv (1.5.0)
-  - libwebp/webp (1.5.0):
-    - libwebp/sharpyuv
-  - lottie-ios (4.4.1)
-  - lottie-react-native (6.7.2):
-    - glog
-    - lottie-ios (= 4.4.1)
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
   - RCT-Folly (2022.05.16.00):
     - boost
     - DoubleConversion
@@ -873,27 +855,15 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
-  - react-native-cameraroll (7.10.0):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
-  - react-native-geolocation (3.4.0):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
   - react-native-image-picker (7.2.3):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - react-native-image-resizer (1.4.5):
-    - React-Core
   - react-native-safe-area-context (4.14.1):
     - React-Core
-  - react-native-view-shot (3.8.0):
+  - react-native-sqlite-storage (6.0.1):
     - React-Core
-  - react-native-webview (13.13.5):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
+  - react-native-view-shot (3.8.0):
     - React-Core
   - React-nativeconfig (0.73.6)
   - React-NativeModulesApple (0.73.6):
@@ -1058,23 +1028,9 @@ PODS:
     - React-jsi (= 0.73.6)
     - React-logger (= 0.73.6)
     - React-perflogger (= 0.73.6)
-  - RNBackgroundFetch (4.2.7):
-    - React-Core
   - RNCAsyncStorage (2.1.2):
     - React-Core
-  - RNCClipboard (1.16.2):
-    - React-Core
-  - RNDeviceInfo (14.0.4):
-    - React-Core
-  - RNFastImage (8.6.3):
-    - React-Core
-    - SDWebImage (~> 5.11.1)
-    - SDWebImageWebPCoder (~> 0.8.4)
-  - RNFS (2.20.0):
-    - React-Core
-  - RNGestureHandler (2.16.0):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
+  - RNFS2 (3.0.5):
     - React-Core
   - RNGoogleMobileAds (14.2.5):
     - glog
@@ -1082,47 +1038,22 @@ PODS:
     - GoogleUserMessagingPlatform (= 2.5.0)
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - RNImageCropPicker (0.41.6):
+  - RNNotifee (7.8.2):
     - React-Core
-    - React-RCTImage
-    - RNImageCropPicker/QBImagePickerController (= 0.41.6)
-    - TOCropViewController (~> 2.7.4)
-  - RNImageCropPicker/QBImagePickerController (0.41.6):
+    - RNNotifee/NotifeeCore (= 7.8.2)
+  - RNNotifee/NotifeeCore (7.8.2):
     - React-Core
-    - React-RCTImage
-    - TOCropViewController (~> 2.7.4)
-  - RNNotifee (9.1.8):
-    - React-Core
-    - RNNotifee/NotifeeCore (= 9.1.8)
-  - RNNotifee/NotifeeCore (9.1.8):
-    - React-Core
-  - RNPermissions (4.1.5):
-    - React-Core
-  - RNReanimated (3.6.0):
+  - RNScreens (3.30.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-    - ReactCommon/turbomodule/core
-  - RNScreens (3.30.1):
+  - RNShare (11.0.4):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - RNSVG (15.11.2):
     - React-Core
-  - SDWebImage (5.11.1):
-    - SDWebImage/Core (= 5.11.1)
-  - SDWebImage/Core (5.11.1)
-  - SDWebImageWebPCoder (0.8.5):
-    - libwebp (~> 1.0)
-    - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.6.1)
-  - TOCropViewController (2.7.4)
-  - VisionCamera (4.6.4):
-    - VisionCamera/Core (= 4.6.4)
-    - VisionCamera/React (= 4.6.4)
-  - VisionCamera/Core (4.6.4)
-  - VisionCamera/React (4.6.4):
-    - React-Core
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1131,9 +1062,6 @@ DEPENDENCIES:
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - Google-Mobile-Ads-SDK (= 11.7.0)
-  - lottie-ios (~> 4.4.1)
-  - lottie-react-native (from `../node_modules/lottie-react-native`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -1157,13 +1085,10 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector-modern`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
-  - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
-  - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
-  - react-native-image-resizer (from `../node_modules/react-native-image-resizer`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
-  - react-native-webview (from `../node_modules/react-native-webview`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -1184,21 +1109,13 @@ DEPENDENCIES:
   - React-runtimescheduler (from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`)
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
-  - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
-  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
-  - RNFastImage (from `../node_modules/react-native-fast-image`)
-  - RNFS (from `../node_modules/react-native-fs`)
-  - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNFS2 (from `../node_modules/react-native-fs2`)
   - RNGoogleMobileAds (from `../node_modules/react-native-google-mobile-ads`)
-  - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
-  - RNPermissions (from `../node_modules/react-native-permissions`)
-  - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1206,12 +1123,7 @@ SPEC REPOS:
     - fmt
     - Google-Mobile-Ads-SDK
     - GoogleUserMessagingPlatform
-    - libwebp
-    - lottie-ios
-    - SDWebImage
-    - SDWebImageWebPCoder
     - SocketRocket
-    - TOCropViewController
 
 EXTERNAL SOURCES:
   boost:
@@ -1224,8 +1136,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
-  lottie-react-native:
-    :path: "../node_modules/lottie-react-native"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -1268,20 +1178,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
-  react-native-cameraroll:
-    :path: "../node_modules/@react-native-camera-roll/camera-roll"
-  react-native-geolocation:
-    :path: "../node_modules/@react-native-community/geolocation"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
-  react-native-image-resizer:
-    :path: "../node_modules/react-native-image-resizer"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-sqlite-storage:
+    :path: "../node_modules/react-native-sqlite-storage"
   react-native-view-shot:
     :path: "../node_modules/react-native-view-shot"
-  react-native-webview:
-    :path: "../node_modules/react-native-webview"
   React-nativeconfig:
     :path: "../node_modules/react-native/ReactCommon"
   React-NativeModulesApple:
@@ -1322,36 +1226,20 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/utils"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  RNBackgroundFetch:
-    :path: "../node_modules/react-native-background-fetch"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
-  RNCClipboard:
-    :path: "../node_modules/@react-native-clipboard/clipboard"
-  RNDeviceInfo:
-    :path: "../node_modules/react-native-device-info"
-  RNFastImage:
-    :path: "../node_modules/react-native-fast-image"
-  RNFS:
-    :path: "../node_modules/react-native-fs"
-  RNGestureHandler:
-    :path: "../node_modules/react-native-gesture-handler"
+  RNFS2:
+    :path: "../node_modules/react-native-fs2"
   RNGoogleMobileAds:
     :path: "../node_modules/react-native-google-mobile-ads"
-  RNImageCropPicker:
-    :path: "../node_modules/react-native-image-crop-picker"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
-  RNPermissions:
-    :path: "../node_modules/react-native-permissions"
-  RNReanimated:
-    :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNShare:
+    :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  VisionCamera:
-    :path: "../node_modules/react-native-vision-camera"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -1364,9 +1252,6 @@ SPEC CHECKSUMS:
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   Google-Mobile-Ads-SDK: 204b517c9765169144cf39763c7f5d23c57a9db0
   GoogleUserMessagingPlatform: 6b4f48a370e77ce121d034c908cc6ee4fdafaf13
-  libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
-  lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
-  lottie-react-native: 2d9efc8a5ffabe688b55a1a1ac1fb94b9d971995
   RCT-Folly: 7169b2b1c44399c76a47b5deaaba715eeeb476c0
   RCTRequired: ca1d7414aba0b27efcfa2ccd37637edb1ab77d96
   RCTTypeSafety: 678e344fb976ff98343ca61dc62e151f3a042292
@@ -1388,13 +1273,10 @@ SPEC CHECKSUMS:
   React-jsinspector: 85583ef014ce53d731a98c66a0e24496f7a83066
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: 84ea43c6c6232049135b1550b8c60b2faac19fab
-  react-native-cameraroll: 912ec18488be13e0fb34893cd1f435b7982bf6ac
-  react-native-geolocation: 167798574694849024cb093222bd158e84ac8d21
   react-native-image-picker: 3e4ad7a308e087f49f8aa1443c9ead2e8ce8f060
-  react-native-image-resizer: d9fb629a867335bdc13230ac2a58702bb8c8828f
   react-native-safe-area-context: 141eca0fd4e4191288dfc8b96a7c7e1c2983447a
+  react-native-sqlite-storage: f6d515e1c446d1e6d026aa5352908a25d4de3261
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
-  react-native-webview: 39871a8054d490f53e71b404f477b36c89779dbe
   React-nativeconfig: b4d4e9901d4cabb57be63053fd2aa6086eb3c85f
   React-NativeModulesApple: ae99dc0e80c9027f54572c45635449fbdc36e4f1
   React-perflogger: 5f49905de275bac07ac7ea7f575a70611fa988f2
@@ -1415,27 +1297,16 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 9daefa990db62f8874bc9d6e7e504272c6b6c57f
   React-utils: d16c1d2251c088ad817996621947d0ac8167b46c
   ReactCommon: 447281ad2034ea3252bf81a60d1f77d5afb0b636
-  RNBackgroundFetch: 11d6fff0247a2c7623c7db00e3cd65e405d216ea
   RNCAsyncStorage: addfc2cb6511dbe199c56c6b26ede383b6c38919
-  RNCClipboard: 4411a880506f11fbcbdc03b5093eb8ffb246d900
-  RNDeviceInfo: feea80a690d2bde1fe51461cf548039258bd03f2
-  RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
-  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: bc2cdb2dc42facdf34992ae364b8a728e19a3686
+  RNFS2: 135438814bf0b609b470c9bda303856d4b0c7784
   RNGoogleMobileAds: 42b6f4b7705813f4eb955ca640c757f8a07764bf
-  RNImageCropPicker: 8e39c01f205e00d739c31e682f068aac315587bf
-  RNNotifee: 4a6ee5c7deaf00e005050052d73ee6315dff7ec9
-  RNPermissions: bb696030f8cca10f1d5a97d34699c97a33a76b45
-  RNReanimated: 4585e02c2e4863f4ebd0c0295089651c2e33128b
+  RNNotifee: 8e2d3df3f0e9ce8f5d1fe4c967431138190b6175
   RNScreens: b6b64d956af3715adbfe84808694ae82d3fec74f
+  RNShare: 4bf2a3bf5f436253196c92578a914f96adce71a6
   RNSVG: d3dcdd1472cc7e82b0654c48bf6abf893485b074
-  SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
-  SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
-  VisionCamera: b5c2b3c45e641102902a5194af11dc532805221e
   Yoga: d17d2cc8105eed528474683b42e2ea310e1daf61
 
-PODFILE CHECKSUM: 6d9a9d2c4d3b41aa4428575c79e64a52d5062d3e
+PODFILE CHECKSUM: 076c915bc28c90c8e4fbff0f72fb645eaf184e2a
 
 COCOAPODS: 1.13.0

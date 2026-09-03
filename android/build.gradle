@@ -6,33 +6,15 @@ buildscript {
         targetSdkVersion = 34
         ndkVersion = "25.1.8937393"
         kotlinVersion = "1.9.22"
-        androidGradlePluginVersion = "8.1.1" // 업데이트된 버전으로 설정
     }
     repositories {
         google()
         mavenCentral()
-        maven {
-            // react-native-background-fetch
-            url("${project(':react-native-background-fetch').projectDir}/libs")
-        }
     }
     dependencies {
         classpath("com.facebook.react:react-native-gradle-plugin")
-        // classpath("com.android.tools.build:gradle:$androidGradlePluginVersion")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-        // classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
         classpath("com.android.tools.build:gradle")
-        classpath('com.google.android.gms:strict-version-matcher-plugin:1.2.1')
     }
-}
-allprojects {
-    repositories {
-        maven {
-            url("$rootDir/../node_modules/react-native-background-fetch/android/libs")
-        }
-    }
-}
-wrapper {
-    gradleVersion = '8.7' // 최신 Gradle 버전으로 업데이트
 }
 apply plugin: "com.facebook.react.rootproject"
