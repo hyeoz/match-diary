@@ -19,11 +19,13 @@
 - 지원 페이지 `https://hyeoz.github.io/privacy/support/` 공개 및 HTTP 200 확인
 - App Store Connect에 iOS 2.4.0 버전 생성 (`PREPARE_FOR_SUBMISSION`)
 - App Store Connect 한국어 설명·키워드·출시 노트·지원 URL·개인정보처리방침 URL 반영
-- Apple Distribution 인증서와 iOS App Store 프로비저닝 프로파일 생성·설치
+- Apple Developer App ID에 App Attest 활성화 확인
+- App Attest entitlement가 포함된 iOS App Store 프로비저닝 프로파일 생성·설치
+- Apple Distribution 서명, production App Attest entitlement, 스토어 검증을 포함한 iOS 2.4.0 archive 성공
 - 설정 화면 검토 캡처: `docs/runtime-captures/stage10-settings.png`
 - Google Play 데이터 보안 설문 반영과 베타 바이너리 업로드는 아래 운영 게이트 통과 후 진행
 
-TestFlight 2.4.0 바이너리는 아직 업로드하지 않았다. 실제 배포 아카이브 검증에서 기존 App ID에 App Attest가 활성화되지 않아 생성된 프로비저닝 프로파일이 `com.apple.developer.devicecheck.appattest-environment` entitlement를 포함하지 않는 것을 확인했다. Apple Developer의 `Certificates, Identifiers & Profiles`에서 `com.matchdirary.app` App ID의 App Attest를 활성화하고 프로파일을 재생성한 뒤 업로드한다.
+TestFlight 2.4.0 바이너리는 아직 업로드하지 않았다. iOS 배포 서명 게이트는 통과했으며, 운영 복구 API와 실제 기기 복구 E2E 검증을 완료한 뒤 업로드한다.
 
 ## 베타 업로드 전 필수 게이트
 
@@ -32,8 +34,7 @@ TestFlight 2.4.0 바이너리는 아직 업로드하지 않았다. 실제 배포
 1. `MATCHDIARY_RECOVERY_API_BASE_URL`: 운영 HTTPS 복구 API 주소
 2. `MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER`: Play Integrity와 연결된 Cloud 프로젝트 번호
 3. Android 기존 앱과 동일한 업로드 키
-4. Apple Developer App ID `com.matchdirary.app`의 App Attest 활성화 및 프로비저닝 프로파일 재생성
-5. App Store Connect 및 iOS 배포 서명 권한
+4. App Store Connect 및 iOS 배포 서명 권한
 
 두 복구 설정이 없으면 `npm run release:verify -- --production`이 실패하도록 했다. 기존 사용자의 데이터 복구를 약속하는 빌드를 복구 기능 없이 배포하지 않기 위한 장치다.
 
