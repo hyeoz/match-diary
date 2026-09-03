@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -37,31 +37,10 @@ export default function OnboardingScreen({ navigation }: Props) {
   const [restoring, setRestoring] = useState(false);
   const saveProfile = useRevivalStore(state => state.saveProfile);
   const restoreBackup = useRevivalStore(state => state.restoreBackup);
-  const legacyRecoveryStatus = useRevivalStore(
-    state => state.legacyRecoveryStatus,
-  );
-  const legacyRecoveryResult = useRevivalStore(
-    state => state.legacyRecoveryResult,
-  );
   const selectedTeam = useMemo(
     () => teams.find(team => team.id === teamId) ?? teams[0],
     [teamId],
   );
-
-  useEffect(() => {
-    if (
-      legacyRecoveryStatus !== 'completed' ||
-      !legacyRecoveryResult ||
-      !useRevivalStore.getState().profile
-    ) {
-      return;
-    }
-    Alert.alert(
-      '기존 기록을 자동 복구했어요',
-      `${legacyRecoveryResult.recordCount}개 기록과 ${legacyRecoveryResult.mediaCount}개 사진·티켓을 가져왔습니다.`,
-      [{ text: '직관일기 열기', onPress: () => navigation.replace('Main') }],
-    );
-  }, [legacyRecoveryResult, legacyRecoveryStatus, navigation]);
 
   const submit = async () => {
     if (!nickname.trim() || saving) return;

@@ -11,9 +11,6 @@ jobs:
   production-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      MATCHDIARY_RECOVERY_API_BASE_URL: ${{ secrets.MATCHDIARY_RECOVERY_API_BASE_URL }}
-      MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER: ${{ secrets.MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,8 +26,6 @@ jobs:
     needs: production-gate
     runs-on: macos-15
     timeout-minutes: 45
-    env:
-      MATCHDIARY_RECOVERY_API_BASE_URL: ${{ secrets.MATCHDIARY_RECOVERY_API_BASE_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -49,7 +44,6 @@ jobs:
           -scheme matchdiary
           -configuration Release
           -sdk iphonesimulator
-          MATCHDIARY_RECOVERY_API_BASE_URL="$MATCHDIARY_RECOVERY_API_BASE_URL"
           CODE_SIGNING_ALLOWED=NO
           build
 
@@ -58,8 +52,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      MATCHDIARY_RECOVERY_API_BASE_URL: ${{ secrets.MATCHDIARY_RECOVERY_API_BASE_URL }}
-      MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER: ${{ secrets.MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER }}
       ORG_GRADLE_PROJECT_MYAPP_RELEASE_STORE_FILE: matchdiary-release.keystore
       ORG_GRADLE_PROJECT_MYAPP_RELEASE_STORE_PASSWORD: ${{ secrets.MATCHDIARY_ANDROID_STORE_PASSWORD }}
       ORG_GRADLE_PROJECT_MYAPP_RELEASE_KEY_ALIAS: ${{ secrets.MATCHDIARY_ANDROID_KEY_ALIAS }}

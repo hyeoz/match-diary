@@ -68,9 +68,6 @@ def enableProguardInReleaseBuilds = false
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
-def recoveryApiBaseUrl = project.findProperty('MATCHDIARY_RECOVERY_API_BASE_URL') ?: System.getenv('MATCHDIARY_RECOVERY_API_BASE_URL') ?: ''
-def recoveryCloudProjectNumber = project.findProperty('MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER') ?: System.getenv('MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER') ?: ''
-
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -84,8 +81,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 26
         versionName "2.4.0"
-        buildConfigField "String", "MATCHDIARY_RECOVERY_API_BASE_URL", "\"${recoveryApiBaseUrl}\""
-        buildConfigField "String", "MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER", "\"${recoveryCloudProjectNumber}\""
+        buildConfigField "String", "MATCHDIARY_RECOVERY_API_BASE_URL", '""'
+        buildConfigField "String", "MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER", '""'
     }
     signingConfigs {
         debug {

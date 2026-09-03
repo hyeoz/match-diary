@@ -109,16 +109,6 @@ for (const requiredFile of [
   }
 }
 
-const recoveryUrl = process.env.MATCHDIARY_RECOVERY_API_BASE_URL ?? '';
-const playProjectNumber =
-  process.env.MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER ?? '';
-if (!/^https:\/\//.test(recoveryUrl)) {
-  warnings.push('production HTTPS recovery endpoint is not configured');
-}
-if (!/^\d+$/.test(playProjectNumber)) {
-  warnings.push('Play Integrity cloud project number is not configured');
-}
-
 if (process.argv.includes('--production') && warnings.length) {
   failures.push(...warnings.map(warning => `production gate: ${warning}`));
 }
