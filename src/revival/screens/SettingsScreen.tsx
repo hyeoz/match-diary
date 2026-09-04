@@ -151,7 +151,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={[styles.hero, { backgroundColor: team.color }]}>
           <View style={styles.ballLine} />
@@ -264,7 +264,7 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: 110,
+    paddingBottom: spacing.lg,
   },
   hero: {
     position: 'relative',

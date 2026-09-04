@@ -11,15 +11,23 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
 import { cardShadow, colors, font, radius, spacing } from './theme';
 
 export function Screen({
   children,
+  edges,
   style,
-}: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
-  return <SafeAreaView style={[styles.screen, style]}>{children}</SafeAreaView>;
+}: PropsWithChildren<{
+  edges?: readonly Edge[];
+  style?: StyleProp<ViewStyle>;
+}>) {
+  return (
+    <SafeAreaView edges={edges} style={[styles.screen, style]}>
+      {children}
+    </SafeAreaView>
+  );
 }
 
 export function AppHeader({

@@ -36,7 +36,7 @@ export default function TodayScreen() {
   );
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.greetingRow}>
           <View>
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.lg,
-    paddingBottom: 112,
+    paddingBottom: spacing.lg,
   },
   greetingRow: {
     flexDirection: 'row',

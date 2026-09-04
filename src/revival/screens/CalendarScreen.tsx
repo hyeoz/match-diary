@@ -68,7 +68,7 @@ export default function CalendarScreen() {
   ).length;
 
   return (
-    <Screen style={styles.screen}>
+    <Screen edges={['top', 'left', 'right']} style={styles.screen}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.lg,
   },
   calendarCard: {
     padding: spacing.md,

@@ -50,7 +50,7 @@ export default function RecordsScreen() {
   };
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>내 직관일기 모아보기</Text>
         <ScrollView
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
-    paddingBottom: 110,
+    paddingBottom: spacing.lg,
   },
   title: {
     ...font('bold'),
