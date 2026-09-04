@@ -64,6 +64,9 @@ if (
 ) {
   failures.push('iOS marketing version');
 }
+if (!xcodeProject.includes('react-native-xcode.sh')) {
+  failures.push('iOS Release JavaScript bundle build phase');
+}
 
 for (const [label, url] of [
   ['privacy policy URL', expected.privacyUrl],

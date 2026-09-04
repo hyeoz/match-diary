@@ -22,14 +22,17 @@
 - Apple Developer App ID에 App Attest 활성화 확인
 - App Attest entitlement가 포함된 iOS App Store 프로비저닝 프로파일 생성·설치
 - Apple Distribution 서명, production App Attest entitlement, 스토어 검증을 포함한 iOS 2.4.0 archive 성공
-- iOS 2.4.0 (빌드 2)을 TestFlight에 업로드하고 Apple 처리 완료 확인 (`VALID`, 내부 상태 `IN_BETA_TESTING`)
+- iOS 2.4.0 (빌드 2)은 Release JavaScript 번들 누락으로 시작 즉시 종료되는 문제가 확인되어 사용 중단
+- 번들 빌드 단계를 복구한 iOS 2.4.0 (빌드 3)을 Release 시뮬레이터에서 Metro 없이 실행해 시작 화면 표시와 프로세스 유지 확인
+- 빌드 3 아카이브에 `main.jsbundle` 포함, Apple Distribution 서명 및 production App Attest entitlement 확인
+- iOS 2.4.0 (빌드 3)을 TestFlight에 업로드하고 Apple 처리 완료 확인 (`VALID`, 내부 상태 `IN_BETA_TESTING`)
 - 기존 내부 `Admin` 그룹은 모든 빌드 자동 접근 설정으로 별도 베타 심사 없이 설치 가능
 - 한국어 `테스트할 내용`에 이번 빌드의 점검 범위와 기존 사용자 자동 복구 비활성 상태를 명시
 - 설정 화면 검토 캡처: `docs/runtime-captures/stage10-settings.png`
 - 요청형 복구 메뉴 검토 캡처: `docs/runtime-captures/stage10-request-recovery-settings.png`
 - Google Play 데이터 보안 설문 반영과 베타 바이너리 업로드는 아래 운영 게이트 통과 후 진행
 
-TestFlight 2.4.0 (2)은 UI와 서버리스 로컬 기능을 검증할 수 있도록 업로드했다. 이 빌드는 앱 시작 시 기존 서버 데이터를 조회하지 않으며, 설정의 `기존 기록 복구 요청`에서 지원 페이지를 연다. 기존 사용자 데이터는 지원을 요청한 사용자에게만 본인 확인 후 개별 `.matchdiary` 파일로 제공한다.
+TestFlight 2.4.0 (2)은 사용하지 않는다. 크래시 수정 빌드인 2.4.0 (3)은 앱 시작 시 기존 서버 데이터를 조회하지 않으며, 설정의 `기존 기록 복구 요청`에서 지원 페이지를 연다. 기존 사용자 데이터는 지원을 요청한 사용자에게만 본인 확인 후 개별 `.matchdiary` 파일로 제공한다.
 
 ## 베타 업로드 전 필수 게이트
 
