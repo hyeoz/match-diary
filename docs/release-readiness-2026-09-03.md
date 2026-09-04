@@ -26,13 +26,19 @@
 - 번들 빌드 단계를 복구한 iOS 2.4.0 (빌드 3)을 Release 시뮬레이터에서 Metro 없이 실행해 시작 화면 표시와 프로세스 유지 확인
 - 빌드 3 아카이브에 `main.jsbundle` 포함, Apple Distribution 서명 및 production App Attest entitlement 확인
 - iOS 2.4.0 (빌드 3)을 TestFlight에 업로드하고 Apple 처리 완료 확인 (`VALID`, 내부 상태 `IN_BETA_TESTING`)
+- 캘린더를 스크롤 구조로 전환해 작은 화면에서 광고·하단 탭 때문에 선택 날짜 영역이 잘리던 문제 수정
+- 선택 날짜 영역을 가로 전체 카드로 정리하고 `기록하기`·`알림 받기`를 48pt 아이콘 버튼으로 교체
+- iPhone SE에서 실제 테스트 광고와 하단 탭을 함께 표시한 뒤 카드·버튼·월간 통계까지 스크롤 가능한 상태 확인
+- iOS 2.4.0 (빌드 4)을 TestFlight에 업로드하고 Apple 처리 완료 확인 (`VALID`, 내부 상태 `IN_BETA_TESTING`)
 - 기존 내부 `Admin` 그룹은 모든 빌드 자동 접근 설정으로 별도 베타 심사 없이 설치 가능
 - 한국어 `테스트할 내용`에 이번 빌드의 점검 범위와 기존 사용자 자동 복구 비활성 상태를 명시
 - 설정 화면 검토 캡처: `docs/runtime-captures/stage10-settings.png`
 - 요청형 복구 메뉴 검토 캡처: `docs/runtime-captures/stage10-request-recovery-settings.png`
+- 캘린더 상단 검토 캡처: `docs/runtime-captures/calendar-scroll-overview.png`
+- 캘린더 버튼·광고·하단 탭 검토 캡처: `docs/runtime-captures/calendar-actions-layout-fix.png`
 - Google Play 데이터 보안 설문 반영과 베타 바이너리 업로드는 아래 운영 게이트 통과 후 진행
 
-TestFlight 2.4.0 (2)은 사용하지 않는다. 크래시 수정 빌드인 2.4.0 (3)은 앱 시작 시 기존 서버 데이터를 조회하지 않으며, 설정의 `기존 기록 복구 요청`에서 지원 페이지를 연다. 기존 사용자 데이터는 지원을 요청한 사용자에게만 본인 확인 후 개별 `.matchdiary` 파일로 제공한다.
+TestFlight 2.4.0 (2)은 사용하지 않는다. 크래시 수정과 캘린더 레이아웃 개선을 모두 포함한 최신 베타는 2.4.0 (4)이다. 앱 시작 시 기존 서버 데이터를 조회하지 않으며, 설정의 `기존 기록 복구 요청`에서 지원 페이지를 연다. 기존 사용자 데이터는 지원을 요청한 사용자에게만 본인 확인 후 개별 `.matchdiary` 파일로 제공한다.
 
 ## 베타 업로드 전 필수 게이트
 

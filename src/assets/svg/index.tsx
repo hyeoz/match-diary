@@ -15,6 +15,8 @@ import Stamp from './stamp.svg';
 import Write from './write.svg';
 import Change from './change.svg';
 import Refresh from './refresh.svg';
+import Bell from './bell.svg';
+import Pencil from './pencil.svg';
 
 import Bears from './bears.svg';
 import Dinos from './dinos.svg';
@@ -45,6 +47,8 @@ export {
   Write,
   Change,
   Refresh,
+  Bell,
+  Pencil,
   Bears,
   Dinos,
   Eagles,
