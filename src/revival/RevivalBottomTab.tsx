@@ -7,6 +7,7 @@ import { SvgProps } from 'react-native-svg';
 import { Calendar, Home, Location, More, Photos } from '@/assets/svg';
 import AdBanner from './ads/AdBanner';
 import { useAds } from './ads/AdsContext';
+import { isPreviewBannerHidden } from './preview';
 import { colors, font } from './theme';
 
 const tabConfig: Record<
@@ -26,10 +27,11 @@ export default function RevivalBottomTab({
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { ready: adsReady } = useAds();
+  const hidePreviewBanner = isPreviewBannerHidden();
 
   return (
     <View style={styles.shell}>
-      {adsReady ? <AdBanner /> : null}
+      {adsReady && !hidePreviewBanner ? <AdBanner /> : null}
       <View
         style={[styles.outer, { paddingBottom: Math.max(insets.bottom, 8) }]}>
         {state.routes.map((route, index) => {

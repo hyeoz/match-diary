@@ -7,12 +7,24 @@ import { adUnitIds } from './config';
 
 export default function AdBanner() {
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  if (failed) return null;
 
   return (
-    <View style={[styles.container, loaded && styles.loaded]}>
+    <View
+      pointerEvents={loaded ? 'auto' : 'none'}
+      style={[styles.container, loaded ? styles.loaded : styles.collapsed]}
+      testID="ad-banner-container">
       <BannerAd
-        onAdFailedToLoad={() => setLoaded(false)}
-        onAdLoaded={() => setLoaded(true)}
+        onAdFailedToLoad={() => {
+          setLoaded(false);
+          setFailed(true);
+        }}
+        onAdLoaded={() => {
+          setFailed(false);
+          setLoaded(true);
+        }}
         requestOptions={{ requestNonPersonalizedAdsOnly: true }}
         size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
         unitId={adUnitIds.banner}
@@ -25,6 +37,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     backgroundColor: colors.canvas,
+  },
+  collapsed: {
+    height: 0,
+    overflow: 'hidden',
+    opacity: 0,
   },
   loaded: {
     borderTopWidth: StyleSheet.hairlineWidth,

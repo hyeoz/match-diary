@@ -26,6 +26,14 @@ export const getPreviewScreen = (): PreviewScreen | null => {
   return value ?? null;
 };
 
+export const isPreviewBannerHidden = (): boolean => {
+  if (!__DEV__) return false;
+
+  return Boolean(
+    NativeModules.SettingsManager?.settings?.REVIVAL_PREVIEW_HIDE_BANNER,
+  );
+};
+
 export const previewRecords = (): LocalRecord[] => [
   {
     id: 'preview-1',
