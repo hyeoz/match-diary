@@ -11,7 +11,13 @@ import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
 
 import { backupErrorMessage } from '../backupErrors';
-import { APP_VERSION, PRIVACY_POLICY_URL, SUPPORT_URL } from '../appInfo';
+import {
+  APP_VERSION,
+  LEGACY_RECOVERY_EMAIL_URL,
+  PRIVACY_POLICY_URL,
+  SUPPORT_EMAIL,
+  SUPPORT_URL,
+} from '../appInfo';
 import { MenuRow, PaperCard, Screen } from '../components';
 import { useAds } from '../ads/AdsContext';
 import { teamById } from '../data';
@@ -45,6 +51,17 @@ export default function SettingsScreen() {
       Alert.alert(
         '페이지를 열지 못했어요',
         '네트워크 연결을 확인하고 다시 시도해주세요.',
+      );
+    }
+  };
+
+  const openLegacyRecoveryRequest = async () => {
+    try {
+      await Linking.openURL(LEGACY_RECOVERY_EMAIL_URL);
+    } catch {
+      Alert.alert(
+        '메일 앱을 열지 못했어요',
+        `${SUPPORT_EMAIL}으로 기존 기록 복구를 문의해주세요.`,
       );
     }
   };
@@ -208,7 +225,7 @@ export default function SettingsScreen() {
             caption="예전 버전의 데이터가 필요하면 개별 복구 요청"
             icon="✉"
             label="기존 기록 복구 요청"
-            onPress={() => openExternalUrl(SUPPORT_URL)}
+            onPress={openLegacyRecoveryRequest}
           />
           <MenuRow
             caption="수집·이용·보관 및 삭제 안내"
