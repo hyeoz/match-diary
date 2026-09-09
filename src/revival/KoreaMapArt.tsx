@@ -55,23 +55,26 @@ export function KoreaMapArt() {
     <Svg
       accessibilityElementsHidden
       pointerEvents="none"
+      preserveAspectRatio="none"
       style={StyleSheet.absoluteFillObject}
-      viewBox="0 0 320 410">
+      viewBox="0 0 410 410">
       <G opacity={0.35} stroke="#C4DCE0" strokeWidth={1}>
-        <Line x1="0" x2="320" y1="102" y2="102" />
-        <Line x1="0" x2="320" y1="205" y2="205" />
-        <Line x1="0" x2="320" y1="307" y2="307" />
-        <Line x1="80" x2="80" y1="0" y2="410" />
-        <Line x1="160" x2="160" y1="0" y2="410" />
-        <Line x1="240" x2="240" y1="0" y2="410" />
+        <Line x1="0" x2="410" y1="102" y2="102" />
+        <Line x1="0" x2="410" y1="205" y2="205" />
+        <Line x1="0" x2="410" y1="307" y2="307" />
+        <Line x1="102" x2="102" y1="0" y2="410" />
+        <Line x1="205" x2="205" y1="0" y2="410" />
+        <Line x1="307" x2="307" y1="0" y2="410" />
       </G>
-      <Path
-        d={KOREA_PATH}
-        fill="#F5EFCF"
-        stroke="#B9C99D"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-      />
+      <G transform="translate(45 0)">
+        <Path
+          d={KOREA_PATH}
+          fill="#F5EFCF"
+          stroke="#B9C99D"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+        />
+      </G>
     </Svg>
   );
 }

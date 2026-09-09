@@ -17,15 +17,10 @@ import { colors, font, spacing } from '../theme';
 const pinPosition = (stadium: Stadium) => {
   const latitude = stadium.latitude ?? 36.3;
   const longitude = stadium.longitude ?? 127.6;
-  const adjustments: Record<string, { x: number; y: number }> = {
-    incheon: { x: -5, y: 2 },
-    gocheok: { x: -1, y: -3 },
-    jamsil: { x: 4, y: -1 },
-    suwon: { x: 2, y: 4 },
-  };
-  const adjustment = adjustments[stadium.id] ?? { x: 0, y: 0 };
-  const top = ((38.7 - latitude) / 5.7) * 100 + adjustment.y;
-  const left = ((longitude - 125.5) / 4.5) * 100 + adjustment.x;
+  const mapX = 45 + ((longitude - 125.5) / 4.5) * 320;
+  const mapY = ((38.7 - latitude) / 5.7) * 410;
+  const top = (mapY / 410) * 100;
+  const left = (mapX / 410) * 100;
   return {
     top: `${Math.max(4, Math.min(92, top))}%` as `${number}%`,
     left: `${Math.max(7, Math.min(91, left))}%` as `${number}%`,
@@ -82,7 +77,17 @@ export default function MapScreen() {
                     selectedPin && styles.selectedPin,
                   ]}
                 />
-                <Text style={styles.pinLabel}>{pinLabel(stadium)}</Text>
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.pinLabel,
+                    stadium.id === 'incheon' && styles.incheonLabel,
+                    stadium.id === 'gocheok' && styles.gocheokLabel,
+                    stadium.id === 'jamsil' && styles.jamsilLabel,
+                    stadium.id === 'suwon' && styles.suwonLabel,
+                  ]}>
+                  {pinLabel(stadium)}
+                </Text>
               </TouchableOpacity>
             );
           })}
@@ -155,29 +160,34 @@ const styles = StyleSheet.create({
   pinWrap: {
     position: 'absolute',
     zIndex: 2,
+    width: 44,
+    height: 44,
     alignItems: 'center',
-    transform: [{ translateX: -18 }, { translateY: -8 }],
+    overflow: 'visible',
+    transform: [{ translateX: -22 }, { translateY: -5 }],
   },
   pin: {
-    width: 16,
-    height: 16,
-    borderWidth: 3,
+    width: 10,
+    height: 10,
+    borderWidth: 2,
     borderColor: colors.white,
-    borderRadius: 8,
+    borderRadius: 5,
   },
   visitedPin: { backgroundColor: colors.coral },
   unvisitedPin: { backgroundColor: colors.blue, opacity: 0.55 },
   selectedPin: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     borderColor: colors.yellow,
     opacity: 1,
   },
   pinLabel: {
     ...font('bold'),
+    position: 'absolute',
+    top: 14,
+    alignSelf: 'center',
     overflow: 'hidden',
-    marginTop: 2,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: 'rgba(185,201,157,0.7)',
     borderRadius: 6,
@@ -187,6 +197,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
     paddingVertical: 1,
   },
+  incheonLabel: { transform: [{ translateX: -18 }, { translateY: 8 }] },
+  gocheokLabel: { transform: [{ translateX: -10 }, { translateY: -31 }] },
+  jamsilLabel: { transform: [{ translateX: 22 }, { translateY: -7 }] },
+  suwonLabel: { transform: [{ translateX: 14 }, { translateY: 7 }] },
   legend: {
     position: 'absolute',
     right: spacing.sm,
