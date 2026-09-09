@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import { PaperCard, Screen } from '../components';
+import { KoreaMapArt } from '../KoreaMapArt';
 import { bundledStadiums, findStadium } from '../scheduleCatalog';
 import { useRevivalStore } from '../store';
 import type { Stadium } from '../storage/types';
@@ -16,13 +17,23 @@ import { colors, font, spacing } from '../theme';
 const pinPosition = (stadium: Stadium) => {
   const latitude = stadium.latitude ?? 36.3;
   const longitude = stadium.longitude ?? 127.6;
-  const top = 8 + ((38 - latitude) / 3.25) * 79;
-  const left = 9 + ((longitude - 126.35) / 2.95) * 78;
+  const adjustments: Record<string, { x: number; y: number }> = {
+    incheon: { x: -5, y: 2 },
+    gocheok: { x: -1, y: -3 },
+    jamsil: { x: 4, y: -1 },
+    suwon: { x: 2, y: 4 },
+  };
+  const adjustment = adjustments[stadium.id] ?? { x: 0, y: 0 };
+  const top = ((38.7 - latitude) / 5.7) * 100 + adjustment.y;
+  const left = ((longitude - 125.5) / 4.5) * 100 + adjustment.x;
   return {
-    top: `${Math.max(4, Math.min(88, top))}%` as `${number}%`,
-    left: `${Math.max(4, Math.min(86, left))}%` as `${number}%`,
+    top: `${Math.max(4, Math.min(92, top))}%` as `${number}%`,
+    left: `${Math.max(7, Math.min(91, left))}%` as `${number}%`,
   };
 };
+
+const pinLabel = (stadium: Stadium) =>
+  stadium.id === 'incheon' ? '인천' : stadium.shortName;
 
 export default function MapScreen() {
   const records = useRevivalStore(state => state.records);
@@ -52,9 +63,7 @@ export default function MapScreen() {
           {visitsByStadium.size} / {stadiums.length} 구장 정복
         </Text>
         <View style={styles.map}>
-          <View style={styles.landOne} />
-          <View style={styles.landTwo} />
-          <View style={styles.landThree} />
+          <KoreaMapArt />
           {stadiums.map(stadium => {
             const visited = visitsByStadium.has(stadium.id);
             const selectedPin = selected?.id === stadium.id;
@@ -73,7 +82,7 @@ export default function MapScreen() {
                     selectedPin && styles.selectedPin,
                   ]}
                 />
-                <Text style={styles.pinLabel}>{stadium.shortName}</Text>
+                <Text style={styles.pinLabel}>{pinLabel(stadium)}</Text>
               </TouchableOpacity>
             );
           })}
@@ -105,7 +114,7 @@ export default function MapScreen() {
               </View>
             </View>
             <Text style={styles.mapNotice}>
-              외부 지도·위치 권한 없이 앱에 포함된 구장 좌표로 표시합니다.
+              위치 권한 없이 앱에 포함된 구장 좌표로 표시합니다.
             </Text>
           </PaperCard>
         ) : null}
@@ -135,7 +144,7 @@ const styles = StyleSheet.create({
   },
   map: {
     position: 'relative',
-    height: 410,
+    height: 400,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.line,
@@ -143,36 +152,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#EAF4F5',
     marginTop: spacing.xl,
   },
-  landOne: {
+  pinWrap: {
     position: 'absolute',
-    top: 38,
-    left: '27%',
-    width: '48%',
-    height: 280,
-    borderRadius: 90,
-    backgroundColor: '#F2EFD7',
-    transform: [{ rotate: '-13deg' }],
+    zIndex: 2,
+    alignItems: 'center',
+    transform: [{ translateX: -18 }, { translateY: -8 }],
   },
-  landTwo: {
-    position: 'absolute',
-    top: 225,
-    left: '38%',
-    width: '34%',
-    height: 145,
-    borderRadius: 60,
-    backgroundColor: '#F2EFD7',
-    transform: [{ rotate: '18deg' }],
-  },
-  landThree: {
-    position: 'absolute',
-    bottom: 18,
-    left: '23%',
-    width: 36,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#F2EFD7',
-  },
-  pinWrap: { position: 'absolute', alignItems: 'center' },
   pin: {
     width: 16,
     height: 16,
@@ -189,7 +174,19 @@ const styles = StyleSheet.create({
     borderColor: colors.yellow,
     opacity: 1,
   },
-  pinLabel: { ...font('bold'), marginTop: 1, color: colors.ink, fontSize: 8 },
+  pinLabel: {
+    ...font('bold'),
+    overflow: 'hidden',
+    marginTop: 2,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(185,201,157,0.7)',
+    borderRadius: 6,
+    backgroundColor: 'rgba(255,252,247,0.92)',
+    color: colors.ink,
+    fontSize: 8,
+    paddingHorizontal: 3,
+    paddingVertical: 1,
+  },
   legend: {
     position: 'absolute',
     right: spacing.sm,
@@ -207,7 +204,7 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 8,
   },
-  detail: { marginTop: -18, padding: spacing.xl },
+  detail: { marginTop: spacing.lg, padding: spacing.xl },
   stadium: { ...font('bold'), color: colors.ink, fontSize: 20 },
   detailRow: {
     flexDirection: 'row',
