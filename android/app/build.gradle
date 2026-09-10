@@ -80,7 +80,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 26
-        versionName "2.4.0"
+        versionName "2.4.1"
         buildConfigField "String", "MATCHDIARY_RECOVERY_API_BASE_URL", '""'
         buildConfigField "String", "MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER", '""'
     }

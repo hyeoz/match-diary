@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const expected = {
-  version: '2.4.0',
+  version: '2.4.1',
   androidApplicationId: 'com.matchdiary.origin',
   androidVersionCode: 26,
   iosBundleId: 'com.matchdirary.app',
