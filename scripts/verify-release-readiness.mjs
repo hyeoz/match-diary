@@ -3,10 +3,16 @@ import path from 'node:path';
 
 const root = process.cwd();
 const expected = {
-  version: '2.4.1',
+  version: '2.4.2',
   androidApplicationId: 'com.matchdiary.origin',
-  androidVersionCode: 26,
+  androidVersionCode: 28,
   iosBundleId: 'com.matchdirary.app',
+  androidAdMobAppId: 'ca-app-pub-6998718430585981~8962262503',
+  iosAdMobAppId: 'ca-app-pub-6998718430585981~9567809309',
+  androidBannerAdUnitId: 'ca-app-pub-6998718430585981/6457292164',
+  androidInterstitialAdUnitId: 'ca-app-pub-6998718430585981/5144210498',
+  iosBannerAdUnitId: 'ca-app-pub-6998718430585981/1396537170',
+  iosInterstitialAdUnitId: 'ca-app-pub-6998718430585981/5899617912',
   privacyUrl: 'https://hyeoz.github.io/privacy/matchdiary/',
   supportUrl: 'https://hyeoz.github.io/privacy/support/',
 };
@@ -21,6 +27,7 @@ const requireMatch = (label, value, pattern) => {
 };
 
 const packageJson = JSON.parse(read('package.json'));
+const appJson = JSON.parse(read('app.json'));
 const androidRoot = read('android/build.gradle');
 const androidApp = read('android/app/build.gradle');
 const gradleWrapper = read('android/gradle/wrapper/gradle-wrapper.properties');
@@ -28,6 +35,7 @@ const xcodeProject = read('ios/matchdiary.xcodeproj/project.pbxproj');
 const infoPlist = read('ios/matchdiary/Info.plist');
 const privacyManifest = read('ios/matchdiary/PrivacyInfo.xcprivacy');
 const appInfo = read('src/revival/appInfo.ts');
+const adConfig = read('src/revival/ads/config.ts');
 
 if (packageJson.version !== expected.version) {
   failures.push('package.json version');
@@ -40,6 +48,25 @@ if (!androidApp.includes(`versionName "${expected.version}"`)) {
 }
 if (!androidApp.includes(`versionCode ${expected.androidVersionCode}`)) {
   failures.push('Android versionCode');
+}
+if (
+  appJson['react-native-google-mobile-ads']?.android_app_id !==
+  expected.androidAdMobAppId
+) {
+  failures.push('Android AdMob app ID');
+}
+if (
+  appJson['react-native-google-mobile-ads']?.ios_app_id !== expected.iosAdMobAppId
+) {
+  failures.push('iOS AdMob app ID');
+}
+for (const [label, adUnitId] of [
+  ['Android banner ad unit ID', expected.androidBannerAdUnitId],
+  ['Android interstitial ad unit ID', expected.androidInterstitialAdUnitId],
+  ['iOS banner ad unit ID', expected.iosBannerAdUnitId],
+  ['iOS interstitial ad unit ID', expected.iosInterstitialAdUnitId],
+]) {
+  if (!adConfig.includes(adUnitId)) failures.push(label);
 }
 requireMatch('Android compileSdk 36', androidRoot, /compileSdkVersion = 36/);
 requireMatch('Android targetSdk 36', androidRoot, /targetSdkVersion = 36/);

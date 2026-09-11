@@ -2,17 +2,16 @@ import { Platform } from 'react-native';
 import { TestIds } from 'react-native-google-mobile-ads';
 
 // Debug builds always use Google's test units. Production keeps the existing
-// Match Diary ad units so the revived app remains attached to the same AdMob
-// app instead of creating a second property.
+// Match Diary ad units in the current AdMob publisher account.
 const production = {
   banner: Platform.select({
-    android: 'ca-app-pub-9889330849837260/5847172714',
-    ios: 'ca-app-pub-9889330849837260/6327115488',
+    android: 'ca-app-pub-6998718430585981/6457292164',
+    ios: 'ca-app-pub-6998718430585981/1396537170',
     default: '',
   })!,
   interstitial: Platform.select({
-    android: 'ca-app-pub-9889330849837260/3428531549',
-    ios: 'ca-app-pub-9889330849837260/2115449876',
+    android: 'ca-app-pub-6998718430585981/5144210498',
+    ios: 'ca-app-pub-6998718430585981/5899617912',
     default: '',
   })!,
 };

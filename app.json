@@ -2,8 +2,8 @@
   "name": "matchdiary",
   "displayName": "직관일기",
   "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-9889330849837260~7281104504",
-    "ios_app_id": "ca-app-pub-9889330849837260~8339035302",
+    "android_app_id": "ca-app-pub-6998718430585981~8962262503",
+    "ios_app_id": "ca-app-pub-6998718430585981~9567809309",
     "delay_app_measurement_init": true
   }
 }
