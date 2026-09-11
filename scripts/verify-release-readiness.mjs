@@ -5,7 +5,7 @@ const root = process.cwd();
 const expected = {
   version: '2.4.2',
   androidApplicationId: 'com.matchdiary.origin',
-  androidVersionCode: 28,
+  androidVersionCode: 29,
   iosBundleId: 'com.matchdirary.app',
   androidAdMobAppId: 'ca-app-pub-6998718430585981~8962262503',
   iosAdMobAppId: 'ca-app-pub-6998718430585981~9567809309',

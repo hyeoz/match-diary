@@ -80,7 +80,7 @@ android {
         applicationId "com.matchdiary.origin" // 배포 시 .origin 붙여야 함
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 28
+        versionCode 29
         versionName "2.4.2"
         ndk {
             abiFilters "armeabi-v7a", "arm64-v8a"
