@@ -18,6 +18,7 @@ def node_require(script)
 end
 
 node_require('react-native/scripts/react_native_pods.rb')
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 platform :ios, '15.5'
 prepare_react_native_project!
 

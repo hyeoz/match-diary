@@ -7,6 +7,7 @@ const expected = {
   androidApplicationId: 'com.matchdiary.origin',
   androidVersionCode: 29,
   iosBundleId: 'com.matchdirary.app',
+  iosBuildNumber: '12',
   androidAdMobAppId: 'ca-app-pub-6998718430585981~8962262503',
   iosAdMobAppId: 'ca-app-pub-6998718430585981~9567809309',
   androidBannerAdUnitId: 'ca-app-pub-6998718430585981/6457292164',
@@ -31,8 +32,10 @@ const appJson = JSON.parse(read('app.json'));
 const androidRoot = read('android/build.gradle');
 const androidApp = read('android/app/build.gradle');
 const gradleWrapper = read('android/gradle/wrapper/gradle-wrapper.properties');
+const podfile = read('ios/Podfile');
 const xcodeProject = read('ios/matchdiary.xcodeproj/project.pbxproj');
 const infoPlist = read('ios/matchdiary/Info.plist');
+const appDelegate = read('ios/matchdiary/AppDelegate.mm');
 const privacyManifest = read('ios/matchdiary/PrivacyInfo.xcprivacy');
 const appInfo = read('src/revival/appInfo.ts');
 const adConfig = read('src/revival/ads/config.ts');
@@ -94,6 +97,25 @@ if (
 if (!xcodeProject.includes('react-native-xcode.sh')) {
   failures.push('iOS Release JavaScript bundle build phase');
 }
+const iosBuildNumberMatches = [
+  ...xcodeProject.matchAll(/CURRENT_PROJECT_VERSION = ([^;]+);/g),
+].map(match => match[1]);
+if (
+  iosBuildNumberMatches.length < 2 ||
+  iosBuildNumberMatches.some(value => value !== expected.iosBuildNumber)
+) {
+  failures.push('iOS build number');
+}
+requireMatch(
+  'iOS React Native bundle URL provider',
+  appDelegate,
+  /- \(NSURL \*\)bundleURL\s*\{[\s\S]*?URLForResource:@"main" withExtension:@"jsbundle"/,
+);
+requireMatch(
+  'iOS legacy architecture compatibility',
+  podfile,
+  /ENV\['RCT_NEW_ARCH_ENABLED'\]\s*=\s*'0'/,
+);
 
 for (const [label, url] of [
   ['privacy policy URL', expected.privacyUrl],
