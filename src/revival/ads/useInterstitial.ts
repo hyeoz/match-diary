@@ -1,56 +1,50 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { AppState } from 'react-native';
+import Storage from '@react-native-async-storage/async-storage';
 import { AdEventType, InterstitialAd } from 'react-native-google-mobile-ads';
-
+import { useAds } from './AdsContext';
 import { adUnitIds } from './config';
+import { createInterstitialPolicy } from './interstitialPolicy';
+import { createInterstitialController } from './interstitialController';
+
+// Shared by every hook instance; remounts do not reset frequency limits.
+const policy = createInterstitialPolicy(Storage, 2);
+const events = {
+  loaded: AdEventType.LOADED,
+  opened: AdEventType.OPENED,
+  closed: AdEventType.CLOSED,
+  error: AdEventType.ERROR,
+};
 
 export function useInterstitial(enabled = true) {
-  const adRef = useRef<InterstitialAd | null>(null);
-  const readyRef = useRef(false);
-  const [ready, setReady] = useState(false);
-
-  const setReadyState = (value: boolean) => {
-    readyRef.current = value;
-    setReady(value);
-  };
-
+  const { ready: canRequestAds } = useAds();
+  const allowed = enabled && canRequestAds && !!adUnitIds.interstitial;
+  const allowedRef = useRef(allowed);
+  allowedRef.current = allowed;
+  const controller = useRef<ReturnType<typeof createInterstitialController> | null>(null);
+  if (!controller.current) {
+    controller.current = createInterstitialController({
+      createAd: () => {
+        const ad = InterstitialAd.createForAdRequest(adUnitIds.interstitial, {
+          requestNonPersonalizedAdsOnly: true,
+        });
+        return {
+          listen: (event, callback) => ad.addAdEventListener(events[event], callback),
+          load: () => ad.load(),
+          show: () => ad.show(),
+        };
+      },
+      reserve: available => policy.reserve(available && allowedRef.current),
+      isActive: () => allowedRef.current && AppState.currentState === 'active',
+    });
+  }
   useEffect(() => {
-    if (!enabled) {
-      setReadyState(false);
-      adRef.current = null;
-      return;
-    }
+    const current = controller.current!;
+    if (allowed) current.start();
+    else current.stop();
+    return () => current.stop();
+  }, [allowed]);
 
-    const ad = InterstitialAd.createForAdRequest(adUnitIds.interstitial, {
-      requestNonPersonalizedAdsOnly: true,
-    });
-    adRef.current = ad;
-
-    const onLoaded = ad.addAdEventListener(AdEventType.LOADED, () =>
-      setReadyState(true),
-    );
-    const onClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
-      setReadyState(false);
-      ad.load();
-    });
-    const onError = ad.addAdEventListener(AdEventType.ERROR, () =>
-      setReadyState(false),
-    );
-
-    ad.load();
-    return () => {
-      setReadyState(false);
-      adRef.current = null;
-      onLoaded();
-      onClosed();
-      onError();
-    };
-  }, [enabled]);
-
-  const show = useCallback(() => {
-    if (readyRef.current && adRef.current) {
-      adRef.current.show().catch(() => {});
-    }
-  }, []);
-
-  return { ready, show };
+  const show = useCallback(() => controller.current!.show(), []);
+  return { show };
 }

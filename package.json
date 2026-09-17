@@ -13,7 +13,8 @@
     "test:ci": "jest --runInBand",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run lint && npm run test:ci",
-    "release:verify": "node scripts/verify-release-readiness.mjs"
+    "release:verify": "node scripts/verify-release-readiness.mjs",
+    "test:ads": "node --test scripts/test-interstitials.mjs"
   },
   "dependencies": {
     "@notifee/react-native": "^7.8.2",
