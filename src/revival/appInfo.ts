@@ -1,4 +1,6 @@
-export const APP_VERSION = '2.4.2';
+import { Platform } from 'react-native';
+
+export const APP_VERSION = Platform.OS === 'android' ? '2.4.3' : '2.4.2';
 
 export const PRIVACY_POLICY_URL = 'https://hyeoz.github.io/privacy/matchdiary/';
 export const SUPPORT_URL = 'https://hyeoz.github.io/privacy/support/';
