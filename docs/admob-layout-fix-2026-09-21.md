@@ -21,6 +21,8 @@ The branch already contains `b1e68ed`, which was added after the inspected Play 
 - Interstitial lifecycle/frequency suite: 17 tests passed in the preceding implementation run; its source is unchanged.
 - Android `assembleDebug -PreactNativeArchitectures=arm64-v8a`: succeeded; APK installed and app process launched on the Pixel 9a emulator.
 - Android emulator visual verification was blocked by the computer-control surface not exposing its standalone window. This is not a claim that its ad rendering was inspected.
+- iOS simulator Debug build succeeded. On iPhone 16 Pro (iOS 18.4), the shared React Native footer remained collapsed after loading until an explicit tab change, then displayed a Google test banner with the label/borders/buffers. Subsequent tab changes retained the visible footer. This validates the common UI on iOS, not Android-specific rendering or production ad creatives.
+- Simulator captures: [before navigation](runtime-captures/ad-layout-before-navigation-2026-09-21.png), [after navigation](runtime-captures/ad-layout-after-navigation-2026-09-21.png). Preview fixture data and Google test ads only; images are documentation assets and are not referenced by the app bundle.
 
 ## Release status
 
