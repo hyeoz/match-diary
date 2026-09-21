@@ -26,4 +26,4 @@ The branch already contains `b1e68ed`, which was added after the inspected Play 
 
 ## Release status
 
-These are local source changes. Google Play upload and AdMob review submission have not been performed. Google's policy center did not identify an affected version or example screen, so this correction addresses identified risks without claiming to prove or resolve the original enforcement.
+Google Play publication was authorized and attempted as Android 2.4.3 (30); the release draft is saved, but the initial upload was rejected for an incorrect signing certificate. The correct signing credential requires a native Keychain approval. See [release status and continuation](android-release-2.4.3-2026-09-21.md). No store review or AdMob review has been submitted. Google's policy center did not identify an affected version or example screen, so this correction addresses identified risks without claiming to prove or resolve the original enforcement.
