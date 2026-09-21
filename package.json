@@ -31,7 +31,7 @@
     "react-native-get-random-values": "^1.11.0",
     "react-native-google-mobile-ads": "14.2.5",
     "react-native-image-picker": "^7.2.3",
-    "react-native-keychain": "^8.2.0",
+    "react-native-keychain": "10.0.0",
     "react-native-safe-area-context": "5.2.0",
     "react-native-screens": "4.5.0",
     "react-native-share": "^11.0.4",

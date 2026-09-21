@@ -4,6 +4,8 @@
 
 The user authorized Google Play production publication and an AdMob policy re-review after the corrected version is available. This applies to Android `com.matchdiary.origin`. iOS native release metadata remains at 2.4.2 (12).
 
+The user subsequently requested Android DEX and 16 KB corrections while unable to approve the Mac Keychain prompt. Those additional changes supersede the earlier candidate artifact; see [optimization and native validation](android-optimization-16kb-2026-09-21.md). Rebuild the latest source, not the initially rejected AAB, when publication resumes. The pending Keychain request has been cancelled.
+
 - Source release preparation: `f970207`; includes banner correction `14a3176` and previously committed interstitial behavior.
 - TypeScript, ESLint, Jest (14 suites / 41 tests), interstitial suite (17 tests), and production metadata checks passed.
 - Android release compilation and bundle generation succeeded. The first signed bundle was rejected by Google Play because the legacy checkout's default signing properties select the wrong upload certificate. This rejected artifact must not be released.
