@@ -1,5 +1,10 @@
 # Android 2.4.3 (30) release attempt
 
+## 2026-09-22 signing update
+
+Saved Keychain credential access succeeded on retry after the user requested authentication. The `matchdiary-release-1114` certificate was verified against the expected Play upload SHA-1, and `bundleRelease` completed successfully. The signed 24.1 MB AAB passed the release artifact gate: R8 mapping present, no QA entry marker, no Conceal library, and all 11 ARM64 libraries passed the 16 KB checks. Google Play accepted version 30 (2.4.3), including the ReTrace mapping and native symbols. Submitted the single production change (100% rollout) for review and confirmed the console message `검토를 위해 변경사항 1개를 전송했습니다.` and the `검토 중인 변경사항` section. Automated quick checks were still running at confirmation. Managed publishing remains enabled, so approval is not publication. The only release warning concerned an active artifact missing AD_ID; the current source and merged release manifest both contain AD_ID. The older signing blocker below records the prior attempt. App Store Connect currently requires Apple login, so iOS submission remains pending. AdMob re-review has not been sent because the new Android release is not live.
+
+
 ## Scope and validation
 
 The user authorized Google Play production publication and an AdMob policy re-review after the corrected version is available. This applies to Android `com.matchdiary.origin`. iOS native release metadata remains at 2.4.2 (12).
@@ -12,7 +17,7 @@ The user subsequently requested Android DEX and 16 KB corrections while unable t
 - Expected Play upload certificate SHA-1: `79:9C:4F:D6:21:EE:A4:41:C7:40:84:11:4A:84:0E:C4:D4:58:34:7F`.
 - Rejected certificate SHA-1: `58:7E:AB:1C:9F:CA:74:AE:7D:F1:EC:4D:86:6D:C4:4E:B7:A7:6C:D7`.
 
-## Console state
+## Console state (2026-09-21, superseded by the update above)
 
 - Existing production release: 2.4.2 (29), published September 13, 2026, 100% rollout.
 - No competing unpublished changes were present before this work.
@@ -21,7 +26,7 @@ The user subsequently requested Android DEX and 16 KB corrections while unable t
 - Removed the rejected bundle from the draft. No new accepted bundle, review submission, or publication yet.
 - Managed publishing is enabled. Once store review succeeds, publication still needs to be performed unless the user-authorized release is configured for automatic publication.
 
-## Signing blocker and continuation
+## Prior signing blocker and continuation
 
 Android Studio has saved keystore and key credentials for `matchdiary-release-1114.keystore` in macOS Keychain. The credentials were not printed or written into the repository. Retrieving them requires local Keychain approval, and computer control refuses access to the protected `com.apple.SecurityAgent` app. The user must approve the native access request; no password should be sent in Slack. The certificate for this candidate key has not yet been verified against Play.
 
