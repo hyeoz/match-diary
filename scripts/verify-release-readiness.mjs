@@ -3,11 +3,12 @@ import path from 'node:path';
 
 const root = process.cwd();
 const expected = {
-  version: '2.4.2',
+  version: '2.4.3',
   androidApplicationId: 'com.matchdiary.origin',
-  androidVersionCode: 29,
+  androidVersionCode: 30,
+  iosVersion: '2.4.3',
   iosBundleId: 'com.matchdirary.app',
-  iosBuildNumber: '12',
+  iosBuildNumber: '13',
   androidAdMobAppId: 'ca-app-pub-6998718430585981~8962262503',
   iosAdMobAppId: 'ca-app-pub-6998718430585981~9567809309',
   androidBannerAdUnitId: 'ca-app-pub-6998718430585981/6457292164',
@@ -90,7 +91,7 @@ const marketingVersionMatches = [
 ].map(match => match[1]);
 if (
   marketingVersionMatches.length < 2 ||
-  marketingVersionMatches.some(value => value !== expected.version)
+  marketingVersionMatches.some(value => value !== expected.iosVersion)
 ) {
   failures.push('iOS marketing version');
 }
@@ -149,7 +150,7 @@ for (const requiredPrivacyType of [
 
 for (const requiredFile of [
   'store/app-store/app-info/ko.json',
-  `store/app-store/version/${expected.version}/ko.json`,
+  `store/app-store/version/${expected.iosVersion}/ko.json`,
   'store/google-play/ko-KR/title.txt',
   'store/google-play/ko-KR/short-description.txt',
   'store/google-play/ko-KR/full-description.txt',

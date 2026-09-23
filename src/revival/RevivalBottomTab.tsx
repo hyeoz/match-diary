@@ -1,11 +1,17 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
 
 import { Calendar, Home, Location, More, Photos } from '@/assets/svg';
-import AdBanner from './ads/AdBanner';
+import AdBanner, { AdBannerHandle } from './ads/AdBanner';
 import { useAds } from './ads/AdsContext';
 import { isPreviewBannerHidden } from './preview';
 import { colors, font } from './theme';
@@ -28,10 +34,14 @@ export default function RevivalBottomTab({
   const insets = useSafeAreaInsets();
   const { ready: adsReady } = useAds();
   const hidePreviewBanner = isPreviewBannerHidden();
+  const banner = useRef<AdBannerHandle>(null);
+  const { width } = useWindowDimensions();
 
   return (
     <View style={styles.shell}>
-      {adsReady && !hidePreviewBanner ? <AdBanner /> : null}
+      {adsReady && !hidePreviewBanner ? (
+        <AdBanner key={width} ref={banner} />
+      ) : null}
       <View
         style={[styles.outer, { paddingBottom: Math.max(insets.bottom, 8) }]}>
         {state.routes.map((route, index) => {
@@ -44,7 +54,17 @@ export default function RevivalBottomTab({
               key={route.key}
               accessibilityRole="button"
               accessibilityState={active ? { selected: true } : {}}
-              onPress={() => navigation.navigate(route.name)}
+              onPress={() => {
+                const event = navigation.emit({
+                  type: 'tabPress',
+                  target: route.key,
+                  canPreventDefault: true,
+                });
+                if (!active && !event.defaultPrevented) {
+                  banner.current?.showOnNavigation();
+                  navigation.navigate(route.name);
+                }
+              }}
               style={styles.tab}>
               <View
                 style={[
