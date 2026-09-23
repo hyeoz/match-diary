@@ -1,5 +1,20 @@
 # Android 2.4.3 (30) release attempt
 
+## 2026-09-23 publication and AdMob review
+
+After the user reported publication, opened a fresh Play Console page to avoid stale state from the previous session. Confirmed production **30 (2.4.3)** is `Google Play에 제공됨`, full rollout 100%, published September 23 at 17:45 as displayed by the console. No unpublished changes remain.
+
+The active 30.aab details now report:
+- Memory page size: `16KB 지원`, with no prior Conceal-specific warning in this bundle view.
+- DEX code optimization: `높음`.
+- Obfuscation ratio: **91%** (Play's actual metric, formerly reported as 2%).
+- Uncompressed total DEX size: **6.84 MB**.
+- R8 full mode and resource shrinking enabled.
+
+Runtime crash/ANR metrics are not yet populated for this newly published release; absence of data is not proof of zero crashes. Separate edge-to-edge recommendations and an old closed-test-track recommendation remain.
+
+AdMob still showed `광고 게재 제한됨` for `사이트 행동: 탐색`. Following the user's prior instruction to request review after publication, submitted a single review using the new-version-uploaded reason and the approved banner/navigation changes. Confirmed `2026년 9월 23일에 검토 요청을 받았습니다. 검토가 완료되면 알려드립니다.` and a disabled review-start button. Review is pending; ad restrictions have **not** yet been lifted. Do not submit a duplicate review. Apple login is deferred by the user until they get home.
+
 ## 2026-09-22 signing update
 
 Saved Keychain credential access succeeded on retry after the user requested authentication. The `matchdiary-release-1114` certificate was verified against the expected Play upload SHA-1, and `bundleRelease` completed successfully. The signed 24.1 MB AAB passed the release artifact gate: R8 mapping present, no QA entry marker, no Conceal library, and all 11 ARM64 libraries passed the 16 KB checks. Google Play accepted version 30 (2.4.3), including the ReTrace mapping and native symbols. Submitted the single production change (100% rollout) for review and confirmed the console message `검토를 위해 변경사항 1개를 전송했습니다.` and the `검토 중인 변경사항` section. Automated quick checks were still running at confirmation. Managed publishing remains enabled, so approval is not publication. The only release warning concerned an active artifact missing AD_ID; the current source and merged release manifest both contain AD_ID. The older signing blocker below records the prior attempt. App Store Connect currently requires Apple login, so iOS submission remains pending. AdMob re-review has not been sent because the new Android release is not live.
