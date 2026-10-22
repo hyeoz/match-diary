@@ -28,6 +28,23 @@
 
 여러분들의 의견을 직관일기에 보내주세요. 기다리고 있을게요!
 
+## 배포: main에 머지하면 자동으로 테스트플라이트
+
+`.github/workflows/testflight.yml`이 main에 푸시될 때마다 macOS 러너에서 타입체크 → `pod install` → `ios/fastlane/Fastfile`의 `beta` 레인을 돈다. 레인은 배포 인증서를 임시 키체인에 넣고, 앱스토어 프로비저닝 프로파일을 받아 서명한 뒤, 빌드 번호를 테스트플라이트 마지막 번호 + 1로 올려 업로드한다. Actions 탭에서 `TestFlight`를 손으로 돌릴 수도 있다.
+
+GitHub 저장소 Settings → Secrets and variables → Actions에 넣을 것:
+
+| 이름 | 내용 |
+| --- | --- |
+| `ENV_FILE` | 로컬 `.env` 파일 내용 전체 |
+| `ASC_KEY_ID` | App Store Connect → 사용자 및 액세스 → 통합 → API 키의 키 ID |
+| `ASC_ISSUER_ID` | 같은 화면 위쪽의 Issuer ID |
+| `ASC_KEY_P8` | 내려받은 `AuthKey_XXXX.p8` 파일 내용 전체 (`-----BEGIN PRIVATE KEY-----`부터) |
+| `IOS_DIST_CERT_P12_BASE64` | 키체인에서 내보낸 Apple Distribution 인증서 `.p12`를 `base64 -i dist.p12 \| pbcopy`로 복사한 값 |
+| `IOS_DIST_CERT_PASSWORD` | `.p12`를 내보낼 때 정한 암호 |
+
+API 키는 권한을 **App Manager** 이상으로 만든다 (프로비저닝 프로파일을 만들 수 있어야 함). 이미 출시된 버전과 같은 `MARKETING_VERSION`으로는 테스트플라이트에 올라가지 않으니, 새 버전을 낼 때는 Xcode에서 버전을 먼저 올린다.
+
 ## Attribute for Assets
 
 <a href="https://www.flaticon.com/free-icons/baseball" title="baseball icons">Baseball icons created by Freepik - Flaticon</a><br />
