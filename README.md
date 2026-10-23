@@ -32,6 +32,13 @@
 
 `.github/workflows/testflight.yml`이 main에 푸시될 때마다 macOS 러너에서 타입체크 → `pod install` → `ios/fastlane/Fastfile`의 `beta` 레인을 돈다. 레인은 배포 인증서를 임시 키체인에 넣고, 앱스토어 프로비저닝 프로파일을 받아 서명한 뒤, 빌드 번호를 테스트플라이트 마지막 번호 + 1로 올려 업로드한다. Actions 탭에서 `TestFlight`를 손으로 돌릴 수도 있다.
 
+릴리스 흐름:
+
+1. 새 버전을 시작할 때 Xcode에서 `MARKETING_VERSION`(예: 2.3.5)을 올려 main에 머지한다.
+2. main에 머지할 때마다 같은 버전으로 빌드 번호만 올라간 빌드가 테스트플라이트에 올라간다.
+3. 테스트플라이트에서 확인하고, 문제가 있으면 고쳐서 다시 머지한다 (버전은 그대로, 빌드 번호만 올라감).
+4. 문제없는 빌드를 App Store Connect에서 그 버전에 골라 심사에 제출한다. 심사 제출은 자동으로 하지 않는다.
+
 GitHub 저장소 Settings → Secrets and variables → Actions에 넣을 것:
 
 | 이름 | 내용 |
