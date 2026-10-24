@@ -5,7 +5,7 @@ name: TestFlight
 
 on:
   push:
-    branches: [main, claude/project-thread-abwsgk]
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
