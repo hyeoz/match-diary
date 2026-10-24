@@ -1,6 +1,6 @@
 {
   "name": "matchdiary",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -13,7 +13,8 @@
     "test:ci": "jest --runInBand",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run lint && npm run test:ci",
-    "release:verify": "node scripts/verify-release-readiness.mjs"
+    "release:verify": "node scripts/verify-release-readiness.mjs",
+    "test:ads": "node --test scripts/test-interstitials.mjs"
   },
   "dependencies": {
     "@notifee/react-native": "^7.8.2",
@@ -30,7 +31,7 @@
     "react-native-get-random-values": "^1.11.0",
     "react-native-google-mobile-ads": "14.2.5",
     "react-native-image-picker": "^7.2.3",
-    "react-native-keychain": "^8.2.0",
+    "react-native-keychain": "10.0.0",
     "react-native-safe-area-context": "5.2.0",
     "react-native-screens": "4.5.0",
     "react-native-share": "^11.0.4",

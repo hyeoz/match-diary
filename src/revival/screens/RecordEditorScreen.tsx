@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Image,
@@ -89,6 +89,7 @@ export default function RecordEditorScreen({ navigation, route }: Props) {
   const [removePhoto, setRemovePhoto] = useState(false);
   const [removeTicket, setRemoveTicket] = useState(false);
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
   const selectedGame = availableGames.find(game => game.id === selectedGameId);
   const formattedDate = useMemo(() => {
     const value = dayjs(date);
@@ -130,7 +131,8 @@ export default function RecordEditorScreen({ navigation, route }: Props) {
   };
 
   const save = async () => {
-    if (saving) return;
+    if (savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
     try {
       const opponent = selectedGame
@@ -163,8 +165,8 @@ export default function RecordEditorScreen({ navigation, route }: Props) {
           ticket: ticket ? sourceFromAsset(ticket) : null,
         });
       }
-      navigation.goBack();
-      showSavedRecordAd();
+      if (!editing && navigation.isFocused()) await showSavedRecordAd();
+      if (navigation.isFocused()) navigation.goBack();
     } catch (error) {
       const storageFull =
         error instanceof Error &&
@@ -176,6 +178,7 @@ export default function RecordEditorScreen({ navigation, route }: Props) {
           : '기존 데이터는 그대로 보존했습니다. 잠시 후 다시 시도해주세요.',
       );
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   };
