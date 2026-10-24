@@ -64,6 +64,15 @@ target 'matchdiary' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
+
+    # Xcode 26.4+의 clang에서 fmt 11의 consteval 검사가 컴파일 에러를 낸다.
+    # fmt만 C++17로 빌드하면 consteval을 쓰지 않는다.
+    installer.pods_project.targets.each do |target|
+      next unless target.name == 'fmt'
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+      end
+    end
   end
 end
 # installer.pods_project.targets.each do |target|
