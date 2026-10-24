@@ -53,11 +53,6 @@ react {
 }
 
 /**
- * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
- */
-def enableProguardInReleaseBuilds = false
-
-/**
  * The preferred build flavor of JavaScriptCore (JSC)
  *
  * For example, to use the international variant, you can use:
@@ -69,22 +64,6 @@ def enableProguardInReleaseBuilds = false
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
-
-project.ext.envConfigFiles = [
-    developdebug: "env/.env.development",
-    developrelease: "env/.env.development", 
-    productdebug: "env/.env.product",    
-    productrelease: "env/.env.product",
-    anothercustombuild: ".env",
-]
-
-project.ext.react = [
-    enableHermes: true,  // If you want to enable Hermes, set it to true
-]
-def enableHermes = project.ext.react.get("enableHermes", false)
-
-def env = System.getenv()
-
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -96,10 +75,13 @@ android {
         applicationId "com.matchdiary.origin" // 배포 시 .origin 붙여야 함
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 24
-        versionName "2.3.4"
-        multiDexEnabled true
-        missingDimensionStrategy 'react-native-camera', 'general' // <--- insert this line
+        versionCode 30
+        versionName "2.4.3"
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a"
+        }
+        buildConfigField "String", "MATCHDIARY_RECOVERY_API_BASE_URL", '""'
+        buildConfigField "String", "MATCHDIARY_PLAY_CLOUD_PROJECT_NUMBER", '""'
     }
     signingConfigs {
         debug {
@@ -110,14 +92,19 @@ android {
         }
 
         release {
-            storeFile file(MYAPP_RELEASE_STORE_FILE)
-            storePassword MYAPP_RELEASE_STORE_PASSWORD
-            keyAlias MYAPP_RELEASE_KEY_ALIAS
-            keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            // Keep local/debug builds usable without requiring production signing
+            // credentials. CI or a release machine can still provide the same
+            // Gradle properties to enable the release keystore.
+            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE') &&
+                project.hasProperty('MYAPP_RELEASE_STORE_PASSWORD') &&
+                project.hasProperty('MYAPP_RELEASE_KEY_ALIAS') &&
+                project.hasProperty('MYAPP_RELEASE_KEY_PASSWORD')) {
+                storeFile file(MYAPP_RELEASE_STORE_FILE)
+                storePassword MYAPP_RELEASE_STORE_PASSWORD
+                keyAlias MYAPP_RELEASE_KEY_ALIAS
+                keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            }
         }
-    }
-    packagingOptions {
-        pickFirst '**/libjsc.so'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -136,8 +123,9 @@ android {
         
         release {
             signingConfig signingConfigs.release
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     // Ensure Java and Kotlin toolchains are properly configured
@@ -154,16 +142,11 @@ android {
 }
 
 dependencies {
-    implementation "com.facebook.react:react-native:+"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation "androidx.multidex:multidex:2.0.1"
-    implementation 'com.google.android.gms:play-services-ads:23.1.0'
-    if (project.ext.react.enableHermes) {
-        implementation "com.facebook.react:hermes-engine:+"
+    implementation("com.facebook.react:react-android")
+    implementation("com.google.android.play:integrity:1.4.0")
+    if (hermesEnabled.toBoolean()) {
+        implementation("com.facebook.react:hermes-android")
     } else {
         implementation "org.webkit:android-jsc:+"
     }
 }
-
-// apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
-apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

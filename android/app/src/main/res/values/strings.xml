@@ -1,4 +1,3 @@
 <resources>
     <string name="app_name">직관일기</string>
-    <string name="REACT_APP_NAVER_MAP_CLIENT_ID">${REACT_APP_NAVER_MAP_CLIENT_ID}</string>
 </resources>

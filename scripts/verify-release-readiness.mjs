@@ -1,0 +1,178 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.cwd();
+const expected = {
+  version: '2.4.3',
+  androidApplicationId: 'com.matchdiary.origin',
+  androidVersionCode: 30,
+  iosVersion: '2.4.3',
+  iosBundleId: 'com.matchdirary.app',
+  iosBuildNumber: '13',
+  androidAdMobAppId: 'ca-app-pub-6998718430585981~8962262503',
+  iosAdMobAppId: 'ca-app-pub-6998718430585981~9567809309',
+  androidBannerAdUnitId: 'ca-app-pub-6998718430585981/6457292164',
+  androidInterstitialAdUnitId: 'ca-app-pub-6998718430585981/5144210498',
+  iosBannerAdUnitId: 'ca-app-pub-6998718430585981/1396537170',
+  iosInterstitialAdUnitId: 'ca-app-pub-6998718430585981/5899617912',
+  privacyUrl: 'https://hyeoz.github.io/privacy/matchdiary/',
+  supportUrl: 'https://hyeoz.github.io/privacy/support/',
+};
+
+const failures = [];
+const warnings = [];
+
+const read = relativePath =>
+  fs.readFileSync(path.join(root, relativePath), 'utf8');
+const requireMatch = (label, value, pattern) => {
+  if (!pattern.test(value)) failures.push(label);
+};
+
+const packageJson = JSON.parse(read('package.json'));
+const appJson = JSON.parse(read('app.json'));
+const androidRoot = read('android/build.gradle');
+const androidApp = read('android/app/build.gradle');
+const gradleWrapper = read('android/gradle/wrapper/gradle-wrapper.properties');
+const podfile = read('ios/Podfile');
+const xcodeProject = read('ios/matchdiary.xcodeproj/project.pbxproj');
+const infoPlist = read('ios/matchdiary/Info.plist');
+const appDelegate = read('ios/matchdiary/AppDelegate.mm');
+const privacyManifest = read('ios/matchdiary/PrivacyInfo.xcprivacy');
+const appInfo = read('src/revival/appInfo.ts');
+const adConfig = read('src/revival/ads/config.ts');
+
+if (packageJson.version !== expected.version) {
+  failures.push('package.json version');
+}
+if (!androidApp.includes(`applicationId "${expected.androidApplicationId}"`)) {
+  failures.push('Android applicationId');
+}
+if (!androidApp.includes(`versionName "${expected.version}"`)) {
+  failures.push('Android versionName');
+}
+if (!androidApp.includes(`versionCode ${expected.androidVersionCode}`)) {
+  failures.push('Android versionCode');
+}
+if (
+  appJson['react-native-google-mobile-ads']?.android_app_id !==
+  expected.androidAdMobAppId
+) {
+  failures.push('Android AdMob app ID');
+}
+if (
+  appJson['react-native-google-mobile-ads']?.ios_app_id !== expected.iosAdMobAppId
+) {
+  failures.push('iOS AdMob app ID');
+}
+for (const [label, adUnitId] of [
+  ['Android banner ad unit ID', expected.androidBannerAdUnitId],
+  ['Android interstitial ad unit ID', expected.androidInterstitialAdUnitId],
+  ['iOS banner ad unit ID', expected.iosBannerAdUnitId],
+  ['iOS interstitial ad unit ID', expected.iosInterstitialAdUnitId],
+]) {
+  if (!adConfig.includes(adUnitId)) failures.push(label);
+}
+requireMatch('Android compileSdk 36', androidRoot, /compileSdkVersion = 36/);
+requireMatch('Android targetSdk 36', androidRoot, /targetSdkVersion = 36/);
+requireMatch(
+  'Android Gradle Plugin 8.9.1',
+  androidRoot,
+  /com\.android\.tools\.build:gradle:8\.9\.1/,
+);
+requireMatch('Gradle 8.11.1', gradleWrapper, /gradle-8\.11\.1-all\.zip/);
+if (
+  !xcodeProject.includes(`PRODUCT_BUNDLE_IDENTIFIER = ${expected.iosBundleId};`)
+) {
+  failures.push('iOS bundle identifier');
+}
+
+const marketingVersionMatches = [
+  ...xcodeProject.matchAll(/MARKETING_VERSION = ([^;]+);/g),
+].map(match => match[1]);
+if (
+  marketingVersionMatches.length < 2 ||
+  marketingVersionMatches.some(value => value !== expected.iosVersion)
+) {
+  failures.push('iOS marketing version');
+}
+if (!xcodeProject.includes('react-native-xcode.sh')) {
+  failures.push('iOS Release JavaScript bundle build phase');
+}
+const iosBuildNumberMatches = [
+  ...xcodeProject.matchAll(/CURRENT_PROJECT_VERSION = ([^;]+);/g),
+].map(match => match[1]);
+if (
+  iosBuildNumberMatches.length < 2 ||
+  iosBuildNumberMatches.some(value => value !== expected.iosBuildNumber)
+) {
+  failures.push('iOS build number');
+}
+requireMatch(
+  'iOS React Native bundle URL provider',
+  appDelegate,
+  /- \(NSURL \*\)bundleURL\s*\{[\s\S]*?URLForResource:@"main" withExtension:@"jsbundle"/,
+);
+requireMatch(
+  'iOS legacy architecture compatibility',
+  podfile,
+  /ENV\['RCT_NEW_ARCH_ENABLED'\]\s*=\s*'0'/,
+);
+
+for (const [label, url] of [
+  ['privacy policy URL', expected.privacyUrl],
+  ['support URL', expected.supportUrl],
+]) {
+  if (!appInfo.includes(url)) failures.push(label);
+}
+
+for (const forbiddenPermission of [
+  'NSCameraUsageDescription',
+  'NSPhotoLibraryAddUsageDescription',
+]) {
+  if (infoPlist.includes(forbiddenPermission)) {
+    failures.push(`unused iOS permission: ${forbiddenPermission}`);
+  }
+}
+
+for (const requiredPrivacyType of [
+  'NSPrivacyCollectedDataTypeCoarseLocation',
+  'NSPrivacyCollectedDataTypeDeviceID',
+  'NSPrivacyCollectedDataTypeProductInteraction',
+  'NSPrivacyCollectedDataTypeAdvertisingData',
+  'NSPrivacyCollectedDataTypePerformanceData',
+  'NSPrivacyCollectedDataTypeCrashData',
+  'NSPrivacyCollectedDataTypeOtherDiagnosticData',
+]) {
+  if (!privacyManifest.includes(requiredPrivacyType)) {
+    failures.push(`privacy manifest: ${requiredPrivacyType}`);
+  }
+}
+
+for (const requiredFile of [
+  'store/app-store/app-info/ko.json',
+  `store/app-store/version/${expected.iosVersion}/ko.json`,
+  'store/google-play/ko-KR/title.txt',
+  'store/google-play/ko-KR/short-description.txt',
+  'store/google-play/ko-KR/full-description.txt',
+  'store/google-play/ko-KR/release-notes.txt',
+  'store/privacy-declarations.md',
+]) {
+  if (!fs.existsSync(path.join(root, requiredFile))) {
+    failures.push(`missing store file: ${requiredFile}`);
+  }
+}
+
+if (process.argv.includes('--production') && warnings.length) {
+  failures.push(...warnings.map(warning => `production gate: ${warning}`));
+}
+
+if (failures.length) {
+  console.error('Release readiness check failed:');
+  failures.forEach(failure => console.error(`- ${failure}`));
+  process.exit(1);
+}
+
+console.log(
+  `Release metadata and platform settings verified for ${expected.version}.`,
+);
+warnings.forEach(warning => console.warn(`Warning: ${warning}.`));

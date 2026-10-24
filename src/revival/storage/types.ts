@@ -1,0 +1,142 @@
+export type RecordResult = 'win' | 'lose' | 'draw' | 'unknown';
+export type RecordSource = 'new' | 'legacy_device' | 'legacy_server';
+
+export type LocalProfile = {
+  nickname: string;
+  teamId: number;
+};
+
+export type MediaKind = 'photo' | 'ticket';
+
+export type MediaSource = {
+  uri: string;
+  fileName?: string;
+  mimeType?: string;
+  fileSize?: number;
+  width?: number;
+  height?: number;
+};
+
+export type StoredMedia = {
+  id: string;
+  kind: MediaKind;
+  relativePath: string;
+  mimeType: string;
+  originalName: string;
+  byteSize: number;
+  checksumSha256: string;
+  width: number | null;
+  height: number | null;
+  createdAt: string;
+};
+
+export type LocalRecord = {
+  id: string;
+  legacyServerRecordId: string | null;
+  source: RecordSource;
+  gameId: string | null;
+  date: string;
+  opponent: string;
+  time: string;
+  stadium: string;
+  seat: string;
+  memo: string;
+  result: RecordResult;
+  photo: StoredMedia | null;
+  ticket: StoredMedia | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type LegacyCommunityPost = {
+  id: string;
+  legacyServerPostId: string;
+  stadiumId: string | null;
+  date: string;
+  content: string;
+  createdAt: string;
+};
+
+export type LocalRecordDraft = Pick<
+  LocalRecord,
+  'date' | 'opponent' | 'time' | 'stadium' | 'seat' | 'memo' | 'result'
+> & {
+  gameId?: string | null;
+};
+
+export type StoredRecordInput = Omit<LocalRecord, 'photo' | 'ticket'> & {
+  media: StoredMedia[];
+};
+
+export type RecordAttachments = {
+  /** undefined keeps the current attachment while editing; null removes it. */
+  photo?: MediaSource | null;
+  ticket?: MediaSource | null;
+};
+
+export type Stadium = {
+  id: string;
+  name: string;
+  shortName: string;
+  latitude: number | null;
+  longitude: number | null;
+  updatedAt: string;
+};
+
+export type Game = {
+  id: string;
+  date: string;
+  time: string;
+  homeTeamId: number;
+  awayTeamId: number;
+  stadiumId: string;
+  status: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  memo: string;
+  sourceVersion: string;
+  updatedAt: string;
+};
+
+export type ScheduledGame = Game & {
+  stadium: Stadium;
+};
+
+export type LocalReminder = {
+  id: string;
+  gameId: string | null;
+  recordId: string | null;
+  scheduledAt: string;
+  nativeNotificationId: string | null;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type BackupHistory = {
+  id: string;
+  fileName: string;
+  checksumSha256: string;
+  recordCount: number;
+  byteSize: number;
+  createdAt: string;
+};
+
+export type BackupExportResult = BackupHistory & {
+  mediaCount: number;
+};
+
+export type BackupRestoreResult = {
+  recordCount: number;
+  skippedRecordCount: number;
+  mediaCount: number;
+  reminderCount: number;
+  notificationFailureCount: number;
+  missingMediaCount: number;
+  communityPostCount: number;
+};
+
+export const createLocalId = (prefix: string): string =>
+  `${prefix}_${Date.now().toString(36)}_${Math.random()
+    .toString(36)
+    .slice(2, 12)}`;
