@@ -30,7 +30,7 @@
 
 ## 배포: main에 머지하면 자동으로 테스트플라이트
 
-`.github/workflows/testflight.yml`이 main에 푸시될 때마다 macOS 러너에서 타입체크 → `pod install` → `ios/fastlane/Fastfile`의 `beta` 레인을 돈다. 레인은 배포 인증서를 임시 키체인에 넣고, 앱스토어 프로비저닝 프로파일을 받아 서명한 뒤, 빌드 번호를 테스트플라이트 마지막 번호 + 1로 올려 업로드한다. Actions 탭에서 `TestFlight`를 손으로 돌릴 수도 있다.
+`.github/workflows/testflight.yml`이 main에 푸시될 때마다 macOS 러너에서 `npm run verify` → `pod install` → `ios/fastlane/Fastfile`의 `beta` 레인을 돈다. 레인은 배포 인증서를 임시 키체인에 넣고, 앱스토어 프로비저닝 프로파일을 받아 서명한 뒤, 빌드 번호를 테스트플라이트 마지막 번호 + 1로 올려 업로드한다. Actions 탭에서 `TestFlight`를 손으로 돌릴 수도 있다.
 
 릴리스 흐름:
 
@@ -43,7 +43,6 @@ GitHub 저장소 Settings → Secrets and variables → Actions에 넣을 것:
 
 | 이름 | 내용 |
 | --- | --- |
-| `ENV_FILE` | 로컬 `.env` 파일 내용 전체 |
 | `ASC_KEY_ID` | App Store Connect → 사용자 및 액세스 → 통합 → API 키의 키 ID |
 | `ASC_ISSUER_ID` | 같은 화면 위쪽의 Issuer ID |
 | `ASC_KEY_P8` | 내려받은 `AuthKey_XXXX.p8` 파일 내용 전체 (`-----BEGIN PRIVATE KEY-----`부터) |

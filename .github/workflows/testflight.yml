@@ -1,5 +1,5 @@
 # main에 머지되면 iOS Release 빌드를 만들어 테스트플라이트에 올린다.
-# 필요한 Secrets: ENV_FILE, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8,
+# 필요한 Secrets: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8,
 # IOS_DIST_CERT_P12_BASE64, IOS_DIST_CERT_PASSWORD (README 참고)
 name: TestFlight
 
@@ -25,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: npm
 
       - uses: ruby/setup-ruby@v1
@@ -35,14 +35,8 @@ jobs:
 
       - run: npm ci
 
-      # react-native-dotenv가 빌드할 때 .env를 읽는다
-      - name: .env 만들기
-        env:
-          ENV_FILE: ${{ secrets.ENV_FILE }}
-        run: printf '%s\n' "$ENV_FILE" > .env
-
-      - name: 타입체크
-        run: npx tsc --noEmit
+      - name: 타입체크·린트·테스트
+        run: npm run verify
 
       - uses: actions/cache@v4
         with:

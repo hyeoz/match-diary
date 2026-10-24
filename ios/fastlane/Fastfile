@@ -41,16 +41,12 @@ platform :ios do
     build_number = latest_testflight_build_number(api_key: api_key, app_identifier: APP_ID) + 1
     increment_build_number(xcodeproj: PROJECT, build_number: build_number)
 
-    # Info.plist의 NMFClientId가 빌드 설정 변수로 들어간다
-    naver_client_id = File.read("../../.env")[/^REACT_APP_NAVER_MAP_CLIENT_ID=(.*)$/, 1].to_s.strip
-
     build_app(
       workspace: "matchdiary.xcworkspace",
       scheme: "matchdiary",
       configuration: "Release",
       export_method: "app-store",
       export_options: { provisioningProfiles: { APP_ID => profile_name } },
-      xcargs: "REACT_APP_NAVER_MAP_CLIENT_ID='#{naver_client_id}'",
       output_directory: "build"
     )
 
