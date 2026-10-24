@@ -13,6 +13,7 @@
 		04C8A557BC8C423EAFC15784 /* KBO Dia Gothic_bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9F1F03175738422A89F07445 /* KBO Dia Gothic_bold.ttf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		A4C1000F2D000000000000F1 /* SwiftLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C1000F2D000000000000F2 /* SwiftLink.swift */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		52301F1075AD4E1A8F7F45B3 /* KBO Dia Gothic_medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */; };
 		70D30454468D46D7BC8396FB /* KBO Dia Gothic_light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A7B0EF04F84B483FAA022506 /* KBO Dia Gothic_light.ttf */; };
@@ -45,6 +46,7 @@
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = matchdiary/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = matchdiary/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = matchdiary/Info.plist; sourceTree = "<group>"; };
+		A4C1000F2D000000000000F2 /* SwiftLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SwiftLink.swift; path = matchdiary/SwiftLink.swift; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = matchdiary/main.m; sourceTree = "<group>"; };
 		1DF4538EC7D04FA39343939A /* KBO Dia Gothic_medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "KBO Dia Gothic_medium.ttf"; path = "../src/assets/fonts/KBO Dia Gothic_medium.ttf"; sourceTree = "<group>"; };
 		41B4CC2A25574117A0E14748 /* NanumMiNiSonGeurSsi.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = NanumMiNiSonGeurSsi.ttf; path = ../src/assets/fonts/NanumMiNiSonGeurSsi.ttf; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				A4C1000F2D000000000000F2 /* SwiftLink.swift */,
 				46C68FAE896734F4D5AE9A2A /* PrivacyInfo.xcprivacy */,
 			);
 			name = matchdiary;
@@ -438,6 +441,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				A4C100012D00000000000001 /* MatchDiaryRecoveryAttestation.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				A4C1000F2D000000000000F1 /* SwiftLink.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
