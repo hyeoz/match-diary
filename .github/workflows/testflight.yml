@@ -8,13 +8,29 @@ on:
     branches: [main]
   workflow_dispatch:
 
-concurrency:
-  group: testflight
-  cancel-in-progress: false
-
+# main 에 연달아 머지해도 마지막 머지만 빌드한다.
+# 1) wait: 머지 뒤 5분 기다린다. 그 사이 새 머지가 오면 기다리던 run 은 취소되고(빌드 안 함) 새 run 이 다시 기다린다.
+# 2) ios: 빌드·업로드 중인 run 은 취소하지 않는다(업로드 도중 끊기면 빌드 번호가 꼬일 수 있어서).
+#    빌드 중에 새 머지가 오면 그 run 은 대기하고, 대기 중인 run 은 더 새 run 이 오면 GitHub 이 취소한다.
+#    그래서 빌드는 많아야 "지금 도는 것 + 가장 최근 것" 두 번만 돈다.
+# 수동 실행(workflow_dispatch)은 기다리지 않는다.
 jobs:
+  wait:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: testflight-wait
+      cancel-in-progress: true
+    steps:
+      - name: 연속 머지 모으기 (5분)
+        if: github.event_name == 'push'
+        run: sleep 300
+
   ios:
+    needs: wait
     runs-on: macos-26
+    concurrency:
+      group: testflight
+      cancel-in-progress: false
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
