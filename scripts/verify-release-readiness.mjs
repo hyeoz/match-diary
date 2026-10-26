@@ -6,8 +6,9 @@ const expected = {
   version: '2.4.3',
   androidApplicationId: 'com.matchdiary.origin',
   androidVersionCode: 30,
-  iosVersion: '2.4.3',
+  iosVersion: '2.4.4',
   iosBundleId: 'com.matchdirary.app',
+  // CI(fastlane)가 테스트플라이트 마지막 번호 + 1로 덮어쓴다. 저장소 값은 그대로 둔다.
   iosBuildNumber: '13',
   androidAdMobAppId: 'ca-app-pub-6998718430585981~8962262503',
   iosAdMobAppId: 'ca-app-pub-6998718430585981~9567809309',
